@@ -42,30 +42,10 @@ val List<Abstract>.abstractText: String
 val ThreadInfo.abstractText: String
     get() = richAbstract.joinToString(separator = "") {
         when (it.type) {
-            0 -> it.text.replace(Regex(" {2,}"), " ")
+            0,40 -> it.text.replace(Regex(" {2,}"), " ")
             2 -> {
                 EmoticonManager.registerEmoticon(it.text, it.c)
                 "#(${it.c})"
-            }
-            40 -> {
-                val text = buildAnnotatedString {
-                    appendInlineContent("link_icon", alternateText = "🔗")
-                    withAnnotation(tag = "url", annotation = it.link) {
-                        withStyle(
-                            SpanStyle(
-                                color = Color(
-                                    ThemeUtils.getColorByAttr(
-                                        App.INSTANCE,
-                                        R.attr.colorNewPrimary
-                                    )
-                                )
-                            )
-                        ) {
-                            append(it.text)
-                        }
-                    }
-                }
-                text
             }
             else -> ""
         }

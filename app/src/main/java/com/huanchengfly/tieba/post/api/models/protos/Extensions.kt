@@ -225,7 +225,7 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
 
         forEach {
             when (it.type) {
-                0, 9, 27 -> {
+                0, 9, 27, 35 -> {
                     renders.appendText(it.text)
                 }
 

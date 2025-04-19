@@ -225,11 +225,11 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
 
         forEach {
             when (it.type) {
-                0, 9, 27, 35 -> {
+                0, 9, 27, 35, 40 -> {
                     renders.appendText(it.text)
                 }
 
-                1, 40 -> {
+                1 -> {
                     val text = buildAnnotatedString {
                         appendInlineContent("link_icon", alternateText = "🔗")
                         withAnnotation(tag = "url", annotation = it.link) {

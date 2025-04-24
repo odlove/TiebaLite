@@ -142,7 +142,7 @@ fun PersonalizedPage(
     onGlobalEvent<GlobalEvent.Refresh>(
         filter = { it.key == "personalized" }
     ) {
-        viewModel.send(PersonalizedUiIntent.Refresh)
+        if(!isRefreshing) viewModel.send(PersonalizedUiIntent.Refresh)
     }
     viewModel.onEvent<PersonalizedUiEvent.RefreshSuccess> {
         refreshCount = it.count
@@ -150,7 +150,7 @@ fun PersonalizedPage(
     }
 
     if (showRefreshTip) {
-        LaunchedEffect(Unit) {
+        LaunchedEffect(data) {
             launch {
                 delay(20)
                 lazyListState.scrollToItem(0, 0)

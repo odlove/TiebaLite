@@ -1173,6 +1173,7 @@ fun ThreadPage(
                             isDesc = curSortType == ThreadSortType.SORT_TYPE_DESC,
                             canDelete = { author?.get { id } == user.get { id } },
                             onSeeLzClick = {
+                                if (!bottomSheetState.isVisible) return@ThreadMenu
                                 viewModel.send(
                                     ThreadUiIntent.LoadFirstPage(
                                         threadId,
@@ -1184,6 +1185,7 @@ fun ThreadPage(
                                 closeBottomSheet()
                             },
                             onCollectClick = {
+                                if (!bottomSheetState.isVisible) return@ThreadMenu
                                 if (isCollected) {
                                     val fid = forum?.get { id } ?: forumId
                                     val tbs = anti?.get { tbs }
@@ -1211,6 +1213,7 @@ fun ThreadPage(
                                 closeBottomSheet()
                             },
                             onImmersiveModeClick = {
+                                if (!bottomSheetState.isVisible) return@ThreadMenu
                                 if (!isImmersiveMode && !isSeeLz) {
                                     viewModel.send(
                                         ThreadUiIntent.LoadFirstPage(
@@ -1225,6 +1228,7 @@ fun ThreadPage(
                                 closeBottomSheet()
                             },
                             onDescClick = {
+                                if (!bottomSheetState.isVisible) return@ThreadMenu
                                 viewModel.send(
                                     ThreadUiIntent.LoadFirstPage(
                                         threadId,

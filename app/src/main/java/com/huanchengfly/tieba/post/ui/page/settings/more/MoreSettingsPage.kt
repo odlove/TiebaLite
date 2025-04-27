@@ -1,5 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.settings.more
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
@@ -165,6 +168,28 @@ fun MoreSettingsPage(
                         }
                     },
                     summary = stringResource(id = R.string.tip_cache, cacheSize)
+                )
+            }
+            prefsItem {
+                TextPref(
+                    leadingIcon = {
+                        LeadingIcon {
+                            AvatarIcon(
+                                icon = ImageVector.vectorResource(id = R.drawable.ic_link),
+                                size = Sizes.Small,
+                                contentDescription = null,
+                            )
+                        }
+                    },
+                    enabled = true,
+                    title = stringResource(id = R.string.title_open_by_default),
+                    onClick = {
+                        context.startActivity(
+                            Intent(Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS, Uri.parse("package:${context.packageName}"))
+                            .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                        )
+                    },
+                    summary = stringResource(id = R.string.tip_open_by_default)
                 )
             }
             prefsItem {

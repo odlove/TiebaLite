@@ -143,6 +143,8 @@
     <string name="title_use_custom_tabs">使用 Custom Tabs</string>
     <string name="tip_use_custom_tab_on">非贴吧链接将使用 Custom Tabs 打开（需安装 Chrome）</string>
     <string name="tip_use_custom_tab">开启后非贴吧链接将使用 Custom Tabs 打开（需安装 Chrome）</string>
+    <string name="title_open_by_default">默认打开</string>
+    <string name="tip_open_by_default">允许在此应用中打开贴吧网页链接</string>
     <string name="title_settings_read_habit">使用习惯</string>
     <string name="settings_collect_thread_see_lz">收藏贴自动开启只看楼主</string>
     <string name="tip_collect_thread_see_lz">开启后，从收藏进入的贴子将自动切换至只看楼主</string>

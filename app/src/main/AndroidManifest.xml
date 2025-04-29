@@ -124,7 +124,7 @@
             android:exported="true"
             android:icon="@mipmap/ic_launcher_new"
             android:roundIcon="@mipmap/ic_launcher_new_round"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:resizeableActivity="true"
             android:theme="@style/Theme.Splash"
             android:windowSoftInputMode="adjustResize">

@@ -266,7 +266,7 @@ private fun BottomBarAgreeBtn(
     ) {
         Row(
             modifier = Modifier.align(Alignment.CenterVertically),
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = if (hasAgreed) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,

@@ -3,6 +3,7 @@ package com.huanchengfly.tieba.post.ui.page.forum.searchpost
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -36,7 +37,6 @@ import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -343,7 +343,7 @@ fun ForumSearchPostPage(
                                         .clip(RoundedCornerShape(100))
                                         .clickable(
                                             interactionSource = remember { MutableInteractionSource() },
-                                            indication = rememberRipple(bounded = false, 24.dp),
+                                            indication = LocalIndication.current,
                                             role = Role.Button,
                                             onClick = { navigator.navigateUp() }
                                         ),
@@ -470,7 +470,7 @@ fun ForumSearchPostPage(
                                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                                                 .clickable(
                                                     interactionSource = remember { MutableInteractionSource() },
-                                                    indication = null,
+                                                    indication = LocalIndication.current,
                                                     onClick = {}
                                                 )
                                         ) {
@@ -506,7 +506,7 @@ fun ForumSearchPostPage(
                                                     )
                                                 },
                                                 menuState = menuState,
-                                                indication = null
+                                                indication = LocalIndication.current
                                             ) {
                                                 Row(
                                                     verticalAlignment = Alignment.CenterVertically,
@@ -544,7 +544,7 @@ fun ForumSearchPostPage(
                                                             },
                                                             modifier = Modifier.clickable(
                                                                 interactionSource = remember { MutableInteractionSource() },
-                                                                indication = null,
+                                                                indication = LocalIndication.current,
                                                                 role = Role.RadioButton,
                                                                 onClick = {
                                                                     if (type != currentFilterType) {

@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.material.fade
-import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.fade
+import com.google.accompanist.placeholder.placeholder
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
 
 @Composable
@@ -39,7 +39,8 @@ fun UserHeaderPlaceholder(
                 text = "Username",
                 modifier = Modifier.placeholder(
                     visible = true,
-                    highlight = PlaceholderHighlight.fade(),
+                    color = MaterialTheme.colors.surface,
+                    highlight = PlaceholderHighlight.fade(MaterialTheme.colors.surface),
                 )
             )
         },
@@ -48,7 +49,8 @@ fun UserHeaderPlaceholder(
                 text = "Desc",
                 modifier = Modifier.placeholder(
                     visible = true,
-                    highlight = PlaceholderHighlight.fade(),
+                    color = MaterialTheme.colors.surface,
+                    highlight = PlaceholderHighlight.fade(MaterialTheme.colors.surface),
                 )
             )
         }

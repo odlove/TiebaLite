@@ -62,8 +62,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.material.fade
-import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.fade
+import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
@@ -328,7 +328,8 @@ fun FeedCardPlaceholder() {
                 modifier = Modifier
                     .placeholder(
                         visible = true,
-                        highlight = PlaceholderHighlight.fade(),
+                        color = MaterialTheme.colors.surface,
+                        highlight = PlaceholderHighlight.fade(MaterialTheme.colors.surface),
                     )
             )
 
@@ -342,7 +343,8 @@ fun FeedCardPlaceholder() {
                     .fillMaxWidth()
                     .placeholder(
                         visible = true,
-                        highlight = PlaceholderHighlight.fade(),
+                        color = MaterialTheme.colors.surface,
+                        highlight = PlaceholderHighlight.fade(MaterialTheme.colors.surface),
                     )
             )
         },
@@ -930,7 +932,8 @@ private fun ActionBtnPlaceholder(
             modifier = Modifier
                 .placeholder(
                     visible = true,
-                    highlight = PlaceholderHighlight.fade(),
+                    color = MaterialTheme.colors.surface,
+                    highlight = PlaceholderHighlight.fade(MaterialTheme.colors.surface),
                 ),
         )
     }

@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.ui.widgets.compose
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -27,7 +28,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.PhotoSizeSelectActual
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -456,7 +456,7 @@ fun SearchBox(
                             .clip(RoundedCornerShape(100))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
-                                indication = rememberRipple(bounded = false, 24.dp),
+                                indication = LocalIndication.current,
                                 role = Role.Button
                             ) { onKeywordChange("") },
                         contentAlignment = Alignment.Center,
@@ -474,7 +474,7 @@ fun SearchBox(
                         .clip(RoundedCornerShape(100))
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(bounded = false, 24.dp),
+                            indication = LocalIndication.current,
                             role = Role.Button
                         ) { onKeywordSubmit(keyword) },
                     contentAlignment = Alignment.Center,

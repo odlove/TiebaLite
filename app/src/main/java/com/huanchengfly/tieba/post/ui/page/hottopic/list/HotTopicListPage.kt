@@ -35,7 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.insets.ui.Scaffold
+import androidx.compose.material.Scaffold
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.topicList.NewTopicList
 import com.huanchengfly.tieba.post.arch.collectPartialAsState

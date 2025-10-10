@@ -37,7 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.placeholder
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.hasAgree
 import com.huanchengfly.tieba.post.arch.GlobalEvent
@@ -393,7 +393,7 @@ private fun ThreadListItemPlaceholder() {
                     .padding(top = 3.dp)
                     .clip(RoundedCornerShape(4.dp))
                     .wrapContentSize()
-                    .placeholder(visible = true)
+                    .placeholder(visible = true, color = MaterialTheme.colors.surface)
                     .padding(vertical = 1.dp, horizontal = 4.dp)
             )
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -401,13 +401,13 @@ private fun ThreadListItemPlaceholder() {
                     text = "",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .placeholder(visible = true)
+                        .placeholder(visible = true, color = MaterialTheme.colors.surface)
                 )
                 Text(
                     text = stringResource(id = R.string.hot_num, "666"),
                     style = MaterialTheme.typography.caption,
                     color = ExtendedTheme.colors.textSecondary,
-                    modifier = Modifier.placeholder(visible = true)
+                    modifier = Modifier.placeholder(visible = true, color = MaterialTheme.colors.surface)
                 )
             }
         }

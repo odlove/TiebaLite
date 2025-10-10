@@ -30,6 +30,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -63,7 +64,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.github.panpf.sketch.compose.AsyncImage
-import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.activities.BaseActivity
@@ -293,7 +294,7 @@ fun EditProfileCard(
                     .size(64.dp)
                     .clip(CircleShape)
                     .align(Alignment.CenterHorizontally)
-                    .placeholder(visible = loading)
+                    .placeholder(visible = loading, color = MaterialTheme.colors.surface)
             ) {
                 AsyncImage(
                     imageUri = StringUtil.getAvatarUrl(portrait),
@@ -361,7 +362,7 @@ fun EditProfileCard(
                             end.linkTo(parent.end)
                             width = Dimension.fillToConstraints
                         }
-                        .placeholder(visible = loading)
+                        .placeholder(visible = loading, color = MaterialTheme.colors.surface)
                 )
 
                 Text(
@@ -381,7 +382,7 @@ fun EditProfileCard(
                             end.linkTo(parent.end)
                             width = Dimension.fillToConstraints
                         }
-                        .placeholder(visible = loading)
+                        .placeholder(visible = loading, color = MaterialTheme.colors.surface)
                 ) {
                     BaseTextField(
                         value = nickName,
@@ -413,7 +414,7 @@ fun EditProfileCard(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
                         ) { onModifySex?.invoke() }
-                        .placeholder(visible = loading)
+                        .placeholder(visible = loading, color = MaterialTheme.colors.surface)
                 ) {
                     Text(
                         text = stringResource(
@@ -458,7 +459,7 @@ fun EditProfileCard(
                             end.linkTo(parent.end)
                             width = Dimension.fillToConstraints
                         }
-                        .placeholder(visible = loading),
+                        .placeholder(visible = loading, color = MaterialTheme.colors.surface),
                 )
             }
         }

@@ -41,7 +41,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.placeholder
 import com.google.gson.reflect.TypeToken
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.arch.collectPartialAsState
@@ -278,12 +278,12 @@ private fun BlockItemPlaceholder() {
         Icon(
             imageVector = Icons.Outlined.Block,
             contentDescription = null,
-            modifier = Modifier.placeholder(visible = true)
+            modifier = Modifier.placeholder(visible = true, color = MaterialTheme.colors.surface)
         )
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = stringResource(id = R.string.title_block_settings),
-            modifier = Modifier.placeholder(visible = true)
+            modifier = Modifier.placeholder(visible = true, color = MaterialTheme.colors.surface)
         )
     }
 }

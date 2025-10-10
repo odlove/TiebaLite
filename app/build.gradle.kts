@@ -17,6 +17,7 @@ val keystoreProperties = Properties().apply {
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.parcelize)
@@ -111,9 +112,6 @@ android {
                 else signingConfigs.getByName("debug")
         }
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
-    }
     compileOptions {
         targetCompatibility = JavaVersion.VERSION_11
         sourceCompatibility = JavaVersion.VERSION_11
@@ -122,11 +120,11 @@ android {
         jvmTarget = "11"
         freeCompilerArgs += listOf(
             "-P",
-            "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=" + project.buildDir.absolutePath + "/compose_metrics"
+            "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=" + layout.buildDirectory.asFile.get().absolutePath + "/compose_metrics"
         )
         freeCompilerArgs += listOf(
             "-P",
-            "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=" + project.buildDir.absolutePath + "/compose_metrics"
+            "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=" + layout.buildDirectory.asFile.get().absolutePath + "/compose_metrics"
         )
         freeCompilerArgs += listOf(
             "-P", "plugin:androidx.compose.compiler.plugins.kotlin:stabilityConfigurationPath=" +

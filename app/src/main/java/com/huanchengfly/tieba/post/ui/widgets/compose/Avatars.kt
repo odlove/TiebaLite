@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.LocalContentColor
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,8 +27,8 @@ import com.github.panpf.sketch.fetch.newResourceUri
 import com.github.panpf.sketch.request.DisplayRequest
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.material.fade
-import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.fade
+import com.google.accompanist.placeholder.placeholder
 import com.huanchengfly.tieba.post.utils.ImageUtil
 
 object Sizes {
@@ -95,7 +96,8 @@ fun AvatarPlaceholder(
         contentDescription = null,
         modifier = modifier.placeholder(
             visible = true,
-            highlight = PlaceholderHighlight.fade(),
+            color = MaterialTheme.colors.surface,
+            highlight = PlaceholderHighlight.fade(MaterialTheme.colors.surface),
             shape = CircleShape
         )
     )

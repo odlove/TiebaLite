@@ -9,9 +9,10 @@ plugins {
     alias(libs.plugins.hilt.android) apply false
     alias(libs.plugins.wire) apply false
 
-    alias(libs.plugins.dependency.analysis)
+    // Dependency Analysis plugin only supports AGP 8.0.0-8.4.0, commented out for AGP 8.13.0
+    // alias(libs.plugins.dependency.analysis)
 }
 
 tasks.register<Delete>("clean") {
-    delete(rootProject.buildDir)
+    delete(layout.buildDirectory.asFile.get())
 }

@@ -35,13 +35,13 @@ wire {
 }
 
 android {
-    buildToolsVersion = "34.0.0"
-    compileSdk = 34
+    buildToolsVersion = "35.0.0"
+    compileSdk = 35
     defaultConfig {
         applicationId = "com.huanchengfly.tieba.post"
         minSdk = 21
         //noinspection OldTargetApi
-        targetSdk = 34
+        targetSdk = 35
         versionCode = applicationVersionCode
         versionName = applicationVersionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -68,13 +68,17 @@ android {
         }
     }
     buildTypes {
-        all {
-            signingConfig =
-                if (signingConfigs.any { it.name == "config" })
-                    signingConfigs.getByName("config")
-                else signingConfigs.getByName("debug")
+        debug {
+            // Debug 版本使用不同的包名，可以和 Release 版本共存
+            applicationIdSuffix = ".debug"
+            // Debug 版本的应用名称加上 (Debug) 标识
+            resValue("string", "app_name", "贴吧Lite (Debug)")
         }
         release {
+            // Release 自编译版本使用不同的包名，可以和应用商店版本共存
+            applicationIdSuffix = ".self"
+            // Release 版本的应用名称加上 (Self) 标识
+            resValue("string", "app_name", "贴吧Lite (Self)")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -84,6 +88,12 @@ android {
             isDebuggable = false
             isJniDebuggable = false
             multiDexEnabled = true
+        }
+        all {
+            signingConfig =
+                if (signingConfigs.any { it.name == "config" })
+                    signingConfigs.getByName("config")
+                else signingConfigs.getByName("debug")
         }
     }
     composeOptions {

@@ -64,8 +64,9 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.github.panpf.sketch.compose.AsyncImage
-import com.google.accompanist.placeholder.placeholder
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.eygraber.compose.placeholder.material.placeholder
+import com.stoyanvuchev.systemuibarstweaker.SystemBarStyle
+import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.post.arch.collectIn
@@ -135,14 +136,6 @@ class EditProfileActivity : BaseActivity() {
                                 .withOptions(UCrop.Options().apply {
                                     setShowCropFrame(true)
                                     setShowCropGrid(true)
-                                    setStatusBarColor(
-                                        ColorUtils.getDarkerColor(
-                                            ThemeUtils.getColorByAttr(
-                                                this@EditProfileActivity,
-                                                R.attr.colorPrimary
-                                            )
-                                        )
-                                    )
                                     setToolbarColor(
                                         ThemeUtils.getColorByAttr(
                                             this@EditProfileActivity,
@@ -193,18 +186,23 @@ class EditProfileActivity : BaseActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             TiebaLiteTheme {
-                val systemUiController = rememberSystemUiController()
+                val systemUIBarsTweaker = rememberSystemUIBarsTweaker()
                 SideEffect {
-                    systemUiController.apply {
-                        setStatusBarColor(
-                            Color.Transparent,
-                            darkIcons = ThemeUtil.isStatusBarFontDark()
+                    val statusBarDarkIcons = ThemeUtil.isStatusBarFontDark()
+                    val navigationBarDarkIcons = ThemeUtil.isNavigationBarFontDark()
+
+                    systemUIBarsTweaker.tweakStatusBarStyle(
+                        SystemBarStyle(
+                            color = Color.Transparent,
+                            darkIcons = statusBarDarkIcons
                         )
-                        setNavigationBarColor(
-                            Color.Transparent,
-                            darkIcons = ThemeUtil.isNavigationBarFontDark()
+                    )
+                    systemUIBarsTweaker.tweakNavigationBarStyle(
+                        SystemBarStyle(
+                            color = Color.Transparent,
+                            darkIcons = navigationBarDarkIcons
                         )
-                    }
+                    )
                 }
                 PageEditProfile(viewModel, onBackPressed = { onBackPressed() })
             }

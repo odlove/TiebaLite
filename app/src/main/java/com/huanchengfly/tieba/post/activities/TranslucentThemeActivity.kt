@@ -133,14 +133,6 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
                     .withOptions(UCrop.Options().apply {
                         setShowCropFrame(true)
                         setShowCropGrid(true)
-                        setStatusBarColor(
-                            ColorUtils.getDarkerColor(
-                                ThemeUtils.getColorByAttr(
-                                    this@TranslucentThemeActivity,
-                                    R.attr.colorPrimary
-                                )
-                            )
-                        )
                         setToolbarColor(
                             ThemeUtils.getColorByAttr(
                                 this@TranslucentThemeActivity,

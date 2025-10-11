@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.getSystemService
 import androidx.core.location.LocationManagerCompat
 import androidx.core.net.toUri
-import com.hjq.permissions.Permission
+import android.Manifest
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.arch.GlobalEvent
@@ -512,8 +512,8 @@ class MyWebChromeClient(
                     context,
                     PermissionData(
                         listOf(
-                            Permission.ACCESS_COARSE_LOCATION,
-                            Permission.ACCESS_FINE_LOCATION
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION
                         ),
                         context.getString(R.string.usage_webview_location_permission)
                     ),

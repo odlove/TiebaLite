@@ -54,7 +54,7 @@ android {
     compileSdk = 35
     defaultConfig {
         applicationId = "com.huanchengfly.tieba.post"
-        minSdk = 21
+        minSdk = 23
         //noinspection OldTargetApi
         targetSdk = 35
         versionCode = applicationVersionCode
@@ -183,9 +183,10 @@ dependencies {
     kapt(libs.androidx.hilt.compiler)
 
     implementation(libs.accompanist.drawablepainter)
-    implementation(libs.accompanist.systemuicontroller)
-    implementation(libs.accompanist.placeholder.material)
-    implementation(libs.accompanist.navigation.material)
+
+    // Replaced deprecated Accompanist modules with official/third-party alternatives
+    implementation(libs.eygraber.placeholder.material)
+    implementation(libs.systemuibars.tweaker)
 
     implementation(libs.sketch.core)
     implementation(libs.sketch.compose)
@@ -202,6 +203,7 @@ dependencies {
     implementation(libs.compose.animation)
     implementation(libs.compose.animation.graphics)
     implementation(libs.compose.material)
+    implementation(libs.compose.material.navigation)
     implementation(libs.compose.material.icons.core)
     // Optional - Add full set of material icons
     implementation(libs.compose.material.icons.extended)

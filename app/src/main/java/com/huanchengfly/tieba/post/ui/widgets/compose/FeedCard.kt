@@ -61,10 +61,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
-import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.fade
-import com.google.accompanist.placeholder.placeholder
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.eygraber.compose.placeholder.PlaceholderHighlight
+import com.eygraber.compose.placeholder.material.fade
+import com.eygraber.compose.placeholder.material.placeholder
+import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.Media
@@ -329,7 +329,7 @@ fun FeedCardPlaceholder() {
                     .placeholder(
                         visible = true,
                         color = MaterialTheme.colors.surface,
-                        highlight = PlaceholderHighlight.fade(MaterialTheme.colors.surface),
+                        highlight = PlaceholderHighlight.fade(),
                     )
             )
 
@@ -344,7 +344,7 @@ fun FeedCardPlaceholder() {
                     .placeholder(
                         visible = true,
                         color = MaterialTheme.colors.surface,
-                        highlight = PlaceholderHighlight.fade(MaterialTheme.colors.surface),
+                        highlight = PlaceholderHighlight.fade(),
                     )
             )
         },
@@ -933,7 +933,7 @@ private fun ActionBtnPlaceholder(
                 .placeholder(
                     visible = true,
                     color = MaterialTheme.colors.surface,
-                    highlight = PlaceholderHighlight.fade(MaterialTheme.colors.surface),
+                    highlight = PlaceholderHighlight.fade(),
                 ),
         )
     }
@@ -975,15 +975,15 @@ fun VideoPlayer(
     title: String = "",
 ) {
     val context = LocalContext.current
-    val systemUiController = rememberSystemUiController()
+    val systemUIBarsTweaker = rememberSystemUIBarsTweaker()
     val videoPlayerController = rememberVideoPlayerController(
         source = VideoPlayerSource.Network(videoUrl),
         thumbnailUrl = thumbnailUrl,
         fullScreenModeChangedListener = object : OnFullScreenModeChangedListener {
             override fun onFullScreenModeChanged(isFullScreen: Boolean) {
                 Log.i("VideoPlayer", "onFullScreenModeChanged $isFullScreen")
-                systemUiController.isStatusBarVisible = !isFullScreen
-                systemUiController.isNavigationBarVisible = !isFullScreen
+                systemUIBarsTweaker.tweakStatusBarVisibility(!isFullScreen)
+                systemUIBarsTweaker.tweakNavigationBarVisibility(!isFullScreen)
                 if (isFullScreen) {
                     context.findActivity()?.requestedOrientation =
                         ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE

@@ -28,5 +28,11 @@ plugins {
     id("de.fayard.refreshVersions") version "0.60.6"
 }
 
+refreshVersions {
+    rejectVersionIf {
+          candidate.stabilityLevel.isLessStableThan(current.stabilityLevel)
+    }
+}
+
 rootProject.name = "TiebaLite"
 include(":app")

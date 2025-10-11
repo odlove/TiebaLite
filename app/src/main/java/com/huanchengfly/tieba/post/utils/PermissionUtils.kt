@@ -9,9 +9,28 @@ import android.Manifest
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.OnPermissionInterceptor
 import com.hjq.permissions.XXPermissions
+import com.hjq.permissions.permission.base.IPermission
+import com.hjq.permissions.permission.PermissionLists
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.components.dialogs.RequestPermissionTipDialog
 import com.huanchengfly.tieba.post.toastShort
+
+/**
+ * Convert String permission to IPermission object
+ */
+private fun String.toIPermission(): IPermission {
+    return when (this) {
+        PermissionUtils.CAMERA, Manifest.permission.CAMERA -> PermissionLists.getCameraPermission()
+        PermissionUtils.READ_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE -> PermissionLists.getReadExternalStoragePermission()
+        PermissionUtils.WRITE_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE -> PermissionLists.getWriteExternalStoragePermission()
+        PermissionUtils.RECORD_AUDIO, Manifest.permission.RECORD_AUDIO -> PermissionLists.getRecordAudioPermission()
+        PermissionUtils.POST_NOTIFICATIONS -> PermissionLists.getPostNotificationsPermission()
+        PermissionUtils.READ_MEDIA_IMAGES -> PermissionLists.getReadMediaImagesPermission()
+        PermissionUtils.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION -> PermissionLists.getAccessFineLocationPermission()
+        PermissionUtils.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION -> PermissionLists.getAccessCoarseLocationPermission()
+        else -> throw IllegalArgumentException("Unknown permission: $this")
+    }
+}
 
 object PermissionUtils {
 
@@ -341,31 +360,24 @@ object PermissionUtils {
         onGranted: () -> Unit,
         onDenied: (() -> Unit)? = null
     ) {
-        val permissionList = permissionData.permissions
-        if (XXPermissions.isGranted(context, permissionList)) {
+        val permissionList = permissionData.permissions.map { it.toIPermission() }
+        if (XXPermissions.isGrantedPermissions(context, permissionList)) {
             onGranted()
         } else {
-            val builder = XXPermissions.with(context)
-            for (permission in permissionList) {
-                builder.permission(permission)
-            }
-            builder.interceptor(ShowPermissionTipInterceptor(permissionData))
+            XXPermissions.with(context)
+                .permissions(permissionList)
+                .interceptor(ShowPermissionTipInterceptor(permissionData))
                 .request(object : OnPermissionCallback {
-                    override fun onGranted(
-                        permissions: MutableList<String>,
-                        allGranted: Boolean
+                    override fun onResult(
+                        grantedList: MutableList<IPermission>,
+                        deniedList: MutableList<IPermission>
                     ) {
-                        if (allGranted) {
+                        if (deniedList.isEmpty()) {
                             onGranted()
+                        } else {
+                            context.toastShort(deniedToast)
+                            onDenied?.invoke()
                         }
-                    }
-
-                    override fun onDenied(
-                        permissions: MutableList<String>,
-                        doNotAskAgain: Boolean
-                    ) {
-                        context.toastShort(deniedToast)
-                        onDenied?.invoke()
                     }
                 })
         }
@@ -390,9 +402,11 @@ class ShowPermissionTipInterceptor(val permissions: List<String>, val descriptio
 
     private var tipDialog: RequestPermissionTipDialog? = null
 
-    override fun launchPermissionRequest(
+    override fun onRequestPermissionStart(
         activity: Activity,
-        allPermissions: MutableList<String>,
+        allPermissions: MutableList<IPermission>,
+        factory: com.hjq.permissions.fragment.factory.PermissionFragmentFactory<*, *>,
+        description: com.hjq.permissions.OnPermissionDescription,
         callback: OnPermissionCallback?
     ) {
         mRequestFlag = true
@@ -405,27 +419,17 @@ class ShowPermissionTipInterceptor(val permissions: List<String>, val descriptio
             }
             tipDialog = RequestPermissionTipDialog(
                 activity,
-                PermissionUtils.PermissionData(permissions, description)
+                PermissionUtils.PermissionData(permissions, this.description)
             ).apply { show() }
         }, 300)
     }
 
-    override fun grantedPermissionRequest(
+    override fun onRequestPermissionEnd(
         activity: Activity,
-        allPermissions: MutableList<String>,
-        grantedPermissions: MutableList<String>,
         allGranted: Boolean,
-        callback: OnPermissionCallback?
-    ) {
-        mRequestFlag = false
-        runCatching { tipDialog?.dismiss() }
-    }
-
-    override fun deniedPermissionRequest(
-        activity: Activity,
-        allPermissions: MutableList<String>,
-        deniedPermissions: MutableList<String>,
-        doNotAskAgain: Boolean,
+        allPermissions: MutableList<IPermission>,
+        grantedPermissions: MutableList<IPermission>,
+        deniedPermissions: MutableList<IPermission>,
         callback: OnPermissionCallback?
     ) {
         mRequestFlag = false
@@ -441,34 +445,28 @@ class PermissionRequester(val context: Context) {
     var onDenied: (() -> Unit)? = null
 
     fun start() {
-        if (XXPermissions.isGranted(context, permissions)) {
+        val permissionList = permissions.map { it.toIPermission() }
+        if (XXPermissions.isGrantedPermissions(context, permissionList)) {
             onGranted?.invoke()
         } else {
-            val builder = XXPermissions.with(context)
-            for (permission in permissions) {
-                builder.permission(permission)
-            }
-            builder.interceptor(ShowPermissionTipInterceptor(permissions, description))
+            XXPermissions.with(context)
+                .permissions(permissionList)
+                .interceptor(ShowPermissionTipInterceptor(permissions, description))
                 .apply {
                     if (unchecked) {
                         unchecked()
                     }
                 }
                 .request(object : OnPermissionCallback {
-                    override fun onGranted(
-                        permissions: MutableList<String>,
-                        allGranted: Boolean
+                    override fun onResult(
+                        grantedList: MutableList<IPermission>,
+                        deniedList: MutableList<IPermission>
                     ) {
-                        if (allGranted) {
+                        if (deniedList.isEmpty()) {
                             onGranted?.invoke()
+                        } else {
+                            onDenied?.invoke()
                         }
-                    }
-
-                    override fun onDenied(
-                        permissions: MutableList<String>,
-                        doNotAskAgain: Boolean
-                    ) {
-                        onDenied?.invoke()
                     }
                 })
         }

@@ -68,6 +68,7 @@ import androidx.compose.material.navigation.BottomSheetNavigator
 import androidx.compose.material.navigation.ModalBottomSheetLayout
 import androidx.compose.material.navigation.bottomSheet
 import androidx.compose.material.navigation.rememberBottomSheetNavigator
+import androidx.core.app.NotificationManagerCompat
 import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseComposeActivity
@@ -270,11 +271,32 @@ class MainActivityV2 : BaseComposeActivity() {
         }
     }
 
+    private fun shouldRequestNotificationPermission(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return false
+        }
+        if (!AccountUtil.isLoggedIn()) {
+            return false
+        }
+        if (NotificationManagerCompat.from(this).areNotificationsEnabled()) {
+            return false
+        }
+        if (appPreferences.notificationPermissionRequested) {
+            return false
+        }
+        return true
+    }
+
     private fun requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && AccountUtil.isLoggedIn()) {
-            requestPermission {
-                permissions = listOf(PermissionUtils.POST_NOTIFICATIONS)
-                description = getString(R.string.desc_permission_post_notifications)
+        if (!shouldRequestNotificationPermission()) {
+            return
+        }
+        appPreferences.notificationPermissionRequested = true
+        requestPermission {
+            permissions = listOf(PermissionUtils.POST_NOTIFICATIONS)
+            description = getString(R.string.desc_permission_post_notifications)
+            onDenied = {
+                toastShort(R.string.tip_no_permission)
             }
         }
     }
@@ -305,9 +327,6 @@ class MainActivityV2 : BaseComposeActivity() {
             val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
             jobScheduler.schedule(builder.build())
         }
-        handler.postDelayed({
-            requestNotificationPermission()
-        }, 100)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -325,6 +344,9 @@ class MainActivityV2 : BaseComposeActivity() {
         super.onCreateContent(systemUiController)
         fetchAccount()
         initAutoSign()
+        handler.postDelayed({
+            requestNotificationPermission()
+        }, 100)
     }
 
     private fun openClipBoardLink(link: ClipBoardLink) {

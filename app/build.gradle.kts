@@ -50,13 +50,13 @@ wire {
 }
 
 android {
-    buildToolsVersion = "35.0.0"
-    compileSdk = 35
+    buildToolsVersion = "36.0.0"
+    compileSdk = 36
     defaultConfig {
         applicationId = "com.huanchengfly.tieba.post"
         minSdk = 23
         //noinspection OldTargetApi
-        targetSdk = 35
+        targetSdk = 36
         versionCode = applicationVersionCode
         versionName = applicationVersionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -248,6 +248,7 @@ dependencies {
     implementation(libs.androidx.palette)
     implementation(libs.androidx.window)
     implementation(libs.androidx.startup.runtime)
+    implementation(libs.androidx.swiperefreshlayout)
 
     //Test
     testImplementation(libs.junit.junit)

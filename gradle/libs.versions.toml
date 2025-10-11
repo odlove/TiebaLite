@@ -15,36 +15,15 @@ dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version =
 
 [versions]
 
-accompanist = "0.34.0"
-##       ⬆ = "0.35.0-alpha"
-##       ⬆ = "0.35.1-alpha"
-##       ⬆ = "0.35.2-beta"
-##       ⬆ = "0.36.0"
-##       ⬆ = "0.37.0"
-##       ⬆ = "0.37.1"
-##       ⬆ = "0.37.2"
-##       ⬆ = "0.37.3"
+accompanist = "0.37.3"
 appcenter = "5.0.6"
 hilt = "2.57.2"
 kotlin = "2.2.20"
-##  ⬆ = "2.2.21-RC"
-##  ⬆ = "2.3.0-Beta1"
 sketch = "3.3.2"
 wire = "5.4.0"
 
 agp = "8.13.0"
-##⬆= "9.0.0-alpha01"
-##⬆= "9.0.0-alpha02"
-##⬆= "9.0.0-alpha03"
-##⬆= "9.0.0-alpha04"
-##⬆= "9.0.0-alpha05"
-##⬆= "9.0.0-alpha06"
-##⬆= "9.0.0-alpha07"
-##⬆= "9.0.0-alpha08"
-##⬆= "9.0.0-alpha09"
-##⬆= "9.0.0-alpha10"
 ksp = "2.2.20-2.0.4"
-##⬆= "2.2.21-RC-2.0.4"
 
 androidx-activity = "1.11.0"
 androidx-lifecycle = "2.9.4"
@@ -86,8 +65,7 @@ compose-runtime-tracing = { group = "androidx.compose.runtime", name = "runtime-
 wire-runtime = { group = "com.squareup.wire", name = "wire-runtime", version.ref = "wire" }
 
 # Semver
-net-swiftzer-semver-semver = { group = "net.swiftzer.semver", name = "semver", version = "1.3.0" }
-##                                                                                  ⬆ = "2.1.0" }
+net-swiftzer-semver-semver = { group = "net.swiftzer.semver", name = "semver", version = "2.1.0" }
 
 # Color Picker
 godaddy-color-picker = { group = "com.godaddy.android.colorpicker", name = "compose-color-picker", version = "0.7.0" }
@@ -135,13 +113,6 @@ sketch-okhttp = { group = "io.github.panpf.sketch3", name = "sketch-okhttp", ver
 
 # Zoomimage
 zoomimage-compose-sketch = { group = "io.github.panpf.zoomimage", name = "zoomimage-compose-sketch", version = "1.0.2" }
-##                                                                                                        ⬆ = "1.1.0-alpha01" }
-##                                                                                                        ⬆ = "1.1.0-alpha02" }
-##                                                                                                        ⬆ = "1.1.0-alpha03" }
-##                                                                                                        ⬆ = "1.1.0-alpha04" }
-##                                                                                                        ⬆ = "1.1.0-alpha05" }
-##                                                                                                        ⬆ = "1.1.0-alpha06" }
-##                                                                                                        ⬆ = "1.1.0-beta01" }
 
 # ConstraintLayout
 androidx-constraintlayout-compose = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version = "1.1.1" }
@@ -182,89 +153,14 @@ androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "s
 
 # Test
 junit-junit = { group = "junit", name = "junit", version = "4.13.2" }
-androidx-test-core = { group = "androidx.test", name = "core", version = "1.5.0" }
-##                                                                  ⬆ = "1.6.0-alpha01" }
-##                                                                  ⬆ = "1.6.0-alpha02" }
-##                                                                  ⬆ = "1.6.0-alpha03" }
-##                                                                  ⬆ = "1.6.0-alpha04" }
-##                                                                  ⬆ = "1.6.0-alpha05" }
-##                                                                  ⬆ = "1.6.0-alpha06" }
-##                                                                  ⬆ = "1.6.0-beta01" }
-##                                                                  ⬆ = "1.6.0-rc01" }
-##                                                                  ⬆ = "1.6.0" }
-##                                                                  ⬆ = "1.6.1" }
-##                                                                  ⬆ = "1.7.0-alpha01" }
-##                                                                  ⬆ = "1.7.0-alpha02" }
-##                                                                  ⬆ = "1.7.0-alpha03" }
-##                                                                  ⬆ = "1.7.0-beta01" }
-##                                                                  ⬆ = "1.7.0-rc01" }
-##                                                                  ⬆ = "1.7.0" }
-androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version = "1.1.5" }
-##                                                                            ⬆ = "1.2.0-alpha01" }
-##                                                                            ⬆ = "1.2.0-alpha02" }
-##                                                                            ⬆ = "1.2.0-alpha03" }
-##                                                                            ⬆ = "1.2.0-alpha04" }
-##                                                                            ⬆ = "1.2.0-beta01" }
-##                                                                            ⬆ = "1.2.0-rc01" }
-##                                                                            ⬆ = "1.2.0" }
-##                                                                            ⬆ = "1.2.1" }
-##                                                                            ⬆ = "1.3.0-alpha01" }
-##                                                                            ⬆ = "1.3.0-alpha02" }
-##                                                                            ⬆ = "1.3.0-alpha03" }
-##                                                                            ⬆ = "1.3.0-beta01" }
-##                                                                            ⬆ = "1.3.0-rc01" }
-##                                                                            ⬆ = "1.3.0" }
-androidx-test-rules = { group = "androidx.test", name = "rules", version = "1.5.0" }
-##                                                                    ⬆ = "1.6.0-alpha01" }
-##                                                                    ⬆ = "1.6.0-alpha02" }
-##                                                                    ⬆ = "1.6.0-alpha03" }
-##                                                                    ⬆ = "1.6.0-alpha04" }
-##                                                                    ⬆ = "1.6.0-beta01" }
-##                                                                    ⬆ = "1.6.0-rc01" }
-##                                                                    ⬆ = "1.6.0" }
-##                                                                    ⬆ = "1.6.1" }
-##                                                                    ⬆ = "1.7.0-alpha01" }
-##                                                                    ⬆ = "1.7.0-alpha02" }
-##                                                                    ⬆ = "1.7.0-alpha03" }
-##                                                                    ⬆ = "1.7.0-beta01" }
-##                                                                    ⬆ = "1.7.0-rc01" }
-##                                                                    ⬆ = "1.7.0" }
+androidx-test-core = { group = "androidx.test", name = "core", version = "1.7.0" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version = "1.3.0" }
+androidx-test-rules = { group = "androidx.test", name = "rules", version = "1.7.0" }
 androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version = "3.5.1" }
-##                                                                                             ⬆ = "3.6.0-alpha01" }
-##                                                                                             ⬆ = "3.6.0-alpha02" }
-##                                                                                             ⬆ = "3.6.0-alpha03" }
-##                                                                                             ⬆ = "3.6.0-alpha04" }
-##                                                                                             ⬆ = "3.6.0-beta01" }
-##                                                                                             ⬆ = "3.6.0-rc01" }
 ##                                                                                             ⬆ = "3.6.0" }
 ##                                                                                             ⬆ = "3.6.1" }
-##                                                                                             ⬆ = "3.7.0-alpha01" }
-##                                                                                             ⬆ = "3.7.0-alpha02" }
-##                                                                                             ⬆ = "3.7.0-alpha03" }
-##                                                                                             ⬆ = "3.7.0-alpha04" }
-##                                                                                             ⬆ = "3.7.0-beta01" }
-##                                                                                             ⬆ = "3.7.0-rc01" }
 ##                                                                                             ⬆ = "3.7.0" }
-androidx-test-runner = { group = "androidx.test", name = "runner", version = "1.5.2" }
-##                                                                      ⬆ = "1.5.3-alpha01" }
-##                                                                      ⬆ = "1.6.0-alpha01" }
-##                                                                      ⬆ = "1.6.0-alpha02" }
-##                                                                      ⬆ = "1.6.0-alpha03" }
-##                                                                      ⬆ = "1.6.0-alpha04" }
-##                                                                      ⬆ = "1.6.0-alpha05" }
-##                                                                      ⬆ = "1.6.0-alpha06" }
-##                                                                      ⬆ = "1.6.0-alpha07" }
-##                                                                      ⬆ = "1.6.0-beta01" }
-##                                                                      ⬆ = "1.6.0-rc01" }
-##                                                                      ⬆ = "1.6.0" }
-##                                                                      ⬆ = "1.6.1" }
-##                                                                      ⬆ = "1.6.2" }
-##                                                                      ⬆ = "1.7.0-alpha01" }
-##                                                                      ⬆ = "1.7.0-alpha02" }
-##                                                                      ⬆ = "1.7.0-alpha03" }
-##                                                                      ⬆ = "1.7.0-beta01" }
-##                                                                      ⬆ = "1.7.0-rc01" }
-##                                                                      ⬆ = "1.7.0" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version = "1.7.0" }
 
 # Glide
 glide-core = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
@@ -292,32 +188,13 @@ com-jaredrummler-colorpicker = { group = "com.jaredrummler", name = "colorpicker
 github-matisse = { group = "com.github.lwj1994", name = "Matisse", version = "0.5.3-20220115" }
 
 # XXPermissions
-xx-permissions = { group = "com.github.getActivity", name = "XXPermissions", version = "18.6" }
-##                                                                                ⬆ = "18.62" }
-##                                                                                ⬆ = "18.63" }
-##                                                                                ⬆ = "18.65" }
-##                                                                                ⬆ = "18.68" }
-##                                                                                ⬆ = "20.0" }
-##                                                                                ⬆ = "21.0" }
-##                                                                                ⬆ = "21.2" }
-##                                                                                ⬆ = "21.3" }
-##                                                                                ⬆ = "23.0" }
-##                                                                                ⬆ = "25.0" }
-##                                                                                ⬆ = "25.2" }
-##                                                                                ⬆ = "26.0" }
-##                                                                                ⬆ = "26.2" }
-##                                                                                ⬆ = "26.5" }
+xx-permissions = { group = "com.github.getActivity", name = "XXPermissions", version = "26.5" }
 
 # ImmersionBar
 com-gyf-immersionbar-immersionbar = { group = "com.gyf.immersionbar", name = "immersionbar", version = "3.0.0" }
 
 # UCrop
-com-github-yalantis-ucrop = { group = "com.github.yalantis", name = "ucrop", version = "2.2.8" }
-##                                                                                ⬆ = "2.2.8-native" }
-##                                                                                ⬆ = "2.2.9" }
-##                                                                                ⬆ = "2.2.9-native" }
-##                                                                                ⬆ = "2.2.11" }
-##                                                                                ⬆ = "2.2.11-native" }
+com-github-yalantis-ucrop = { group = "com.github.yalantis", name = "ucrop", version = "2.2.11-native" }
 
 # ButterKnife
 com-jakewharton-butterknife = { group = "com.jakewharton", name = "butterknife", version = "10.2.3" }

@@ -120,6 +120,10 @@ object ThemeUtil {
                 dataStore.putString(KEY_OLD_THEME, oldTheme)
             }
         }
+        // 如果切换到夜间主题，同时更新 dark_theme 设置，以便夜间模式开关使用
+        if (isNightMode(newTheme)) {
+            dataStore.putString(KEY_DARK_THEME, newTheme)
+        }
         dataStore.putString(KEY_THEME, newTheme)
         themeState.value = newTheme
     }

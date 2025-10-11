@@ -24,16 +24,12 @@ accompanist = "0.34.0"
 ##       ⬆ = "0.37.1"
 ##       ⬆ = "0.37.2"
 ##       ⬆ = "0.37.3"
-appcenter = "5.0.4"
-##     ⬆ = "5.0.5"
-##     ⬆ = "5.0.6"
+appcenter = "5.0.6"
 hilt = "2.57.2"
 kotlin = "2.2.20"
 ##  ⬆ = "2.2.21-RC"
 ##  ⬆ = "2.3.0-Beta1"
-sketch = "3.3.0"
-##  ⬆ = "3.3.1"
-##  ⬆ = "3.3.2"
+sketch = "3.3.2"
 wire = "5.4.0"
 
 agp = "8.13.0"
@@ -47,9 +43,7 @@ agp = "8.13.0"
 ##⬆= "9.0.0-alpha08"
 ##⬆= "9.0.0-alpha09"
 ##⬆= "9.0.0-alpha10"
-ksp = "2.2.20-2.0.2"
-##⬆= "2.2.20-2.0.3"
-##⬆= "2.2.20-2.0.4"
+ksp = "2.2.20-2.0.4"
 ##⬆= "2.2.21-RC-2.0.4"
 
 androidx-activity = "1.8.2"
@@ -186,21 +180,7 @@ compose-bom = "2025.10.00"
 compose-destinations = "1.11.9"
 androidx-navigation-compose = "2.9.5"
 
-airbnb-lottie = "6.3.0"
-##         ⬆ = "6.4.0"
-##         ⬆ = "6.4.1"
-##         ⬆ = "6.5.0"
-##         ⬆ = "6.5.1"
-##         ⬆ = "6.5.2"
-##         ⬆ = "6.6.0"
-##         ⬆ = "6.6.1"
-##         ⬆ = "6.6.2"
-##         ⬆ = "6.6.3"
-##         ⬆ = "6.6.4"
-##         ⬆ = "6.6.6"
-##         ⬆ = "6.6.7"
-##         ⬆ = "6.6.9"
-##         ⬆ = "6.6.10"
+airbnb-lottie = "6.6.10"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization-json = "1.9.0"
 kotlinx-collections-immutable = "0.4.0"
@@ -326,11 +306,7 @@ androidx-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", vers
 accompanist-drawablepainter = { group = "com.google.accompanist", name = "accompanist-drawablepainter", version.ref = "accompanist" }
 
 # Accompanist Replacements
-eygraber-placeholder-material = { group = "com.eygraber", name = "compose-placeholder-material", version = "1.0.8" }
-##                                                                                                    ⬆ = "1.0.9" }
-##                                                                                                    ⬆ = "1.0.10" }
-##                                                                                                    ⬆ = "1.0.11" }
-##                                                                                                    ⬆ = "1.0.12" }
+eygraber-placeholder-material = { group = "com.eygraber", name = "compose-placeholder-material", version = "1.0.12" }
 systemuibars-tweaker = { group = "com.github.stoyan-vuchev", name = "system-ui-bars-tweaker", version = "1.2.4" }
 
 # Sketch
@@ -341,8 +317,7 @@ sketch-gif = { group = "io.github.panpf.sketch3", name = "sketch-gif", version.r
 sketch-okhttp = { group = "io.github.panpf.sketch3", name = "sketch-okhttp", version.ref = "sketch" }
 
 # Zoomimage
-zoomimage-compose-sketch = { group = "io.github.panpf.zoomimage", name = "zoomimage-compose-sketch", version = "1.0.1" }
-##                                                                                                        ⬆ = "1.0.2" }
+zoomimage-compose-sketch = { group = "io.github.panpf.zoomimage", name = "zoomimage-compose-sketch", version = "1.0.2" }
 ##                                                                                                        ⬆ = "1.1.0-alpha01" }
 ##                                                                                                        ⬆ = "1.1.0-alpha02" }
 ##                                                                                                        ⬆ = "1.1.0-alpha03" }
@@ -392,24 +367,10 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 ##                                                                                                 ⬆ = "2.2.1" }
 
 # OAID
-github-oaid = { group = "com.github.gzu-liyujiang", name = "Android_CN_OAID", version = "4.2.4" }
-##                                                                                 ⬆ = "4.2.5" }
-##                                                                                 ⬆ = "4.2.5.1" }
-##                                                                                 ⬆ = "4.2.6" }
-##                                                                                 ⬆ = "4.2.6.2" }
-##                                                                                 ⬆ = "4.2.7" }
-##                                                                                 ⬆ = "4.2.8" }
-##                                                                                 ⬆ = "4.2.9" }
-##                                                                                 ⬆ = "4.2.10" }
-##                                                                                 ⬆ = "4.2.11" }
-##                                                                                 ⬆ = "4.2.12" }
+github-oaid = { group = "com.github.gzu-liyujiang", name = "Android_CN_OAID", version = "4.2.12" }
 
 # JetBrains
-org-jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version = "24.1.0" }
-##                                                                                ⬆ = "25.0.0" }
-##                                                                                ⬆ = "26.0.0" }
-##                                                                                ⬆ = "26.0.1" }
-##                                                                                ⬆ = "26.0.2" }
+org-jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version = "26.0.2" }
 ##                                                                                ⬆ = "26.0.2-1" }
 
 # Kotlin
@@ -663,14 +624,7 @@ retrofit2-core = { group = "com.squareup.retrofit2", name = "retrofit", version.
 retrofit2-converter-wire = { group = "com.squareup.retrofit2", name = "converter-wire", version.ref = "retrofit2" }
 
 # Gson
-google-gson = { group = "com.google.code.gson", name = "gson", version = "2.10.1" }
-##                                                                  ⬆ = "2.11.0" }
-##                                                                  ⬆ = "2.12.0" }
-##                                                                  ⬆ = "2.12.1" }
-##                                                                  ⬆ = "2.13.0" }
-##                                                                  ⬆ = "2.13.1" }
-##                                                                  ⬆ = "2.13.2-rc1" }
-##                                                                  ⬆ = "2.13.2" }
+google-gson = { group = "com.google.code.gson", name = "gson", version = "2.13.2" }
 
 # LitePal
 org-litepal-android-kotlin = { group = "org.litepal.android", name = "kotlin", version = "3.0.0" }

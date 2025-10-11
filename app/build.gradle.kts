@@ -29,14 +29,20 @@ plugins {
 val sha: String? = System.getenv("GITHUB_SHA")
 val isCI: String? = System.getenv("CI")
 val isSelfBuild = isCI.isNullOrEmpty() || !isCI.equals("true", ignoreCase = true)
-val applicationVersionCode = appProperties.getProperty("versionCode").toInt()
+val applicationVersionCode = (System.currentTimeMillis() / 1000).toInt()
 var applicationVersionName = appProperties.getProperty("versionName")
 val isPerVersion = appProperties.getProperty("isPreRelease").toBoolean()
-if (isPerVersion) {
-    applicationVersionName += "-${appProperties.getProperty("preReleaseName")}.${appProperties.getProperty("preReleaseVer")}"
+
+// 获取 git commit hash
+val gitHash = try {
+    Runtime.getRuntime().exec("git rev-parse --short=7 HEAD")
+        .inputStream.bufferedReader().readText().trim()
+} catch (e: Exception) {
+    sha?.substring(0, 7) ?: "unknown"
 }
-if (!isSelfBuild && !sha.isNullOrEmpty()) {
-    applicationVersionName += "+${sha.substring(0, 7)}"
+
+if (isPerVersion) {
+    applicationVersionName += "-${appProperties.getProperty("preReleaseName")}-${gitHash}"
 }
 
 wire {

@@ -443,11 +443,13 @@ class PermissionRequester(val context: Context) {
     var unchecked: Boolean = false
     var onGranted: (() -> Unit)? = null
     var onDenied: (() -> Unit)? = null
+    var onFinally: (() -> Unit)? = null
 
     fun start() {
         val permissionList = permissions.map { it.toIPermission() }
         if (XXPermissions.isGrantedPermissions(context, permissionList)) {
             onGranted?.invoke()
+            onFinally?.invoke()
         } else {
             XXPermissions.with(context)
                 .permissions(permissionList)
@@ -467,6 +469,7 @@ class PermissionRequester(val context: Context) {
                         } else {
                             onDenied?.invoke()
                         }
+                        onFinally?.invoke()
                     }
                 })
         }

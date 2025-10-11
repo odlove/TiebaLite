@@ -26,9 +26,9 @@ import com.github.panpf.sketch.compose.AsyncImage
 import com.github.panpf.sketch.fetch.newResourceUri
 import com.github.panpf.sketch.request.DisplayRequest
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.fade
-import com.google.accompanist.placeholder.placeholder
+import com.eygraber.compose.placeholder.PlaceholderHighlight
+import com.eygraber.compose.placeholder.material.fade
+import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.post.utils.ImageUtil
 
 object Sizes {
@@ -97,7 +97,7 @@ fun AvatarPlaceholder(
         modifier = modifier.placeholder(
             visible = true,
             color = MaterialTheme.colors.surface,
-            highlight = PlaceholderHighlight.fade(MaterialTheme.colors.surface),
+            highlight = PlaceholderHighlight.fade(),
             shape = CircleShape
         )
     )

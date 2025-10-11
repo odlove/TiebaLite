@@ -18,7 +18,8 @@ class RequestPermissionTipDialog(context: Context, permission: PermissionUtils.P
     val message: TextView
 
     init {
-        setCancelable(false)
+        setCancelable(true)
+        setCanceledOnTouchOutside(true)
         setView(View.inflate(context, R.layout.dialog_request_permission_tip, null).also {
             title = it.findViewById(R.id.request_permission_tip_dialog_title)
             message = it.findViewById(R.id.request_permission_tip_dialog_message)

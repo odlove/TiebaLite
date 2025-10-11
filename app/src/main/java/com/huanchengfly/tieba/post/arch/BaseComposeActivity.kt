@@ -12,11 +12,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
-import com.google.accompanist.systemuicontroller.SystemUiController
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.stoyanvuchev.systemuibarstweaker.SystemBarStyle
+import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
+import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
 import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.post.ui.common.theme.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.post.ui.common.windowsizeclass.WindowSizeClass
@@ -64,23 +66,27 @@ abstract class BaseComposeActivity : BaseActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             TiebaLiteTheme {
-                val systemUiController = rememberSystemUiController()
+                val systemUIBarsTweaker = rememberSystemUIBarsTweaker()
                 SideEffect {
-                    systemUiController.apply {
-                        setStatusBarColor(
-                            Color.Transparent,
-                            darkIcons = ThemeUtil.isStatusBarFontDark()
+                    val statusBarDarkIcons = ThemeUtil.isStatusBarFontDark()
+                    val navigationBarDarkIcons = ThemeUtil.isNavigationBarFontDark()
+
+                    systemUIBarsTweaker.tweakStatusBarStyle(
+                        SystemBarStyle(
+                            color = Color.Transparent,
+                            darkIcons = statusBarDarkIcons
                         )
-                        setNavigationBarColor(
-                            Color.Transparent,
-                            darkIcons = ThemeUtil.isNavigationBarFontDark(),
-                            navigationBarContrastEnforced = false
+                    )
+                    systemUIBarsTweaker.tweakNavigationBarStyle(
+                        SystemBarStyle(
+                            color = Color.Transparent,
+                            darkIcons = navigationBarDarkIcons
                         )
-                    }
+                    )
                 }
 
                 LaunchedEffect(key1 = "onCreateContent") {
-                    onCreateContent(systemUiController)
+                    onCreateContent(systemUIBarsTweaker)
                 }
 
                 LocalAccountProvider {
@@ -97,10 +103,10 @@ abstract class BaseComposeActivity : BaseActivity() {
     /**
      * 在创建内容前执行
      *
-     * @param systemUiController SystemUiController
+     * @param systemUIBarsTweaker SystemUIBarsTweaker
      */
     open fun onCreateContent(
-        systemUiController: SystemUiController
+        systemUIBarsTweaker: SystemUIBarsTweaker
     ) {}
 
     @Composable

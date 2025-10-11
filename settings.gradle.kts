@@ -22,10 +22,9 @@ dependencyResolutionManagement {
     }
 }
 
-// refreshVersions 插件 - 需要检查依赖更新时取消注释
-// plugins {
-//     id("de.fayard.refreshVersions") version "0.60.8"
-// }
+plugins {
+    id("de.fayard.refreshVersions") version "0.60.6"
+}
 
 rootProject.name = "TiebaLite"
 include(":app")

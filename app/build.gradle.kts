@@ -98,10 +98,8 @@ android {
             resValue("string", "app_name", "贴吧Lite (Debug)")
         }
         release {
-            // Release 自编译版本使用不同的包名，可以和应用商店版本共存
             applicationIdSuffix = ".self"
-            // Release 版本的应用名称加上 (Self) 标识
-            resValue("string", "app_name", "贴吧Lite (Self)")
+            resValue("string", "app_name", "贴吧Lite")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

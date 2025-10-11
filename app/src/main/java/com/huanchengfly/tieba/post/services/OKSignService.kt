@@ -1,13 +1,10 @@
 package com.huanchengfly.tieba.post.services
 
-import android.Manifest
 import android.app.IntentService
 import android.app.PendingIntent
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.util.Log
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
@@ -108,13 +105,6 @@ class OKSignService : IntentService(TAG), CoroutineScope, ProgressListener {
     }
 
     private fun updateNotification(title: String, text: String, intent: Intent?) {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
         notificationManager.notify(
             NOTIFICATION_ID,
             buildNotification(title, text)
@@ -136,13 +126,6 @@ class OKSignService : IntentService(TAG), CoroutineScope, ProgressListener {
     }
 
     private fun updateNotification(title: String, text: String?) {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
         val notification = buildNotification(title, text)
             .build()
         notification.flags = notification.flags.addFlag(NotificationCompat.FLAG_ONGOING_EVENT)

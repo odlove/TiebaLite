@@ -79,9 +79,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
-import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.fade
-import com.google.accompanist.placeholder.placeholder
+import com.eygraber.compose.placeholder.PlaceholderHighlight
+import com.eygraber.compose.placeholder.material.fade
+import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.ForumInfo
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
@@ -193,7 +193,7 @@ private fun ForumHeaderPlaceholder(
                         .placeholder(
                             visible = true,
                             color = MaterialTheme.colors.surface,
-                            highlight = PlaceholderHighlight.fade(MaterialTheme.colors.surface),
+                            highlight = PlaceholderHighlight.fade(),
                         )
                         .padding(horizontal = 18.dp, vertical = 6.dp)
                 ) {
@@ -938,7 +938,7 @@ fun LoadingPlaceholder(
                             modifier = Modifier.placeholder(
                                 visible = true,
                                 color = MaterialTheme.colors.surface,
-                                highlight = PlaceholderHighlight.fade(MaterialTheme.colors.surface),
+                                highlight = PlaceholderHighlight.fade(),
                             ),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,

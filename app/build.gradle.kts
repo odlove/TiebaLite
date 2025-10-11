@@ -67,6 +67,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     signingConfigs {
         val keystoreFile = keystoreProperties.getProperty("keystore.file", "")

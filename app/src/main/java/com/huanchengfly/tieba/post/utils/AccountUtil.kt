@@ -1,54 +1,65 @@
 package com.huanchengfly.tieba.post.utils
 
 import android.content.Context
-import android.content.Intent
-import android.webkit.CookieManager
-import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.TiebaApi
-import com.huanchengfly.tieba.post.api.models.LoginBean
-import com.huanchengfly.tieba.post.arch.GlobalEvent
-import com.huanchengfly.tieba.post.arch.emitGlobalEvent
+import com.huanchengfly.tieba.post.data.account.AccountConstants
+import com.huanchengfly.tieba.post.data.account.AccountManager
 import com.huanchengfly.tieba.post.models.database.Account
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.zip
-import kotlinx.coroutines.launch
-import org.litepal.LitePal
-import org.litepal.LitePal.findAll
-import org.litepal.LitePal.where
-import org.litepal.extension.findAllAsync
-import org.litepal.extension.findFirst
-import java.util.UUID
 
+/**
+ * 账号工具类（转发层）
+ *
+ * 保持原有的静态方法接口，内部转发到 AccountManager。
+ * 这是从旧架构迁移到依赖注入架构的过渡层。
+ */
 @Stable
 object AccountUtil {
     const val TAG = "AccountUtil"
-    const val ACTION_SWITCH_ACCOUNT = "com.huanchengfly.tieba.post.action.SWITCH_ACCOUNT"
+    const val ACTION_SWITCH_ACCOUNT = AccountConstants.ACTION_SWITCH_ACCOUNT
 
-    private lateinit var appScope: CoroutineScope
+    private lateinit var manager: AccountManager
+
+    /**
+     * 检查 AccountUtil 是否已初始化
+     */
+    private val isInitialized: Boolean
+        get() = this::manager.isInitialized
+
+    /**
+     * 初始化 AccountUtil（在 App.onCreate 中调用）
+     */
+    internal fun init(accountManager: AccountManager) {
+        this.manager = accountManager
+    }
 
     val LocalAccount = staticCompositionLocalOf<Account?> { null }
     val AllAccounts = staticCompositionLocalOf<List<Account>> { emptyList() }
 
+    /**
+     * 提供账号信息的 CompositionLocal Provider
+     *
+     * 未初始化时的降级行为:
+     * - LocalAccount.current 将返回 null (默认值)
+     * - AllAccounts.current 将返回 emptyList() (默认值)
+     *
+     * 这确保了 Compose UI 在账号系统未初始化时也能正常渲染,
+     * 调用方需要处理 null 和 empty 的情况。
+     */
     @Composable
     fun LocalAccountProvider(content: @Composable () -> Unit) {
-        val account by mutableCurrentAccountState
-        val allAccounts by mutableAllAccountsState
+        if (!isInitialized) {
+            // 使用默认值 (null 和 emptyList),不订阅 Flow
+            content()
+            return
+        }
+        val account by manager.currentAccountFlow.collectAsState(initial = null)
+        val allAccounts by manager.allAccountsFlow.collectAsState(initial = emptyList())
         CompositionLocalProvider(
             LocalAccount provides account,
             AllAccounts provides allAccounts
@@ -57,146 +68,73 @@ object AccountUtil {
         }
     }
 
-    @set:Synchronized
-    private var mutableCurrentAccountState: MutableState<Account?> = mutableStateOf(null)
-
-    private var mutableAllAccountsState: MutableState<List<Account>> = mutableStateOf(emptyList())
-
-    val currentAccount
-        get() = mutableCurrentAccountState.value
+    val currentAccount: Account?
+        get() = if (isInitialized) manager.currentAccount else null
 
     val allAccounts: List<Account>
-        get() = mutableAllAccountsState.value
-
-    fun init(context: Context, applicationScope: CoroutineScope) {
-        this.appScope = applicationScope
-        val account = runCatching {
-            val loginUser =
-                context.getSharedPreferences("accountData", Context.MODE_PRIVATE).getInt("now", -1)
-            if (loginUser == -1) {
-                null
-            } else getAccountInfo(loginUser)
-        }.getOrNull()
-        mutableCurrentAccountState.value = account
-        mutableAllAccountsState.value = findAll(Account::class.java)
-    }
+        get() = if (isInitialized) manager.allAccounts else emptyList()
 
     @JvmStatic
-    fun getLoginInfo(): Account? {
-        return currentAccount
-    }
+    fun getLoginInfo(): Account? = if (isInitialized) manager.getLoginInfo() else null
 
     @JvmStatic
-    fun <T> getAccountInfo(getter: Account.() -> T): T? {
-        return currentAccount?.getter()
-    }
+    fun <T> getAccountInfo(getter: Account.() -> T): T? =
+        if (isInitialized) manager.getAccountInfo(getter) else null
 
     fun newAccount(uid: String, account: Account, callback: (Boolean) -> Unit) {
-        account.saveOrUpdateAsync("uid = ?", uid).listen {
-            mutableAllAccountsState.value = findAll(Account::class.java)
-            callback(it)
+        if (!isInitialized) {
+            callback(false)
+            return
         }
-    }
-
-    private fun getAccountInfo(accountId: Int): Account {
-        return where("id = ?", accountId.toString()).findFirst(Account::class.java)
+        manager.newAccount(uid, account, callback)
     }
 
     @JvmStatic
-    fun getAccountInfoByUid(uid: String): Account? {
-        return where("uid = ?", uid).findFirst<Account>()
-    }
+    suspend fun getAccountInfoByUid(uid: String): Account? =
+        if (isInitialized) manager.getAccountInfoByUid(uid) else null
 
     @JvmStatic
-    fun getAccountInfoByBduss(bduss: String): Account {
-        return where("bduss = ?", bduss).findFirst(Account::class.java)
-    }
+    suspend fun getAccountInfoByBduss(bduss: String): Account? =
+        if (isInitialized) manager.getAccountInfoByBduss(bduss) else null
 
     @JvmStatic
-    fun isLoggedIn(): Boolean {
-        return getLoginInfo() != null
-    }
+    fun isLoggedIn(): Boolean = if (isInitialized) manager.isLoggedIn() else false
 
     @JvmStatic
-    fun switchAccount(context: Context, id: Int): Boolean {
-        context.sendBroadcast(Intent().setAction(ACTION_SWITCH_ACCOUNT))
-        val account = runCatching { getAccountInfo(id) }.getOrNull() ?: return false
-        mutableCurrentAccountState.value = account
-        appScope.emitGlobalEvent(GlobalEvent.AccountSwitched)
-        return context.getSharedPreferences("accountData", Context.MODE_PRIVATE).edit()
-            .putInt("now", id).commit()
+    suspend fun switchAccount(context: Context, id: Int): Boolean =
+        if (isInitialized) manager.switchAccount(id) else false
+
+    /**
+     * 获取当前登录账号的信息流（网络请求）
+     * 注意：必须在已登录状态下调用，否则会抛出异常
+     */
+    fun fetchAccountFlow(): Flow<Account> {
+        val account = getLoginInfo() ?: throw IllegalStateException("未登录，无法获取账号信息")
+        return manager.fetchAccountFlow(account)
     }
 
-    private fun updateAccount(
-        account: Account,
-        loginBean: LoginBean,
-    ) {
-        account.apply {
-            uid = loginBean.user.id
-            name = loginBean.user.name
-            portrait = loginBean.user.portrait
-            tbs = loginBean.anti.tbs
-            if (uuid.isNullOrBlank()) uuid = UUID.randomUUID().toString()
-        }
+    /**
+     * 获取指定账号的信息流（网络请求）
+     */
+    fun fetchAccountFlow(account: Account): Flow<Account> {
+        return manager.fetchAccountFlow(account)
     }
 
-    fun fetchAccountFlow(account: Account = getLoginInfo()!!): Flow<Account> {
-        return fetchAccountFlow(account.bduss, account.sToken, account.cookie)
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
+    /**
+     * 通过凭证获取账号信息流（网络请求）
+     */
     fun fetchAccountFlow(
         bduss: String,
         sToken: String,
         cookie: String? = null
     ): Flow<Account> {
-        return TiebaApi.getInstance()
-            .loginFlow(bduss, sToken)
-            .zip(TiebaApi.getInstance().initNickNameFlow(bduss, sToken)) { loginBean, _ ->
-                getAccountInfoByUid(loginBean.user.id)?.apply {
-                    this.bduss = bduss
-                    this.sToken = sToken
-                    this.cookie = cookie ?: getBdussCookie(bduss)
-                    updateAccount(this, loginBean)
-                } ?: Account(
-                    loginBean.user.id,
-                    loginBean.user.name,
-                    bduss,
-                    loginBean.anti.tbs,
-                    loginBean.user.portrait,
-                    sToken,
-                    cookie ?: getBdussCookie(bduss),
-                )
-            }
-            .zip(SofireUtils.fetchZid()) { account, zid ->
-                account.apply { this.zid = zid }
-            }
-            .flatMapConcat { account ->
-                TiebaApi.getInstance()
-                    .getUserInfoFlow(account.uid.toLong(), account.bduss, account.sToken)
-                    .map { checkNotNull(it.data_?.user) }
-                    .map { user ->
-                        account.apply {
-                            nameShow = user.nameShow
-                            portrait = user.portrait
-                        }
-                    }
-                    .catch {
-                        emit(account)
-                    }
-            }
-            .onEach { account ->
-                account.saveOrUpdateAsync("uid = ?", account.uid)
-                    .listen {
-                        LitePal.findAllAsync<Account>()
-                            .listen {
-                                mutableAllAccountsState.value = it
-                            }
-                    }
-            }
-            .flowOn(Dispatchers.IO)
+        return manager.fetchAccountFlow(bduss, sToken, cookie)
     }
 
+    /**
+     * 解析 Cookie 字符串为 Map
+     * 纯函数，不依赖初始化状态，可在登录流程早期调用
+     */
     fun parseCookie(cookie: String): Map<String, String> {
         return cookie
             .split(";")
@@ -206,66 +144,46 @@ object AccountUtil {
     }
 
     @JvmStatic
-    fun updateLoginInfo(cookie: String): Boolean {
-        val cookies = parseCookie(cookie).mapKeys { it.key.uppercase() }
-        val bduss = cookies["BDUSS"]
-        val sToken = cookies["STOKEN"]
-        if (bduss != null && sToken != null) {
-            val account = getAccountInfoByBduss(bduss)
-            account.apply {
-                this.sToken = sToken
-                this.cookie = cookie
-            }.update(account.id.toLong())
-            return true
-        }
-        return false
-    }
+    suspend fun updateLoginInfo(cookie: String): Boolean =
+        if (isInitialized) manager.updateLoginInfo(cookie) else false
 
-    fun exit(context: Context) {
-        var accounts = allAccounts
-        var account = getLoginInfo() ?: return
-        account.delete()
-        CookieManager.getInstance().removeAllCookies(null)
-        if (accounts.size > 1) {
-            accounts = allAccounts
-            account = accounts[0]
-            switchAccount(context, account.id)
-            Toast.makeText(context, "退出登录成功，已切换至账号 " + account.nameShow, Toast.LENGTH_SHORT).show()
+    suspend fun exit(context: Context) {
+        if (!isInitialized) {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                android.widget.Toast.makeText(context, "账号系统未初始化", android.widget.Toast.LENGTH_SHORT).show()
+            }
             return
         }
-        mutableCurrentAccountState.value = null
-        context.getSharedPreferences("accountData", Context.MODE_PRIVATE).edit().clear().commit()
-        Toast.makeText(context, R.string.toast_exit_account_success, Toast.LENGTH_SHORT).show()
+
+        val result = manager.exit()
+
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+            val message = when {
+                !result.success -> "退出登录失败"
+                result.switchedToAccount != null ->
+                    "退出登录成功，已切换至账号 ${result.switchedToAccount.nameShow}"
+                else ->
+                    context.getString(com.huanchengfly.tieba.post.R.string.toast_exit_account_success)
+            }
+            android.widget.Toast.makeText(context, message, android.widget.Toast.LENGTH_SHORT).show()
+        }
     }
 
-    fun getSToken(): String? {
-        val account = getLoginInfo()
-        return account?.sToken
-    }
+    fun getSToken(): String? = if (isInitialized) manager.getSToken() else null
 
-    fun getCookie(): String? {
-        val account = getLoginInfo()
-        return account?.cookie
-    }
+    fun getCookie(): String? = if (isInitialized) manager.getCookie() else null
 
-    fun getUid(): String? {
-        val account = getLoginInfo()
-        return account?.uid
-    }
+    fun getUid(): String? = if (isInitialized) manager.getUid() else null
 
-    fun getBduss(): String? {
-        val account = getLoginInfo()
-        return account?.bduss
-    }
+    fun getBduss(): String? = if (isInitialized) manager.getBduss() else null
 
     @JvmStatic
-    fun getBdussCookie(): String? {
-        val bduss = getBduss()
-        return if (bduss != null) {
-            getBdussCookie(bduss)
-        } else null
-    }
+    fun getBdussCookie(): String? = if (isInitialized) manager.getBdussCookie() else null
 
+    /**
+     * 生成 BDUSS Cookie 字符串
+     * 纯函数，不依赖初始化状态，可在 WebView Cookie 注入时调用
+     */
     fun getBdussCookie(bduss: String): String {
         return "BDUSS=$bduss; Path=/; Max-Age=315360000; Domain=.baidu.com; Httponly"
     }

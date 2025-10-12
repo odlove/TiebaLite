@@ -3,6 +3,7 @@ package com.huanchengfly.tieba.post.ui.page.login
 import android.annotation.SuppressLint
 import android.webkit.CookieManager
 import android.webkit.WebView
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -292,16 +293,9 @@ class LoginWebViewClient(
                         isLoadingAccount = false
                         AccountUtil.newAccount(account.uid, account) {
                             if (it) {
-                                AccountUtil.switchAccount(context, account.id)
                                 coroutineScope.launch {
-                                    snackbarHostState.currentSnackbarData?.dismiss()
-                                    snackbarHostState.showSnackbar(
-                                        context.getString(R.string.text_login_success),
-                                        duration = SnackbarDuration.Short
-                                    )
-                                }
-                                coroutineScope.launch {
-                                    delay(1500L)
+                                    AccountUtil.switchAccount(context, account.id)
+                                    Toast.makeText(context, R.string.text_login_success, Toast.LENGTH_SHORT).show()
                                     nativeNavigator?.navigateUp()
                                 }
                             } else {

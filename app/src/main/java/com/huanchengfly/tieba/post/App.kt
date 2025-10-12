@@ -103,7 +103,7 @@ class App : Application(), SketchFactory {
             Distribute.setUpdateTrack(if (appPreferences.checkCIUpdate) UpdateTrack.PRIVATE else UpdateTrack.PUBLIC)
             Distribute.setListener(MyDistributeListener())
             AppCenter.start(
-                this, "b56debcc-264b-4368-a2cd-8c20213f6433",
+                this, BuildConfig.APP_CENTER_SECRET,
                 Analytics::class.java, Crashes::class.java, Distribute::class.java
             )
         }

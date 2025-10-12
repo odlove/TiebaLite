@@ -74,6 +74,7 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+        viewBinding = true
     }
     signingConfigs {
         val keystoreFile = keystoreProperties.getProperty("keystore.file", "")
@@ -283,9 +284,6 @@ dependencies {
     implementation(libs.com.gyf.immersionbar.immersionbar)
 
     implementation(libs.com.github.yalantis.ucrop)
-
-    implementation(libs.com.jakewharton.butterknife)
-    kapt(libs.com.jakewharton.butterknife.compiler)
 
     implementation(libs.appcenter.analytics)
     implementation(libs.appcenter.crashes)

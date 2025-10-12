@@ -537,12 +537,10 @@ internal fun SubPostsContent(
 }
 
 private fun getDescText(
-    time: Long?,
-    ipAddress: String?
+    time: Long?
 ): String {
     val texts = listOfNotNull(
-        time?.let { DateTimeUtils.getRelativeTimeString(App.INSTANCE, it) },
-        ipAddress?.let { App.INSTANCE.getString(R.string.text_ip_location, it) }
+        time?.let { DateTimeUtils.getRelativeTimeString(App.INSTANCE, it) }
     )
     if (texts.isEmpty()) return ""
     return texts.joinToString(" ")
@@ -651,8 +649,8 @@ private fun SubPostItem(
                             desc = {
                                 Text(
                                     text = getDescText(
-                                        subPost.get { time }.toLong(),
-                                        author.get { ip_address })
+                                        subPost.get { time }.toLong()
+                                    )
                                 )
                             },
                             onClick = {

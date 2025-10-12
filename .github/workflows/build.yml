@@ -41,6 +41,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build with Gradle
+        env:
+          APP_CENTER_SECRET: ${{ secrets.APP_CENTER_SECRET }}
         run: ./gradlew assembleRelease
 
       - name: Read Output Metadata

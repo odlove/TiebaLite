@@ -80,17 +80,24 @@ android {
         manifestPlaceholders["is_self_build"] = "$isSelfBuild"
 
         // AppCenter Secret
-        val appCenterSecret = localProperties.getProperty("appCenterSecret")
-            ?: error("""
+        // CI 环境中使用环境变量或空字符串，本地开发需要配置 local.properties
+        val appCenterSecret = if (isCI != null && isCI.equals("true", ignoreCase = true)) {
+            // CI 环境：从环境变量读取，或使用空字符串（禁用 AppCenter）
+            System.getenv("APP_CENTER_SECRET") ?: ""
+        } else {
+            // 本地开发：必须配置 local.properties
+            localProperties.getProperty("appCenterSecret")
+                ?: error("""
 
-                ❌ 缺少 AppCenter Secret 配置！
+                    ❌ 缺少 AppCenter Secret 配置！
 
-                请在项目根目录的 local.properties 文件中添加：
-                    appCenterSecret=your-secret-here
+                    请在项目根目录的 local.properties 文件中添加：
+                        appCenterSecret=your-secret-here
 
-                如果是 fork 的项目，可以留空或使用自己的 AppCenter Secret。
+                    如果是 fork 的项目，可以留空或使用自己的 AppCenter Secret。
 
-            """.trimIndent())
+                """.trimIndent())
+        }
 
         buildConfigField("String", "APP_CENTER_SECRET", "\"$appCenterSecret\"")
     }

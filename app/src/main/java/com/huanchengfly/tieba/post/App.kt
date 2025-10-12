@@ -29,6 +29,7 @@ import com.github.panpf.sketch.request.PauseLoadWhenScrollingDrawableDecodeInter
 import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.post.components.ClipBoardLinkDetector
 import com.huanchengfly.tieba.post.components.OAIDGetter
+import com.huanchengfly.tieba.post.data.account.AccountManager
 import com.huanchengfly.tieba.post.ui.common.theme.compose.dynamicTonalPalette
 import com.huanchengfly.tieba.post.ui.common.theme.interfaces.ThemeSwitcher
 import com.huanchengfly.tieba.post.ui.common.theme.utils.ThemeUtils
@@ -45,6 +46,7 @@ import com.huanchengfly.tieba.post.utils.appPreferences
 import com.huanchengfly.tieba.post.utils.applicationMetaData
 import com.huanchengfly.tieba.post.utils.packageInfo
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
@@ -67,6 +69,9 @@ class App : Application(), SketchFactory {
     @Inject
     @CoroutineModule.ApplicationScope
     lateinit var applicationScope: CoroutineScope
+
+    @Inject
+    lateinit var accountManager: AccountManager
 
     @RequiresApi(api = 28)
     private fun setWebViewPath(context: Context) {
@@ -96,7 +101,10 @@ class App : Application(), SketchFactory {
             setWebViewPath(this)
         }
         LitePal.initialize(this)
-        AccountUtil.init(this, applicationScope)
+        // 同步初始化账号管理器，确保后续代码（如 NotifyJobService）能立即使用账号数据
+        // LitePal 数据库查询很快（< 50ms），不会显著影响启动时间
+        accountManager.initialize()
+        AccountUtil.init(accountManager)
         Config.init(this)
         val isSelfBuild = applicationMetaData.getBoolean("is_self_build")
         if (!isSelfBuild) {

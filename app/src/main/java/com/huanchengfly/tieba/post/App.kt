@@ -40,9 +40,12 @@ import com.huanchengfly.tieba.post.utils.EmoticonManager
 import com.huanchengfly.tieba.post.utils.SharedPreferencesUtil
 import com.huanchengfly.tieba.post.utils.ThemeUtil
 import com.huanchengfly.tieba.post.utils.Util
+import com.huanchengfly.tieba.post.di.CoroutineModule
 import com.huanchengfly.tieba.post.utils.appPreferences
 import com.huanchengfly.tieba.post.utils.applicationMetaData
 import com.huanchengfly.tieba.post.utils.packageInfo
+import kotlinx.coroutines.CoroutineScope
+import javax.inject.Inject
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
@@ -60,6 +63,10 @@ import kotlin.concurrent.thread
 @HiltAndroidApp
 class App : Application(), SketchFactory {
     private val mActivityList: MutableList<Activity> = mutableListOf()
+
+    @Inject
+    @CoroutineModule.ApplicationScope
+    lateinit var applicationScope: CoroutineScope
 
     @RequiresApi(api = 28)
     private fun setWebViewPath(context: Context) {
@@ -89,7 +96,7 @@ class App : Application(), SketchFactory {
             setWebViewPath(this)
         }
         LitePal.initialize(this)
-        AccountUtil.init(this)
+        AccountUtil.init(this, applicationScope)
         Config.init(this)
         val isSelfBuild = applicationMetaData.getBoolean("is_self_build")
         if (!isSelfBuild) {

@@ -12,11 +12,13 @@ import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.CommonUiEvent
+import com.huanchengfly.tieba.post.arch.GlobalEvent
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
 import com.huanchengfly.tieba.post.arch.UiEvent
 import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
+import com.huanchengfly.tieba.post.arch.emitGlobalEventSuspend
 import com.huanchengfly.tieba.post.components.ImageUploader
 import com.huanchengfly.tieba.post.repository.AddPostRepository
 import com.huanchengfly.tieba.post.utils.FileUtil
@@ -32,6 +34,7 @@ import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
@@ -109,6 +112,22 @@ class ReplyViewModel @Inject constructor() :
                     subPostId = subPostId,
                     replyUserId = replyUserId
                 )
+                .onEach { response ->
+                    val newPostId = checkNotNull(response.data_?.pid?.toLongOrNull())
+                    emitGlobalEventSuspend(
+                        if (postId != null) {
+                            GlobalEvent.ReplySuccess(
+                                threadId,
+                                postId,
+                                postId,
+                                subPostId,
+                                newPostId
+                            )
+                        } else {
+                            GlobalEvent.ReplySuccess(threadId, newPostId)
+                        }
+                    )
+                }
                 .map<AddPostResponse, ReplyPartialChange.Send> {
                     if (it.data_ == null) throw TiebaUnknownException
                     ReplyPartialChange.Send.Success(

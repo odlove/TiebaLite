@@ -17,9 +17,9 @@ import com.huanchengfly.tieba.post.api.models.LoginBean
 import com.huanchengfly.tieba.post.arch.GlobalEvent
 import com.huanchengfly.tieba.post.arch.emitGlobalEvent
 import com.huanchengfly.tieba.post.models.database.Account
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapConcat
@@ -39,6 +39,8 @@ import java.util.UUID
 object AccountUtil {
     const val TAG = "AccountUtil"
     const val ACTION_SWITCH_ACCOUNT = "com.huanchengfly.tieba.post.action.SWITCH_ACCOUNT"
+
+    private lateinit var appScope: CoroutineScope
 
     val LocalAccount = staticCompositionLocalOf<Account?> { null }
     val AllAccounts = staticCompositionLocalOf<List<Account>> { emptyList() }
@@ -66,7 +68,8 @@ object AccountUtil {
     val allAccounts: List<Account>
         get() = mutableAllAccountsState.value
 
-    fun init(context: Context) {
+    fun init(context: Context, applicationScope: CoroutineScope) {
+        this.appScope = applicationScope
         val account = runCatching {
             val loginUser =
                 context.getSharedPreferences("accountData", Context.MODE_PRIVATE).getInt("now", -1)
@@ -119,9 +122,7 @@ object AccountUtil {
         context.sendBroadcast(Intent().setAction(ACTION_SWITCH_ACCOUNT))
         val account = runCatching { getAccountInfo(id) }.getOrNull() ?: return false
         mutableCurrentAccountState.value = account
-        GlobalScope.launch {
-            emitGlobalEvent(GlobalEvent.AccountSwitched)
-        }
+        appScope.emitGlobalEvent(GlobalEvent.AccountSwitched)
         return context.getSharedPreferences("accountData", Context.MODE_PRIVATE).edit()
             .putInt("now", id).commit()
     }

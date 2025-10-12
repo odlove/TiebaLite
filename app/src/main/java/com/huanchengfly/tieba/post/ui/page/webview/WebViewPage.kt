@@ -464,7 +464,7 @@ open class MyWebViewClient(
 
 class MyWebChromeClient(
     context: Context,
-    coroutineScope: CoroutineScope,
+    private val coroutineScope: CoroutineScope,
 ) : AccompanistWebChromeClient() {
     private val contextWeakReference = WeakReference(context)
 
@@ -547,7 +547,7 @@ class MyWebChromeClient(
         if (webView == null || filePathCallback == null || fileChooserParams == null) return false
         uploadMessage?.onReceiveValue(null)
         uploadMessage = filePathCallback
-        launchActivityForResult(id, fileChooserParams.createIntent())
+        coroutineScope.launchActivityForResult(id, fileChooserParams.createIntent())
         return true
     }
 

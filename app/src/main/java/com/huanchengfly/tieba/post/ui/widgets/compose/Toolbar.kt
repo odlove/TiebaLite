@@ -58,9 +58,11 @@ import com.huanchengfly.tieba.post.ui.common.windowsizeclass.WindowWidthSizeClas
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.LoginPageDestination
 import com.huanchengfly.tieba.post.utils.AccountUtil
+import com.huanchengfly.tieba.post.utils.AccountUtil.AllAccounts
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import com.huanchengfly.tieba.post.utils.StringUtil
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
+import kotlinx.coroutines.launch
 
 @Composable
 fun accountNavIconIfCompact(): (@Composable () -> Unit)? =
@@ -91,12 +93,17 @@ fun AccountNavIcon(
         )
     } else {
         val context = LocalContext.current
+        val coroutineScope = rememberCoroutineScope()
         val menuState = rememberMenuState()
         LongClickMenu(
             menuContent = {
-                val allAccounts = AccountUtil.allAccounts
+                val allAccounts = AllAccounts.current
                 allAccounts.forEach {
-                    DropdownMenuItem(onClick = { AccountUtil.switchAccount(context, it.id) }) {
+                    DropdownMenuItem(onClick = {
+                        coroutineScope.launch {
+                            AccountUtil.switchAccount(context, it.id)
+                        }
+                    }) {
                         Box(
                             modifier = Modifier
                                 .clip(CircleShape)

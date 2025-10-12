@@ -51,6 +51,7 @@ import com.huanchengfly.tieba.post.utils.appPreferences
 import com.huanchengfly.tieba.post.utils.launchUrl
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Destination
@@ -76,6 +77,7 @@ fun AccountManagePage(
     ) { paddingValues ->
         val account = LocalAccount.current
         val context = LocalContext.current
+        val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
         PrefsScreen(
             dataStore = LocalContext.current.dataStore,
             dividerThickness = 0.dp,
@@ -101,7 +103,11 @@ fun AccountManagePage(
                                 )
                             }
                         },
-                        onValueChange = { AccountUtil.switchAccount(context, it.toInt()) },
+                        onValueChange = {
+                            coroutineScope.launch {
+                                AccountUtil.switchAccount(context, it.toInt())
+                            }
+                        },
                         enabled = true,
                         defaultValue = account.id.toString(),
                         entries = AllAccounts.current.associate {
@@ -166,7 +172,11 @@ fun AccountManagePage(
             prefsItem {
                 TextPref(
                     title = stringResource(id = R.string.title_exit_account),
-                    onClick = { AccountUtil.exit(context) },
+                    onClick = {
+                        coroutineScope.launch {
+                            AccountUtil.exit(context)
+                        }
+                    },
                     leadingIcon = {
                         LeadingIcon {
                             AvatarIcon(

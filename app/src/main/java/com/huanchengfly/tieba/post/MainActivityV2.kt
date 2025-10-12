@@ -257,20 +257,6 @@ class MainActivityV2 : BaseComposeActivity() {
         }
     }
 
-    private fun fetchAccount() {
-        lifecycleScope.launch(Dispatchers.Main) {
-            if (AccountUtil.isLoggedIn()) {
-                AccountUtil.fetchAccountFlow()
-                    .flowOn(Dispatchers.IO)
-                    .catch { e ->
-                        toastShort(e.getErrorMessage())
-                        e.printStackTrace()
-                    }
-                    .collect()
-            }
-        }
-    }
-
     private fun shouldRequestNotificationPermission(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             return false
@@ -342,11 +328,9 @@ class MainActivityV2 : BaseComposeActivity() {
 
     override fun onCreateContent(systemUiController: SystemUIBarsTweaker) {
         super.onCreateContent(systemUiController)
-        fetchAccount()
+        // fetchAccount() 和 requestNotificationPermission()
+        // 已移至 Content() 中通过 LaunchedEffect 监听账号变化后触发
         initAutoSign()
-        handler.postDelayed({
-            requestNotificationPermission()
-        }, 100)
     }
 
     private fun openClipBoardLink(link: ClipBoardLink) {
@@ -441,6 +425,25 @@ class MainActivityV2 : BaseComposeActivity() {
     override fun Content() {
         val okSignAlertDialogState = rememberDialogState()
         ClipBoardDetectDialog()
+
+        // 监听账号初始化完成后刷新账号信息
+        val currentAccount = AccountUtil.LocalAccount.current
+        LaunchedEffect(currentAccount) {
+            if (currentAccount != null) {
+                // 账号已登录，刷新账号信息
+                AccountUtil.fetchAccountFlow()
+                    .flowOn(Dispatchers.IO)
+                    .catch { e ->
+                        toastShort(e.getErrorMessage())
+                        e.printStackTrace()
+                    }
+                    .collect()
+
+                // 账号初始化完成后，请求通知权限
+                requestNotificationPermission()
+            }
+        }
+
         AlertDialog(
             dialogState = okSignAlertDialogState,
             title = { Text(text = stringResource(id = R.string.title_dialog_oksign_battery_optimization)) },

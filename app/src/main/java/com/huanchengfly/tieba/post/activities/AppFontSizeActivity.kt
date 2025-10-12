@@ -3,34 +3,16 @@ package com.huanchengfly.tieba.post.activities
 import android.os.Bundle
 import android.util.TypedValue
 import android.widget.SeekBar
-import android.widget.TextView
-import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import butterknife.BindView
-import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.huanchengfly.tieba.post.*
 import com.huanchengfly.tieba.post.adapters.ChatBubbleStyleAdapter
 import com.huanchengfly.tieba.post.components.MyLinearLayoutManager
-import com.huanchengfly.tieba.post.ui.widgets.RulerSeekBar
+import com.huanchengfly.tieba.post.databinding.ActivityAppFontSizeBinding
 import com.huanchengfly.tieba.post.utils.ThemeUtil
 
 
 class AppFontSizeActivity : BaseActivity() {
-    @BindView(R.id.toolbar)
-    lateinit var toolbar: Toolbar
-
-    @BindView(R.id.collapsing_toolbar)
-    lateinit var collapsingToolbar: CollapsingToolbarLayout
-
-    @BindView(R.id.app_font_size_seekbar)
-    lateinit var seekBar: RulerSeekBar
-
-    @BindView(R.id.app_font_size_text)
-    lateinit var sizeText: TextView
-
-    @BindView(R.id.app_font_size_bubbles)
-    lateinit var chatBubblesRv: RecyclerView
+    private lateinit var binding: ActivityAppFontSizeBinding
 
     var oldFontSize: Float = 0f
     var finished: Boolean = false
@@ -50,24 +32,27 @@ class AppFontSizeActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ThemeUtil.setTranslucentThemeBackground(this, findViewById(R.id.background))
-        setSupportActionBar(toolbar)
+        binding = ActivityAppFontSizeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        ThemeUtil.setTranslucentThemeBackground(this, binding.background)
+        setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             title = this@AppFontSizeActivity.title
         }
-        collapsingToolbar.title = title
+        findViewById<com.google.android.material.appbar.CollapsingToolbarLayout>(R.id.collapsing_toolbar).title = title
         oldFontSize = appPreferences.fontScale
-        chatBubblesRv.apply {
+        binding.appFontSizeBubbles.apply {
             layoutManager =
                 MyLinearLayoutManager(this@AppFontSizeActivity, LinearLayoutManager.VERTICAL, false)
             adapter = bubblesAdapter
         }
         val progress =
             ((appPreferences.fontScale * 1000L - FONT_SCALE_MIN * 1000L).toInt()) / ((FONT_SCALE_STEP * 1000L).toInt())
-        seekBar.progress = progress
+        binding.appFontSizeSeekbar.progress = progress
         updateSizeText(progress)
-        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        binding.appFontSizeSeekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 val fontScale = FONT_SCALE_MIN + progress * FONT_SCALE_STEP
                 appPreferences.fontScale = fontScale
@@ -98,17 +83,17 @@ class AppFontSizeActivity : BaseActivity() {
             progress in it
         }
         if (sizeTexts.isNotEmpty()) {
-            sizeText.setText(sizeTexts.map { it.key }[0])
+            binding.appFontSizeText.setText(sizeTexts.map { it.key }[0])
         }
     }
 
     fun updatePreview(fontScale: Float = appPreferences.fontScale) {
         bubblesAdapter.bubblesFontSize = 15f.dpToPxFloat() * fontScale
-        sizeText.setTextSize(TypedValue.COMPLEX_UNIT_PX, 16f.dpToPxFloat() * fontScale)
+        binding.appFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_PX, 16f.dpToPxFloat() * fontScale)
     }
 
     override fun getLayoutId(): Int {
-        return R.layout.activity_app_font_size
+        return -1  // Using View Binding instead
     }
 
     companion object {

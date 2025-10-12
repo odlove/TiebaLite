@@ -57,10 +57,11 @@ class AccountRepositoryImplTest {
         every { mockEditor.clear() } returns mockEditor
         every { mockEditor.commit() } returns true  // 默认返回成功
 
-        // Mock LitePal 静态方法
+        // Mock LitePal 静态方法和 Kotlin 扩展函数
         mockkStatic(LitePal::class)
         mockkStatic("org.litepal.LitePal")
-        mockkStatic("org.litepal.FluentQuery")
+        mockkStatic("org.litepal.extension.LitePalKt")      // findFirst() 等扩展函数
+        mockkStatic("org.litepal.extension.FluentQueryKt")  // 扩展函数支持
 
         // 默认返回空列表（未登录状态）
         every { mockSharedPreferences.getInt(AccountConstants.PREF_KEY_CURRENT_ACCOUNT, AccountConstants.INVALID_ACCOUNT_ID) } returns AccountConstants.INVALID_ACCOUNT_ID

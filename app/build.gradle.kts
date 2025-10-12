@@ -1,6 +1,21 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import java.util.Properties
 
+// 跟踪 git HEAD 变化，确保 commit 后 Gradle 重新配置
+// 通过读取 .git/HEAD 文件，Gradle 会自动将其作为配置输入
+val gitHeadFile = file("${rootProject.projectDir}/.git/HEAD")
+if (gitHeadFile.exists()) {
+    val gitHead = gitHeadFile.readText().trim()
+    // 如果 HEAD 指向 ref，读取实际的 commit hash 文件
+    if (gitHead.startsWith("ref:")) {
+        val refPath = gitHead.substring(5).trim()
+        val refFile = file("${rootProject.projectDir}/.git/$refPath")
+        if (refFile.exists()) {
+            refFile.readText() // 读取文件让 Gradle 跟踪变化
+        }
+    }
+}
+
 // 读取 application.properties
 val appProperties = Properties().apply {
     file("${rootProject.projectDir}/application.properties").inputStream().use { load(it) }
@@ -41,10 +56,13 @@ val applicationVersionCode = (System.currentTimeMillis() / 1000).toInt()
 var applicationVersionName = appProperties.getProperty("versionName")
 val isPerVersion = appProperties.getProperty("isPreRelease").toBoolean()
 
-// 获取 git commit hash
+// 获取 git commit hash（使用 Provider 延迟计算，避免 Configuration Cache 缓存旧值）
+val gitHashProvider = providers.exec {
+    commandLine("git", "rev-parse", "--short=7", "HEAD")
+}.standardOutput.asText.map { it.trim() }
+
 val gitHash = try {
-    Runtime.getRuntime().exec("git rev-parse --short=7 HEAD")
-        .inputStream.bufferedReader().readText().trim()
+    gitHashProvider.getOrElse(sha?.substring(0, 7) ?: "unknown")
 } catch (e: Exception) {
     sha?.substring(0, 7) ?: "unknown"
 }

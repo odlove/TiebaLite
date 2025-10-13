@@ -115,6 +115,16 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
         if (getLayoutId() != -1) {
             setContentView(getLayoutId())
         }
+
+        // 使用新的 OnBackPressedDispatcher API 支持预测性返回
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (!HandleBackUtil.handleBackPress(this@BaseActivity)) {
+                    // 如果没有 Fragment 处理返回事件，则关闭 Activity
+                    finish()
+                }
+            }
+        })
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -167,9 +177,8 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                if (!HandleBackUtil.handleBackPress(this)) {
-                    finish()
-                }
+                // 使用 OnBackPressedDispatcher 处理返回，支持预测性返回
+                onBackPressedDispatcher.onBackPressed()
                 return true
             }
         }
@@ -190,12 +199,6 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
         super.setSupportActionBar(toolbar)
         if (toolbar is TintToolbar) {
             mTintToolbar = toolbar
-        }
-    }
-
-    override fun onBackPressed() {
-        if (!HandleBackUtil.handleBackPress(this)) {
-            super.onBackPressed()
         }
     }
 

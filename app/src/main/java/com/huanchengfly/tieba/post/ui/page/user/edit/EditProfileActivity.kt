@@ -205,7 +205,7 @@ class EditProfileActivity : BaseActivity() {
                         )
                     )
                 }
-                PageEditProfile(viewModel, onBackPressed = { onBackPressed() })
+                PageEditProfile(viewModel, onBackPressed = { onBackPressedDispatcher.onBackPressed() })
             }
         }
         handler.post {

@@ -32,7 +32,7 @@ class NotifyJobService : JobService() {
             )
             channel.group = CHANNEL_GROUP
             channel.setShowBadge(true)
-            notificationManager!!.createNotificationChannel(channel)
+            notificationManager?.createNotificationChannel(channel)
         }
     }
 
@@ -45,7 +45,7 @@ class NotifyJobService : JobService() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     channelGroup.description = "贴吧的各种消息通知"
                 }
-                notificationManager!!.createNotificationChannelGroup(channelGroup)
+                notificationManager?.createNotificationChannelGroup(channelGroup)
                 createChannel(CHANNEL_REPLY, CHANNEL_REPLY_NAME)
                 createChannel(CHANNEL_AT, CHANNEL_AT_NAME)
             }
@@ -145,7 +145,7 @@ class NotifyJobService : JobService() {
             )
             .setColor(ThemeUtils.getColorByAttr(this, R.attr.colorPrimary))
             .build()
-        notificationManager!!.notify(id, notification)
+        notificationManager?.notify(id, notification)
     }
 
     companion object {

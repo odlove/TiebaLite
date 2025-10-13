@@ -788,17 +788,19 @@ fun ThreadPage(
                     )
                 )
             } else {
-                val isSelfPost = deletePost!!.get { author_id } == user.get { id }
-                viewModel.send(
-                    ThreadUiIntent.DeletePost(
-                        forumId = curForumId,
-                        forumName = curForumName.orEmpty(),
-                        threadId = threadId,
-                        postId = deletePost!!.get { id },
-                        deleteMyPost = isSelfPost,
-                        tbs = curTbs
+                deletePost?.let { post ->
+                    val isSelfPost = post.get { author_id } == user.get { id }
+                    viewModel.send(
+                        ThreadUiIntent.DeletePost(
+                            forumId = curForumId,
+                            forumName = curForumName.orEmpty(),
+                            threadId = threadId,
+                            postId = post.get { id },
+                            deleteMyPost = isSelfPost,
+                            tbs = curTbs
+                        )
                     )
-                )
+                }
             }
         }
     ) {
@@ -806,7 +808,7 @@ fun ThreadPage(
             text = stringResource(
                 id = R.string.message_confirm_delete,
                 if (deletePost == null) stringResource(id = R.string.this_thread)
-                else stringResource(id = R.string.tip_post_floor, deletePost!!.get { floor })
+                else stringResource(id = R.string.tip_post_floor, deletePost?.get { floor } ?: 0)
             )
         )
     }
@@ -1334,11 +1336,11 @@ fun ThreadPage(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 item(key = "FirstPost") {
-                                    if (firstPost != null) {
+                                    firstPost?.let { post ->
                                         Container {
                                             Column {
                                                 PostCard(
-                                                    postHolder = firstPost!!,
+                                                    postHolder = post,
                                                     contentRenders = firstPostContentRenders,
                                                     canDelete = { it.author_id == user.get { id } },
                                                     immersiveMode = isImmersiveMode,
@@ -1759,7 +1761,7 @@ fun PostCard(
         postHolder.get { floor > 1 } && !immersiveMode
     }
     val paddingModifier = Modifier.padding(start = if (hasPadding) Sizes.Small + 8.dp else 0.dp)
-    val author = postHolder.get { author!! }
+    val author = postHolder.get { author } ?: return
     val showTitle = remember(postHolder) {
         post.title.isNotBlank() && post.floor <= 1 && post.is_ntitle != 1
     }

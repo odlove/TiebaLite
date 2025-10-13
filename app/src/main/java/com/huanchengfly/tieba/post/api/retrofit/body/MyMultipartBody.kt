@@ -82,7 +82,7 @@ class MyMultipartBody internal constructor(
             val headers = part.headers
             val body = part.body
 
-            sink!!.write(DASHDASH)
+            checkNotNull(sink).write(DASHDASH)
             sink.write(boundaryByteString)
             sink.write(CRLF)
 
@@ -105,7 +105,7 @@ class MyMultipartBody internal constructor(
             val contentLength = body.contentLength()
             if (countBytes) {
                 // We can't measure the body's size without the sizes of its components.
-                byteCountBuffer!!.clear()
+                checkNotNull(byteCountBuffer).clear()
                 return -1L
             }
 
@@ -120,13 +120,13 @@ class MyMultipartBody internal constructor(
             sink.write(CRLF)
         }
 
-        sink!!.write(DASHDASH)
+        checkNotNull(sink).write(DASHDASH)
         sink.write(boundaryByteString)
         sink.write(DASHDASH)
         sink.write(CRLF)
 
         if (countBytes) {
-            byteCount += byteCountBuffer!!.size
+            byteCount += checkNotNull(byteCountBuffer).size
             byteCountBuffer.clear()
         }
 

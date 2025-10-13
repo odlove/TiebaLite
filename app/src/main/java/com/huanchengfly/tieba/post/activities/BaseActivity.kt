@@ -177,16 +177,12 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        if (mTintToolbar != null) {
-            mTintToolbar!!.tint()
-        }
+        mTintToolbar?.tint()
         return true
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        if (mTintToolbar != null) {
-            mTintToolbar!!.tint()
-        }
+        mTintToolbar?.tint()
         return true
     }
 
@@ -320,7 +316,7 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     @Keep
     protected class ImageViewAnimWrapper(private val mTarget: ImageView) {
         var tint: Int
-            get() = if (mTarget.imageTintList != null) mTarget.imageTintList!!.defaultColor else 0x00000000
+            get() = mTarget.imageTintList?.defaultColor ?: 0x00000000
             set(color) {
                 mTarget.imageTintList = ColorStateList.valueOf(color)
             }

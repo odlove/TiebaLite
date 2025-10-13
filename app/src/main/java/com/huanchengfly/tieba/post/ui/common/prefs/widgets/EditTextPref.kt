@@ -212,20 +212,19 @@ fun EditTextPref(
 
 @Composable
 fun DialogHeader(dialogTitle: String?, dialogMessage: String?) {
-
     Column(modifier = Modifier.padding(16.dp)) {
-        dialogTitle.ifNotNullThen {
+        dialogTitle?.let { title ->
             Text(
-                text = dialogTitle!!,
+                text = title,
                 style = MaterialTheme.typography.h6
             )
-        }?.invoke()
+        }
 
-        dialogMessage.ifNotNullThen {
+        dialogMessage?.let { message ->
             Text(
-                text = dialogMessage!!,
+                text = message,
                 style = MaterialTheme.typography.subtitle1
             )
-        }?.invoke()
+        }
     }
 }

@@ -246,8 +246,8 @@ fun NetworkImage(
 
     val request = remember(imageUri, shouldLoad, colorMask) {
         DisplayRequest(context, imageUri) {
-            placeholder(ImageUtil.getPlaceHolder(context, 0))
-            crossfade()
+            placeholder(ThumbnailMemoryCacheStateImage())
+            crossfade(fadeStart = false)
             if (!shouldLoad) {
                 depth(Depth.LOCAL)
             }

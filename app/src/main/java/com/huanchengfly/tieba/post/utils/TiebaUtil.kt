@@ -58,7 +58,7 @@ object TiebaUtil {
             pendingIntentFlagMutable()
         )
         if (autoSign) {
-            val autoSignTimeStr = context.appPreferences.autoSignTime!!
+            val autoSignTimeStr = context.appPreferences.autoSignTime ?: "09:00"
             val time = autoSignTimeStr.split(":").toTypedArray()
             val hour = time[0].toInt()
             val minute = time[1].toInt()

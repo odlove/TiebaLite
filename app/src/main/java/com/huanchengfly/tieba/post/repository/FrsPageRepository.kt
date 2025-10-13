@@ -24,8 +24,9 @@ object FrsPageRepository {
         forceNew: Boolean = false,
     ): Flow<FrsPageResponse> {
         val hash = "${forumName}_${page}_${loadType}_${sortType}_${goodClassifyId}"
-        if (!forceNew && lastResponse != null && lastHash == hash) {
-            return flowOf(lastResponse!!)
+        val cachedResponse = lastResponse
+        if (!forceNew && cachedResponse != null && lastHash == hash) {
+            return flowOf(cachedResponse)
         }
         lastHash = hash
         return TiebaApi.getInstance().frsPage(forumName, page, loadType, sortType, goodClassifyId)

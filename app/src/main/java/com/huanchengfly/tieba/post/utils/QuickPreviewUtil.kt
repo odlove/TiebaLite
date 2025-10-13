@@ -60,7 +60,7 @@ object QuickPreviewUtil {
             "/mo/q/m",
             ignoreCase = true
         )) &&
-                kz != null || path!!.startsWith("/p/")
+                kz != null || path?.startsWith("/p/") == true
     }
 
     @JvmStatic
@@ -97,7 +97,7 @@ object QuickPreviewUtil {
                     call: Call<ThreadContentBean>,
                     response: Response<ThreadContentBean>
                 ) {
-                    val threadContentBean = response.body()!!
+                    val threadContentBean = response.body() ?: return callback.onFailure(-1, "Empty response")
                     callback.onSuccess(
                         PreviewInfo(
                             clipBoardLink = link,
@@ -154,7 +154,7 @@ object QuickPreviewUtil {
             }
 
             override fun onResponse(call: Call<ForumPageBean>, response: Response<ForumPageBean>) {
-                val forumPageBean = response.body()!!
+                val forumPageBean = response.body() ?: return callback.onFailure(-1, "Empty response")
                 callback.onSuccess(
                     PreviewInfo(
                         clipBoardLink = link,

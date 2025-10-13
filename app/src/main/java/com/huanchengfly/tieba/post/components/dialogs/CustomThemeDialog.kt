@@ -31,9 +31,13 @@ class CustomThemeDialog(context: Context) : AlertDialog(context),
     private var statusBarFontDark = false
     private var toolbarPrimary = false
     private fun initListener() {
-        primaryColorLayout!!.setOnClickListener(this)
-        statusBarFont!!.setOnCheckedChangeListener(this)
-        toolbarPrimaryColor!!.setOnCheckedChangeListener(this)
+        if (primaryColorLayout == null || statusBarFont == null || toolbarPrimaryColor == null) {
+            dismiss()
+            return
+        }
+        primaryColorLayout?.setOnClickListener(this)
+        statusBarFont?.setOnCheckedChangeListener(this)
+        toolbarPrimaryColor?.setOnCheckedChangeListener(this)
     }
 
     private fun initView() {
@@ -50,10 +54,10 @@ class CustomThemeDialog(context: Context) : AlertDialog(context),
     }
 
     private fun refreshView() {
-        primaryColorView!!.backgroundTintList = ColorStateList.valueOf(primaryColor)
-        statusBarFont!!.isChecked = statusBarFontDark
-        toolbarPrimaryColor!!.isChecked = toolbarPrimary
-        statusBarFont!!.visibility = if (toolbarPrimary) View.VISIBLE else View.GONE
+        primaryColorView?.backgroundTintList = ColorStateList.valueOf(primaryColor)
+        statusBarFont?.isChecked = statusBarFontDark
+        toolbarPrimaryColor?.isChecked = toolbarPrimary
+        statusBarFont?.visibility = if (toolbarPrimary) View.VISIBLE else View.GONE
         ThemeUtils.refreshUI(context)
     }
 

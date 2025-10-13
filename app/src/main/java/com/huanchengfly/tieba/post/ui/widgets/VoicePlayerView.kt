@@ -147,10 +147,8 @@ class VoicePlayerView @JvmOverloads constructor(
         if (isInEditMode) {
             return
         }
-        if (timer != null) {
-            timer!!.cancel()
-            timer = null
-        }
+        timer?.cancel()
+        timer = null
         timer = Timer()
         player = Player(this)
     }
@@ -190,7 +188,7 @@ class VoicePlayerView @JvmOverloads constructor(
             initMediaPlayer()
         } else {
             try {
-                player!!.reset()
+                player?.reset()
             } catch (e: IllegalStateException) {
                 e.printStackTrace()
                 player = null
@@ -202,10 +200,8 @@ class VoicePlayerView @JvmOverloads constructor(
         completed = false
         setState(STATE_PAUSING)
         animationView.visibility = GONE
-        if (timer != null) {
-            timer!!.cancel()
-            timer = null
-        }
+        timer?.cancel()
+        timer = null
         timer = Timer()
     }
 
@@ -246,7 +242,7 @@ class VoicePlayerView @JvmOverloads constructor(
         }
         Player.notifyReset()
         try {
-            player!!.reset()
+            player?.reset()
         } catch (e: IllegalStateException) {
             e.printStackTrace()
             player = null
@@ -257,8 +253,8 @@ class VoicePlayerView @JvmOverloads constructor(
         hasPrepared = false
         completed = false
         try {
-            player!!.setDataSource(url)
-            player!!.prepare()
+            player?.setDataSource(url)
+            player?.prepare()
             setState(STATE_LOADING)
         } catch (e: IOException) {
             e.printStackTrace()
@@ -269,14 +265,10 @@ class VoicePlayerView @JvmOverloads constructor(
     }
 
     fun release() {
-        if (timer != null) {
-            timer!!.cancel()
-            timer = null
-        }
-        if (player != null) {
-            player!!.release()
-            player = null
-        }
+        timer?.cancel()
+        timer = null
+        player?.release()
+        player = null
     }
 
     override fun onClick(v: View) {
@@ -290,7 +282,7 @@ class VoicePlayerView @JvmOverloads constructor(
         if (!isThisPlaying) {
             Log.i(TAG, "toggleStatus: startPlay")
             startPlay()
-        } else if (player!!.isPlaying) {
+        } else if (player?.isPlaying == true) {
             Log.i(TAG, "toggleStatus: pause")
             pause()
         } else {
@@ -300,12 +292,13 @@ class VoicePlayerView @JvmOverloads constructor(
     }
 
     fun play() {
-        if (player != null && hasPrepared && !player!!.isPlaying) {
+        val currentPlayer = player
+        if (currentPlayer != null && hasPrepared && !currentPlayer.isPlaying) {
             if (completed || forceReset) {
                 startPlay()
                 return
             }
-            player!!.start()
+            currentPlayer.start()
             setState(STATE_PLAYING)
         }
     }
@@ -314,8 +307,9 @@ class VoicePlayerView @JvmOverloads constructor(
         get() = TextUtils.equals(Player.PLAYING_DATA_SOURCE, url)
 
     private fun pause() {
-        if (player != null && hasPrepared && player!!.isPlaying) {
-            player!!.pause()
+        val currentPlayer = player
+        if (currentPlayer != null && hasPrepared && currentPlayer.isPlaying) {
+            currentPlayer.pause()
             setState(STATE_PAUSING)
         }
     }
@@ -328,7 +322,7 @@ class VoicePlayerView @JvmOverloads constructor(
             play()
             setState(STATE_PLAYING)
             setText(calculateTime(duration / 1000))
-            timer!!.schedule(object : TimerTask() {
+            timer?.schedule(object : TimerTask() {
                 override fun run() {
                     if (!completed) {
                         Companion.handler.post {
@@ -379,10 +373,11 @@ class VoicePlayerView @JvmOverloads constructor(
         @OptIn(UnstableApi::class)
         @Throws(IOException::class)
         override fun setDataSource(url: String?) {
+            if (url == null) throw IllegalArgumentException("URL cannot be null")
             mExoPlayer.setMediaSource(
                 DefaultMediaSourceFactory(voicePlayerView.context)
                     .createMediaSource(
-                        MediaItem.fromUri(url!!)
+                        MediaItem.fromUri(url)
                     )
             )
             dataSource = url
@@ -398,12 +393,10 @@ class VoicePlayerView @JvmOverloads constructor(
         private fun setCurrent(current: VoicePlayerView?) {
             if (current != null) {
                 CURRENT = current
-                Manager.notifyPlaying(CURRENT)
-                mExoPlayer.addListener(CURRENT!!)
+                Manager.notifyPlaying(current)
+                mExoPlayer.addListener(current)
             } else {
-                if (CURRENT != null) mExoPlayer.removeListener(
-                    CURRENT!!
-                )
+                CURRENT?.let { mExoPlayer.removeListener(it) }
                 CURRENT = null
             }
         }
@@ -413,7 +406,7 @@ class VoicePlayerView @JvmOverloads constructor(
         }
 
         override fun release() {
-            if (CURRENT != null) CURRENT!!.reset()
+            CURRENT?.reset()
             mExoPlayer.release()
             PLAYING_DATA_SOURCE = null
             setCurrent(null)
@@ -449,9 +442,7 @@ class VoicePlayerView @JvmOverloads constructor(
             var CURRENT: VoicePlayerView? = null
             var PLAYING_DATA_SOURCE: String? = null
             fun notifyReset() {
-                if (CURRENT != null) {
-                    CURRENT!!.reset()
-                }
+                CURRENT?.reset()
             }
         }
     }
@@ -486,7 +477,7 @@ class VoicePlayerView @JvmOverloads constructor(
                     }
                 }
             }
-            return sExoPlayer!!
+            return checkNotNull(sExoPlayer) { "ExoPlayer should have been initialized" }
         }
 
         fun notifyPlaying(voicePlayerView: VoicePlayerView?) {
@@ -494,12 +485,9 @@ class VoicePlayerView @JvmOverloads constructor(
         }
 
         fun release() {
-            if (current != null) {
-                current!!.release()
-                current = null
-            } else if (sExoPlayer != null) {
-                sExoPlayer!!.release()
-            }
+            current?.release()
+            current = null
+            sExoPlayer?.release()
             sExoPlayer = null
         }
     }

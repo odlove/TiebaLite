@@ -76,9 +76,9 @@ class App : Application(), SketchFactory {
     @RequiresApi(api = 28)
     private fun setWebViewPath(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val processName = getProcessName(context)
+            val processName = getProcessName(context) ?: return
             if (applicationContext.packageName != processName) { //判断不等于默认进程名称
-                WebView.setDataDirectorySuffix(processName!!)
+                WebView.setDataDirectorySuffix(processName)
             }
         }
     }

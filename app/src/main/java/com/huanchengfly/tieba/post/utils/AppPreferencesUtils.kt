@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.dataStore
 import com.huanchengfly.tieba.post.getBoolean
 import com.huanchengfly.tieba.post.getFloat
@@ -41,7 +42,7 @@ open class AppPreferencesUtils private constructor(ctx: Context) {
     private val contextWeakReference: WeakReference<Context> = WeakReference(ctx)
 
     private val context: Context
-        get() = contextWeakReference.get()!!
+        get() = contextWeakReference.get() ?: App.INSTANCE
 
     private val preferencesDataStore: DataStore<Preferences>
         get() = context.dataStore

@@ -122,8 +122,8 @@ open class SwipeableState<T>(
         if (oldAnchors.isEmpty()) {
             // If this is the first time that we receive anchors, then we need to initialise
             // the state so we snap to the offset associated to the initial value.
-            minBound = newAnchors.keys.minOrNull()!!
-            maxBound = newAnchors.keys.maxOrNull()!!
+            minBound = newAnchors.keys.minOrNull() ?: Float.NEGATIVE_INFINITY
+            maxBound = newAnchors.keys.maxOrNull() ?: Float.POSITIVE_INFINITY
             val initialOffset = newAnchors.getOffset(currentValue)
             requireNotNull(initialOffset) {
                 "The initial value must have an associated anchor."
@@ -143,13 +143,13 @@ open class SwipeableState<T>(
                 val oldState = oldAnchors[animationTargetValue]
                 val newState = newAnchors.getOffset(oldState)
                 // return new state if exists, or find the closes one among new anchors
-                newState ?: newAnchors.keys.minByOrNull { abs(it - animationTargetValue) }!!
+                newState ?: newAnchors.keys.minByOrNull { abs(it - animationTargetValue) } ?: animationTargetValue
             } else {
                 // we're not animating, proceed by finding the new anchors for an old value
                 val actualOldValue = oldAnchors[offset.value]
                 val value = if (actualOldValue == currentValue) currentValue else actualOldValue
                 newAnchors.getOffset(value) ?: newAnchors
-                    .keys.minByOrNull { abs(it - offset.value) }!!
+                    .keys.minByOrNull { abs(it - offset.value) } ?: offset.value
             }
             try {
                 animateInternalToOffset(targetOffset, animationSpec)
@@ -158,8 +158,8 @@ open class SwipeableState<T>(
                 snapInternalToOffset(targetOffset)
             } finally {
                 currentValue = newAnchors.getValue(targetOffset)
-                minBound = newAnchors.keys.minOrNull()!!
-                maxBound = newAnchors.keys.maxOrNull()!!
+                minBound = newAnchors.keys.minOrNull() ?: Float.NEGATIVE_INFINITY
+                maxBound = newAnchors.keys.maxOrNull() ?: Float.POSITIVE_INFINITY
             }
         }
     }
@@ -331,7 +331,7 @@ open class SwipeableState<T>(
      */
     suspend fun performFling(velocity: Float) {
         latestNonEmptyAnchorsFlow.collect { anchors ->
-            val lastAnchor = anchors.getOffset(currentValue)!!
+            val lastAnchor = anchors.getOffset(currentValue) ?: return@collect
             val targetValue = computeTarget(
                 offset = offset.value,
                 lastValue = lastAnchor,
@@ -710,7 +710,9 @@ object SwipeableDefaults {
         return if (anchors.size <= 1) {
             null
         } else {
-            val basis = anchors.maxOrNull()!! - anchors.minOrNull()!!
+            val max = anchors.maxOrNull() ?: return null
+            val min = anchors.minOrNull() ?: return null
+            val basis = max - min
             ResistanceConfig(basis, factorAtMin, factorAtMax)
         }
     }

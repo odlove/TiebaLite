@@ -346,12 +346,12 @@ class ThreadViewModel @Inject constructor() :
                         || response.data_.forum == null
                         || response.data_.anti == null
                     ) throw TiebaUnknownException
-                    val firstLatestPost = response.data_.post_list.first()
+                    val firstLatestPost = response.data_.post_list.firstOrNull()
                     ThreadPartialChange.LoadMyLatestReply.Success(
                         anti = response.data_.anti,
                         posts = response.data_.post_list.map { PostItemData(it.wrapImmutable()) },
                         page = response.data_.page.current_page,
-                        isContinuous = firstLatestPost.floor == curLatestPostFloor + 1,
+                        isContinuous = firstLatestPost?.floor == curLatestPostFloor + 1,
                         isDesc = isDesc,
                         hasNewPost = response.data_.post_list.any { !curPostIds.contains(it.id) },
                     )

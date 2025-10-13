@@ -211,8 +211,9 @@ class MainActivityV2 : BaseComposeActivity() {
                     value.currentDestinationFlow
                         .take(1)
                         .collect {
-                            if (waitingNavCollectorToNavigate.get() && direction != null) {
-                                value.navigate(direction!!)
+                            val dir = direction
+                            if (waitingNavCollectorToNavigate.get() && dir != null) {
+                                value.navigate(dir)
                                 waitingNavCollectorToNavigate.set(false)
                                 direction = null
                             }
@@ -232,7 +233,7 @@ class MainActivityV2 : BaseComposeActivity() {
 
     private fun checkIntent(intent: Intent): Boolean {
         return if (intent.data?.scheme == "com.baidu.tieba" && intent.data?.host == "unidispatch") {
-            val uri = intent.data!!
+            val uri = intent.data ?: return false
             when (uri.path.orEmpty().lowercase()) {
                 "/frs" -> {
                     val forumName = uri.getQueryParameter("kw") ?: return true
@@ -246,7 +247,7 @@ class MainActivityV2 : BaseComposeActivity() {
             }
             true
         } else return if (intent.data?.host == "tieba.baidu.com") {
-            val uri = intent.data!!
+            val uri = intent.data ?: return false
             when {
                 uri.path.orEmpty().lowercase() == "/f" -> {
                     val forumName = uri.getQueryParameter("kw") ?: return true

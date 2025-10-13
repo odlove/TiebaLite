@@ -2,6 +2,7 @@ package com.huanchengfly.tieba.post.utils
 
 import android.content.Context
 import android.util.Log
+import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.MSignBean
 import com.huanchengfly.tieba.post.api.models.SignResultBean
@@ -24,7 +25,7 @@ abstract class IOKSigner(
     private val contextWeakReference: WeakReference<Context> = WeakReference(context)
 
     val context: Context
-        get() = contextWeakReference.get()!!
+        get() = contextWeakReference.get() ?: App.INSTANCE
 
     abstract suspend fun start(): Boolean
 

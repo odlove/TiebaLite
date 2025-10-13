@@ -255,7 +255,7 @@ object EmoticonManager {
         }
         val resId = getEmoticonResId(context, id)
         if (resId != 0) {
-            return AppCompatResources.getDrawable(context, resId).also { drawableCache[id] = it!! }
+            return AppCompatResources.getDrawable(context, resId)?.also { drawableCache[id] = it }
         }
         val emoticonFile = getEmoticonFile(id)
         if (!emoticonFile.exists()) {

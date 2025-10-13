@@ -177,6 +177,38 @@ object AccountUtil {
 
     fun getBduss(): String? = if (isInitialized) manager.getBduss() else null
 
+    /**
+     * 获取 SToken（登录必需）
+     * @throws IllegalStateException 如果用户未登录
+     */
+    fun requireSToken(): String {
+        return getSToken() ?: throw IllegalStateException("未登录，无法获取 SToken")
+    }
+
+    /**
+     * 获取 BDUSS（登录必需）
+     * @throws IllegalStateException 如果用户未登录
+     */
+    fun requireBduss(): String {
+        return getBduss() ?: throw IllegalStateException("未登录，无法获取 BDUSS")
+    }
+
+    /**
+     * 获取 UID（登录必需）
+     * @throws IllegalStateException 如果用户未登录
+     */
+    fun requireUid(): String {
+        return getUid() ?: throw IllegalStateException("未登录，无法获取 UID")
+    }
+
+    /**
+     * 获取登录信息（登录必需）
+     * @throws IllegalStateException 如果用户未登录
+     */
+    fun requireLoginInfo(): Account {
+        return getLoginInfo() ?: throw IllegalStateException("未登录，无法获取登录信息")
+    }
+
     @JvmStatic
     fun getBdussCookie(): String? = if (isInitialized) manager.getBdussCookie() else null
 

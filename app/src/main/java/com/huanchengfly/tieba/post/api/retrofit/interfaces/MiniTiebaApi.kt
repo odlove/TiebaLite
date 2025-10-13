@@ -135,8 +135,8 @@ interface MiniTiebaApi {
         @Field("agree_type") agree_type: Int = 2,
         @Field("obj_type") obj_type: Int = 3,
         @Field("op_type") op_type: Int = 1,
-        @Field("tbs") tbs: String = AccountUtil.getLoginInfo()!!.tbs,
-        @Field("stoken") stoken: String = AccountUtil.getSToken()!!
+        @Field("tbs") tbs: String = AccountUtil.requireLoginInfo().tbs,
+        @Field("stoken") stoken: String = AccountUtil.requireSToken()
     ): Call<AgreeBean>
 
     @Headers("${Header.FORCE_LOGIN}: ${Header.FORCE_LOGIN_TRUE}")
@@ -152,8 +152,8 @@ interface MiniTiebaApi {
         @Field("agree_type") agree_type: Int = 5,
         @Field("obj_type") obj_type: Int = 3,
         @Field("op_type") op_type: Int = 1,
-        @Field("tbs") tbs: String = AccountUtil.getLoginInfo()!!.tbs,
-        @Field("stoken") stoken: String = AccountUtil.getSToken()!!
+        @Field("tbs") tbs: String = AccountUtil.requireLoginInfo().tbs,
+        @Field("stoken") stoken: String = AccountUtil.requireSToken()
     ): Flow<AgreeBean>
 
     @Headers("${Header.FORCE_LOGIN}: ${Header.FORCE_LOGIN_TRUE}")

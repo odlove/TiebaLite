@@ -159,13 +159,15 @@ fun NotificationsListPage(
                                             )
                                         },
                                         onClick = {
-                                            navigator.navigate(UserProfilePageDestination(info.replyer.id!!.toLong()))
+                                            info.replyer.id?.toLongOrNull()?.let { userId ->
+                                                navigator.navigate(UserProfilePageDestination(userId))
+                                            }
                                         },
                                         desc = {
                                             Text(
                                                 text = DateTimeUtils.getRelativeTimeString(
                                                     LocalContext.current,
-                                                    info.time!!
+                                                    info.time ?: "0"
                                                 )
                                             )
                                         },

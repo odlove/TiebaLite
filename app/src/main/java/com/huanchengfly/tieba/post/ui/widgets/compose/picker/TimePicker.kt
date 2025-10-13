@@ -104,7 +104,7 @@ fun TimePicker(
                 modifier = Modifier
                     .fillMaxHeight(1f)
                     .fillMaxWidth(.3f),
-                selectedItem = pickerTime.timesOfDay!!,
+                selectedItem = pickerTime.timesOfDay ?: TimesOfDay.AM,
                 onItemChanged = {
                     pickerTime.timesOfDay = it
                     onTimeChanged(pickerTime.toString())

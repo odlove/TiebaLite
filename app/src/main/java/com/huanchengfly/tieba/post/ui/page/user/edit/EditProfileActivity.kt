@@ -110,8 +110,9 @@ class EditProfileActivity : BaseActivity() {
             if (it.resultCode == Activity.RESULT_OK) {
                 viewModel.send(EditProfileIntent.UploadPortrait(File(cacheDir, "cropped_portrait")))
             } else if (it.resultCode == UCrop.RESULT_ERROR) {
-                val cropError = UCrop.getError(it.data!!)
-                cropError!!.printStackTrace()
+                it.data?.let { data ->
+                    UCrop.getError(data)?.printStackTrace()
+                }
             }
         }
 

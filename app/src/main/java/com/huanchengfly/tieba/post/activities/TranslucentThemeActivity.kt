@@ -137,12 +137,13 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
-            mUri = UCrop.getOutput(data!!)
+            mUri = data?.let { UCrop.getOutput(it) }
             invalidateFinishBtn()
             refreshBackground()
         } else if (resultCode == UCrop.RESULT_ERROR) {
-            val cropError = UCrop.getError(data!!)
-            cropError!!.printStackTrace()
+            data?.let { intentData ->
+                UCrop.getError(intentData)?.printStackTrace()
+            }
         }
     }
 

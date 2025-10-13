@@ -36,15 +36,17 @@ fun PrefsListItem(
         }
     }
 
-    val styledText = applyTextStyle(
-        typography.subtitle1,
-        textColor,
-        when {
-            enabled || !darkenOnDisable -> ContentAlpha.high
-            else -> ContentAlpha.disabled
-        },
-        text
-    )!!
+    val styledText = requireNotNull(
+        applyTextStyle(
+            typography.subtitle1,
+            textColor,
+            when {
+                enabled || !darkenOnDisable -> ContentAlpha.high
+                else -> ContentAlpha.disabled
+            },
+            text
+        )
+    ) { "applyTextStyle 不应对非空文本返回 null" }
     val styledSecondaryText = applyTextStyle(
         typography.body2,
         textColor,

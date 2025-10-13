@@ -109,7 +109,7 @@ interface OfficialTiebaApi {
     fun submitDislike(
         @Field("dislike") dislike: String,
         @Field("dislike_from") dislike_from: String = "homepage",
-        @Field("stoken") stoken: String = AccountUtil.getSToken()!!
+        @Field("stoken") stoken: String = AccountUtil.requireSToken()
     ): Call<CommonResponse>
 
     @Headers("${Header.FORCE_LOGIN}: ${Header.FORCE_LOGIN_TRUE}")
@@ -130,7 +130,7 @@ interface OfficialTiebaApi {
         @Field("_client_version") client_version: String = "11.10.8.6",
         @retrofit2.http.Header(Header.USER_AGENT) user_agent: String = "bdtb for Android $client_version",
         @Field("authsid") authsid: String = "null",
-        @Field("stoken") stoken: String = AccountUtil.getSToken()!!,
+        @Field("stoken") stoken: String = AccountUtil.requireSToken(),
         @Field("from_type") fromType: Int = 2,
         @Field("in_live") inLive: Int = 0,
         @Field("timestamp") timestamp: Long = System.currentTimeMillis()
@@ -145,7 +145,7 @@ interface OfficialTiebaApi {
         @Field("_client_version") client_version: String = "11.10.8.6",
         @retrofit2.http.Header(Header.USER_AGENT) user_agent: String = "bdtb for Android $client_version",
         @Field("authsid") authsid: String = "null",
-        @Field("stoken") stoken: String = AccountUtil.getSToken()!!,
+        @Field("stoken") stoken: String = AccountUtil.requireSToken(),
         @Field("from_type") fromType: Int = 2,
         @Field("in_live") inLive: Int = 0
     ): Flow<FollowBean>
@@ -157,9 +157,9 @@ interface OfficialTiebaApi {
     @POST("/c/f/forum/getforumlist")
     @FormUrlEncoded
     fun getForumListFlow(
-        @Field("BDUSS") bduss: String = AccountUtil.getBduss()!!,
-        @Field("stoken") stoken: String = AccountUtil.getSToken()!!,
-        @Field("user_id") userId: String = AccountUtil.getUid()!!,
+        @Field("BDUSS") bduss: String = AccountUtil.requireBduss(),
+        @Field("stoken") stoken: String = AccountUtil.requireSToken(),
+        @Field("user_id") userId: String = AccountUtil.requireUid(),
         @Field("_client_version") client_version: String = "11.10.8.6",
         @retrofit2.http.Header(Header.USER_AGENT) user_agent: String = "bdtb for Android $client_version",
     ): Flow<GetForumListBean>
@@ -173,8 +173,8 @@ interface OfficialTiebaApi {
         @Field("_client_version") client_version: String = "11.10.8.6",
         @retrofit2.http.Header(Header.USER_AGENT) user_agent: String = "bdtb for Android $client_version",
         @Field("authsid") authsid: String = "null",
-        @Field("stoken") stoken: String = AccountUtil.getSToken()!!,
-        @Field("user_id") userId: String = AccountUtil.getUid()!!
+        @Field("stoken") stoken: String = AccountUtil.requireSToken(),
+        @Field("user_id") userId: String = AccountUtil.requireUid()
     ): Flow<MSignBean>
 
     @Headers(
@@ -185,8 +185,8 @@ interface OfficialTiebaApi {
     @POST("/c/s/initNickname")
     @FormUrlEncoded
     fun initNickNameFlow(
-        @Field("BDUSS") bduss: String = AccountUtil.getBduss()!!,
-        @Field("stoken") sToken: String = AccountUtil.getSToken()!!,
+        @Field("BDUSS") bduss: String = AccountUtil.requireBduss(),
+        @Field("stoken") sToken: String = AccountUtil.requireSToken(),
         @Field("_client_version") client_version: String = "11.10.8.6",
         @retrofit2.http.Header(Header.USER_AGENT) user_agent: String = "bdtb for Android $client_version"
     ): Flow<InitNickNameBean>
@@ -199,8 +199,8 @@ interface OfficialTiebaApi {
     @POST("/c/s/login")
     @FormUrlEncoded
     fun loginFlow(
-        @Field("bdusstoken") bdusstoken: String = "${AccountUtil.getBduss()!!}|null",
-        @Field("stoken") sToken: String = AccountUtil.getSToken()!!,
+        @Field("bdusstoken") bdusstoken: String = "${AccountUtil.requireBduss()}|null",
+        @Field("stoken") sToken: String = AccountUtil.requireSToken(),
         @Field("user_id") userId: String? = AccountUtil.getUid(),
         @Field("channel_id") channelId: String = "",
         @Field("channel_uid") channelUid: String = "",
@@ -216,8 +216,8 @@ interface OfficialTiebaApi {
     @POST("/c/u/user/profile")
     @FormUrlEncoded
     fun profileFlow(
-        @Field("stoken") sToken: String = AccountUtil.getSToken()!!,
-        @Field("tbs") tbs: String = AccountUtil.getLoginInfo()!!.tbs,
+        @Field("stoken") sToken: String = AccountUtil.requireSToken(),
+        @Field("tbs") tbs: String = AccountUtil.requireLoginInfo().tbs,
         @Field("uid") userId: String? = AccountUtil.getUid(),
         @Field("is_from_usercenter") isFromUserCenter: String = "1",
         @Field("need_post_count") needPostCount: String = "1",
@@ -239,7 +239,7 @@ interface OfficialTiebaApi {
         @Field("intro") intro: String,
         @Field("sex") sex: String,
         @Field("nick_name") nickName: String,
-        @Field("stoken") sToken: String = AccountUtil.getSToken()!!,
+        @Field("stoken") sToken: String = AccountUtil.requireSToken(),
         @Field("cam") cam: String = "",
         @Field("need_cam_decrypt") needCamDecrypt: String = "1",
         @Field("need_keep_nickname_flag") needKeepNicknameFlag: String = "0",
@@ -419,8 +419,8 @@ interface OfficialTiebaApi {
     fun removeStoreFlow(
         @Field("tid") threadId: String,
         @Field("fid") forumId: String = "null",
-        @Field("tbs") tbs: String = AccountUtil.getLoginInfo()!!.tbs,
-        @Field("stoken") stoken: String = AccountUtil.getSToken()!!,
+        @Field("tbs") tbs: String = AccountUtil.requireLoginInfo().tbs,
+        @Field("stoken") stoken: String = AccountUtil.requireSToken(),
         @Field("user_id") user_id: String? = AccountUtil.getUid(),
         @retrofit2.http.Header("client_user_token") client_user_token: String? = user_id,
     ): Flow<CommonResponse>
@@ -449,7 +449,7 @@ interface OfficialTiebaApi {
     )
     fun addStoreFlow(
         @Field("data") data: String,
-        @Field("stoken") stoken: String = AccountUtil.getSToken()!!,
+        @Field("stoken") stoken: String = AccountUtil.requireSToken(),
         @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountUtil.getUid(),
     ): Flow<CommonResponse>
 
@@ -471,8 +471,8 @@ interface OfficialTiebaApi {
         @Field("cuid_gid") cuid_gid: String = "",
         @Field("forum_id") forumId: String = "",
         @Field("personalized_rec_switch") personalizedRecSwitch: Int = 1,
-        @Field("tbs") tbs: String = AccountUtil.getLoginInfo()!!.tbs,
-        @Field("stoken") stoken: String = AccountUtil.getSToken()!!
+        @Field("tbs") tbs: String = AccountUtil.requireLoginInfo().tbs,
+        @Field("stoken") stoken: String = AccountUtil.requireSToken()
     ): Flow<AgreeBean>
 
     @Headers(

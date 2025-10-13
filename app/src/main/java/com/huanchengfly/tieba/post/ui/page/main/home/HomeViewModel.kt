@@ -125,7 +125,7 @@ class HomeViewModel : BaseViewModel<HomeUiIntent, HomePartialChange, HomeUiState
 
         private fun HomeUiIntent.Unfollow.toPartialChangeFlow() =
             TiebaApi.getInstance()
-                .unlikeForumFlow(forumId, forumName, AccountUtil.getLoginInfo()!!.tbs)
+                .unlikeForumFlow(forumId, forumName, AccountUtil.requireLoginInfo().tbs)
                 .map<CommonResponse, HomePartialChange.Unfollow> {
                     HomePartialChange.Unfollow.Success(forumId)
                 }

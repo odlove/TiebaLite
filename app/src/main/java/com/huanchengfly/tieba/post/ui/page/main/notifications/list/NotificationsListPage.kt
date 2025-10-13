@@ -121,19 +121,21 @@ fun NotificationsListPage(
                             Column(
                                 modifier = Modifier
                                     .clickable {
+                                        val threadId = info.threadId?.toLongOrNull() ?: return@clickable
+                                        val postId = info.postId?.toLongOrNull() ?: return@clickable
                                         if (info.isFloor == "1") {
                                             navigator.navigate(
                                                 SubPostsPageDestination(
-                                                    threadId = info.threadId!!.toLong(),
-                                                    subPostId = info.postId!!.toLong(),
+                                                    threadId = threadId,
+                                                    subPostId = postId,
                                                     loadFromSubPost = true
                                                 )
                                             )
                                         } else {
                                             navigator.navigate(
                                                 ThreadPageDestination(
-                                                    threadId = info.threadId!!.toLong(),
-                                                    postId = info.postId!!.toLong()
+                                                    threadId = threadId,
+                                                    postId = postId
                                                 )
                                             )
                                         }
@@ -189,10 +191,11 @@ fun NotificationsListPage(
                                             .fillMaxWidth()
                                             .clip(RoundedCornerShape(6.dp))
                                             .clickable {
+                                                val threadId = info.threadId?.toLongOrNull() ?: return@clickable
                                                 if ("1" == info.isFloor && info.quotePid != null) {
                                                     navigator.navigate(
                                                         SubPostsPageDestination(
-                                                            threadId = info.threadId!!.toLong(),
+                                                            threadId = threadId,
                                                             postId = info.quotePid.toLong(),
                                                             loadFromSubPost = true,
                                                         )
@@ -200,7 +203,7 @@ fun NotificationsListPage(
                                                 } else {
                                                     navigator.navigate(
                                                         ThreadPageDestination(
-                                                            threadId = info.threadId!!.toLong(),
+                                                            threadId = threadId,
                                                         )
                                                     )
                                                 }

@@ -637,13 +637,12 @@ private fun ThreadForumInfo(
     item: ImmutableHolder<ThreadInfo>,
     onClick: (SimpleForum) -> Unit,
 ) {
-    val hasForumInfo = remember(item) { item.isNotNull { forumInfo } }
-    if (hasForumInfo) {
-        val forumInfo = remember(item) { item.getImmutable { forumInfo!! } }
+    val forumInfo = remember(item) { item.getNullableImmutable { forumInfo } }
+    forumInfo?.let {
         ThreadForumInfo(
-            forumName = forumInfo.get { name },
-            forumAvatar = forumInfo.get { avatar },
-            onClick = { onClick(forumInfo.get()) }
+            forumName = it.get { name },
+            forumAvatar = it.get { avatar },
+            onClick = { onClick(it.get()) }
         )
     }
 }

@@ -16,7 +16,7 @@ class TintTextView @JvmOverloads constructor(
     context: Context?,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : AppCompatTextView(context!!, attrs, defStyleAttr), Tintable {
+) : AppCompatTextView(requireNotNull(context) { "Context cannot be null" }, attrs, defStyleAttr), Tintable {
     var backgroundTintResId: Int = 0
         set(value) {
             field = value

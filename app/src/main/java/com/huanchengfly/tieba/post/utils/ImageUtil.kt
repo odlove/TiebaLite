@@ -569,7 +569,7 @@ object ImageUtil {
 
     @get:ImageLoadSettings
     private val imageLoadSettings: Int
-        get() = INSTANCE.appPreferences.imageLoadType!!.toInt()
+        get() = INSTANCE.appPreferences.imageLoadType?.toInt() ?: SETTINGS_SMART_ORIGIN
 
     fun imageToBase64(inputStream: InputStream?): String? {
         if (inputStream == null) {

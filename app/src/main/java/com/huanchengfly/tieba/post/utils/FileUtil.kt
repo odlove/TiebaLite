@@ -57,7 +57,7 @@ object FileUtil {
         var directoryPath = ""
         //判断SD卡是否可用
         directoryPath = if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()) {
-            context.getExternalFilesDir(dir)!!.absolutePath
+            context.getExternalFilesDir(dir)?.absolutePath ?: (context.filesDir.toString() + File.separator + dir)
         } else {
             context.filesDir.toString() + File.separator + dir
         }
@@ -124,13 +124,15 @@ object FileUtil {
     ): String? {
         val column = "_data"
         val projection = arrayOf(column)
-        context.contentResolver.query(uri!!, projection, selection, selectionArgs, null)
-            .use { cursor ->
-                if (cursor != null && cursor.moveToFirst()) {
-                    val column_index = cursor.getColumnIndexOrThrow(column)
-                    return cursor.getString(column_index)
+        uri?.let { nonNullUri ->
+            context.contentResolver.query(nonNullUri, projection, selection, selectionArgs, null)
+                ?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val column_index = cursor.getColumnIndexOrThrow(column)
+                        return cursor.getString(column_index)
+                    }
                 }
-            }
+        }
         return null
     }
 
@@ -149,11 +151,12 @@ object FileUtil {
     @JvmStatic
     fun getRealPathFromUri(context: Context, contentUri: Uri?): String {
         val proj = arrayOf(MediaStore.Images.Media.DATA)
-        context.contentResolver.query(contentUri!!, proj, null, null, null).use { cursor ->
-            if (cursor != null) {
-                val column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-                cursor.moveToFirst()
-                return cursor.getString(column_index)
+        contentUri?.let { uri ->
+            context.contentResolver.query(uri, proj, null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+                    return cursor.getString(column_index)
+                }
             }
         }
         return ""

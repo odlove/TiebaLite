@@ -59,7 +59,7 @@ class OKSignService : IntentService(TAG), CoroutineScope, ProgressListener {
                 runBlocking {
                     SingleAccountSigner(
                         this@OKSignService,
-                        AccountUtil.getLoginInfo()!!
+                        loginInfo
                     )
                         .apply {
                             setProgressListener(this@OKSignService)

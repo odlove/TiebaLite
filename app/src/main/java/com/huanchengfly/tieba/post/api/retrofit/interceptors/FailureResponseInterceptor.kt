@@ -16,11 +16,7 @@ object FailureResponseInterceptor : Interceptor {
 
         //获取字符集
         val contentType = body.contentType()
-        val charset = if (contentType == null) {
-            Charsets.UTF_8
-        } else {
-            contentType.charset(Charsets.UTF_8)!!
-        }
+        val charset = contentType?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
 
         val inputStreamReader = body.source().also {
             it.request(Long.MAX_VALUE)

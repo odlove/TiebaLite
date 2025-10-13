@@ -50,7 +50,7 @@ fun TextPref(
         textColor = textColor,
         minimalHeight = minimalHeight,
         icon = leadingIcon,
-        secondaryText = summary.ifNotNullThen { Text(summary!!) },
+        secondaryText = summary?.let { { Text(it) } },
         trailing = trailingContent
     )
 }

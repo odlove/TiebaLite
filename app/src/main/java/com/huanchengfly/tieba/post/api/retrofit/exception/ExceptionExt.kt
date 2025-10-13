@@ -13,9 +13,6 @@ fun Throwable.getErrorCode(): Int {
 }
 
 fun Throwable.getErrorMessage(): String {
-    return if (message.isNullOrEmpty()) {
-        App.INSTANCE.getString(R.string.error_unknown)
-    } else {
-        message!!
-    }
+    return message.takeUnless { it.isNullOrEmpty() }
+        ?: App.INSTANCE.getString(R.string.error_unknown)
 }

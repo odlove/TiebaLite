@@ -487,7 +487,7 @@ object MixedTiebaApiImpl : ITiebaApi {
         RetrofitTiebaApi.OFFICIAL_TIEBA_API.removeStoreFlow(
             threadId.toString(),
             forumId.toString(),
-            tbs ?: AccountUtil.getLoginInfo()!!.tbs
+            tbs ?: AccountUtil.requireLoginInfo().tbs
         )
 
     override fun removeStoreFlow(threadId: String): Flow<CommonResponse> =
@@ -1432,7 +1432,7 @@ object MixedTiebaApiImpl : ITiebaApi {
     }
 
     override fun getUserInfoFlow(): Flow<GetUserInfoResponse> {
-        return getUserInfoFlow(AccountUtil.getUid()!!.toLong(), null, null)
+        return getUserInfoFlow(AccountUtil.requireUid().toLong(), null, null)
     }
 
     override fun getUserInfoFlow(

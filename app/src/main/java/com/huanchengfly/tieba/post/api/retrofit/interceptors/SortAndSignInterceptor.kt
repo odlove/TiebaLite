@@ -22,22 +22,27 @@ class SortAndSignInterceptor(private val appSecret: String) : Interceptor {
 
         request = when {
             url.queryParameter("BDUSS") != null && url.queryParameter(Param.SIGN) == null -> {
-                val sortedQuery = url.query!!.split('&').sorted().joinToString(separator = "")
-                val sortedEncodedQuery =
-                    url.encodedQuery!!.split('&').sorted().joinToString(separator = "&")
-                request.newBuilder()
-                    .url(
-                        url.newBuilder()
-                            .encodedQuery(
-                                "$sortedEncodedQuery&${Param.SIGN}=${
-                                    calculateSign(
-                                        sortedQuery,
-                                        appSecret
-                                    )
-                                }"
-                            )
-                            .build()
-                    ).build()
+                val query = url.query
+                val encodedQuery = url.encodedQuery
+                if (query != null && encodedQuery != null) {
+                    val sortedQuery = query.split('&').sorted().joinToString(separator = "")
+                    val sortedEncodedQuery = encodedQuery.split('&').sorted().joinToString(separator = "&")
+                    request.newBuilder()
+                        .url(
+                            url.newBuilder()
+                                .encodedQuery(
+                                    "$sortedEncodedQuery&${Param.SIGN}=${
+                                        calculateSign(
+                                            sortedQuery,
+                                            appSecret
+                                        )
+                                    }"
+                                )
+                                .build()
+                        ).build()
+                } else {
+                    request
+                }
             }
 
             //在 FormBody 里

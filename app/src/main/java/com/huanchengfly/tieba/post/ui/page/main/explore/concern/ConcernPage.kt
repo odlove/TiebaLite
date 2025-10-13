@@ -94,10 +94,10 @@ fun ConcernPage(
                     contentType = { _, item -> item.recommendType }
                 ) { index, item ->
                     Container {
-                        if (item.recommendType == 1) {
+                        if (item.recommendType == 1 && item.threadList != null) {
                             Column {
                                 FeedCard(
-                                    item = wrapImmutable(item.threadList!!),
+                                    item = wrapImmutable(item.threadList),
                                     onClick = {
                                         navigator.navigate(
                                             ThreadPageDestination(

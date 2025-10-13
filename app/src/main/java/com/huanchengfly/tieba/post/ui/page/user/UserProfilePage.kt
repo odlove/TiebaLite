@@ -176,20 +176,24 @@ fun UserProfilePage(
                     isSelf = isSelf,
                     onBack = { navigator.navigateUp() },
                     onFollow = {
-                        viewModel.send(
-                            UserProfileUiIntent.Follow(
-                                it.get { portrait },
-                                account!!.tbs,
+                        account?.let { acc ->
+                            viewModel.send(
+                                UserProfileUiIntent.Follow(
+                                    it.get { portrait },
+                                    acc.tbs,
+                                )
                             )
-                        )
+                        }
                     },
                     onUnfollow = {
-                        viewModel.send(
-                            UserProfileUiIntent.Unfollow(
-                                it.get { portrait },
-                                account!!.tbs,
+                        account?.let { acc ->
+                            viewModel.send(
+                                UserProfileUiIntent.Unfollow(
+                                    it.get { portrait },
+                                    acc.tbs,
+                                )
                             )
-                        )
+                        }
                     }
                 )
             }

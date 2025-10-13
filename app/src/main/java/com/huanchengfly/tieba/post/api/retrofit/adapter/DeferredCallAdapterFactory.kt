@@ -50,8 +50,9 @@ class DeferredCallAdapterFactory : CallAdapter.Factory() {
                 }
 
                 override fun onResponse(call: Call<T>, response: Response<T>) {
-                    if (response.isSuccessful && response.body() != null) {
-                        deferred.complete(ApiResult.Success(response.body()!!))
+                    val body = response.body()
+                    if (response.isSuccessful && body != null) {
+                        deferred.complete(ApiResult.Success(body))
                     } else {
                         deferred.complete(ApiResult.Failure(HttpException(response)))
                     }
@@ -84,8 +85,9 @@ class DeferredCallAdapterFactory : CallAdapter.Factory() {
                 }
 
                 override fun onResponse(call: Call<T>, response: Response<T>) {
-                    if (response.isSuccessful && response.body() != null) {
-                        deferred.complete(response.body()!!)
+                    val body = response.body()
+                    if (response.isSuccessful && body != null) {
+                        deferred.complete(body)
                     } else {
                         deferred.completeExceptionally(HttpException(response))
                     }

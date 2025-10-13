@@ -240,10 +240,10 @@ internal fun ReplyPageContent(
     }
 
     fun setText(text: String) {
-        if (editTextView != null) {
-            editTextView?.setText(StringUtil.getEmoticonContent(editTextView!!, text))
-            editTextView?.setSelection(text.length)
-        } else {
+        editTextView?.let { view ->
+            view.setText(StringUtil.getEmoticonContent(view, text))
+            view.setSelection(text.length)
+        } ?: run {
             initialText = text
             waitEditTextToSet = true
         }

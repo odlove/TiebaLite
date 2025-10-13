@@ -48,10 +48,13 @@ class BodyCallAdapter<T>(private val responseType: Type) : CallAdapter<T, Flow<T
                         }
 
                         override fun onResponse(call: Call<T>, response: Response<T>) {
-                            try {
-                                continuation.resume(response.body()!!)
-                            } catch (e: Exception) {
-                                continuation.resumeWithException(e)
+                            val body = response.body()
+                            if (body != null) {
+                                continuation.resume(body)
+                            } else {
+                                continuation.resumeWithException(
+                                    IllegalStateException("Response body is null")
+                                )
                             }
                         }
                     })

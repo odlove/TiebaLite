@@ -239,37 +239,41 @@ internal fun SubPostsContent(
                     )
                 )
             } else {
-                val isSelfSubPost =
-                    deleteSubPost!!.get { author_id } == account?.uid?.toLongOrNull()
-                viewModel.send(
-                    SubPostsUiIntent.DeletePost(
-                        forumId = forumId,
-                        forumName = forum?.get { name }.orEmpty(),
-                        threadId = threadId,
-                        postId = postId,
-                        subPostId = deleteSubPost!!.get { id },
-                        deleteMyPost = isSelfSubPost,
-                        tbs = anti?.get { tbs },
+                deleteSubPost?.let { subPost ->
+                    val isSelfSubPost = subPost.get { author_id } == account?.uid?.toLongOrNull()
+                    viewModel.send(
+                        SubPostsUiIntent.DeletePost(
+                            forumId = forumId,
+                            forumName = forum?.get { name }.orEmpty(),
+                            threadId = threadId,
+                            postId = postId,
+                            subPostId = subPost.get { id },
+                            deleteMyPost = isSelfSubPost,
+                            tbs = anti?.get { tbs },
+                        )
                     )
-                )
+                }
             }
         }
     ) {
         Text(
             text = stringResource(
                 id = R.string.message_confirm_delete,
-                if (deleteSubPost == null && post != null) stringResource(
-                    id = R.string.tip_post_floor,
-                    post!!.get { floor })
-                else stringResource(id = R.string.this_reply)
+                if (deleteSubPost == null) {
+                    post?.let {
+                        stringResource(id = R.string.tip_post_floor, it.get { floor })
+                    } ?: stringResource(id = R.string.this_reply)
+                } else {
+                    stringResource(id = R.string.this_reply)
+                }
             )
         )
     }
 
     val replyDialogState = rememberDialogState()
     var currentReplyArgs by remember { mutableStateOf<ReplyArgs?>(null) }
-    if (currentReplyArgs != null) {
-        ReplyDialog(args = currentReplyArgs!!, state = replyDialogState)
+    currentReplyArgs?.let { args ->
+        ReplyDialog(args = args, state = replyDialogState)
     }
 
 //    onGlobalEvent<GlobalEvent.ReplySuccess>(

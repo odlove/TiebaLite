@@ -142,12 +142,14 @@ fun SearchForumPage(
                         }
                     }
                     item(key = "ExactMatch") {
-                        SearchForumItem(
-                            item = exactMatchForum!!,
-                            onClick = {
-                                navigator.navigate(ForumPageDestination(exactMatchForum!!.forumName.orEmpty()))
-                            }
-                        )
+                        exactMatchForum?.let { forum ->
+                            SearchForumItem(
+                                item = forum,
+                                onClick = {
+                                    navigator.navigate(ForumPageDestination(forum.forumName.orEmpty()))
+                                }
+                            )
+                        }
                     }
                 }
                 if (showFuzzyMatchResult) {

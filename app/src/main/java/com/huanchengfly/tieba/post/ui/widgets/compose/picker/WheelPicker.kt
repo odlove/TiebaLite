@@ -66,9 +66,10 @@ fun <T> WheelPicker(
             LaunchedEffect(key1 = listState) {
                 scope.launch {
                     listState.animateScrollBy(needScrollTop.toFloat())
-                    if (items[listState.firstVisibleItemIndex % items.size] != currItem) {
-                        currItem = items[listState.firstVisibleItemIndex % items.size]
-                        onItemChanged(currItem!!)
+                    val newItem = items[listState.firstVisibleItemIndex % items.size]
+                    if (newItem != currItem) {
+                        currItem = newItem
+                        onItemChanged(newItem)
                     }
                 }
             }

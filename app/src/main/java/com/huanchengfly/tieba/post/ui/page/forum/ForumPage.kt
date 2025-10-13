@@ -490,9 +490,11 @@ fun ForumPage(
         ConfirmDialog(
             dialogState = unlikeDialogState,
             onConfirm = {
-                viewModel.send(
-                    ForumUiIntent.Unlike(forumInfo!!.get { id }, forumName, tbs ?: account.tbs)
-                )
+                forumInfo?.let { info ->
+                    viewModel.send(
+                        ForumUiIntent.Unlike(info.get { id }, forumName, tbs ?: account?.tbs.orEmpty())
+                    )
+                }
             },
             title = {
                 Text(
@@ -542,8 +544,8 @@ fun ForumPage(
                             }
                             DropdownMenuItem(
                                 onClick = {
-                                    if (forumInfo != null) {
-                                        val (forum) = forumInfo!!
+                                    forumInfo?.let { info ->
+                                        val (forum) = info
                                         coroutineScope.launch {
                                             sendToDesktop(
                                                 context,
@@ -742,12 +744,13 @@ fun ForumPage(
                                             },
                                             onBtnClick = {
                                                 val (forum) = holder
+                                                val fallbackTbs = tbs ?: account?.tbs.orEmpty()
                                                 when {
                                                     forum.is_like != 1 -> viewModel.send(
                                                         ForumUiIntent.Like(
                                                             forum.id,
                                                             forum.name,
-                                                            tbs ?: account!!.tbs
+                                                            fallbackTbs
                                                         )
                                                     )
 
@@ -756,7 +759,7 @@ fun ForumPage(
                                                             ForumUiIntent.SignIn(
                                                                 forum.id,
                                                                 forum.name,
-                                                                tbs ?: account!!.tbs
+                                                                fallbackTbs
                                                             )
                                                         )
                                                     }
@@ -865,7 +868,7 @@ fun ForumPage(
                                 }
                             }
 
-                            if (forumInfo != null) {
+                            forumInfo?.let { info ->
                                 HorizontalPager(
                                     state = pagerState,
                                     modifier = Modifier.fillMaxSize(),
@@ -874,8 +877,8 @@ fun ForumPage(
                                     userScrollEnabled = true,
                                 ) {
                                     ForumThreadListPage(
-                                        forumId = forumInfo!!.get { id },
-                                        forumName = forumInfo!!.get { name },
+                                        forumId = info.get { id },
+                                        forumName = info.get { name },
                                         isGood = it == 1,
                                     )
                                 }

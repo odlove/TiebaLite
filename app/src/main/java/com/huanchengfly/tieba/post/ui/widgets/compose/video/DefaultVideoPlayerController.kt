@@ -138,7 +138,7 @@ internal class DefaultVideoPlayerController(
             if (_exoPlayer == null) {
                 _exoPlayer = createExoPlayer()
             }
-            return _exoPlayer!!
+            return checkNotNull(_exoPlayer) { "ExoPlayer 未能正确初始化" }
         }
 
     private fun createExoPlayer() = ExoPlayer.Builder(context)
@@ -157,7 +157,7 @@ internal class DefaultVideoPlayerController(
             if (_previewExoPlayer == null) {
                 _previewExoPlayer = createPreviewExoPlayer()
             }
-            return _previewExoPlayer!!
+            return checkNotNull(_previewExoPlayer) { "预览 ExoPlayer 未能正确初始化" }
         }
 
     private fun createPreviewExoPlayer() = ExoPlayer.Builder(context)
@@ -188,9 +188,7 @@ internal class DefaultVideoPlayerController(
         if (this::source.isInitialized) {
             setSource(source)
         }
-        if (playerView != null) {
-            playerViewAvailable(playerView!!)
-        }
+        playerView?.let { playerViewAvailable(it) }
     }
 
     /**

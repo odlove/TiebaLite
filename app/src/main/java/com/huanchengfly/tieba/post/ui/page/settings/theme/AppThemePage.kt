@@ -420,12 +420,9 @@ fun AppThemePage(
                                     },
                                 contentAlignment = Alignment.Center
                             ) {
-                                val previewImageUri =
-                                    if (context.appPreferences.translucentThemeBackgroundPath != null) {
-                                        newFileUri(context.appPreferences.translucentThemeBackgroundPath!!)
-                                    } else {
-                                        newResourceUri(R.drawable.user_header)
-                                    }
+                                val previewImageUri = context.appPreferences.translucentThemeBackgroundPath?.let { path ->
+                                    newFileUri(path)
+                                } ?: newResourceUri(R.drawable.user_header)
                                 AsyncImage(
                                     imageUri = previewImageUri,
                                     contentDescription = null,

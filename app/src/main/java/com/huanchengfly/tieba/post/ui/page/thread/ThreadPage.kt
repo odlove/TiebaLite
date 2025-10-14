@@ -148,7 +148,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.LazyLoad
 import com.huanchengfly.tieba.post.ui.widgets.compose.ListMenuItem
 import com.huanchengfly.tieba.post.ui.widgets.compose.LoadMoreLayout
 import com.huanchengfly.tieba.post.ui.widgets.compose.LongClickMenu
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyBackHandler
+import com.huanchengfly.tieba.post.ui.widgets.compose.MyPredictiveBackHandler
 import com.huanchengfly.tieba.post.ui.widgets.compose.MyLazyColumn
 import com.huanchengfly.tieba.post.ui.widgets.compose.MyScaffold
 import com.huanchengfly.tieba.post.ui.widgets.compose.OriginThreadCard
@@ -675,12 +675,13 @@ fun ThreadPage(
         }
     }
 
-    MyBackHandler(
+    MyPredictiveBackHandler(
         enabled = bottomSheetState.isVisible,
-        currentScreen = ThreadPageDestination
-    ) {
-        closeBottomSheet()
-    }
+        currentScreen = ThreadPageDestination,
+        onBack = {
+            closeBottomSheet()
+        }
+    )
 
     viewModel.onEvent<ThreadUiEvent.ScrollToFirstReply> {
         lazyListState.animateScrollToItem(1)
@@ -758,17 +759,18 @@ fun ThreadPage(
     ) {
         Text(text = stringResource(R.string.message_update_collect_mark, readFloorBeforeBack))
     }
-    MyBackHandler(
+    MyPredictiveBackHandler(
         enabled = isCollected && !bottomSheetState.isVisible,
-        currentScreen = ThreadPageDestination
-    ) {
-        readFloorBeforeBack = lastVisibilityPost?.get { floor } ?: 0
-        if (readFloorBeforeBack != 0) {
-            updateCollectMarkDialogState.show()
-        } else {
-            navigator.navigateUp()
+        currentScreen = ThreadPageDestination,
+        onBack = {
+            readFloorBeforeBack = lastVisibilityPost?.get { floor } ?: 0
+            if (readFloorBeforeBack != 0) {
+                updateCollectMarkDialogState.show()
+            } else {
+                navigator.navigateUp()
+            }
         }
-    }
+    )
 
     val confirmDeleteDialogState = rememberDialogState()
     var deletePost by remember { mutableStateOf<ImmutableHolder<Post>?>(null) }

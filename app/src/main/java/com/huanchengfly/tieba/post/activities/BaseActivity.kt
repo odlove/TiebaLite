@@ -102,6 +102,15 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     open val isNeedFixBg: Boolean = true
     open val isNeedSetTheme: Boolean = true
 
+    /**
+     * 是否注册基础的返回按键回调。
+     *
+     * 此回调用于处理传统的 Fragment/Activity 体系的返回逻辑。
+     * 对于 Compose-based Activity，应该覆盖为 false，以便系统能够正确显示预测性返回动画。
+     * Compose 页面应该使用自己的 BackHandler 系统。
+     */
+    protected open val shouldRegisterBaseBackCallback: Boolean = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (isNeedFixBg) fixBackground()
@@ -117,14 +126,19 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
         }
 
         // 使用新的 OnBackPressedDispatcher API 支持预测性返回
-        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (!HandleBackUtil.handleBackPress(this@BaseActivity)) {
-                    // 如果没有 Fragment 处理返回事件，则关闭 Activity
-                    finish()
+        // 仅针对传统的 Fragment/Activity 体系注册全局回调
+        if (shouldRegisterBaseBackCallback) {
+            onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (!HandleBackUtil.handleBackPress(this@BaseActivity)) {
+                        // 委托给系统处理，以支持预测性返回动画
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                        isEnabled = true
+                    }
                 }
-            }
-        })
+            })
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

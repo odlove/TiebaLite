@@ -1,6 +1,5 @@
 package com.huanchengfly.tieba.post.ui.page.main
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
@@ -282,10 +281,4 @@ fun MainPage(
             }
         }
     }
-    BackHandler(enabled = pagerState.currentPage != 0) {
-        coroutineScope.launch {
-            pagerState.scrollToPage(0)
-        }
-    }
 }
-

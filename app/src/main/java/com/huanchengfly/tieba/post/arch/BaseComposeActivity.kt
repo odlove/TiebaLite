@@ -60,6 +60,15 @@ abstract class BaseComposeActivity : BaseActivity() {
     override val isNeedFixBg: Boolean = false
     override val isNeedSetTheme: Boolean = false
 
+    /**
+     * Compose 使用自己的 BackHandler 系统，不需要注册 BaseActivity 的全局返回回调。
+     * 这样可以让系统正确显示预测性返回动画。
+     *
+     * 如果将来需要混合使用 Fragment（例如在 Compose 页面中嵌入 Fragment），
+     * 可以覆盖此属性为 true 以恢复旧行为。
+     */
+    override val shouldRegisterBaseBackCallback: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

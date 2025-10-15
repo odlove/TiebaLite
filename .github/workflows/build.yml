@@ -66,4 +66,49 @@ jobs:
           name: mapping
           path: ./app/build/outputs/mapping/release
 
+      - name: Read application.properties
+        id: read_app_properties
+        run: |
+          IS_PRE_RELEASE=$(grep "isPreRelease" application.properties | cut -d'=' -f2)
+          echo "is_pre_release=$IS_PRE_RELEASE" >> $GITHUB_OUTPUT
+
+      - name: Check release_message.md
+        id: check_release_message
+        run: |
+          if [ -f "release_message.md" ] && [ -s "release_message.md" ]; then
+            echo "has_custom_message=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_custom_message=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Read release_message.md
+        id: read_release_message
+        if: steps.check_release_message.outputs.has_custom_message == 'true'
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./release_message.md
+          trim: false
+
+      - name: Compress mapping file
+        run: zip -j mapping.zip ./app/build/outputs/mapping/release/mapping.txt
+
+      - name: Create GitHub Release
+        env:
+          version_name: ${{ fromJSON(steps.read_output_metadata.outputs.content).elements[0].versionName }}
+          version_code: ${{ fromJSON(steps.read_output_metadata.outputs.content).elements[0].versionCode }}
+          custom_message: ${{ steps.read_release_message.outputs.content }}
+          has_custom_message: ${{ steps.check_release_message.outputs.has_custom_message }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.version_name }}-${{ env.version_code }}
+          name: ${{ env.version_name }} (${{ env.version_code }})
+          body: |
+            ${{ env.has_custom_message == 'true' && env.custom_message || '' }}
+            ${{ env.has_custom_message == 'true' && '---' || '' }}
+          generate_release_notes: true
+          prerelease: ${{ steps.read_app_properties.outputs.is_pre_release }}
+          files: |
+            ./app/build/outputs/apk/release/*.apk
+            ./mapping.zip
+
 

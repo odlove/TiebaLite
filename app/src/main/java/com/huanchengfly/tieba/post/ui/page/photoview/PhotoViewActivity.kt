@@ -43,6 +43,7 @@ import com.github.panpf.sketch.compose.rememberAsyncImageState
 import com.github.panpf.sketch.request.LoadState
 import com.github.panpf.zoomimage.SketchZoomAsyncImage
 import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
+import dagger.hilt.android.AndroidEntryPoint
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.arch.BaseComposeActivityWithParcelable
 import com.huanchengfly.tieba.post.models.PhotoViewData
@@ -103,6 +104,7 @@ private fun ViewPhoto(
     }
 }
 
+@AndroidEntryPoint
 class PhotoViewActivity : BaseComposeActivityWithParcelable<PhotoViewData>() {
     private val viewModel: PhotoViewViewModel by viewModels()
 

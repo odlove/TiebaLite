@@ -29,6 +29,14 @@ interface ThreadOperationRepository {
     fun removeStore(threadId: Long, forumId: Long, tbs: String?): Flow<CommonResponse>
 
     /**
+     * 移除收藏(简化版)
+     *
+     * @param threadId 帖子 ID (String 格式)
+     * @return 操作结果 Flow
+     */
+    fun removeStore(threadId: String): Flow<CommonResponse>
+
+    /**
      * 删除帖子中的回复
      *
      * @param forumId 吧 ID

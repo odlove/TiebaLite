@@ -1,8 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.search.forum
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.SearchForumBean
+import com.huanchengfly.tieba.post.repository.SearchRepository
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
@@ -28,16 +28,18 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class SearchForumViewModel @Inject constructor(
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    private val searchRepository: SearchRepository
 ) :
     BaseViewModel<SearchForumUiIntent, SearchForumPartialChange, SearchForumUiState, SearchForumUiEvent>(dispatcherProvider) {
     override fun createInitialState() = SearchForumUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<SearchForumUiIntent, SearchForumPartialChange, SearchForumUiState> =
-        SearchForumPartialChangeProducer
+        SearchForumPartialChangeProducer(searchRepository)
 
-    private object SearchForumPartialChangeProducer :
-        PartialChangeProducer<SearchForumUiIntent, SearchForumPartialChange, SearchForumUiState> {
+    private class SearchForumPartialChangeProducer(
+        private val searchRepository: SearchRepository
+    ) : PartialChangeProducer<SearchForumUiIntent, SearchForumPartialChange, SearchForumUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<SearchForumUiIntent>): Flow<SearchForumPartialChange> =
             merge(
@@ -46,8 +48,8 @@ class SearchForumViewModel @Inject constructor(
             )
 
         private fun SearchForumUiIntent.Refresh.producePartialChange(): Flow<SearchForumPartialChange.Refresh> =
-            TiebaApi.getInstance()
-                .searchForumFlow(keyword)
+            searchRepository
+                .searchForum(keyword)
                 .map<SearchForumBean, SearchForumPartialChange.Refresh> {
                     val fuzzyForumList = it.data?.fuzzyMatch ?: emptyList()
                     SearchForumPartialChange.Refresh.Success(

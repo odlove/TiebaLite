@@ -19,6 +19,9 @@ class ThreadOperationRepositoryImpl @Inject constructor(
     override fun removeStore(threadId: Long, forumId: Long, tbs: String?): Flow<CommonResponse> =
         api.removeStoreFlow(threadId, forumId, tbs)
 
+    override fun removeStore(threadId: String): Flow<CommonResponse> =
+        api.removeStoreFlow(threadId)
+
     override fun delPost(
         forumId: Long,
         forumName: String,

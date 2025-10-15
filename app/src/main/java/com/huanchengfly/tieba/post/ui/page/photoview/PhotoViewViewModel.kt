@@ -1,8 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.photoview
 
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.PicPageBean
 import com.huanchengfly.tieba.post.arch.BaseViewModel
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
 import com.huanchengfly.tieba.post.arch.UiEvent
@@ -10,6 +10,8 @@ import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.models.LoadPicPageData
 import com.huanchengfly.tieba.post.models.PhotoViewData
+import com.huanchengfly.tieba.post.repository.PhotoRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -22,14 +24,21 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
+import javax.inject.Inject
 
-class PhotoViewViewModel :
-    BaseViewModel<PhotoViewUiIntent, PhotoViewPartialChange, PhotoViewUiState, PhotoViewUiEvent>() {
+@HiltViewModel
+class PhotoViewViewModel @Inject constructor(
+    dispatcherProvider: DispatcherProvider,
+    private val photoRepository: PhotoRepository
+) : BaseViewModel<PhotoViewUiIntent, PhotoViewPartialChange, PhotoViewUiState, PhotoViewUiEvent>(dispatcherProvider) {
     override fun createInitialState(): PhotoViewUiState  = PhotoViewUiState()
 
-    override fun createPartialChangeProducer(): PartialChangeProducer<PhotoViewUiIntent, PhotoViewPartialChange, PhotoViewUiState> = PhotoViewPartialChangeProducer
+    override fun createPartialChangeProducer(): PartialChangeProducer<PhotoViewUiIntent, PhotoViewPartialChange, PhotoViewUiState> =
+        PhotoViewPartialChangeProducer(photoRepository)
 
-    private object PhotoViewPartialChangeProducer : PartialChangeProducer<PhotoViewUiIntent, PhotoViewPartialChange, PhotoViewUiState> {
+    private class PhotoViewPartialChangeProducer(
+        private val photoRepository: PhotoRepository
+    ) : PartialChangeProducer<PhotoViewUiIntent, PhotoViewPartialChange, PhotoViewUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<PhotoViewUiIntent>): Flow<PhotoViewPartialChange> =
             merge(
@@ -53,8 +62,8 @@ class PhotoViewViewModel :
             }
 
         private fun PhotoViewUiIntent.LoadPrev.producePartialChange(): Flow<PhotoViewPartialChange.LoadPrev> =
-            TiebaApi.getInstance()
-                .picPageFlow(
+            photoRepository
+                .picPage(
                     forumId = data.forumId.toString(),
                     forumName = data.forumName,
                     threadId = data.threadId.toString(),
@@ -79,8 +88,8 @@ class PhotoViewViewModel :
                 }
 
         private fun PhotoViewUiIntent.LoadMore.producePartialChange(): Flow<PhotoViewPartialChange.LoadMore> =
-            TiebaApi.getInstance()
-                .picPageFlow(
+            photoRepository
+                .picPage(
                     forumId = data.forumId.toString(),
                     forumName = data.forumName,
                     threadId = data.threadId.toString(),
@@ -124,8 +133,8 @@ class PhotoViewViewModel :
                     )
                 )
             } else {
-                TiebaApi.getInstance()
-                    .picPageFlow(
+                photoRepository
+                    .picPage(
                         forumId = data.data.forumId.toString(),
                         forumName = data.data.forumName,
                         threadId = data.data.threadId.toString(),

@@ -3,7 +3,6 @@ package com.huanchengfly.tieba.post.ui.page.user.post
 import androidx.compose.runtime.Immutable
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.post.api.models.protos.PostInfoList
 import com.huanchengfly.tieba.post.api.models.protos.abstractText
@@ -20,6 +19,8 @@ import com.huanchengfly.tieba.post.arch.UiEvent
 import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.arch.wrapImmutable
+import com.huanchengfly.tieba.post.repository.UserContentRepository
+import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -36,13 +37,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserPostViewModel @Inject constructor(
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    private val userContentRepository: UserContentRepository,
+    private val userInteractionRepository: UserInteractionRepository
 ) :
     BaseViewModel<UserPostUiIntent, UserPostPartialChange, UserPostUiState, UiEvent>(dispatcherProvider) {
     override fun createInitialState(): UserPostUiState = UserPostUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<UserPostUiIntent, UserPostPartialChange, UserPostUiState> =
-        UserPostPartialChangeProducer
+        UserPostPartialChangeProducer(userContentRepository, userInteractionRepository)
 
     override fun dispatchEvent(partialChange: UserPostPartialChange): UiEvent? =
         when (partialChange) {
@@ -56,7 +59,10 @@ class UserPostViewModel @Inject constructor(
             else -> null
         }
 
-    private object UserPostPartialChangeProducer :
+    private class UserPostPartialChangeProducer(
+        private val userContentRepository: UserContentRepository,
+        private val userInteractionRepository: UserInteractionRepository
+    ) :
         PartialChangeProducer<UserPostUiIntent, UserPostPartialChange, UserPostUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<UserPostUiIntent>): Flow<UserPostPartialChange> =
@@ -70,8 +76,8 @@ class UserPostViewModel @Inject constructor(
             )
 
         private fun UserPostUiIntent.Refresh.toPartialChangeFlow(): Flow<UserPostPartialChange> =
-            TiebaApi.getInstance()
-                .userPostFlow(uid, 1, isThread)
+            userContentRepository
+                .userPost(uid, 1, isThread)
                 .map<UserPostResponse, UserPostPartialChange.Refresh> {
                     checkNotNull(it.data_)
                     val postList = it.data_.post_list
@@ -86,8 +92,8 @@ class UserPostViewModel @Inject constructor(
                 .catch { emit(UserPostPartialChange.Refresh.Failure(it)) }
 
         private fun UserPostUiIntent.LoadMore.toPartialChangeFlow(): Flow<UserPostPartialChange> =
-            TiebaApi.getInstance()
-                .userPostFlow(uid, page + 1, isThread)
+            userContentRepository
+                .userPost(uid, page + 1, isThread)
                 .map<UserPostResponse, UserPostPartialChange.LoadMore> {
                     checkNotNull(it.data_)
                     val postList = it.data_.post_list
@@ -101,8 +107,8 @@ class UserPostViewModel @Inject constructor(
                 .catch { emit(UserPostPartialChange.LoadMore.Failure(it)) }
 
         private fun UserPostUiIntent.Agree.toPartialChangeFlow(): Flow<UserPostPartialChange.Agree> =
-            TiebaApi.getInstance()
-                .opAgreeFlow(
+            userInteractionRepository
+                .opAgree(
                     threadId.toString(), postId.toString(), hasAgree, objType = 3
                 )
                 .map<AgreeBean, UserPostPartialChange.Agree> {

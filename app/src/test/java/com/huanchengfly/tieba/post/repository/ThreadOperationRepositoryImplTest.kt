@@ -152,6 +152,68 @@ class ThreadOperationRepositoryImplTest {
         verify { mockApi.removeStoreFlow(threadId, forumId, tbs) }
     }
 
+    // ========== removeStore (String overload) tests ==========
+
+    @Test
+    fun `removeStore with String threadId should return success flow when API call succeeds`() = runTest(testDispatcher) {
+        // Given
+        val threadId = "123456"
+        val expectedResponse = createMockCommonResponse(errorCode = 0)
+        every {
+            mockApi.removeStoreFlow(threadId)
+        } returns flowOf(expectedResponse)
+
+        // When
+        val result = repository.removeStore(threadId).first()
+
+        // Then
+        assertEquals(0, result.errorCode)
+        verify { mockApi.removeStoreFlow(threadId) }
+    }
+
+    @Test
+    fun `removeStore with String threadId should propagate error when API call fails`() = runTest(testDispatcher) {
+        // Given
+        val threadId = "123456"
+        val expectedException = RuntimeException("Network error")
+        every {
+            mockApi.removeStoreFlow(threadId)
+        } returns flow { throw expectedException }
+
+        // When/Then
+        try {
+            repository.removeStore(threadId).first()
+            throw AssertionError("Expected RuntimeException to be thrown")
+        } catch (e: RuntimeException) {
+            assertEquals("Network error", e.message)
+        }
+    }
+
+    @Test
+    fun `removeStore with String threadId should handle different string formats`() = runTest(testDispatcher) {
+        // Given
+        val testCases = listOf(
+            "123456" to "numeric string",
+            "999999999999" to "large number",
+            "0" to "zero",
+            "1" to "single digit"
+        )
+
+        testCases.forEach { (threadId, description) ->
+            val expectedResponse = createMockCommonResponse(errorCode = 0)
+            every {
+                mockApi.removeStoreFlow(threadId)
+            } returns flowOf(expectedResponse)
+
+            // When
+            val result = repository.removeStore(threadId).first()
+
+            // Then
+            assertEquals("Failed for $description", 0, result.errorCode)
+            verify { mockApi.removeStoreFlow(threadId) }
+        }
+    }
+
     // ========== delPost tests ==========
 
     @Test

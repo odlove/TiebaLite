@@ -1,7 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.threadstore
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.CommonResponse
 import com.huanchengfly.tieba.post.api.models.ThreadStoreBean
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
@@ -15,6 +14,8 @@ import com.huanchengfly.tieba.post.arch.UiEvent
 import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.arch.wrapImmutable
+import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
+import com.huanchengfly.tieba.post.repository.ThreadStoreRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -29,13 +30,18 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class ThreadStoreViewModel @Inject constructor(
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    private val threadStoreRepository: ThreadStoreRepository,
+    private val threadOperationRepository: ThreadOperationRepository,
 ) :
     BaseViewModel<ThreadStoreUiIntent, ThreadStorePartialChange, ThreadStoreUiState, ThreadStoreUiEvent>(dispatcherProvider) {
     override fun createInitialState(): ThreadStoreUiState = ThreadStoreUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<ThreadStoreUiIntent, ThreadStorePartialChange, ThreadStoreUiState> =
-        ThreadStorePartialChangeProducer
+        ThreadStorePartialChangeProducer(
+            threadStoreRepository,
+            threadOperationRepository
+        )
 
     override fun dispatchEvent(partialChange: ThreadStorePartialChange): UiEvent? {
         return when (partialChange) {
@@ -49,7 +55,10 @@ class ThreadStoreViewModel @Inject constructor(
         }
     }
 
-    private object ThreadStorePartialChangeProducer :
+    private class ThreadStorePartialChangeProducer(
+        private val threadStoreRepository: ThreadStoreRepository,
+        private val threadOperationRepository: ThreadOperationRepository,
+    ) :
         PartialChangeProducer<ThreadStoreUiIntent, ThreadStorePartialChange, ThreadStoreUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<ThreadStoreUiIntent>): Flow<ThreadStorePartialChange> =
@@ -63,8 +72,8 @@ class ThreadStoreViewModel @Inject constructor(
             )
 
         private fun produceRefreshPartialChange() =
-            TiebaApi.getInstance()
-                .threadStoreFlow()
+            threadStoreRepository
+                .threadStore()
                 .map {
                     if (it.storeThread != null) ThreadStorePartialChange.Refresh.Success(
                         it.storeThread,
@@ -76,8 +85,8 @@ class ThreadStoreViewModel @Inject constructor(
                 .catch { emit(ThreadStorePartialChange.Refresh.Failure(it)) }
 
         private fun ThreadStoreUiIntent.LoadMore.producePartialChange() =
-            TiebaApi.getInstance()
-                .threadStoreFlow(page)
+            threadStoreRepository
+                .threadStore(page)
                 .map {
                     if (it.storeThread != null) ThreadStorePartialChange.LoadMore.Success(
                         it.storeThread,
@@ -90,8 +99,8 @@ class ThreadStoreViewModel @Inject constructor(
                 .catch { emit(ThreadStorePartialChange.LoadMore.Failure(it)) }
 
         private fun ThreadStoreUiIntent.Delete.producePartialChange() =
-            TiebaApi.getInstance()
-                .removeStoreFlow(threadId)
+            threadOperationRepository
+                .removeStore(threadId)
                 .map<CommonResponse, ThreadStorePartialChange.Delete> {
                     ThreadStorePartialChange.Delete.Success(threadId)
                 }

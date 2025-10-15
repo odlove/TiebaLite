@@ -2,7 +2,9 @@ package com.huanchengfly.tieba.post.ui.page.subposts
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.TiebaApi
+import com.huanchengfly.tieba.post.repository.SubPostsRepository
+import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
+import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.post.api.models.CommonResponse
 import com.huanchengfly.tieba.post.api.models.protos.Anti
@@ -45,12 +47,19 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class SubPostsViewModel @Inject constructor(
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    private val subPostsRepository: SubPostsRepository,
+    private val userInteractionRepository: UserInteractionRepository,
+    private val threadOperationRepository: ThreadOperationRepository,
 ) :
     BaseViewModel<SubPostsUiIntent, SubPostsPartialChange, SubPostsUiState, SubPostsUiEvent>(dispatcherProvider) {
     override fun createInitialState() = SubPostsUiState()
 
-    override fun createPartialChangeProducer() = SubPostsPartialChangeProducer
+    override fun createPartialChangeProducer() = SubPostsPartialChangeProducer(
+        subPostsRepository,
+        userInteractionRepository,
+        threadOperationRepository
+    )
 
     override fun dispatchEvent(partialChange: SubPostsPartialChange): UiEvent? =
         when (partialChange) {
@@ -58,7 +67,11 @@ class SubPostsViewModel @Inject constructor(
             else -> null
         }
 
-    object SubPostsPartialChangeProducer :
+    class SubPostsPartialChangeProducer(
+        private val subPostsRepository: SubPostsRepository,
+        private val userInteractionRepository: UserInteractionRepository,
+        private val threadOperationRepository: ThreadOperationRepository,
+    ) :
         PartialChangeProducer<SubPostsUiIntent, SubPostsPartialChange, SubPostsUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<SubPostsUiIntent>): Flow<SubPostsPartialChange> =
@@ -74,8 +87,8 @@ class SubPostsViewModel @Inject constructor(
             )
 
         private fun SubPostsUiIntent.Load.producePartialChange(): Flow<SubPostsPartialChange.Load> =
-            TiebaApi.getInstance()
-                .pbFloorFlow(threadId, postId, forumId, page, subPostId)
+            subPostsRepository
+                .pbFloor(threadId, postId, forumId, page, subPostId)
                 .map<PbFloorResponse, SubPostsPartialChange.Load> { response ->
                     val post = checkNotNull(response.data_?.post)
                     val page = checkNotNull(response.data_?.page)
@@ -105,8 +118,8 @@ class SubPostsViewModel @Inject constructor(
                 .catch { emit(SubPostsPartialChange.Load.Failure(it)) }
 
         private fun SubPostsUiIntent.LoadMore.producePartialChange(): Flow<SubPostsPartialChange.LoadMore> =
-            TiebaApi.getInstance()
-                .pbFloorFlow(threadId, postId, forumId, page, subPostId)
+            subPostsRepository
+                .pbFloor(threadId, postId, forumId, page, subPostId)
                 .map<PbFloorResponse, SubPostsPartialChange.LoadMore> { response ->
                     val page = checkNotNull(response.data_?.page)
                     val subPosts = response.data_?.subpost_list.orEmpty().map {
@@ -127,8 +140,8 @@ class SubPostsViewModel @Inject constructor(
                 .catch { emit(SubPostsPartialChange.LoadMore.Failure(it)) }
 
         private fun SubPostsUiIntent.Agree.producePartialChange(): Flow<SubPostsPartialChange.Agree> =
-            TiebaApi.getInstance()
-                .opAgreeFlow(
+            userInteractionRepository
+                .opAgree(
                     threadId.toString(),
                     (subPostId ?: postId).toString(),
                     if (agree) 0 else 1,
@@ -141,8 +154,8 @@ class SubPostsViewModel @Inject constructor(
                 .catch { emit(SubPostsPartialChange.Agree.Failure(subPostId, !agree, it)) }
 
         fun SubPostsUiIntent.DeletePost.producePartialChange(): Flow<SubPostsPartialChange.DeletePost> =
-            TiebaApi.getInstance()
-                .delPostFlow(
+            threadOperationRepository
+                .delPost(
                     forumId,
                     forumName,
                     threadId,

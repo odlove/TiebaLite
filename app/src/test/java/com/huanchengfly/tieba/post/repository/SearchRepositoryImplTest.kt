@@ -1,7 +1,9 @@
 package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
+import com.huanchengfly.tieba.post.api.models.SearchForumBean
 import com.huanchengfly.tieba.post.api.models.SearchThreadBean
+import com.huanchengfly.tieba.post.api.models.SearchUserBean
 import com.huanchengfly.tieba.post.api.models.protos.searchSug.SearchSugResponse
 import io.mockk.every
 import io.mockk.mockk
@@ -269,6 +271,138 @@ class SearchRepositoryImplTest {
         assertNotNull(result)
         verify(exactly = 1) {
             mockApi.searchSuggestionsFlow("   ")
+        }
+    }
+
+    // ========== searchPost Tests ==========
+
+    @Test
+    fun `searchPost should return success flow when API call succeeds`() = runTest {
+        // Given
+        val keyword = "test"
+        val forumName = "testForum"
+        val forumId = 123L
+        val expectedBean = createMockSearchThreadBean(0)
+
+        every {
+            mockApi.searchPostFlow(keyword, forumName, forumId, 1, 1, 1, 20)
+        } returns flowOf(expectedBean)
+
+        // When
+        val result = repository.searchPost(keyword, forumName, forumId).first()
+
+        // Then
+        assertEquals(0, result.errorCode)
+        verify(exactly = 1) {
+            mockApi.searchPostFlow(keyword, forumName, forumId, 1, 1, 1, 20)
+        }
+    }
+
+    @Test
+    fun `searchPost should handle custom parameters`() = runTest {
+        // Given
+        val keyword = "test"
+        val forumName = "testForum"
+        val forumId = 123L
+        val sortType = 2
+        val filterType = 2
+        val page = 2
+        val pageSize = 30
+        val expectedBean = createMockSearchThreadBean(0)
+
+        every {
+            mockApi.searchPostFlow(keyword, forumName, forumId, sortType, filterType, page, pageSize)
+        } returns flowOf(expectedBean)
+
+        // When
+        val result = repository.searchPost(keyword, forumName, forumId, sortType, filterType, page, pageSize).first()
+
+        // Then
+        assertEquals(0, result.errorCode)
+        verify(exactly = 1) {
+            mockApi.searchPostFlow(keyword, forumName, forumId, sortType, filterType, page, pageSize)
+        }
+    }
+
+    // ========== searchForum Tests ==========
+
+    @Test
+    fun `searchForum should return success flow when API call succeeds`() = runTest {
+        // Given
+        val keyword = "test"
+        val expectedBean = mockk<SearchForumBean>(relaxed = true)
+
+        every {
+            mockApi.searchForumFlow(keyword)
+        } returns flowOf(expectedBean)
+
+        // When
+        val result = repository.searchForum(keyword).first()
+
+        // Then
+        assertEquals(expectedBean, result)
+        verify(exactly = 1) {
+            mockApi.searchForumFlow(keyword)
+        }
+    }
+
+    @Test
+    fun `searchForum should propagate error when API call fails`() = runTest {
+        // Given
+        val keyword = "test"
+        val expectedException = RuntimeException("Forum search failed")
+
+        every {
+            mockApi.searchForumFlow(keyword)
+        } returns flow { throw expectedException }
+
+        // When & Then
+        try {
+            repository.searchForum(keyword).first()
+            throw AssertionError("Expected RuntimeException to be thrown")
+        } catch (e: RuntimeException) {
+            assertEquals("Forum search failed", e.message)
+        }
+    }
+
+    // ========== searchUser Tests ==========
+
+    @Test
+    fun `searchUser should return success flow when API call succeeds`() = runTest {
+        // Given
+        val keyword = "test"
+        val expectedBean = mockk<SearchUserBean>(relaxed = true)
+
+        every {
+            mockApi.searchUserFlow(keyword)
+        } returns flowOf(expectedBean)
+
+        // When
+        val result = repository.searchUser(keyword).first()
+
+        // Then
+        assertEquals(expectedBean, result)
+        verify(exactly = 1) {
+            mockApi.searchUserFlow(keyword)
+        }
+    }
+
+    @Test
+    fun `searchUser should propagate error when API call fails`() = runTest {
+        // Given
+        val keyword = "test"
+        val expectedException = RuntimeException("User search failed")
+
+        every {
+            mockApi.searchUserFlow(keyword)
+        } returns flow { throw expectedException }
+
+        // When & Then
+        try {
+            repository.searchUser(keyword).first()
+            throw AssertionError("Expected RuntimeException to be thrown")
+        } catch (e: RuntimeException) {
+            assertEquals("User search failed", e.message)
         }
     }
 }

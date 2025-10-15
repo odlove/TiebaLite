@@ -46,6 +46,7 @@ class ThreadViewModelTest : BaseViewModelTest() {
     private lateinit var mockPbPageRepo: PbPageRepository
     private lateinit var mockUserInteractionRepo: UserInteractionRepository
     private lateinit var mockThreadOperationRepo: ThreadOperationRepository
+    private lateinit var mockContentModerationRepo: com.huanchengfly.tieba.post.repository.ContentModerationRepository
 
     @Before
     override fun setup() {
@@ -53,6 +54,7 @@ class ThreadViewModelTest : BaseViewModelTest() {
         mockPbPageRepo = mockk(relaxed = true)
         mockUserInteractionRepo = mockk(relaxed = true)
         mockThreadOperationRepo = mockk(relaxed = true)
+        mockContentModerationRepo = mockk(relaxed = true)
     }
 
     @After
@@ -66,6 +68,7 @@ class ThreadViewModelTest : BaseViewModelTest() {
             mockPbPageRepo,
             mockUserInteractionRepo,
             mockThreadOperationRepo,
+            mockContentModerationRepo,
             testDispatcherProvider
         )
     }

@@ -33,6 +33,7 @@ import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.arch.wrapImmutable
 import com.huanchengfly.tieba.post.removeAt
+import com.huanchengfly.tieba.post.repository.ContentModerationRepository
 import com.huanchengfly.tieba.post.repository.EmptyDataException
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
@@ -74,6 +75,7 @@ class ThreadViewModel @Inject constructor(
     private val pbPageRepository: PbPageRepository,
     private val userInteractionRepository: UserInteractionRepository,
     private val threadOperationRepository: ThreadOperationRepository,
+    private val contentModerationRepository: ContentModerationRepository,
     dispatcherProvider: DispatcherProvider
 ) : BaseViewModel<ThreadUiIntent, ThreadPartialChange, ThreadUiState, ThreadUiEvent>(dispatcherProvider) {
     override fun createInitialState(): ThreadUiState = ThreadUiState()
@@ -117,6 +119,8 @@ class ThreadViewModel @Inject constructor(
             else -> null
         }
     }
+
+    fun checkReportPost(postId: String) = contentModerationRepository.checkReportPost(postId)
 
     private inner class ThreadPartialChangeProducer :
         PartialChangeProducer<ThreadUiIntent, ThreadPartialChange, ThreadUiState> {

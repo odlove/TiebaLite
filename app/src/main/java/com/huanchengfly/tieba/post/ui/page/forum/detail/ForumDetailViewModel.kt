@@ -5,6 +5,7 @@ import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.RecommendForumInfo
 import com.huanchengfly.tieba.post.api.models.protos.getForumDetail.GetForumDetailResponse
 import com.huanchengfly.tieba.post.arch.BaseViewModel
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
@@ -24,8 +25,9 @@ import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 @HiltViewModel
-class ForumDetailViewModel @Inject constructor() :
-    BaseViewModel<ForumDetailUiIntent, ForumDetailPartialChange, ForumDetailUiState, UiEvent>() {
+class ForumDetailViewModel @Inject constructor(
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel<ForumDetailUiIntent, ForumDetailPartialChange, ForumDetailUiState, UiEvent>(dispatcherProvider) {
     override fun createInitialState(): ForumDetailUiState = ForumDetailUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumDetailUiIntent, ForumDetailPartialChange, ForumDetailUiState> =

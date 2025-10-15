@@ -7,6 +7,7 @@ import com.huanchengfly.tieba.post.api.models.protos.ForumRule
 import com.huanchengfly.tieba.post.api.models.protos.forumRuleDetail.ForumRuleDetailResponse
 import com.huanchengfly.tieba.post.api.models.protos.renders
 import com.huanchengfly.tieba.post.arch.BaseViewModel
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
@@ -30,8 +31,9 @@ import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 @HiltViewModel
-class ForumRuleDetailViewModel @Inject constructor() :
-    BaseViewModel<ForumRuleDetailUiIntent, ForumRuleDetailPartialChange, ForumRuleDetailUiState, UiEvent>() {
+class ForumRuleDetailViewModel @Inject constructor(
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel<ForumRuleDetailUiIntent, ForumRuleDetailPartialChange, ForumRuleDetailUiState, UiEvent>(dispatcherProvider) {
     override fun createInitialState(): ForumRuleDetailUiState = ForumRuleDetailUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumRuleDetailUiIntent, ForumRuleDetailPartialChange, ForumRuleDetailUiState> =

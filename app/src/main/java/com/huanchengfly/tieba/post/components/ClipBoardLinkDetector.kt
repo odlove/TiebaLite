@@ -8,9 +8,11 @@ import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.MainActivityV2
 import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.post.arch.collectIn
+import com.huanchengfly.tieba.post.di.QuickPreviewUtilEntryPoint
 import com.huanchengfly.tieba.post.utils.QuickPreviewUtil
 import com.huanchengfly.tieba.post.utils.getClipBoardText
 import com.huanchengfly.tieba.post.utils.getClipBoardTimestamp
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -119,7 +121,12 @@ object ClipBoardLinkDetector : Application.ActivityLifecycleCallbacks {
                 if (link != null) {
                     if (activity is MainActivityV2) {
                         activity.launch {
-                            QuickPreviewUtil.getPreviewInfoFlow(
+                            val entryPoint = EntryPointAccessors.fromApplication(
+                                activity.applicationContext,
+                                QuickPreviewUtilEntryPoint::class.java
+                            )
+                            val quickPreviewUtil = entryPoint.quickPreviewUtil()
+                            quickPreviewUtil.getPreviewInfoFlow(
                                 activity,
                                 link,
                                 activity.lifecycle

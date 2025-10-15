@@ -1,38 +1,41 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.TiebaApi
+import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.pbPage.PbPageResponse
-import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaException
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageFrom
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object EmptyDataException : TiebaException("data is empty!") {
-    override val code: Int
-        get() = -2
-}
+/**
+ * PbPage（帖子详情页）数据仓库实现
+ */
+@Singleton
+class PbPageRepositoryImpl @Inject constructor(
+    private val api: ITiebaApi
+) : PbPageRepository {
+    companion object {
+        const val ST_TYPE_MENTION = "mention"
+        const val ST_TYPE_STORE_THREAD = "store_thread"
+        private val ST_TYPES = persistentListOf(ST_TYPE_MENTION, ST_TYPE_STORE_THREAD)
+    }
 
-object PbPageRepository {
-    const val ST_TYPE_MENTION = "mention"
-    const val ST_TYPE_STORE_THREAD = "store_thread"
-    private val ST_TYPES = persistentListOf(ST_TYPE_MENTION, ST_TYPE_STORE_THREAD)
-
-    fun pbPage(
+    override fun pbPage(
         threadId: Long,
-        page: Int = 1,
-        postId: Long = 0,
-        forumId: Long? = null,
-        seeLz: Boolean = false,
-        sortType: Int = 0,
-        back: Boolean = false,
-        from: String = "",
-        lastPostId: Long? = null,
+        page: Int,
+        postId: Long,
+        forumId: Long?,
+        seeLz: Boolean,
+        sortType: Int,
+        back: Boolean,
+        from: String,
+        lastPostId: Long?,
     ): Flow<PbPageResponse> =
-        TiebaApi.getInstance()
-            .pbPageFlow(
+        api.pbPageFlow(
                 threadId,
                 page,
                 postId = postId,

@@ -3,16 +3,17 @@ package com.huanchengfly.tieba.post.ui.page.main.notifications.list
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.util.fastMap
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.MessageListBean
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.CommonUiEvent
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
 import com.huanchengfly.tieba.post.arch.UiEvent
 import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
+import com.huanchengfly.tieba.post.repository.NotificationRepository
 import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -28,8 +29,10 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
-abstract class NotificationsListViewModel :
-    BaseViewModel<NotificationsListUiIntent, NotificationsListPartialChange, NotificationsListUiState, NotificationsListUiEvent>() {
+abstract class NotificationsListViewModel(
+    dispatcherProvider: DispatcherProvider
+) :
+    BaseViewModel<NotificationsListUiIntent, NotificationsListPartialChange, NotificationsListUiState, NotificationsListUiEvent>(dispatcherProvider) {
 
     override fun createInitialState(): NotificationsListUiState = NotificationsListUiState()
 
@@ -43,66 +46,102 @@ abstract class NotificationsListViewModel :
 
 @Stable
 @HiltViewModel
-class ReplyMeListViewModel @Inject constructor() : NotificationsListViewModel() {
+class ReplyMeListViewModel @Inject constructor(
+    private val notificationRepository: NotificationRepository,
+    dispatcherProvider: DispatcherProvider
+) : NotificationsListViewModel(dispatcherProvider) {
     override fun createPartialChangeProducer():
-            PartialChangeProducer<NotificationsListUiIntent, NotificationsListPartialChange, NotificationsListUiState> {
-        return NotificationsListPartialChangeProducer(NotificationsType.ReplyMe)
+            PartialChangeProducer<NotificationsListUiIntent, NotificationsListPartialChange, NotificationsListUiState> =
+        ReplyMePartialChangeProducer()
+
+    private inner class ReplyMePartialChangeProducer :
+        PartialChangeProducer<NotificationsListUiIntent, NotificationsListPartialChange, NotificationsListUiState> {
+        @OptIn(ExperimentalCoroutinesApi::class)
+        override fun toPartialChangeFlow(intentFlow: Flow<NotificationsListUiIntent>): Flow<NotificationsListPartialChange> =
+            merge(
+                intentFlow.filterIsInstance<NotificationsListUiIntent.Refresh>().flatMapConcat { produceRefreshPartialChange() },
+                intentFlow.filterIsInstance<NotificationsListUiIntent.LoadMore>().flatMapConcat { it.produceLoadMorePartialChange() },
+            )
+
+        private fun produceRefreshPartialChange(): Flow<NotificationsListPartialChange.Refresh> =
+            notificationRepository.replyMe()
+                .map<MessageListBean, NotificationsListPartialChange.Refresh> { messageListBean ->
+                    val data = (messageListBean.replyList ?: emptyList()).fastMap {
+                        MessageItemData(it)
+                    }
+                    NotificationsListPartialChange.Refresh.Success(
+                        data = data,
+                        hasMore = messageListBean.page?.hasMore == "1"
+                    )
+                }
+                .onStart { emit(NotificationsListPartialChange.Refresh.Start) }
+                .catch { emit(NotificationsListPartialChange.Refresh.Failure(it)) }
+
+        private fun NotificationsListUiIntent.LoadMore.produceLoadMorePartialChange() =
+            notificationRepository.replyMe(page = page)
+                .map<MessageListBean, NotificationsListPartialChange.LoadMore> { messageListBean ->
+                    val data = (messageListBean.replyList ?: emptyList()).fastMap {
+                        MessageItemData(it)
+                    }
+                    NotificationsListPartialChange.LoadMore.Success(
+                        currentPage = page,
+                        data = data,
+                        hasMore = messageListBean.page?.hasMore == "1"
+                    )
+                }
+                .onStart { emit(NotificationsListPartialChange.LoadMore.Start) }
+                .catch { emit(NotificationsListPartialChange.LoadMore.Failure(currentPage = page, error = it)) }
     }
 }
 
 @Stable
 @HiltViewModel
-class AtMeListViewModel @Inject constructor() : NotificationsListViewModel() {
+class AtMeListViewModel @Inject constructor(
+    private val notificationRepository: NotificationRepository,
+    dispatcherProvider: DispatcherProvider
+) : NotificationsListViewModel(dispatcherProvider) {
     override fun createPartialChangeProducer():
-            PartialChangeProducer<NotificationsListUiIntent, NotificationsListPartialChange, NotificationsListUiState> {
-        return NotificationsListPartialChangeProducer(NotificationsType.AtMe)
+            PartialChangeProducer<NotificationsListUiIntent, NotificationsListPartialChange, NotificationsListUiState> =
+        AtMePartialChangeProducer()
+
+    private inner class AtMePartialChangeProducer :
+        PartialChangeProducer<NotificationsListUiIntent, NotificationsListPartialChange, NotificationsListUiState> {
+        @OptIn(ExperimentalCoroutinesApi::class)
+        override fun toPartialChangeFlow(intentFlow: Flow<NotificationsListUiIntent>): Flow<NotificationsListPartialChange> =
+            merge(
+                intentFlow.filterIsInstance<NotificationsListUiIntent.Refresh>().flatMapConcat { produceRefreshPartialChange() },
+                intentFlow.filterIsInstance<NotificationsListUiIntent.LoadMore>().flatMapConcat { it.produceLoadMorePartialChange() },
+            )
+
+        private fun produceRefreshPartialChange(): Flow<NotificationsListPartialChange.Refresh> =
+            notificationRepository.atMe()
+                .map<MessageListBean, NotificationsListPartialChange.Refresh> { messageListBean ->
+                    val data = (messageListBean.atList ?: emptyList()).fastMap {
+                        MessageItemData(it)
+                    }
+                    NotificationsListPartialChange.Refresh.Success(
+                        data = data,
+                        hasMore = messageListBean.page?.hasMore == "1"
+                    )
+                }
+                .onStart { emit(NotificationsListPartialChange.Refresh.Start) }
+                .catch { emit(NotificationsListPartialChange.Refresh.Failure(it)) }
+
+        private fun NotificationsListUiIntent.LoadMore.produceLoadMorePartialChange() =
+            notificationRepository.atMe(page = page)
+                .map<MessageListBean, NotificationsListPartialChange.LoadMore> { messageListBean ->
+                    val data = (messageListBean.atList ?: emptyList()).fastMap {
+                        MessageItemData(it)
+                    }
+                    NotificationsListPartialChange.LoadMore.Success(
+                        currentPage = page,
+                        data = data,
+                        hasMore = messageListBean.page?.hasMore == "1"
+                    )
+                }
+                .onStart { emit(NotificationsListPartialChange.LoadMore.Start) }
+                .catch { emit(NotificationsListPartialChange.LoadMore.Failure(currentPage = page, error = it)) }
     }
-}
-
-private class NotificationsListPartialChangeProducer(private val type: NotificationsType) : PartialChangeProducer<NotificationsListUiIntent, NotificationsListPartialChange, NotificationsListUiState> {
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override fun toPartialChangeFlow(intentFlow: Flow<NotificationsListUiIntent>): Flow<NotificationsListPartialChange> =
-        merge(
-            intentFlow.filterIsInstance<NotificationsListUiIntent.Refresh>().flatMapConcat { produceRefreshPartialChange() },
-            intentFlow.filterIsInstance<NotificationsListUiIntent.LoadMore>().flatMapConcat { it.produceLoadMorePartialChange() },
-        )
-
-    private fun produceRefreshPartialChange(): Flow<NotificationsListPartialChange.Refresh> =
-        (when (type) {
-            NotificationsType.ReplyMe -> TiebaApi.getInstance().replyMeFlow()
-            NotificationsType.AtMe -> TiebaApi.getInstance().atMeFlow()
-        }).map<MessageListBean, NotificationsListPartialChange.Refresh> { messageListBean ->
-            val data =
-                ((if (type == NotificationsType.ReplyMe) messageListBean.replyList else messageListBean.atList)
-                    ?: emptyList()).fastMap {
-                    MessageItemData(it)
-                }
-            NotificationsListPartialChange.Refresh.Success(
-                data = data,
-                hasMore = messageListBean.page?.hasMore == "1"
-            )
-        }
-            .onStart { emit(NotificationsListPartialChange.Refresh.Start) }
-            .catch { emit(NotificationsListPartialChange.Refresh.Failure(it)) }
-
-    private fun NotificationsListUiIntent.LoadMore.produceLoadMorePartialChange() =
-        (when (type) {
-            NotificationsType.ReplyMe -> TiebaApi.getInstance().replyMeFlow(page = page)
-            NotificationsType.AtMe -> TiebaApi.getInstance().atMeFlow(page = page)
-        }).map<MessageListBean, NotificationsListPartialChange.LoadMore> { messageListBean ->
-            val data =
-                ((if (type == NotificationsType.ReplyMe) messageListBean.replyList else messageListBean.atList)
-                    ?: emptyList()).fastMap {
-                    MessageItemData(it)
-                }
-            NotificationsListPartialChange.LoadMore.Success(
-                currentPage = page,
-                data = data,
-                hasMore = messageListBean.page?.hasMore == "1"
-            )
-        }
-            .onStart { emit(NotificationsListPartialChange.LoadMore.Start) }
-            .catch { emit(NotificationsListPartialChange.LoadMore.Failure(currentPage = page, error = it)) }
 }
 
 enum class NotificationsType {

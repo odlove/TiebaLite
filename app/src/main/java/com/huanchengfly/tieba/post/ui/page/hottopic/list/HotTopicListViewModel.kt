@@ -1,15 +1,16 @@
 package com.huanchengfly.tieba.post.ui.page.hottopic.list
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.topicList.NewTopicList
 import com.huanchengfly.tieba.post.api.models.protos.topicList.TopicListResponse
 import com.huanchengfly.tieba.post.arch.BaseViewModel
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
 import com.huanchengfly.tieba.post.arch.UiEvent
 import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
+import com.huanchengfly.tieba.post.repository.ContentRecommendRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -23,14 +24,17 @@ import javax.inject.Inject
 
 @Stable
 @HiltViewModel
-class HotTopicListViewModel @Inject constructor() :
-    BaseViewModel<HotTopicListUiIntent, HotTopicListPartialChange, HotTopicListUiState, UiEvent>() {
+class HotTopicListViewModel @Inject constructor(
+    private val contentRecommendRepository: ContentRecommendRepository,
+    dispatcherProvider: DispatcherProvider
+) :
+    BaseViewModel<HotTopicListUiIntent, HotTopicListPartialChange, HotTopicListUiState, UiEvent>(dispatcherProvider) {
     override fun createInitialState(): HotTopicListUiState = HotTopicListUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<HotTopicListUiIntent, HotTopicListPartialChange, HotTopicListUiState> =
-        HotTopicListPartialChangeProducer
+        HotTopicListPartialChangeProducer()
 
-    private object HotTopicListPartialChangeProducer :
+    private inner class HotTopicListPartialChangeProducer :
         PartialChangeProducer<HotTopicListUiIntent, HotTopicListPartialChange, HotTopicListUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<HotTopicListUiIntent>): Flow<HotTopicListPartialChange> =
@@ -40,7 +44,7 @@ class HotTopicListViewModel @Inject constructor() :
             )
 
         private fun produceLoadPartialChange(): Flow<HotTopicListPartialChange.Load> =
-            TiebaApi.getInstance().topicListFlow()
+            contentRecommendRepository.topicList()
                 .map<TopicListResponse, HotTopicListPartialChange.Load> {
                     HotTopicListPartialChange.Load.Success(it.data_?.topic_list ?: emptyList())
                 }

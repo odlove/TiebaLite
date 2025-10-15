@@ -2,7 +2,6 @@ package com.huanchengfly.tieba.post.ui.page.main.explore.personalized
 
 import androidx.compose.runtime.Stable
 import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.post.api.models.CommonResponse
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
@@ -11,6 +10,7 @@ import com.huanchengfly.tieba.post.api.models.protos.personalized.PersonalizedRe
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.CommonUiEvent
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
@@ -20,6 +20,7 @@ import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.arch.wrapImmutable
 import com.huanchengfly.tieba.post.models.DislikeBean
 import com.huanchengfly.tieba.post.repository.PersonalizedRepository
+import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.ui.models.ThreadItemData
 import com.huanchengfly.tieba.post.ui.models.distinctById
 import com.huanchengfly.tieba.post.utils.appPreferences
@@ -39,12 +40,15 @@ import javax.inject.Inject
 
 @Stable
 @HiltViewModel
-class PersonalizedViewModel @Inject constructor() :
-    BaseViewModel<PersonalizedUiIntent, PersonalizedPartialChange, PersonalizedUiState, PersonalizedUiEvent>() {
+class PersonalizedViewModel @Inject constructor(
+    private val personalizedRepository: PersonalizedRepository,
+    private val userInteractionRepository: UserInteractionRepository,
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel<PersonalizedUiIntent, PersonalizedPartialChange, PersonalizedUiState, PersonalizedUiEvent>(dispatcherProvider) {
     override fun createInitialState(): PersonalizedUiState = PersonalizedUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<PersonalizedUiIntent, PersonalizedPartialChange, PersonalizedUiState> =
-        ExplorePartialChangeProducer
+        ExplorePartialChangeProducer()
 
     override fun dispatchEvent(partialChange: PersonalizedPartialChange): UiEvent? =
         when (partialChange) {
@@ -57,7 +61,7 @@ class PersonalizedViewModel @Inject constructor() :
             else -> null
         }
 
-    private object ExplorePartialChangeProducer : PartialChangeProducer<PersonalizedUiIntent, PersonalizedPartialChange, PersonalizedUiState> {
+    private inner class ExplorePartialChangeProducer : PartialChangeProducer<PersonalizedUiIntent, PersonalizedPartialChange, PersonalizedUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<PersonalizedUiIntent>): Flow<PersonalizedPartialChange> =
             merge(
@@ -68,7 +72,7 @@ class PersonalizedViewModel @Inject constructor() :
             )
 
         private fun produceRefreshPartialChange(): Flow<PersonalizedPartialChange.Refresh> =
-            PersonalizedRepository
+            personalizedRepository
                 .personalizedFlow(1, 1)
                 .map<PersonalizedResponse, PersonalizedPartialChange.Refresh> { response ->
                     val data = response.toData()
@@ -90,7 +94,7 @@ class PersonalizedViewModel @Inject constructor() :
                 .catch { emit(PersonalizedPartialChange.Refresh.Failure(it)) }
 
         private fun PersonalizedUiIntent.LoadMore.producePartialChange(): Flow<PersonalizedPartialChange.LoadMore> =
-            PersonalizedRepository
+            personalizedRepository
                 .personalizedFlow(2, page)
                 .map<PersonalizedResponse, PersonalizedPartialChange.LoadMore> { response ->
                     val data = response.toData()
@@ -113,7 +117,7 @@ class PersonalizedViewModel @Inject constructor() :
                 .catch { emit(PersonalizedPartialChange.LoadMore.Failure(currentPage = page, error = it)) }
 
         private fun PersonalizedUiIntent.Dislike.producePartialChange(): Flow<PersonalizedPartialChange.Dislike> =
-            TiebaApi.getInstance().submitDislikeFlow(
+            userInteractionRepository.submitDislike(
                 DislikeBean(
                     threadId.toString(),
                     reasons.joinToString(",") { it.get { dislikeId }.toString() },
@@ -126,8 +130,8 @@ class PersonalizedViewModel @Inject constructor() :
                 .onStart { emit(PersonalizedPartialChange.Dislike.Start(threadId)) }
 
         private fun PersonalizedUiIntent.Agree.producePartialChange(): Flow<PersonalizedPartialChange.Agree> =
-            TiebaApi.getInstance()
-                .opAgreeFlow(
+            userInteractionRepository
+                .opAgree(
                     threadId.toString(), postId.toString(), hasAgree, objType = 3
                 )
                 .map<AgreeBean, PersonalizedPartialChange.Agree> {

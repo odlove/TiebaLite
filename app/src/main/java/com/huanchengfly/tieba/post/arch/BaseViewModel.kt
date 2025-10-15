@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,6 +13,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlin.LazyThreadSafetyMode
 
 interface PartialChangeProducer<Intent : UiIntent, PC : PartialChange<State>, State : UiState> {
     fun toPartialChangeFlow(intentFlow: Flow<Intent>): Flow<PC>
@@ -25,7 +25,9 @@ abstract class BaseViewModel<
         PC : PartialChange<State>,
         State : UiState,
         Event : UiEvent
-        > :
+        > (
+    private val dispatcherProvider: DispatcherProvider = DefaultDispatcherProvider
+) :
     ViewModel() {
 
     var initialized = false
@@ -36,28 +38,32 @@ abstract class BaseViewModel<
 
     private val _intentFlow = MutableSharedFlow<Intent>()
 
-    private val initialState: State by lazy { createInitialState() }
+    private val initialState: State by lazy(LazyThreadSafetyMode.NONE) { createInitialState() }
 
-    private val partialChangeProducer: PartialChangeProducer<Intent, PC, State> by lazy { createPartialChangeProducer() }
+    private val partialChangeProducer: PartialChangeProducer<Intent, PC, State> by lazy(LazyThreadSafetyMode.NONE) {
+        createPartialChangeProducer()
+    }
 
     protected abstract fun createInitialState(): State
     protected abstract fun createPartialChangeProducer(): PartialChangeProducer<Intent, PC, State>
 
-    val uiState = partialChangeProducer.toPartialChangeFlow(_intentFlow)
-        .onEach {
-            Log.i("ViewModel", "partialChange $it")
-            val event = dispatchEvent(it)
-            if (event != null) {
-                Log.i("ViewModel", "event $event")
-                _internalUiEventFlow.emit(event)
+    val uiState by lazy(LazyThreadSafetyMode.NONE) {
+        partialChangeProducer.toPartialChangeFlow(_intentFlow)
+            .onEach {
+                Log.i("ViewModel", "partialChange $it")
+                val event = dispatchEvent(it)
+                if (event != null) {
+                    Log.i("ViewModel", "event $event")
+                    _internalUiEventFlow.emit(event)
+                }
             }
-        }
-        .scan(initialState) { oldState, partialChange ->
-            partialChange.reduce(oldState)
-        }
-        .distinctUntilChanged()
-        .flowOn(Dispatchers.IO)
-        .stateIn(viewModelScope, SharingStarted.Eagerly, initialState)
+            .scan(initialState) { oldState, partialChange ->
+                partialChange.reduce(oldState)
+            }
+            .distinctUntilChanged()
+            .flowOn(dispatcherProvider.io)
+            .stateIn(viewModelScope, SharingStarted.Eagerly, initialState)
+    }
 
     protected open fun dispatchEvent(partialChange: PC): UiEvent? = null
 

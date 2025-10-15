@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.SearchForumBean
 import com.huanchengfly.tieba.post.arch.BaseViewModel
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
@@ -26,8 +27,10 @@ import javax.inject.Inject
 
 @Stable
 @HiltViewModel
-class SearchForumViewModel @Inject constructor() :
-    BaseViewModel<SearchForumUiIntent, SearchForumPartialChange, SearchForumUiState, SearchForumUiEvent>() {
+class SearchForumViewModel @Inject constructor(
+    dispatcherProvider: DispatcherProvider
+) :
+    BaseViewModel<SearchForumUiIntent, SearchForumPartialChange, SearchForumUiState, SearchForumUiEvent>(dispatcherProvider) {
     override fun createInitialState() = SearchForumUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<SearchForumUiIntent, SearchForumPartialChange, SearchForumUiState> =

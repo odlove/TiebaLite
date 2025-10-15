@@ -7,6 +7,7 @@ import com.huanchengfly.tieba.post.api.models.SearchThreadBean
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.CommonUiEvent
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
@@ -40,8 +41,9 @@ import org.litepal.extension.find
 import javax.inject.Inject
 
 @HiltViewModel
-class ForumSearchPostViewModel @Inject constructor() :
-    BaseViewModel<ForumSearchPostUiIntent, ForumSearchPostPartialChange, ForumSearchPostUiState, UiEvent>() {
+class ForumSearchPostViewModel @Inject constructor(
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel<ForumSearchPostUiIntent, ForumSearchPostPartialChange, ForumSearchPostUiState, UiEvent>(dispatcherProvider) {
     override fun createInitialState(): ForumSearchPostUiState = ForumSearchPostUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumSearchPostUiIntent, ForumSearchPostPartialChange, ForumSearchPostUiState> =

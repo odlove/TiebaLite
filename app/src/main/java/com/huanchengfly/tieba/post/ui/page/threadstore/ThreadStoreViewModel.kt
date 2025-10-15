@@ -7,6 +7,7 @@ import com.huanchengfly.tieba.post.api.models.ThreadStoreBean
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
@@ -27,8 +28,10 @@ import javax.inject.Inject
 
 @Stable
 @HiltViewModel
-class ThreadStoreViewModel @Inject constructor() :
-    BaseViewModel<ThreadStoreUiIntent, ThreadStorePartialChange, ThreadStoreUiState, ThreadStoreUiEvent>() {
+class ThreadStoreViewModel @Inject constructor(
+    dispatcherProvider: DispatcherProvider
+) :
+    BaseViewModel<ThreadStoreUiIntent, ThreadStorePartialChange, ThreadStoreUiState, ThreadStoreUiEvent>(dispatcherProvider) {
     override fun createInitialState(): ThreadStoreUiState = ThreadStoreUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<ThreadStoreUiIntent, ThreadStorePartialChange, ThreadStoreUiState> =

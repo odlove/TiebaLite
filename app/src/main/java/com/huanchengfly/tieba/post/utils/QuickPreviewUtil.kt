@@ -7,7 +7,7 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.TiebaApi
+import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.ForumPageBean
 import com.huanchengfly.tieba.post.api.models.ThreadContentBean
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaException
@@ -26,59 +26,68 @@ import kotlinx.coroutines.flow.merge
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object QuickPreviewUtil {
-    private fun isTiebaUrl(host: String?): Boolean {
-        return host != null && (host.equals("wapp.baidu.com", ignoreCase = true) ||
-                host.equals("tieba.baidu.com", ignoreCase = true) ||
-                host.equals("tiebac.baidu.com", ignoreCase = true))
-    }
-
-    @JvmStatic
-    fun isForumUrl(uri: Uri?): Boolean {
-        if (uri == null || uri.host == null || uri.path == null) {
-            return false
+@Singleton
+class QuickPreviewUtil @Inject constructor(
+    private val pbPageRepository: PbPageRepository,
+    private val frsPageRepository: FrsPageRepository,
+    private val api: ITiebaApi
+) {
+    companion object {
+        private fun isTiebaUrl(host: String?): Boolean {
+            return host != null && (host.equals("wapp.baidu.com", ignoreCase = true) ||
+                    host.equals("tieba.baidu.com", ignoreCase = true) ||
+                    host.equals("tiebac.baidu.com", ignoreCase = true))
         }
-        val path = uri.path
-        val kw = uri.getQueryParameter("kw")
-        val word = uri.getQueryParameter("word")
-        return (path.equals("/f", ignoreCase = true) || path.equals(
-            "/mo/q/m",
-            ignoreCase = true
-        )) &&
-                kw != null || word != null
-    }
 
-    @JvmStatic
-    fun isThreadUrl(uri: Uri?): Boolean {
-        if (uri == null || uri.host == null || uri.path == null) {
-            return false
+        @JvmStatic
+        fun isForumUrl(uri: Uri?): Boolean {
+            if (uri == null || uri.host == null || uri.path == null) {
+                return false
+            }
+            val path = uri.path
+            val kw = uri.getQueryParameter("kw")
+            val word = uri.getQueryParameter("word")
+            return (path.equals("/f", ignoreCase = true) || path.equals(
+                "/mo/q/m",
+                ignoreCase = true
+            )) &&
+                    kw != null || word != null
         }
-        val path = uri.path
-        val kz = uri.getQueryParameter("kz")
-        return (path.equals("/f", ignoreCase = true) || path.equals(
-            "/mo/q/m",
-            ignoreCase = true
-        )) &&
-                kz != null || path?.startsWith("/p/") == true
-    }
 
-    @JvmStatic
-    fun getForumName(uri: Uri?): String? {
-        if (uri == null || uri.host == null || uri.path == null) {
+        @JvmStatic
+        fun isThreadUrl(uri: Uri?): Boolean {
+            if (uri == null || uri.host == null || uri.path == null) {
+                return false
+            }
+            val path = uri.path
+            val kz = uri.getQueryParameter("kz")
+            return (path.equals("/f", ignoreCase = true) || path.equals(
+                "/mo/q/m",
+                ignoreCase = true
+            )) &&
+                    kz != null || path?.startsWith("/p/") == true
+        }
+
+        @JvmStatic
+        fun getForumName(uri: Uri?): String? {
+            if (uri == null || uri.host == null || uri.path == null) {
+                return null
+            }
+            val path = uri.path
+            val kw = uri.getQueryParameter("kw")
+            val word = uri.getQueryParameter("word")
+            if (path.equals("/f", ignoreCase = true) || path.equals("/mo/q/m", ignoreCase = true)) {
+                if (kw != null) {
+                    return kw
+                } else if (word != null) {
+                    return word
+                }
+            }
             return null
         }
-        val path = uri.path
-        val kw = uri.getQueryParameter("kw")
-        val word = uri.getQueryParameter("word")
-        if (path.equals("/f", ignoreCase = true) || path.equals("/mo/q/m", ignoreCase = true)) {
-            if (kw != null) {
-                return kw
-            } else if (word != null) {
-                return word
-            }
-        }
-        return null
     }
 
     private fun getThreadPreviewInfo(
@@ -86,7 +95,7 @@ object QuickPreviewUtil {
         link: ClipBoardThreadLink,
         callback: CommonCallback<PreviewInfo>,
     ) {
-        TiebaApi.getInstance().threadContent(link.threadId)
+        api.threadContent(link.threadId)
             .enqueue(object : Callback<ThreadContentBean> {
                 override fun onFailure(call: Call<ThreadContentBean>, t: Throwable) {
                     val code = if (t is TiebaException) t.code else -1
@@ -120,8 +129,7 @@ object QuickPreviewUtil {
         link: ClipBoardThreadLink,
         lifeCycle: Lifecycle? = null,
     ): Flow<PreviewInfo> =
-        PbPageRepository
-            .pbPage(link.threadId.toLong())
+        pbPageRepository.pbPage(link.threadId.toLong())
             .map {
                 PreviewInfo(
                     clipBoardLink = link,
@@ -136,10 +144,8 @@ object QuickPreviewUtil {
                 )
             }
             .catch { it.printStackTrace() }
-            .apply {
-                if (lifeCycle != null) {
-                    flowWithLifecycle(lifeCycle)
-                }
+            .let { flow ->
+                if (lifeCycle != null) flow.flowWithLifecycle(lifeCycle) else flow
             }
 
     private fun getForumPreviewInfo(
@@ -147,7 +153,7 @@ object QuickPreviewUtil {
         link: ClipBoardForumLink,
         callback: CommonCallback<PreviewInfo>,
     ) {
-        TiebaApi.getInstance().forumPage(link.forumName).enqueue(object : Callback<ForumPageBean> {
+        api.forumPage(link.forumName).enqueue(object : Callback<ForumPageBean> {
             override fun onFailure(call: Call<ForumPageBean>, t: Throwable) {
                 val code = if (t is TiebaException) t.code else -1
                 callback.onFailure(code, t.message)
@@ -176,7 +182,7 @@ object QuickPreviewUtil {
         link: ClipBoardForumLink,
         lifeCycle: Lifecycle? = null,
     ): Flow<PreviewInfo> =
-        FrsPageRepository.frsPage(link.forumName, 1, 1, getSortType(context, link.forumName))
+        frsPageRepository.frsPage(link.forumName, 1, 1, getSortType(context, link.forumName))
             .map {
                 PreviewInfo(
                     clipBoardLink = link,
@@ -190,10 +196,8 @@ object QuickPreviewUtil {
                 )
             }
             .catch { it.printStackTrace() }
-            .apply {
-                if (lifeCycle != null) {
-                    flowWithLifecycle(lifeCycle)
-                }
+            .let { flow ->
+                if (lifeCycle != null) flow.flowWithLifecycle(lifeCycle) else flow
             }
 
     fun getPreviewInfoFlow(
@@ -216,10 +220,9 @@ object QuickPreviewUtil {
             )
         )
         return listOfNotNull(flow, detailFlow).merge()
-            .apply { if (lifeCycle != null) flowWithLifecycle(lifeCycle) }
+            .let { flow -> if (lifeCycle != null) flow.flowWithLifecycle(lifeCycle) else flow }
     }
 
-    @JvmStatic
     fun getPreviewInfo(
         context: Context,
         link: ClipBoardLink,

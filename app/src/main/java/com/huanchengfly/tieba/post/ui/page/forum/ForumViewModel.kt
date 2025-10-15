@@ -1,13 +1,13 @@
 package com.huanchengfly.tieba.post.ui.page.forum
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.CommonResponse
 import com.huanchengfly.tieba.post.api.models.LikeForumResultBean
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.ForumInfo
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
@@ -15,6 +15,7 @@ import com.huanchengfly.tieba.post.arch.UiEvent
 import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.arch.wrapImmutable
+import com.huanchengfly.tieba.post.repository.ForumOperationRepository
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,12 +31,15 @@ import javax.inject.Inject
 
 @Stable
 @HiltViewModel
-class ForumViewModel @Inject constructor() :
-    BaseViewModel<ForumUiIntent, ForumPartialChange, ForumUiState, ForumUiEvent>() {
+class ForumViewModel @Inject constructor(
+    private val frsPageRepository: FrsPageRepository,
+    private val forumOperationRepository: ForumOperationRepository,
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel<ForumUiIntent, ForumPartialChange, ForumUiState, ForumUiEvent>(dispatcherProvider) {
     override fun createInitialState(): ForumUiState = ForumUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumUiIntent, ForumPartialChange, ForumUiState> =
-        ForumPartialChangeProducer
+        ForumPartialChangeProducer()
 
     override fun dispatchEvent(partialChange: ForumPartialChange): UiEvent? {
         return when (partialChange) {
@@ -65,7 +69,7 @@ class ForumViewModel @Inject constructor() :
         }
     }
 
-    private object ForumPartialChangeProducer :
+    private inner class ForumPartialChangeProducer :
         PartialChangeProducer<ForumUiIntent, ForumPartialChange, ForumUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<ForumUiIntent>): Flow<ForumPartialChange> =
@@ -83,7 +87,7 @@ class ForumViewModel @Inject constructor() :
             )
 
         private fun ForumUiIntent.Load.produceLoadPartialChange() =
-            FrsPageRepository.frsPage(forumName, 1, 1, sortType, null, true)
+            frsPageRepository.frsPage(forumName, 1, 1, sortType, null, true)
                 .map {
                     if (it.data_?.forum != null) ForumPartialChange.Load.Success(
                         it.data_.forum,
@@ -95,7 +99,7 @@ class ForumViewModel @Inject constructor() :
                 .catch { emit(ForumPartialChange.Load.Failure(it)) }
 
         private fun ForumUiIntent.SignIn.produceLoadPartialChange() =
-            TiebaApi.getInstance().signFlow("$forumId", forumName, tbs)
+            forumOperationRepository.sign("$forumId", forumName, tbs)
                 .map { signResultBean ->
                     if (signResultBean.userInfo?.signBonusPoint != null &&
                         signResultBean.userInfo.levelUpScore != null &&
@@ -120,14 +124,14 @@ class ForumViewModel @Inject constructor() :
                 .catch { emit(ForumPartialChange.SignIn.Failure(it)) }
 
         private fun ForumUiIntent.Like.produceLoadPartialChange() =
-            TiebaApi.getInstance().likeForumFlow("$forumId", forumName, tbs)
+            forumOperationRepository.likeForum("$forumId", forumName, tbs)
                 .map<LikeForumResultBean, ForumPartialChange.Like> {
                     ForumPartialChange.Like.Success(it)
                 }
                 .catch { emit(ForumPartialChange.Like.Failure(it)) }
 
         private fun ForumUiIntent.Unlike.produceLoadPartialChange() =
-            TiebaApi.getInstance().unlikeForumFlow("$forumId", forumName, tbs)
+            forumOperationRepository.unlikeForum("$forumId", forumName, tbs)
                 .map<CommonResponse, ForumPartialChange.Unlike> {
                     ForumPartialChange.Unlike.Success
                 }

@@ -15,7 +15,9 @@ data class ThreadItemData(
     val thread: ImmutableHolder<ThreadInfo>,
     val blocked: Boolean = thread.get { shouldBlock() },
     val personalized: ImmutableHolder<ThreadPersonalized>? = null,
-    val hidden: Boolean = blocked && App.INSTANCE.appPreferences.hideBlockedContent,
+    val hidden: Boolean = blocked &&
+            App.isInitialized &&
+            App.INSTANCE.appPreferences.hideBlockedContent,
 )
 
 fun List<ThreadItemData>.distinctById(): ImmutableList<ThreadItemData> {

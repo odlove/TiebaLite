@@ -2,7 +2,6 @@ package com.huanchengfly.tieba.post.ui.page.main.explore.concern
 
 import androidx.compose.runtime.Stable
 import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.post.api.models.protos.updateAgreeStatus
 import com.huanchengfly.tieba.post.api.models.protos.userLike.ConcernData
@@ -10,11 +9,14 @@ import com.huanchengfly.tieba.post.api.models.protos.userLike.UserLikeResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.CommonUiEvent
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
 import com.huanchengfly.tieba.post.arch.UiEvent
 import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
+import com.huanchengfly.tieba.post.repository.ForumOperationRepository
+import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.utils.appPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -32,12 +34,15 @@ import javax.inject.Inject
 
 @Stable
 @HiltViewModel
-class ConcernViewModel @Inject constructor() :
-    BaseViewModel<ConcernUiIntent, ConcernPartialChange, ConcernUiState, ConcernUiEvent>() {
+class ConcernViewModel @Inject constructor(
+    private val forumOperationRepository: ForumOperationRepository,
+    private val userInteractionRepository: UserInteractionRepository,
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel<ConcernUiIntent, ConcernPartialChange, ConcernUiState, ConcernUiEvent>(dispatcherProvider) {
     override fun createInitialState(): ConcernUiState = ConcernUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<ConcernUiIntent, ConcernPartialChange, ConcernUiState> =
-        ExplorePartialChangeProducer
+        ExplorePartialChangeProducer()
 
     override fun dispatchEvent(partialChange: ConcernPartialChange): UiEvent? =
         when (partialChange) {
@@ -46,7 +51,7 @@ class ConcernViewModel @Inject constructor() :
             else -> null
         }
 
-    private object ExplorePartialChangeProducer : PartialChangeProducer<ConcernUiIntent, ConcernPartialChange, ConcernUiState> {
+    private inner class ExplorePartialChangeProducer : PartialChangeProducer<ConcernUiIntent, ConcernPartialChange, ConcernUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<ConcernUiIntent>): Flow<ConcernPartialChange> =
             merge(
@@ -56,7 +61,7 @@ class ConcernViewModel @Inject constructor() :
             )
 
         private fun produceRefreshPartialChange(): Flow<ConcernPartialChange.Refresh> =
-            TiebaApi.getInstance().userLikeFlow("", App.INSTANCE.appPreferences.userLikeLastRequestUnix, 1)
+            forumOperationRepository.userLike("", App.INSTANCE.appPreferences.userLikeLastRequestUnix, 1)
                 .map<UserLikeResponse, ConcernPartialChange.Refresh> {
                     App.INSTANCE.appPreferences.userLikeLastRequestUnix = it.data_?.requestUnix ?: 0L
                     ConcernPartialChange.Refresh.Success(
@@ -69,7 +74,7 @@ class ConcernViewModel @Inject constructor() :
                 .catch { emit(ConcernPartialChange.Refresh.Failure(it)) }
 
         private fun ConcernUiIntent.LoadMore.producePartialChange(): Flow<ConcernPartialChange.LoadMore> =
-            TiebaApi.getInstance().userLikeFlow(pageTag, App.INSTANCE.appPreferences.userLikeLastRequestUnix, 2)
+            forumOperationRepository.userLike(pageTag, App.INSTANCE.appPreferences.userLikeLastRequestUnix, 2)
                 .map<UserLikeResponse, ConcernPartialChange.LoadMore> {
                     ConcernPartialChange.LoadMore.Success(
                         data = it.toData(),
@@ -81,7 +86,7 @@ class ConcernViewModel @Inject constructor() :
                 .catch { emit(ConcernPartialChange.LoadMore.Failure(error = it)) }
 
         private fun ConcernUiIntent.Agree.producePartialChange(): Flow<ConcernPartialChange.Agree> =
-            TiebaApi.getInstance().opAgreeFlow(
+            userInteractionRepository.opAgree(
                 threadId.toString(), postId.toString(), hasAgree, objType = 3
             ).map<AgreeBean, ConcernPartialChange.Agree> { ConcernPartialChange.Agree.Success(threadId, hasAgree xor 1) }
                 .catch { emit(ConcernPartialChange.Agree.Failure(threadId, hasAgree, it)) }

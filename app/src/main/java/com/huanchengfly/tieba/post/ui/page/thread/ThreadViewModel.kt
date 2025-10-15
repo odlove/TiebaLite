@@ -5,7 +5,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.AnnotatedString
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.post.api.models.CommonResponse
 import com.huanchengfly.tieba.post.api.models.protos.Anti
@@ -25,6 +24,7 @@ import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.CommonUiEvent
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
@@ -35,6 +35,8 @@ import com.huanchengfly.tieba.post.arch.wrapImmutable
 import com.huanchengfly.tieba.post.removeAt
 import com.huanchengfly.tieba.post.repository.EmptyDataException
 import com.huanchengfly.tieba.post.repository.PbPageRepository
+import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
+import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -68,12 +70,16 @@ private fun ThreadInfo.getNextPagePostId(
 
 @Stable
 @HiltViewModel
-class ThreadViewModel @Inject constructor() :
-    BaseViewModel<ThreadUiIntent, ThreadPartialChange, ThreadUiState, ThreadUiEvent>() {
+class ThreadViewModel @Inject constructor(
+    private val pbPageRepository: PbPageRepository,
+    private val userInteractionRepository: UserInteractionRepository,
+    private val threadOperationRepository: ThreadOperationRepository,
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel<ThreadUiIntent, ThreadPartialChange, ThreadUiState, ThreadUiEvent>(dispatcherProvider) {
     override fun createInitialState(): ThreadUiState = ThreadUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<ThreadUiIntent, ThreadPartialChange, ThreadUiState> =
-        ThreadPartialChangeProducer
+        ThreadPartialChangeProducer()
 
     override fun dispatchEvent(partialChange: ThreadPartialChange): UiEvent? {
         return when (partialChange) {
@@ -103,11 +109,16 @@ class ThreadViewModel @Inject constructor() :
                 App.INSTANCE.getString(R.string.toast_delete_failure, partialChange.errorMessage)
             )
 
+            is ThreadPartialChange.UpdateFavoriteMark.Success -> ThreadUiEvent.UpdateFavoriteMarkSuccess
+            is ThreadPartialChange.UpdateFavoriteMark.Failure -> ThreadUiEvent.UpdateFavoriteMarkFailure(
+                partialChange.errorMessage
+            )
+
             else -> null
         }
     }
 
-    private object ThreadPartialChangeProducer :
+    private inner class ThreadPartialChangeProducer :
         PartialChangeProducer<ThreadUiIntent, ThreadPartialChange, ThreadUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<ThreadUiIntent>): Flow<ThreadPartialChange> =
@@ -140,6 +151,8 @@ class ThreadViewModel @Inject constructor() :
                     .flatMapConcat { it.producePartialChange() },
                 intentFlow.filterIsInstance<ThreadUiIntent.DeleteThread>()
                     .flatMapConcat { it.producePartialChange() },
+                intentFlow.filterIsInstance<ThreadUiIntent.UpdateFavoriteMark>()
+                    .flatMapConcat { it.producePartialChange() },
             )
 
         fun ThreadUiIntent.Init.producePartialChange(): Flow<ThreadPartialChange.Init> =
@@ -156,11 +169,10 @@ class ThreadViewModel @Inject constructor() :
             ).catch { emit(ThreadPartialChange.Init.Failure(it)) }
 
         fun ThreadUiIntent.Load.producePartialChange(): Flow<ThreadPartialChange.Load> =
-            PbPageRepository
-                .pbPage(
-                    threadId, page, postId, forumId, seeLz, sortType,
-                    from = from.takeIf { it == ThreadPageFrom.FROM_STORE }.orEmpty()
-                )
+            pbPageRepository.pbPage(
+                threadId, page, postId, forumId, seeLz, sortType,
+                from = from.takeIf { it == ThreadPageFrom.FROM_STORE }.orEmpty()
+            )
                 .map<PbPageResponse, ThreadPartialChange.Load> { response ->
                     if (response.data_?.page == null
                         || response.data_.thread?.author == null
@@ -197,8 +209,7 @@ class ThreadViewModel @Inject constructor() :
                 .catch { emit(ThreadPartialChange.Load.Failure(it)) }
 
         fun ThreadUiIntent.LoadFirstPage.producePartialChange(): Flow<ThreadPartialChange.LoadFirstPage> =
-            PbPageRepository
-                .pbPage(threadId, 0, 0, forumId, seeLz, sortType)
+            pbPageRepository.pbPage(threadId, 0, 0, forumId, seeLz, sortType)
                 .map<PbPageResponse, ThreadPartialChange.LoadFirstPage> { response ->
                     if (response.data_?.page == null
                         || response.data_.thread?.author == null
@@ -231,8 +242,7 @@ class ThreadViewModel @Inject constructor() :
                 .catch { emit(ThreadPartialChange.LoadFirstPage.Failure(it)) }
 
         fun ThreadUiIntent.LoadMore.producePartialChange(): Flow<ThreadPartialChange.LoadMore> =
-            PbPageRepository
-                .pbPage(threadId, page, postId, forumId, seeLz, sortType)
+            pbPageRepository.pbPage(threadId, page, postId, forumId, seeLz, sortType)
                 .map<PbPageResponse, ThreadPartialChange.LoadMore> { response ->
                     if (response.data_?.page == null
                         || response.data_.thread?.author == null
@@ -265,8 +275,7 @@ class ThreadViewModel @Inject constructor() :
                 }
 
         fun ThreadUiIntent.LoadPrevious.producePartialChange(): Flow<ThreadPartialChange.LoadPrevious> =
-            PbPageRepository
-                .pbPage(threadId, page, postId, forumId, seeLz, sortType, back = true)
+            pbPageRepository.pbPage(threadId, page, postId, forumId, seeLz, sortType, back = true)
                 .map<PbPageResponse, ThreadPartialChange.LoadPrevious> { response ->
                     if (response.data_?.page == null
                         || response.data_.thread?.author == null
@@ -295,16 +304,15 @@ class ThreadViewModel @Inject constructor() :
                 }
 
         fun ThreadUiIntent.LoadLatestPosts.producePartialChange(): Flow<ThreadPartialChange.LoadLatestPosts> =
-            PbPageRepository
-                .pbPage(
-                    threadId = threadId,
-                    page = 0,
-                    postId = curLatestPostId,
-                    forumId = forumId,
-                    seeLz = seeLz,
-                    sortType = sortType,
-                    lastPostId = curLatestPostId
-                )
+            pbPageRepository.pbPage(
+                threadId = threadId,
+                page = 0,
+                postId = curLatestPostId,
+                forumId = forumId,
+                seeLz = seeLz,
+                sortType = sortType,
+                lastPostId = curLatestPostId
+            )
                 .map { response ->
                     checkNotNull(response.data_)
                     checkNotNull(response.data_.thread)
@@ -338,8 +346,7 @@ class ThreadViewModel @Inject constructor() :
                 }
 
         fun ThreadUiIntent.LoadMyLatestReply.producePartialChange(): Flow<ThreadPartialChange.LoadMyLatestReply> =
-            PbPageRepository
-                .pbPage(threadId, page = 0, postId = postId, forumId = forumId)
+            pbPageRepository.pbPage(threadId, page = 0, postId = postId, forumId = forumId)
                 .map<PbPageResponse, ThreadPartialChange.LoadMyLatestReply> { response ->
                     if (response.data_?.page == null
                         || response.data_.thread?.author == null
@@ -363,8 +370,8 @@ class ThreadViewModel @Inject constructor() :
             flowOf(ThreadPartialChange.ToggleImmersiveMode.Success(isImmersiveMode))
 
         fun ThreadUiIntent.AddFavorite.producePartialChange(): Flow<ThreadPartialChange.AddFavorite> =
-            TiebaApi.getInstance()
-                .addStoreFlow(threadId, postId)
+            threadOperationRepository
+                .addStore(threadId, postId)
                 .map { response ->
                     if (response.errorCode == 0) {
                         ThreadPartialChange.AddFavorite.Success(
@@ -386,8 +393,8 @@ class ThreadViewModel @Inject constructor() :
                 }
 
         fun ThreadUiIntent.RemoveFavorite.producePartialChange(): Flow<ThreadPartialChange.RemoveFavorite> =
-            TiebaApi.getInstance()
-                .removeStoreFlow(threadId, forumId, tbs)
+            threadOperationRepository
+                .removeStore(threadId, forumId, tbs)
                 .map { response ->
                     if (response.errorCode == 0) {
                         ThreadPartialChange.RemoveFavorite.Success
@@ -407,11 +414,11 @@ class ThreadViewModel @Inject constructor() :
                 }
 
         fun ThreadUiIntent.AgreeThread.producePartialChange(): Flow<ThreadPartialChange.AgreeThread> =
-            TiebaApi.getInstance()
-                .opAgreeFlow(
+            userInteractionRepository
+                .opAgree(
                     threadId.toString(),
                     postId.toString(),
-                    opType = if (agree) 0 else 1,
+                    hasAgree = if (agree) 0 else 1,
                     objType = 3
                 )
                 .map<AgreeBean, ThreadPartialChange.AgreeThread> {
@@ -431,11 +438,11 @@ class ThreadViewModel @Inject constructor() :
                 }
 
         fun ThreadUiIntent.AgreePost.producePartialChange(): Flow<ThreadPartialChange.AgreePost> =
-            TiebaApi.getInstance()
-                .opAgreeFlow(
+            userInteractionRepository
+                .opAgree(
                     threadId.toString(),
                     postId.toString(),
-                    if (agree) 0 else 1,
+                    hasAgree = if (agree) 0 else 1,
                     objType = 1
                 )
                 .map<AgreeBean, ThreadPartialChange.AgreePost> {
@@ -457,8 +464,8 @@ class ThreadViewModel @Inject constructor() :
                 }
 
         fun ThreadUiIntent.DeletePost.producePartialChange(): Flow<ThreadPartialChange.DeletePost> =
-            TiebaApi.getInstance()
-                .delPostFlow(forumId, forumName, threadId, postId, tbs, false, deleteMyPost)
+            threadOperationRepository
+                .delPost(forumId, forumName, threadId, postId, tbs, false, deleteMyPost)
                 .map<CommonResponse, ThreadPartialChange.DeletePost> {
                     ThreadPartialChange.DeletePost.Success(postId)
                 }
@@ -472,14 +479,37 @@ class ThreadViewModel @Inject constructor() :
                 }
 
         fun ThreadUiIntent.DeleteThread.producePartialChange(): Flow<ThreadPartialChange.DeleteThread> =
-            TiebaApi.getInstance()
-                .delThreadFlow(forumId, forumName, threadId, tbs, deleteMyThread, false)
+            threadOperationRepository
+                .delThread(forumId, forumName, threadId, tbs, deleteMyThread, false)
                 .map<CommonResponse, ThreadPartialChange.DeleteThread> {
                     ThreadPartialChange.DeleteThread.Success
                 }
                 .catch {
                     emit(
                         ThreadPartialChange.DeleteThread.Failure(
+                            it.getErrorCode(),
+                            it.getErrorMessage()
+                        )
+                    )
+                }
+
+        fun ThreadUiIntent.UpdateFavoriteMark.producePartialChange(): Flow<ThreadPartialChange.UpdateFavoriteMark> =
+            threadOperationRepository
+                .addStore(threadId, postId)
+                .map { response ->
+                    if (response.errorCode == 0) {
+                        ThreadPartialChange.UpdateFavoriteMark.Success(postId)
+                    } else {
+                        ThreadPartialChange.UpdateFavoriteMark.Failure(
+                            response.errorCode,
+                            response.errorMsg
+                        )
+                    }
+                }
+                .onStart { emit(ThreadPartialChange.UpdateFavoriteMark.Start) }
+                .catch {
+                    emit(
+                        ThreadPartialChange.UpdateFavoriteMark.Failure(
                             it.getErrorCode(),
                             it.getErrorMessage()
                         )
@@ -601,6 +631,11 @@ sealed interface ThreadUiIntent : UiIntent {
         val threadId: Long,
         val deleteMyThread: Boolean,
         val tbs: String? = null
+    ) : ThreadUiIntent
+
+    data class UpdateFavoriteMark(
+        val threadId: Long,
+        val postId: Long
     ) : ThreadUiIntent
 }
 
@@ -1168,6 +1203,35 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             val errorMessage: String
         ) : DeleteThread()
     }
+
+    sealed class UpdateFavoriteMark : ThreadPartialChange {
+        override fun reduce(oldState: ThreadUiState): ThreadUiState {
+            return when (this) {
+                Start -> oldState
+                is Success -> oldState.copy(
+                    threadInfo = oldState.threadInfo?.getImmutable {
+                        updateCollectStatus(
+                            newStatus = 1,
+                            markPostId = markPostId
+                        )
+                    }
+                )
+
+                is Failure -> oldState
+            }
+        }
+
+        object Start : UpdateFavoriteMark()
+
+        data class Success(
+            val markPostId: Long
+        ) : UpdateFavoriteMark()
+
+        data class Failure(
+            val errorCode: Int,
+            val errorMessage: String
+        ) : UpdateFavoriteMark()
+    }
 }
 
 data class ThreadUiState(
@@ -1215,6 +1279,12 @@ sealed interface ThreadUiEvent : UiEvent {
     data class AddFavoriteSuccess(val floor: Int) : ThreadUiEvent
 
     data object RemoveFavoriteSuccess : ThreadUiEvent
+
+    data object UpdateFavoriteMarkSuccess : ThreadUiEvent
+
+    data class UpdateFavoriteMarkFailure(
+        val errorMessage: String
+    ) : ThreadUiEvent
 }
 
 object ThreadSortType {

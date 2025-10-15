@@ -7,6 +7,7 @@ import com.huanchengfly.tieba.post.api.models.protos.profile.ProfileResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
 import com.huanchengfly.tieba.post.arch.UiEvent
@@ -30,8 +31,10 @@ import javax.inject.Inject
 
 @Stable
 @HiltViewModel
-class EditProfileViewModel @Inject constructor() :
-    BaseViewModel<EditProfileIntent, EditProfilePartialChange, EditProfileState, EditProfileEvent>() {
+class EditProfileViewModel @Inject constructor(
+    dispatcherProvider: DispatcherProvider
+) :
+    BaseViewModel<EditProfileIntent, EditProfilePartialChange, EditProfileState, EditProfileEvent>(dispatcherProvider) {
     override fun createInitialState(): EditProfileState = EditProfileState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<EditProfileIntent, EditProfilePartialChange, EditProfileState> =

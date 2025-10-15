@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.SearchUserBean
 import com.huanchengfly.tieba.post.arch.BaseViewModel
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
@@ -27,8 +28,10 @@ import javax.inject.Inject
 
 @Stable
 @HiltViewModel
-class SearchUserViewModel @Inject constructor() :
-    BaseViewModel<SearchUserUiIntent, SearchUserPartialChange, SearchUserUiState, SearchUserUiEvent>() {
+class SearchUserViewModel @Inject constructor(
+    dispatcherProvider: DispatcherProvider
+) :
+    BaseViewModel<SearchUserUiIntent, SearchUserPartialChange, SearchUserUiState, SearchUserUiEvent>(dispatcherProvider) {
     override fun createInitialState(): SearchUserUiState = SearchUserUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<SearchUserUiIntent, SearchUserPartialChange, SearchUserUiState> =

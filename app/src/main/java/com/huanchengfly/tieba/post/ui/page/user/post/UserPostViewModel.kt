@@ -12,6 +12,7 @@ import com.huanchengfly.tieba.post.api.models.protos.userPost.UserPostResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.CommonUiEvent
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
@@ -34,8 +35,10 @@ import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 @HiltViewModel
-class UserPostViewModel @Inject constructor() :
-    BaseViewModel<UserPostUiIntent, UserPostPartialChange, UserPostUiState, UiEvent>() {
+class UserPostViewModel @Inject constructor(
+    dispatcherProvider: DispatcherProvider
+) :
+    BaseViewModel<UserPostUiIntent, UserPostPartialChange, UserPostUiState, UiEvent>(dispatcherProvider) {
     override fun createInitialState(): UserPostUiState = UserPostUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<UserPostUiIntent, UserPostPartialChange, UserPostUiState> =

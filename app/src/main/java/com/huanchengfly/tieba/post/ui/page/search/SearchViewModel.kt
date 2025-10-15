@@ -2,18 +2,20 @@ package com.huanchengfly.tieba.post.ui.page.search
 
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.searchSug.SearchSugResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.CommonUiEvent
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
 import com.huanchengfly.tieba.post.arch.UiEvent
 import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.models.database.SearchHistory
+import com.huanchengfly.tieba.post.repository.SearchRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -33,13 +35,18 @@ import org.litepal.LitePal
 import org.litepal.extension.delete
 import org.litepal.extension.deleteAll
 import org.litepal.extension.find
+import javax.inject.Inject
 
-class SearchViewModel :
-    BaseViewModel<SearchUiIntent, SearchPartialChange, SearchUiState, SearchUiEvent>() {
+@HiltViewModel
+class SearchViewModel @Inject constructor(
+    private val searchRepository: SearchRepository,
+    dispatcherProvider: DispatcherProvider
+) :
+    BaseViewModel<SearchUiIntent, SearchPartialChange, SearchUiState, SearchUiEvent>(dispatcherProvider) {
     override fun createInitialState() = SearchUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<SearchUiIntent, SearchPartialChange, SearchUiState> =
-        SearchPartialChangeProducer
+        SearchPartialChangeProducer()
 
     override fun dispatchEvent(partialChange: SearchPartialChange): UiEvent? =
         when (partialChange) {
@@ -60,7 +67,7 @@ class SearchViewModel :
             else -> null
         }
 
-    private object SearchPartialChangeProducer :
+    private inner class SearchPartialChangeProducer :
         PartialChangeProducer<SearchUiIntent, SearchPartialChange, SearchUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<SearchUiIntent>): Flow<SearchPartialChange> =
@@ -116,7 +123,7 @@ class SearchViewModel :
 
         private fun SearchUiIntent.KeywordInputChanged.producePartialChange() =
             if (keyword.isNotBlank()) {
-                TiebaApi.getInstance().searchSuggestionsFlow(keyword)
+                searchRepository.searchSuggestions(keyword)
                     .map<SearchSugResponse, SearchPartialChange.KeywordInputChanged> {
                         SearchPartialChange.KeywordInputChanged.Success(
                             it.data_?.list ?: listOf()

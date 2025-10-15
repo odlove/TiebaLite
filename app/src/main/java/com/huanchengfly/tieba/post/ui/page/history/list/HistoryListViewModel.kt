@@ -3,6 +3,7 @@ package com.huanchengfly.tieba.post.ui.page.history.list
 import androidx.compose.runtime.Stable
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
 import com.huanchengfly.tieba.post.arch.UiEvent
@@ -28,8 +29,10 @@ import org.litepal.LitePal
 import org.litepal.extension.deleteAll
 import javax.inject.Inject
 
-abstract class HistoryListViewModel :
-    BaseViewModel<HistoryListUiIntent, HistoryListPartialChange, HistoryListUiState, HistoryListUiEvent>() {
+abstract class HistoryListViewModel(
+    dispatcherProvider: DispatcherProvider
+) :
+    BaseViewModel<HistoryListUiIntent, HistoryListPartialChange, HistoryListUiState, HistoryListUiEvent>(dispatcherProvider) {
     override fun createInitialState(): HistoryListUiState = HistoryListUiState()
 
     override fun dispatchEvent(partialChange: HistoryListPartialChange): UiEvent? {
@@ -46,14 +49,18 @@ abstract class HistoryListViewModel :
 
 @Stable
 @HiltViewModel
-class ThreadHistoryListViewModel @Inject constructor() : HistoryListViewModel() {
+class ThreadHistoryListViewModel @Inject constructor(
+    dispatcherProvider: DispatcherProvider
+) : HistoryListViewModel(dispatcherProvider) {
     override fun createPartialChangeProducer(): PartialChangeProducer<HistoryListUiIntent, HistoryListPartialChange, HistoryListUiState> =
         HistoryListPartialChangeProducer(HistoryUtil.TYPE_THREAD)
 }
 
 @Stable
 @HiltViewModel
-class ForumHistoryListViewModel @Inject constructor() : HistoryListViewModel() {
+class ForumHistoryListViewModel @Inject constructor(
+    dispatcherProvider: DispatcherProvider
+) : HistoryListViewModel(dispatcherProvider) {
     override fun createPartialChangeProducer(): PartialChangeProducer<HistoryListUiIntent, HistoryListPartialChange, HistoryListUiState> =
         HistoryListPartialChangeProducer(HistoryUtil.TYPE_FORUM)
 }

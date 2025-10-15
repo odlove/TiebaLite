@@ -1,13 +1,13 @@
 package com.huanchengfly.tieba.post.ui.page.main.explore.hot
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.post.api.models.protos.FrsTabInfo
 import com.huanchengfly.tieba.post.api.models.protos.RecommendTopicList
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.hotThreadList.HotThreadListResponse
 import com.huanchengfly.tieba.post.arch.BaseViewModel
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
@@ -15,6 +15,8 @@ import com.huanchengfly.tieba.post.arch.UiEvent
 import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.arch.wrapImmutable
+import com.huanchengfly.tieba.post.repository.ContentRecommendRepository
+import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -30,14 +32,17 @@ import javax.inject.Inject
 
 @Stable
 @HiltViewModel
-class HotViewModel @Inject constructor() :
-    BaseViewModel<HotUiIntent, HotPartialChange, HotUiState, HotUiEvent>() {
+class HotViewModel @Inject constructor(
+    private val contentRecommendRepository: ContentRecommendRepository,
+    private val userInteractionRepository: UserInteractionRepository,
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel<HotUiIntent, HotPartialChange, HotUiState, HotUiEvent>(dispatcherProvider) {
     override fun createInitialState(): HotUiState = HotUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<HotUiIntent, HotPartialChange, HotUiState> =
-        HotPartialChangeProducer
+        HotPartialChangeProducer()
 
-    private object HotPartialChangeProducer :
+    private inner class HotPartialChangeProducer :
         PartialChangeProducer<HotUiIntent, HotPartialChange, HotUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<HotUiIntent>): Flow<HotPartialChange> =
@@ -51,7 +56,7 @@ class HotViewModel @Inject constructor() :
             )
 
         private fun produceLoadPartialChange(): Flow<HotPartialChange.Load> =
-            TiebaApi.getInstance().hotThreadListFlow("all")
+            contentRecommendRepository.hotThreadList("all")
                 .map<HotThreadListResponse, HotPartialChange.Load> {
                     HotPartialChange.Load.Success(
                         it.data_?.topicList ?: emptyList(),
@@ -63,7 +68,7 @@ class HotViewModel @Inject constructor() :
                 .catch { emit(HotPartialChange.Load.Failure(it)) }
 
         private fun HotUiIntent.RefreshThreadList.producePartialChange(): Flow<HotPartialChange.RefreshThreadList> =
-            TiebaApi.getInstance().hotThreadListFlow(tabCode)
+            contentRecommendRepository.hotThreadList(tabCode)
                 .map<HotThreadListResponse, HotPartialChange.RefreshThreadList> {
                     HotPartialChange.RefreshThreadList.Success(
                         tabCode,
@@ -74,10 +79,9 @@ class HotViewModel @Inject constructor() :
                 .catch { emit(HotPartialChange.RefreshThreadList.Failure(tabCode, it)) }
 
         private fun HotUiIntent.Agree.producePartialChange(): Flow<HotPartialChange.Agree> =
-            TiebaApi.getInstance()
-                .opAgreeFlow(
-                    threadId.toString(), postId.toString(), hasAgree, objType = 3
-                )
+            userInteractionRepository.opAgree(
+                threadId.toString(), postId.toString(), hasAgree, objType = 3
+            )
                 .map<AgreeBean, HotPartialChange.Agree> {
                     HotPartialChange.Agree.Success(
                         threadId,

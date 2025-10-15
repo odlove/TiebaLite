@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.api.TiebaApi
+import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse
 import com.huanchengfly.tieba.post.api.models.protos.threadList.ThreadListResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
@@ -10,18 +10,27 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object FrsPageRepository {
-    var lastHash: String = ""
-    var lastResponse: FrsPageResponse? = null
+/**
+ * FrsPage（贴吧列表页）数据仓库实现
+ */
+@Singleton
+class FrsPageRepositoryImpl @Inject constructor(
+    private val api: ITiebaApi
+) : FrsPageRepository {
+    // 缓存最后一次请求的数据，用于避免重复请求
+    private var lastHash: String = ""
+    private var lastResponse: FrsPageResponse? = null
 
-    fun frsPage(
+    override fun frsPage(
         forumName: String,
         page: Int,
         loadType: Int,
         sortType: Int,
-        goodClassifyId: Int? = null,
-        forceNew: Boolean = false,
+        goodClassifyId: Int?,
+        forceNew: Boolean,
     ): Flow<FrsPageResponse> {
         val hash = "${forumName}_${page}_${loadType}_${sortType}_${goodClassifyId}"
         val cachedResponse = lastResponse
@@ -29,7 +38,7 @@ object FrsPageRepository {
             return flowOf(cachedResponse)
         }
         lastHash = hash
-        return TiebaApi.getInstance().frsPage(forumName, page, loadType, sortType, goodClassifyId)
+        return api.frsPage(forumName, page, loadType, sortType, goodClassifyId)
             .map { response ->
                 if (response.data_ == null) throw TiebaUnknownException
                 val userList = response.data_.user_list
@@ -44,15 +53,14 @@ object FrsPageRepository {
             .onEach { lastResponse = it }
     }
 
-    fun threadList(
+    override fun threadList(
         forumId: Long,
         forumName: String,
         page: Int,
         sortType: Int,
-        threadIds: String = "",
+        threadIds: String,
     ): Flow<ThreadListResponse> =
-        TiebaApi.getInstance()
-            .threadList(forumId, forumName, page, sortType, threadIds)
+        api.threadList(forumId, forumName, page, sortType, threadIds)
             .map { response ->
                 if (response.data_ == null) throw TiebaUnknownException
                 val userList = response.data_.user_list

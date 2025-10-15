@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.webkit.CookieManager
-import com.huanchengfly.tieba.post.api.TiebaApi
+import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.LoginBean
 import com.huanchengfly.tieba.post.arch.GlobalEvent
 import com.huanchengfly.tieba.post.arch.emitGlobalEvent
@@ -41,7 +41,8 @@ import javax.inject.Singleton
 @Singleton
 class AccountRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    @CoroutineModule.ApplicationScope private val coroutineScope: CoroutineScope
+    @CoroutineModule.ApplicationScope private val coroutineScope: CoroutineScope,
+    private val api: ITiebaApi
 ) : AccountRepository {
 
     companion object {
@@ -215,9 +216,9 @@ class AccountRepositoryImpl @Inject constructor(
         sToken: String,
         cookie: String?
     ): Flow<Account> {
-        return TiebaApi.getInstance()
+        return api
             .loginFlow(bduss, sToken)
-            .zip(TiebaApi.getInstance().initNickNameFlow(bduss, sToken)) { loginBean, _ ->
+            .zip(api.initNickNameFlow(bduss, sToken)) { loginBean, _ ->
                 loginBean
             }
             .flatMapConcat { loginBean ->
@@ -256,7 +257,7 @@ class AccountRepositoryImpl @Inject constructor(
      */
     private fun enrichAccountWithUserInfo(accountFlow: Flow<Account>): Flow<Account> {
         return accountFlow.flatMapConcat { account ->
-            TiebaApi.getInstance()
+            api
                 .getUserInfoFlow(account.uid.toLong(), account.bduss, account.sToken)
                 .map { checkNotNull(it.data_?.user) }
                 .map { user ->

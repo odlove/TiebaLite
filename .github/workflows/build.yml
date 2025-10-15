@@ -100,7 +100,7 @@ jobs:
           has_custom_message: ${{ steps.check_release_message.outputs.has_custom_message }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.version_name }}-${{ env.version_code }}
+          tag_name: ${{ env.version_code }}-${{ env.version_name }}
           name: ${{ env.version_name }} (${{ env.version_code }})
           body: |
             ${{ env.has_custom_message == 'true' && env.custom_message || '' }}

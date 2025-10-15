@@ -11,7 +11,9 @@ import androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.SignResultBean
+import com.huanchengfly.tieba.post.di.AppEntryPoint
 import com.huanchengfly.tieba.post.models.SignDataBean
 import com.huanchengfly.tieba.post.pendingIntentFlagImmutable
 import com.huanchengfly.tieba.post.ui.common.theme.utils.ThemeUtils
@@ -19,6 +21,7 @@ import com.huanchengfly.tieba.post.utils.AccountUtil
 import com.huanchengfly.tieba.post.utils.ProgressListener
 import com.huanchengfly.tieba.post.utils.SingleAccountSigner
 import com.huanchengfly.tieba.post.utils.extension.addFlag
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -35,6 +38,13 @@ class OKSignService : IntentService(TAG), CoroutineScope, ProgressListener {
 
     private val notificationManager: NotificationManagerCompat by lazy {
         NotificationManagerCompat.from(this)
+    }
+
+    private val api: ITiebaApi by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            AppEntryPoint::class.java
+        ).tiebaApi()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -59,7 +69,8 @@ class OKSignService : IntentService(TAG), CoroutineScope, ProgressListener {
                 runBlocking {
                     SingleAccountSigner(
                         this@OKSignService,
-                        loginInfo
+                        loginInfo,
+                        api
                     )
                         .apply {
                             setProgressListener(this@OKSignService)

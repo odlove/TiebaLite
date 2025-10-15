@@ -5,8 +5,10 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.api.TiebaApi
+import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.dataStore
+import com.huanchengfly.tieba.post.di.AppEntryPoint
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
@@ -30,6 +32,14 @@ object ClientUtils {
     private lateinit var contextWeakReference: WeakReference<Context>
     private val context: Context
         get() = contextWeakReference.get() ?: App.INSTANCE
+
+    // Lazy load API through EntryPoint
+    private val api: ITiebaApi by lazy {
+        EntryPointAccessors.fromApplication(
+            App.INSTANCE.applicationContext,
+            AppEntryPoint::class.java
+        ).tiebaApi()
+    }
 
     var clientId: String? = null
     var sampleId: String? = null
@@ -78,7 +88,7 @@ object ClientUtils {
     }
 
     private suspend fun sync(context: Context) {
-        TiebaApi.getInstance()
+        api
             .syncFlow(clientId)
             .catch { it.printStackTrace() }
             .collect {

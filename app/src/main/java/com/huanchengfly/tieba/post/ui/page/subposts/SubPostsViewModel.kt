@@ -2,6 +2,7 @@ package com.huanchengfly.tieba.post.ui.page.subposts
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import com.huanchengfly.tieba.post.repository.ContentModerationRepository
 import com.huanchengfly.tieba.post.repository.SubPostsRepository
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
@@ -51,6 +52,7 @@ class SubPostsViewModel @Inject constructor(
     private val subPostsRepository: SubPostsRepository,
     private val userInteractionRepository: UserInteractionRepository,
     private val threadOperationRepository: ThreadOperationRepository,
+    private val contentModerationRepository: ContentModerationRepository,
 ) :
     BaseViewModel<SubPostsUiIntent, SubPostsPartialChange, SubPostsUiState, SubPostsUiEvent>(dispatcherProvider) {
     override fun createInitialState() = SubPostsUiState()
@@ -66,6 +68,8 @@ class SubPostsViewModel @Inject constructor(
             is SubPostsPartialChange.Load.Success -> SubPostsUiEvent.ScrollToSubPosts
             else -> null
         }
+
+    fun checkReportPost(postId: String) = contentModerationRepository.checkReportPost(postId)
 
     class SubPostsPartialChangeProducer(
         private val subPostsRepository: SubPostsRepository,

@@ -35,6 +35,7 @@ class AccountRepositoryImplTest {
     private lateinit var mockContext: Context
     private lateinit var mockSharedPreferences: SharedPreferences
     private lateinit var mockEditor: SharedPreferences.Editor
+    private lateinit var mockApi: com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
     private val testDispatcher = UnconfinedTestDispatcher()
     private val testScope = CoroutineScope(testDispatcher)
 
@@ -50,6 +51,7 @@ class AccountRepositoryImplTest {
         mockContext = mockk(relaxed = true)
         mockSharedPreferences = mockk(relaxed = true)
         mockEditor = mockk(relaxed = true)
+        mockApi = mockk(relaxed = true)
 
         // 配置 SharedPreferences mock
         every { mockContext.getSharedPreferences(AccountConstants.PREF_NAME, Context.MODE_PRIVATE) } returns mockSharedPreferences
@@ -69,7 +71,7 @@ class AccountRepositoryImplTest {
         every { findAll(Account::class.java) } returns emptyList()
 
         // 创建 Repository 实例
-        repository = AccountRepositoryImpl(mockContext, testScope)
+        repository = AccountRepositoryImpl(mockContext, testScope, mockApi)
     }
 
     @After

@@ -1,7 +1,11 @@
 package com.huanchengfly.tieba.post.di
 
+import com.huanchengfly.tieba.post.repository.AccountRepository
+import com.huanchengfly.tieba.post.repository.AccountRepositoryImpl
 import com.huanchengfly.tieba.post.repository.AddPostRepository
 import com.huanchengfly.tieba.post.repository.AddPostRepositoryImpl
+import com.huanchengfly.tieba.post.repository.ContentModerationRepository
+import com.huanchengfly.tieba.post.repository.ContentModerationRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ContentRecommendRepository
 import com.huanchengfly.tieba.post.repository.ContentRecommendRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ForumInfoRepository
@@ -48,6 +52,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindAccountRepository(
+        impl: AccountRepositoryImpl
+    ): AccountRepository
 
     @Binds
     @Singleton
@@ -102,6 +112,12 @@ abstract class RepositoryModule {
     abstract fun bindContentRecommendRepository(
         impl: ContentRecommendRepositoryImpl
     ): ContentRecommendRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindContentModerationRepository(
+        impl: ContentModerationRepositoryImpl
+    ): ContentModerationRepository
 
     @Binds
     @Singleton

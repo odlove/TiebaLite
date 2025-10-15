@@ -80,10 +80,14 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.post.ui.widgets.compose.states.StateScreen
+import com.huanchengfly.tieba.post.api.retrofit.doIfFailure
+import com.huanchengfly.tieba.post.api.retrofit.doIfSuccess
+import com.huanchengfly.tieba.post.components.dialogs.LoadingDialog
+import com.huanchengfly.tieba.post.ui.page.destinations.WebViewPageDestination
+import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import com.huanchengfly.tieba.post.utils.DateTimeUtils
 import com.huanchengfly.tieba.post.utils.StringUtil
-import com.huanchengfly.tieba.post.utils.TiebaUtil
 import com.huanchengfly.tieba.post.utils.appPreferences
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -490,6 +494,7 @@ internal fun SubPostsContent(
                     ) { index, item ->
                         SubPostItem(
                             item = item,
+                            viewModel = viewModel,
                             canDelete = { it.author_id == account?.uid?.toLongOrNull() },
                             threadAuthorId = thread?.get { author?.id },
                             onUserClick = {
@@ -553,6 +558,7 @@ private fun getDescText(
 @Composable
 private fun SubPostItem(
     item: SubPostItemData,
+    viewModel: SubPostsViewModel,
     threadAuthorId: Long? = null,
     canDelete: (SubPostList) -> Boolean = { false },
     onUserClick: (User) -> Unit = {},
@@ -607,7 +613,16 @@ private fun SubPostItem(
                 DropdownMenuItem(
                     onClick = {
                         coroutineScope.launch {
-                            TiebaUtil.reportPost(context, navigator, subPost.get { id }.toString())
+                            val dialog = LoadingDialog(context).apply { show() }
+                            viewModel.checkReportPost(subPost.get { id }.toString())
+                                .doIfSuccess {
+                                    dialog.dismiss()
+                                    navigator.navigate(WebViewPageDestination(it.data.url))
+                                }
+                                .doIfFailure {
+                                    dialog.dismiss()
+                                    context.toastShort(R.string.toast_load_failed)
+                                }
                         }
                         menuState.expanded = false
                     }

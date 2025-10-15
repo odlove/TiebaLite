@@ -2,7 +2,6 @@ package com.huanchengfly.tieba.post.ui.page.user
 
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.CommonResponse
 import com.huanchengfly.tieba.post.api.models.FollowBean
 import com.huanchengfly.tieba.post.api.models.protos.User
@@ -19,6 +18,8 @@ import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.arch.getOrNull
 import com.huanchengfly.tieba.post.arch.wrapImmutable
+import com.huanchengfly.tieba.post.repository.UserProfileRepository
+import com.huanchengfly.tieba.post.repository.UserSocialRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -32,13 +33,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    private val userProfileRepository: UserProfileRepository,
+    private val userSocialRepository: UserSocialRepository
 ) :
     BaseViewModel<UserProfileUiIntent, UserProfilePartialChange, UserProfileUiState, UiEvent>(dispatcherProvider) {
     override fun createInitialState(): UserProfileUiState = UserProfileUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<UserProfileUiIntent, UserProfilePartialChange, UserProfileUiState> =
-        UserProfilePartialChangeProducer
+        UserProfilePartialChangeProducer(userProfileRepository, userSocialRepository)
 
     override fun dispatchEvent(partialChange: UserProfilePartialChange): UiEvent? =
         when (partialChange) {
@@ -59,7 +62,10 @@ class UserProfileViewModel @Inject constructor(
             else -> null
         }
 
-    private object UserProfilePartialChangeProducer :
+    private class UserProfilePartialChangeProducer(
+        private val userProfileRepository: UserProfileRepository,
+        private val userSocialRepository: UserSocialRepository
+    ) :
         PartialChangeProducer<UserProfileUiIntent, UserProfilePartialChange, UserProfileUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<UserProfileUiIntent>): Flow<UserProfilePartialChange> =
@@ -73,8 +79,8 @@ class UserProfileViewModel @Inject constructor(
             )
 
         private fun UserProfileUiIntent.Refresh.producePartialChange(): Flow<UserProfilePartialChange.Refresh> =
-            TiebaApi.getInstance()
-                .userProfileFlow(uid)
+            userProfileRepository
+                .userProfile(uid)
                 .map<ProfileResponse, UserProfilePartialChange.Refresh> {
                     checkNotNull(it.data_)
                     checkNotNull(it.data_.user)
@@ -84,8 +90,8 @@ class UserProfileViewModel @Inject constructor(
                 .catch { emit(UserProfilePartialChange.Refresh.Failure(it)) }
 
         private fun UserProfileUiIntent.Follow.producePartialChange(): Flow<UserProfilePartialChange.Follow> =
-            TiebaApi.getInstance()
-                .followFlow(portrait, tbs)
+            userSocialRepository
+                .follow(portrait, tbs)
                 .map<FollowBean, UserProfilePartialChange.Follow> {
                     UserProfilePartialChange.Follow.Success
                 }
@@ -93,8 +99,8 @@ class UserProfileViewModel @Inject constructor(
                 .catch { emit(UserProfilePartialChange.Follow.Failure(it)) }
 
         private fun UserProfileUiIntent.Unfollow.producePartialChange(): Flow<UserProfilePartialChange.Unfollow> =
-            TiebaApi.getInstance()
-                .unfollowFlow(portrait, tbs)
+            userSocialRepository
+                .unfollow(portrait, tbs)
                 .map<CommonResponse, UserProfilePartialChange.Unfollow> {
                     UserProfilePartialChange.Unfollow.Success
                 }

@@ -1,7 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.user.likeforum
 
 import androidx.compose.runtime.Immutable
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.UserLikeForumBean
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.DispatcherProvider
@@ -12,6 +11,7 @@ import com.huanchengfly.tieba.post.arch.UiEvent
 import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.arch.wrapImmutable
+import com.huanchengfly.tieba.post.repository.UserSocialRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -28,15 +28,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserLikeForumViewModel @Inject constructor(
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    private val userSocialRepository: UserSocialRepository
 ) :
     BaseViewModel<UserLikeForumUiIntent, UserLikeForumPartialChange, UserLikeForumUiState, UiEvent>(dispatcherProvider) {
     override fun createInitialState(): UserLikeForumUiState = UserLikeForumUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<UserLikeForumUiIntent, UserLikeForumPartialChange, UserLikeForumUiState> =
-        UserLikeForumPartialChangeProducer
+        UserLikeForumPartialChangeProducer(userSocialRepository)
 
-    private object UserLikeForumPartialChangeProducer :
+    private class UserLikeForumPartialChangeProducer(
+        private val userSocialRepository: UserSocialRepository
+    ) :
         PartialChangeProducer<UserLikeForumUiIntent, UserLikeForumPartialChange, UserLikeForumUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<UserLikeForumUiIntent>): Flow<UserLikeForumPartialChange> =
@@ -48,8 +51,8 @@ class UserLikeForumViewModel @Inject constructor(
             )
 
         private fun UserLikeForumUiIntent.Refresh.toPartialChangeFlow(): Flow<UserLikeForumPartialChange.Refresh> =
-            TiebaApi.getInstance()
-                .userLikeForumFlow(uid.toString())
+            userSocialRepository
+                .userLikeForum(uid.toString())
                 .map<UserLikeForumBean, UserLikeForumPartialChange.Refresh> {
                     UserLikeForumPartialChange.Refresh.Success(
                         page = 1,
@@ -61,8 +64,8 @@ class UserLikeForumViewModel @Inject constructor(
                 .catch { emit(UserLikeForumPartialChange.Refresh.Failure(it)) }
 
         private fun UserLikeForumUiIntent.LoadMore.toPartialChangeFlow(): Flow<UserLikeForumPartialChange.LoadMore> =
-            TiebaApi.getInstance()
-                .userLikeForumFlow(uid.toString(), page + 1)
+            userSocialRepository
+                .userLikeForum(uid.toString(), page + 1)
                 .map<UserLikeForumBean, UserLikeForumPartialChange.LoadMore> {
                     UserLikeForumPartialChange.LoadMore.Success(
                         page = page + 1,

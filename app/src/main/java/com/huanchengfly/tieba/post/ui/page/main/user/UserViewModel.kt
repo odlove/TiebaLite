@@ -1,7 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.main.user
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.profile.ProfileResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
@@ -13,6 +12,7 @@ import com.huanchengfly.tieba.post.arch.UiEvent
 import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.models.database.Account
+import com.huanchengfly.tieba.post.repository.UserProfileRepository
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,13 +29,14 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class UserViewModel @Inject constructor(
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    private val userProfileRepository: UserProfileRepository
 ) : BaseViewModel<UserUiIntent, UserPartialChange, UserUiState, UserUiEvent>(dispatcherProvider) {
     override fun createInitialState(): UserUiState =
         UserUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<UserUiIntent, UserPartialChange, UserUiState> =
-        UserPartialChangeProducer
+        UserPartialChangeProducer(userProfileRepository)
 
     override fun dispatchEvent(partialChange: UserPartialChange): UiEvent? =
         when (partialChange) {
@@ -43,7 +44,9 @@ class UserViewModel @Inject constructor(
             else -> null
         }
 
-    object UserPartialChangeProducer :PartialChangeProducer<UserUiIntent, UserPartialChange, UserUiState> {
+    class UserPartialChangeProducer(
+        private val userProfileRepository: UserProfileRepository
+    ) : PartialChangeProducer<UserUiIntent, UserPartialChange, UserUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<UserUiIntent>): Flow<UserPartialChange> =
             merge(
@@ -55,8 +58,8 @@ class UserViewModel @Inject constructor(
             return if (account == null) {
                 listOf(UserPartialChange.Refresh.NotLogin).asFlow()
             } else {
-                TiebaApi.getInstance()
-                    .userProfileFlow(account.uid.toLong())
+                userProfileRepository
+                    .userProfile(account.uid.toLong())
                     .map<ProfileResponse, UserPartialChange> { profile ->
                         val user = checkNotNull(profile.data_?.user)
                         account.apply {

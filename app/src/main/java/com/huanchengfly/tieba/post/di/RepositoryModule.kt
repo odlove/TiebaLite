@@ -4,6 +4,8 @@ import com.huanchengfly.tieba.post.repository.AddPostRepository
 import com.huanchengfly.tieba.post.repository.AddPostRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ContentRecommendRepository
 import com.huanchengfly.tieba.post.repository.ContentRecommendRepositoryImpl
+import com.huanchengfly.tieba.post.repository.ForumInfoRepository
+import com.huanchengfly.tieba.post.repository.ForumInfoRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ForumOperationRepository
 import com.huanchengfly.tieba.post.repository.ForumOperationRepositoryImpl
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
@@ -11,15 +13,27 @@ import com.huanchengfly.tieba.post.repository.FrsPageRepositoryImpl
 import com.huanchengfly.tieba.post.repository.NotificationRepository
 import com.huanchengfly.tieba.post.repository.NotificationRepositoryImpl
 import com.huanchengfly.tieba.post.repository.PbPageRepository
+import com.huanchengfly.tieba.post.repository.PhotoRepository
+import com.huanchengfly.tieba.post.repository.PhotoRepositoryImpl
 import com.huanchengfly.tieba.post.repository.PbPageRepositoryImpl
 import com.huanchengfly.tieba.post.repository.PersonalizedRepository
 import com.huanchengfly.tieba.post.repository.PersonalizedRepositoryImpl
 import com.huanchengfly.tieba.post.repository.SearchRepository
 import com.huanchengfly.tieba.post.repository.SearchRepositoryImpl
+import com.huanchengfly.tieba.post.repository.SubPostsRepository
+import com.huanchengfly.tieba.post.repository.SubPostsRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepositoryImpl
+import com.huanchengfly.tieba.post.repository.ThreadStoreRepository
+import com.huanchengfly.tieba.post.repository.ThreadStoreRepositoryImpl
+import com.huanchengfly.tieba.post.repository.UserContentRepository
+import com.huanchengfly.tieba.post.repository.UserContentRepositoryImpl
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepositoryImpl
+import com.huanchengfly.tieba.post.repository.UserProfileRepository
+import com.huanchengfly.tieba.post.repository.UserProfileRepositoryImpl
+import com.huanchengfly.tieba.post.repository.UserSocialRepository
+import com.huanchengfly.tieba.post.repository.UserSocialRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -94,4 +108,46 @@ abstract class RepositoryModule {
     abstract fun bindThreadOperationRepository(
         impl: ThreadOperationRepositoryImpl
     ): ThreadOperationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSubPostsRepository(
+        impl: SubPostsRepositoryImpl
+    ): SubPostsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindThreadStoreRepository(
+        impl: ThreadStoreRepositoryImpl
+    ): ThreadStoreRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserProfileRepository(
+        impl: UserProfileRepositoryImpl
+    ): UserProfileRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserSocialRepository(
+        impl: UserSocialRepositoryImpl
+    ): UserSocialRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserContentRepository(
+        impl: UserContentRepositoryImpl
+    ): UserContentRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindForumInfoRepository(
+        impl: ForumInfoRepositoryImpl
+    ): ForumInfoRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPhotoRepository(
+        impl: PhotoRepositoryImpl
+    ): PhotoRepository
 }

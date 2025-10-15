@@ -1,8 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.user.edit
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.TiebaApi
-import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.profile.ProfileResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
@@ -14,6 +12,7 @@ import com.huanchengfly.tieba.post.arch.UiEvent
 import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.models.database.Account
+import com.huanchengfly.tieba.post.repository.UserProfileRepository
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,16 +31,17 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    private val userProfileRepository: UserProfileRepository
 ) :
     BaseViewModel<EditProfileIntent, EditProfilePartialChange, EditProfileState, EditProfileEvent>(dispatcherProvider) {
     override fun createInitialState(): EditProfileState = EditProfileState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<EditProfileIntent, EditProfilePartialChange, EditProfileState> =
-        EditProfilePartialChangeProducer(TiebaApi.getInstance())
+        EditProfilePartialChangeProducer(userProfileRepository)
 
     class EditProfilePartialChangeProducer(
-        private val tiebaApi: ITiebaApi
+        private val userProfileRepository: UserProfileRepository
     ) : PartialChangeProducer<EditProfileIntent, EditProfilePartialChange, EditProfileState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<EditProfileIntent>): Flow<EditProfilePartialChange> =
@@ -63,8 +63,8 @@ class EditProfileViewModel @Inject constructor(
             return if (account == null) {
                 flowOf<EditProfilePartialChange.Init>(EditProfilePartialChange.Init.Fail("not logged in!"))
             } else {
-                TiebaApi.getInstance()
-                    .userProfileFlow(account.uid.toLong())
+                userProfileRepository
+                    .userProfile(account.uid.toLong())
                     .map<ProfileResponse, EditProfilePartialChange.Init> { profile ->
                         val user = checkNotNull(profile.data_?.user)
                         account.apply {
@@ -94,7 +94,7 @@ class EditProfileViewModel @Inject constructor(
         }
 
         private fun EditProfileIntent.Submit.toPartialChangeFlow() =
-            tiebaApi.profileModifyFlow(
+            userProfileRepository.profileModify(
                 birthdayShowStatus,
                 "${birthdayTime / 1000L}",
                 intro,
@@ -126,7 +126,7 @@ class EditProfileViewModel @Inject constructor(
             flow { emit(EditProfilePartialChange.UploadPortrait.Start) }
 
         private fun EditProfileIntent.UploadPortrait.toPartialChangeFlow(): Flow<EditProfilePartialChange.UploadPortrait> =
-            tiebaApi.imgPortrait(file)
+            userProfileRepository.imgPortrait(file)
                 .map {
                     if (it.errorCode == 0 || it.errorCode == 300003)
                         EditProfilePartialChange.UploadPortrait.Success(it.errorMsg)

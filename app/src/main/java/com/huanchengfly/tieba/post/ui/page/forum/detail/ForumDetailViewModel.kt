@@ -1,7 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.forum.detail
 
 import androidx.compose.runtime.Immutable
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.RecommendForumInfo
 import com.huanchengfly.tieba.post.api.models.protos.getForumDetail.GetForumDetailResponse
 import com.huanchengfly.tieba.post.arch.BaseViewModel
@@ -13,6 +12,7 @@ import com.huanchengfly.tieba.post.arch.UiEvent
 import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.arch.wrapImmutable
+import com.huanchengfly.tieba.post.repository.ForumInfoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -26,14 +26,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ForumDetailViewModel @Inject constructor(
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    private val forumInfoRepository: ForumInfoRepository
 ) : BaseViewModel<ForumDetailUiIntent, ForumDetailPartialChange, ForumDetailUiState, UiEvent>(dispatcherProvider) {
     override fun createInitialState(): ForumDetailUiState = ForumDetailUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumDetailUiIntent, ForumDetailPartialChange, ForumDetailUiState> =
-        ForumDetailPartialChangeProducer
+        ForumDetailPartialChangeProducer(forumInfoRepository)
 
-    private object ForumDetailPartialChangeProducer :
+    private class ForumDetailPartialChangeProducer(
+        private val forumInfoRepository: ForumInfoRepository
+    ) :
         PartialChangeProducer<ForumDetailUiIntent, ForumDetailPartialChange, ForumDetailUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<ForumDetailUiIntent>): Flow<ForumDetailPartialChange> =
@@ -43,8 +46,8 @@ class ForumDetailViewModel @Inject constructor(
             )
 
         private fun ForumDetailUiIntent.Load.producePartialChange(): Flow<ForumDetailPartialChange.Load> =
-            TiebaApi.getInstance()
-                .getForumDetailFlow(forumId)
+            forumInfoRepository
+                .getForumDetail(forumId)
                 .map<GetForumDetailResponse, ForumDetailPartialChange.Load> {
                     val forumInfo = it.data_?.forum_info
                     checkNotNull(forumInfo) { "forumInfo is null" }

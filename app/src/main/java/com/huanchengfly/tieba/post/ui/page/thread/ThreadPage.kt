@@ -98,6 +98,10 @@ import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.booleanToString
 import com.huanchengfly.tieba.post.api.models.protos.Post
+import com.huanchengfly.tieba.post.api.retrofit.doIfFailure
+import com.huanchengfly.tieba.post.api.retrofit.doIfSuccess
+import com.huanchengfly.tieba.post.components.dialogs.LoadingDialog
+import com.huanchengfly.tieba.post.ui.page.destinations.WebViewPageDestination
 import com.huanchengfly.tieba.post.api.models.protos.SimpleForum
 import com.huanchengfly.tieba.post.api.models.protos.SubPostList
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
@@ -921,6 +925,7 @@ fun ThreadPage(
         PostCard(
             postHolder = item,
             contentRenders = contentRenders,
+            viewModel = viewModel,
             subPosts = subPosts,
             threadAuthorId = author?.get { id } ?: 0L,
             blocked = blocked,
@@ -1265,11 +1270,16 @@ fun ThreadPage(
                                         ?: firstPost?.get { id }
                                         ?: 0L
                                 coroutineScope.launch {
-                                    TiebaUtil.reportPost(
-                                        context,
-                                        navigator,
-                                        firstPostId.toString()
-                                    )
+                                    val dialog = LoadingDialog(context).apply { show() }
+                                    viewModel.checkReportPost(firstPostId.toString())
+                                        .doIfSuccess {
+                                            dialog.dismiss()
+                                            navigator.navigate(WebViewPageDestination(it.data.url))
+                                        }
+                                        .doIfFailure {
+                                            dialog.dismiss()
+                                            context.toastShort(R.string.toast_load_failed)
+                                        }
                                 }
                             },
                             onDeleteClick = {
@@ -1343,6 +1353,7 @@ fun ThreadPage(
                                                 PostCard(
                                                     postHolder = post,
                                                     contentRenders = firstPostContentRenders,
+                                                    viewModel = viewModel,
                                                     canDelete = { it.author_id == user.get { id } },
                                                     immersiveMode = isImmersiveMode,
                                                     isCollected = {
@@ -1738,6 +1749,7 @@ private fun BottomBar(
 fun PostCard(
     postHolder: ImmutableHolder<Post>,
     contentRenders: ImmutableList<PbContentRender>,
+    viewModel: ThreadViewModel? = null,
     subPosts: ImmutableList<SubPostItemData> = persistentListOf(),
     threadAuthorId: Long = 0L,
     blocked: Boolean = false,
@@ -1814,15 +1826,26 @@ fun PostCard(
                         Text(text = stringResource(id = R.string.menu_copy))
                     }
                 }
-                DropdownMenuItem(
-                    onClick = {
-                        coroutineScope.launch {
-                            TiebaUtil.reportPost(context, navigator, post.id.toString())
+                if (viewModel != null) {
+                    DropdownMenuItem(
+                        onClick = {
+                            coroutineScope.launch {
+                                val dialog = LoadingDialog(context).apply { show() }
+                                viewModel.checkReportPost(post.id.toString())
+                                    .doIfSuccess {
+                                        dialog.dismiss()
+                                        navigator.navigate(WebViewPageDestination(it.data.url))
+                                    }
+                                    .doIfFailure {
+                                        dialog.dismiss()
+                                        context.toastShort(R.string.toast_load_failed)
+                                    }
+                            }
+                            menuState.expanded = false
                         }
-                        menuState.expanded = false
+                    ) {
+                        Text(text = stringResource(id = R.string.title_report))
                     }
-                ) {
-                    Text(text = stringResource(id = R.string.title_report))
                 }
                 if (onMenuFavoriteClick != null) {
                     DropdownMenuItem(
@@ -1954,6 +1977,7 @@ fun PostCard(
                                     SubPostItem(
                                         subPostList = item.subPost,
                                         subPostContent = item.subPostContent,
+                                        viewModel = viewModel,
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(horizontal = 12.dp),
@@ -1998,6 +2022,7 @@ fun PostCard(
 private fun SubPostItem(
     subPostList: ImmutableHolder<SubPostList>,
     subPostContent: AnnotatedString,
+    viewModel: ThreadViewModel? = null,
     modifier: Modifier = Modifier,
     onReplyClick: ((SubPostList) -> Unit)?,
     onOpenSubPosts: (Long) -> Unit,
@@ -2030,15 +2055,26 @@ private fun SubPostItem(
                     Text(text = stringResource(id = R.string.menu_copy))
                 }
             }
-            DropdownMenuItem(
-                onClick = {
-                    coroutineScope.launch {
-                        TiebaUtil.reportPost(context, navigator, subPostList.get { id }.toString())
+            if (viewModel != null) {
+                DropdownMenuItem(
+                    onClick = {
+                        coroutineScope.launch {
+                            val dialog = LoadingDialog(context).apply { show() }
+                            viewModel.checkReportPost(subPostList.get { id }.toString())
+                                .doIfSuccess {
+                                    dialog.dismiss()
+                                    navigator.navigate(WebViewPageDestination(it.data.url))
+                                }
+                                .doIfFailure {
+                                    dialog.dismiss()
+                                    context.toastShort(R.string.toast_load_failed)
+                                }
+                        }
+                        menuState.expanded = false
                     }
-                    menuState.expanded = false
+                ) {
+                    Text(text = stringResource(id = R.string.title_report))
                 }
-            ) {
-                Text(text = stringResource(id = R.string.title_report))
             }
         },
         shape = RoundedCornerShape(0),

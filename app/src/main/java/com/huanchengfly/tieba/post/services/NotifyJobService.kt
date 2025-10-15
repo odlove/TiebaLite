@@ -14,15 +14,21 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.TiebaApi
+import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.MsgBean
 import com.huanchengfly.tieba.post.pendingIntentFlagImmutable
 import com.huanchengfly.tieba.post.ui.common.theme.utils.ThemeUtils
+import dagger.hilt.android.AndroidEntryPoint
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class NotifyJobService : JobService() {
+    @Inject
+    lateinit var api: ITiebaApi
+
     var notificationManager: NotificationManager? = null
     private fun createChannel(id: String, name: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -50,7 +56,7 @@ class NotifyJobService : JobService() {
                 createChannel(CHANNEL_AT, CHANNEL_AT_NAME)
             }
         }
-        TiebaApi.getInstance().msg().enqueue(object : Callback<MsgBean> {
+        api.msg().enqueue(object : Callback<MsgBean> {
             override fun onFailure(call: Call<MsgBean>, t: Throwable) {
                 jobFinished(params, true)
             }

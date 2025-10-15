@@ -3,7 +3,7 @@ package com.huanchengfly.tieba.post.utils
 import android.content.Context
 import android.util.Log
 import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.api.TiebaApi
+import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.MSignBean
 import com.huanchengfly.tieba.post.api.models.SignResultBean
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
@@ -20,7 +20,8 @@ import java.util.concurrent.ThreadLocalRandom
 import kotlin.properties.Delegates
 
 abstract class IOKSigner(
-    context: Context
+    context: Context,
+    protected val api: ITiebaApi
 ) {
     private val contextWeakReference: WeakReference<Context> = WeakReference(context)
 
@@ -30,7 +31,7 @@ abstract class IOKSigner(
     abstract suspend fun start(): Boolean
 
     fun signFlow(signDataBean: SignDataBean): Flow<SignResultBean> {
-        return TiebaApi.getInstance()
+        return api
             .signFlow(signDataBean.forumId, signDataBean.forumName, signDataBean.tbs)
     }
 
@@ -89,8 +90,9 @@ class MultiAccountSigner(
 
 class SingleAccountSigner(
     context: Context,
-    private val account: Account
-) : IOKSigner(context) {
+    private val account: Account,
+    api: ITiebaApi
+) : IOKSigner(context, api) {
     companion object {
         const val TAG = "SingleAccountSigner"
     }
@@ -121,10 +123,10 @@ class SingleAccountSigner(
             .flatMapConcat { account ->
                 userName = account.name
                 tbs = account.tbs
-                TiebaApi.getInstance().getForumListFlow()
+                api.getForumListFlow()
             }
             .zip(
-                TiebaApi.getInstance().forumRecommendFlow()
+                api.forumRecommendFlow()
             ) { getForumListBean, forumRecommendBean ->
                 val useMSign = context.appPreferences.oksignUseOfficialOksign
                 val mSignLevel = getForumListBean.level.toInt()
@@ -146,7 +148,7 @@ class SingleAccountSigner(
                 mSignCount = 0
                 (if (useMSign) {
                     val mSignData = signData.filter { it.canUseMSign }
-                    TiebaApi.getInstance().mSign(mSignData.joinToString(",") { it.forumId }, tbs)
+                    api.mSign(mSignData.joinToString(",") { it.forumId }, tbs)
                         .map { it.info }
                 } else {
                     flow { emit(emptyList()) }

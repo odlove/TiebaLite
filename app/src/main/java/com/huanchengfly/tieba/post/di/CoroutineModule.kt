@@ -1,5 +1,7 @@
 package com.huanchengfly.tieba.post.di
 
+import com.huanchengfly.tieba.post.arch.DefaultDispatcherProvider
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,5 +25,11 @@ object CoroutineModule {
     @Singleton
     fun provideApplicationScope(): CoroutineScope {
         return CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDispatcherProvider(): DispatcherProvider {
+        return DefaultDispatcherProvider
     }
 }

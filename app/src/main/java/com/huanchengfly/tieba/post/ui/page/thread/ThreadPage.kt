@@ -96,7 +96,6 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.booleanToString
 import com.huanchengfly.tieba.post.api.models.protos.Post
 import com.huanchengfly.tieba.post.api.models.protos.SimpleForum
@@ -105,7 +104,6 @@ import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.post.api.models.protos.bawuType
 import com.huanchengfly.tieba.post.api.models.protos.plainText
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.GlobalEvent
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
 import com.huanchengfly.tieba.post.arch.collectPartialAsState
@@ -176,7 +174,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlin.concurrent.thread
@@ -709,6 +706,14 @@ fun ThreadPage(
             context.getString(R.string.message_remove_favorite_success)
         )
     }
+    viewModel.onEvent<ThreadUiEvent.UpdateFavoriteMarkSuccess> {
+        context.toastShort(R.string.message_update_collect_mark_success)
+        navigator.navigateUp()
+    }
+    viewModel.onEvent<ThreadUiEvent.UpdateFavoriteMarkFailure> {
+        context.toastShort(R.string.message_update_collect_mark_failed, it.errorMessage)
+        navigator.navigateUp()
+    }
 
     onGlobalEvent<GlobalEvent.ReplySuccess>(
         filter = { it.threadId == threadId }
@@ -736,21 +741,15 @@ fun ThreadPage(
     ConfirmDialog(
         dialogState = updateCollectMarkDialogState,
         onConfirm = {
-            coroutineScope.launch {
+            if (lastVisibilityPostId != 0L) {
+                viewModel.send(
+                    ThreadUiIntent.UpdateFavoriteMark(
+                        threadId = threadId,
+                        postId = lastVisibilityPostId
+                    )
+                )
+            } else {
                 navigator.navigateUp()
-                if (lastVisibilityPostId != 0L) {
-                    TiebaApi.getInstance()
-                        .addStoreFlow(threadId, lastVisibilityPostId)
-                        .catch {
-                            context.toastShort(
-                                R.string.message_update_collect_mark_failed,
-                                it.getErrorMessage()
-                            )
-                        }
-                        .collect {
-                            context.toastShort(R.string.message_update_collect_mark_success)
-                        }
-                }
             }
         },
         onCancel = {

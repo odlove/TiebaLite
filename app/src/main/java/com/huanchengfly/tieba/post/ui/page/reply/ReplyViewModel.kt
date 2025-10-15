@@ -12,6 +12,7 @@ import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.CommonUiEvent
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.GlobalEvent
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
@@ -47,12 +48,15 @@ enum class ReplyPanelType {
 
 @Stable
 @HiltViewModel
-class ReplyViewModel @Inject constructor() :
-    BaseViewModel<ReplyUiIntent, ReplyPartialChange, ReplyUiState, ReplyUiEvent>() {
+class ReplyViewModel @Inject constructor(
+    private val addPostRepository: AddPostRepository,
+    dispatcherProvider: DispatcherProvider
+) :
+    BaseViewModel<ReplyUiIntent, ReplyPartialChange, ReplyUiState, ReplyUiEvent>(dispatcherProvider) {
     override fun createInitialState() = ReplyUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<ReplyUiIntent, ReplyPartialChange, ReplyUiState> =
-        ReplyPartialChangeProducer
+        ReplyPartialChangeProducer()
 
     override fun dispatchEvent(partialChange: ReplyPartialChange): UiEvent? = when (partialChange) {
         is ReplyPartialChange.Send.Success -> ReplyUiEvent.ReplySuccess(
@@ -81,7 +85,7 @@ class ReplyViewModel @Inject constructor() :
         else -> null
     }
 
-    private object ReplyPartialChangeProducer :
+    private inner class ReplyPartialChangeProducer :
         PartialChangeProducer<ReplyUiIntent, ReplyPartialChange, ReplyUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<ReplyUiIntent>): Flow<ReplyPartialChange> =
@@ -101,7 +105,7 @@ class ReplyViewModel @Inject constructor() :
             )
 
         private fun ReplyUiIntent.Send.producePartialChange(): Flow<ReplyPartialChange.Send> {
-            return AddPostRepository
+            return addPostRepository
                 .addPost(
                     content,
                     forumId,

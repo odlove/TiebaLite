@@ -1,7 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.forum.threadlist
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.Classify
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse
@@ -11,6 +10,7 @@ import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.CommonUiEvent
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.ImmutableHolder
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
@@ -19,6 +19,7 @@ import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.arch.wrapImmutable
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
+import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.ui.models.ThreadItemData
 import com.huanchengfly.tieba.post.ui.models.distinctById
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,8 +37,10 @@ import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 import kotlin.math.min
 
-abstract class ForumThreadListViewModel :
-    BaseViewModel<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState, ForumThreadListUiEvent>() {
+abstract class ForumThreadListViewModel(
+    dispatcherProvider: DispatcherProvider
+) :
+    BaseViewModel<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState, ForumThreadListUiEvent>(dispatcherProvider) {
     override fun createInitialState(): ForumThreadListUiState = ForumThreadListUiState()
 
     override fun dispatchEvent(partialChange: ForumThreadListPartialChange): UiEvent? =
@@ -65,19 +68,31 @@ enum class ForumThreadListType {
 
 @Stable
 @HiltViewModel
-class LatestThreadListViewModel @Inject constructor() : ForumThreadListViewModel() {
+class LatestThreadListViewModel @Inject constructor(
+    private val frsPageRepository: FrsPageRepository,
+    private val userInteractionRepository: UserInteractionRepository,
+    dispatcherProvider: DispatcherProvider
+) : ForumThreadListViewModel(dispatcherProvider) {
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> =
-        ForumThreadListPartialChangeProducer(ForumThreadListType.Latest)
+        ForumThreadListPartialChangeProducer(frsPageRepository, userInteractionRepository, ForumThreadListType.Latest)
 }
 
 @Stable
 @HiltViewModel
-class GoodThreadListViewModel @Inject constructor() : ForumThreadListViewModel() {
+class GoodThreadListViewModel @Inject constructor(
+    private val frsPageRepository: FrsPageRepository,
+    private val userInteractionRepository: UserInteractionRepository,
+    dispatcherProvider: DispatcherProvider
+) : ForumThreadListViewModel(dispatcherProvider) {
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> =
-        ForumThreadListPartialChangeProducer(ForumThreadListType.Good)
+        ForumThreadListPartialChangeProducer(frsPageRepository, userInteractionRepository, ForumThreadListType.Good)
 }
 
-private class ForumThreadListPartialChangeProducer(val type: ForumThreadListType) :
+private class ForumThreadListPartialChangeProducer(
+    private val frsPageRepository: FrsPageRepository,
+    private val userInteractionRepository: UserInteractionRepository,
+    val type: ForumThreadListType
+) :
     PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> {
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun toPartialChangeFlow(intentFlow: Flow<ForumThreadListUiIntent>): Flow<ForumThreadListPartialChange> =
@@ -93,7 +108,7 @@ private class ForumThreadListPartialChangeProducer(val type: ForumThreadListType
         )
 
     private fun ForumThreadListUiIntent.FirstLoad.producePartialChange() =
-        FrsPageRepository.frsPage(
+        frsPageRepository.frsPage(
             forumName,
             1,
             1,
@@ -119,7 +134,7 @@ private class ForumThreadListPartialChangeProducer(val type: ForumThreadListType
             .catch { emit(ForumThreadListPartialChange.FirstLoad.Failure(it)) }
 
     private fun ForumThreadListUiIntent.Refresh.producePartialChange() =
-        FrsPageRepository.frsPage(
+        frsPageRepository.frsPage(
             forumName,
             1,
             1,
@@ -145,7 +160,7 @@ private class ForumThreadListPartialChangeProducer(val type: ForumThreadListType
     private fun ForumThreadListUiIntent.LoadMore.producePartialChange(): Flow<ForumThreadListPartialChange.LoadMore> {
         val flow = if (threadListIds.isNotEmpty()) {
             val size = min(threadListIds.size, 30)
-            FrsPageRepository.threadList(
+            frsPageRepository.threadList(
                 forumId,
                 forumName,
                 currentPage,
@@ -163,7 +178,7 @@ private class ForumThreadListPartialChangeProducer(val type: ForumThreadListType
                 )
             }
         } else {
-            FrsPageRepository.frsPage(
+            frsPageRepository.frsPage(
                 forumName,
                 currentPage + 1,
                 2,
@@ -188,7 +203,7 @@ private class ForumThreadListPartialChangeProducer(val type: ForumThreadListType
     }
 
     private fun ForumThreadListUiIntent.Agree.producePartialChange(): Flow<ForumThreadListPartialChange.Agree> =
-        TiebaApi.getInstance().opAgreeFlow(
+        userInteractionRepository.opAgree(
             threadId.toString(),
             postId.toString(),
             hasAgree,

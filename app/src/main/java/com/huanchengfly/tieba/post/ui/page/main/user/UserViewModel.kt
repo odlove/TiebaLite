@@ -6,6 +6,7 @@ import com.huanchengfly.tieba.post.api.models.protos.profile.ProfileResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.CommonUiEvent
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
 import com.huanchengfly.tieba.post.arch.UiEvent
@@ -27,7 +28,9 @@ import javax.inject.Inject
 
 @Stable
 @HiltViewModel
-class UserViewModel @Inject constructor() : BaseViewModel<UserUiIntent, UserPartialChange, UserUiState, UserUiEvent>() {
+class UserViewModel @Inject constructor(
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel<UserUiIntent, UserPartialChange, UserUiState, UserUiEvent>(dispatcherProvider) {
     override fun createInitialState(): UserUiState =
         UserUiState()
 

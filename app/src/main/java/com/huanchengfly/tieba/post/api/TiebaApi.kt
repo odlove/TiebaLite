@@ -2,18 +2,15 @@ package com.huanchengfly.tieba.post.api
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.interfaces.impls.MixedTiebaApiImpl
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 
-@Module
-@InstallIn(SingletonComponent::class)
+/**
+ * TiebaApi 工具类
+ *
+ * 提供 ITiebaApi 实例的静态访问方法
+ * 注：依赖注入请使用 ApiModule 提供的 ITiebaApi
+ */
 object TiebaApi {
 
-    @Provides
-    @Singleton
     @JvmStatic
     fun getInstance(): ITiebaApi = MixedTiebaApiImpl
 }

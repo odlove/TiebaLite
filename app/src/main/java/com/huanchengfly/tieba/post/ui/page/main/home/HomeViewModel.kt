@@ -2,11 +2,11 @@ package com.huanchengfly.tieba.post.ui.page.main.home
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.models.CommonResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.CommonUiEvent
+import com.huanchengfly.tieba.post.arch.DispatcherProvider
 import com.huanchengfly.tieba.post.arch.PartialChange
 import com.huanchengfly.tieba.post.arch.PartialChangeProducer
 import com.huanchengfly.tieba.post.arch.UiEvent
@@ -14,8 +14,11 @@ import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.models.database.History
 import com.huanchengfly.tieba.post.models.database.TopForum
+import com.huanchengfly.tieba.post.repository.ContentRecommendRepository
+import com.huanchengfly.tieba.post.repository.ForumOperationRepository
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import com.huanchengfly.tieba.post.utils.HistoryUtil
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -33,13 +36,19 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.zip
 import org.litepal.LitePal
+import javax.inject.Inject
 
 @Stable
-class HomeViewModel : BaseViewModel<HomeUiIntent, HomePartialChange, HomeUiState, HomeUiEvent>() {
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val contentRecommendRepository: ContentRecommendRepository,
+    private val forumOperationRepository: ForumOperationRepository,
+    dispatcherProvider: DispatcherProvider
+) : BaseViewModel<HomeUiIntent, HomePartialChange, HomeUiState, HomeUiEvent>(dispatcherProvider) {
     override fun createInitialState(): HomeUiState = HomeUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<HomeUiIntent, HomePartialChange, HomeUiState> =
-        HomePartialChangeProducer
+        HomePartialChangeProducer()
 
     override fun dispatchEvent(partialChange: HomePartialChange): UiEvent? =
         when (partialChange) {
@@ -48,7 +57,7 @@ class HomeViewModel : BaseViewModel<HomeUiIntent, HomePartialChange, HomeUiState
             else -> null
         }
 
-    object HomePartialChangeProducer :
+    private inner class HomePartialChangeProducer :
         PartialChangeProducer<HomeUiIntent, HomePartialChange, HomeUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<HomeUiIntent>): Flow<HomePartialChange> {
@@ -72,7 +81,7 @@ class HomeViewModel : BaseViewModel<HomeUiIntent, HomePartialChange, HomeUiState
         private fun produceRefreshPartialChangeFlow(): Flow<HomePartialChange.Refresh> =
             HistoryUtil.getFlow(HistoryUtil.TYPE_FORUM, 0)
                 .zip(
-                    TiebaApi.getInstance().forumRecommendNewFlow()
+                    contentRecommendRepository.forumRecommend()
                 ) { historyForums, forumRecommend ->
                     val forums = forumRecommend.data_?.like_forum?.map {
                         HomeUiState.Forum(
@@ -124,8 +133,7 @@ class HomeViewModel : BaseViewModel<HomeUiIntent, HomePartialChange, HomeUiState
                 .catch { emit(HomePartialChange.TopForums.Add.Failure(it.getErrorMessage())) }
 
         private fun HomeUiIntent.Unfollow.toPartialChangeFlow() =
-            TiebaApi.getInstance()
-                .unlikeForumFlow(forumId, forumName, AccountUtil.requireLoginInfo().tbs)
+            forumOperationRepository.unlikeForum(forumId, forumName, AccountUtil.requireLoginInfo().tbs)
                 .map<CommonResponse, HomePartialChange.Unfollow> {
                     HomePartialChange.Unfollow.Success(forumId)
                 }

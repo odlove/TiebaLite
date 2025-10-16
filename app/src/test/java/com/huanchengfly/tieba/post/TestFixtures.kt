@@ -6,6 +6,8 @@ import com.huanchengfly.tieba.post.api.models.LikeForumResultBean
 import com.huanchengfly.tieba.post.api.models.MessageListBean
 import com.huanchengfly.tieba.post.api.models.SearchThreadBean
 import com.huanchengfly.tieba.post.api.models.SignResultBean
+import com.huanchengfly.tieba.post.api.models.protos.SubPostList
+import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.post.api.models.protos.addPost.AddPostResponse
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse
 import com.huanchengfly.tieba.post.api.models.protos.hotThreadList.HotThreadListResponse
@@ -209,5 +211,46 @@ object TestFixtures {
         val flow = flowOf(response)
         every { repo.unlikeForum(forumId, forumName, tbs) } returns flow
         return flow
+    }
+
+    // Mock factories for SubPosts testing
+
+    /**
+     * Creates a mock User for testing
+     *
+     * @param id User ID
+     * @param name User name
+     * @param nameShow User display name
+     * @param portrait User portrait
+     * @return Mock User instance
+     */
+    fun fakeUser(
+        id: Long = 123456L,
+        name: String = "testUser",
+        nameShow: String = "Test User",
+        portrait: String = "test_portrait"
+    ): User = mockk(relaxed = true) {
+        every { this@mockk.id } returns id
+        every { this@mockk.name } returns name
+        every { this@mockk.nameShow } returns nameShow
+        every { this@mockk.portrait } returns portrait
+    }
+
+    /**
+     * Creates a mock SubPostList for testing
+     *
+     * @param id Sub-post ID
+     * @param authorId Author ID
+     * @param author Author User object
+     * @return Mock SubPostList instance
+     */
+    fun fakeSubPostList(
+        id: Long = 789012L,
+        authorId: Long = 123456L,
+        author: User? = fakeUser(id = authorId)
+    ): SubPostList = mockk(relaxed = true) {
+        every { this@mockk.id } returns id
+        every { author_id } returns authorId
+        every { this@mockk.author } returns author
     }
 }

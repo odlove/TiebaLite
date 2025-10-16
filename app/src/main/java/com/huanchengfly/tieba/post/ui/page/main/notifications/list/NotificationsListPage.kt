@@ -186,6 +186,7 @@ fun NotificationsListPage(
                                 } else {
                                     info.title
                                 }
+                                // isFloor 只描述“新回复”是不是楼中楼，此分支与整条通知点击会跳到同一个目标。
                                 if (quoteText != null) {
                                     EmoticonText(
                                         text = quoteText,
@@ -198,7 +199,8 @@ fun NotificationsListPage(
                                                     navigator.navigate(
                                                         SubPostsPageDestination(
                                                             threadId = threadId,
-                                                            postId = info.quotePid.toLong(),
+                                                            postId = 0L,
+                                                            subPostId = info.postId?.toLongOrNull() ?: 0L,
                                                             loadFromSubPost = true,
                                                         )
                                                     )
@@ -206,6 +208,9 @@ fun NotificationsListPage(
                                                     navigator.navigate(
                                                         ThreadPageDestination(
                                                             threadId = threadId,
+                                                            postId = info.quotePid?.toLongOrNull()
+                                                                ?: info.postId?.toLongOrNull()
+                                                                ?: 0L
                                                         )
                                                     )
                                                 }

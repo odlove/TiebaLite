@@ -24,6 +24,6 @@ interface SubPostsRepository {
         postId: Long,
         forumId: Long,
         page: Int = 1,
-        subPostId: Long = 0L
+        subPostId: Long = 0L,
     ): Flow<PbFloorResponse>
 }

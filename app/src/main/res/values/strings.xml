@@ -173,6 +173,7 @@
     <string name="toast_photo_saved">图片保存在 %1$s</string>
     <string name="title_settings_default_sort_type">吧默认排序方式</string>
     <string name="toast_load_failed">加载失败</string>
+    <string name="toast_forum_info_loading">论坛信息加载中，请稍后再试</string>
     <string name="button_undo">撤销</string>
     <string name="title_settings_follow_system_night">跟随系统夜间模式</string>
     <string name="title_image_load_type_smart_origin">智能省流量</string>

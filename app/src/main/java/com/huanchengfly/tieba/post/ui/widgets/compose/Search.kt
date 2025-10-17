@@ -296,20 +296,20 @@ fun SearchThreadItem(
         action = {
             Row(modifier = Modifier.fillMaxWidth()) {
                 ThreadReplyBtn(
-                    replyNum = item.postNum.toInt(),
+                    replyNum = item.postNum,
                     onClick = {},
                     modifier = Modifier.weight(1f)
                 )
 
                 ThreadAgreeBtn(
                     hasAgree = false,
-                    agreeNum = item.likeNum.toInt(),
+                    agreeNum = item.likeNum,
                     onClick = {},
                     modifier = Modifier.weight(1f)
                 )
 
                 ThreadShareBtn(
-                    shareNum = item.shareNum.toLong(),
+                    shareNum = item.shareNum,
                     onClick = {},
                     modifier = Modifier.weight(1f)
                 )

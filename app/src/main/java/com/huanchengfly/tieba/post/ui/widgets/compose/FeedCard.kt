@@ -665,7 +665,7 @@ private fun ThreadForumInfo(
 
 @Composable
 fun ThreadReplyBtn(
-    replyNum: Int,
+    replyNum: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -678,9 +678,9 @@ fun ThreadReplyBtn(
         },
         text = {
             Text(
-                text = if (replyNum == 0)
+                text = if (replyNum == "0" || replyNum.isEmpty())
                     stringResource(id = R.string.title_reply)
-                else replyNum.getShortNumString()
+                else replyNum.toLongOrNull()?.getShortNumString() ?: replyNum
             )
         },
         modifier = modifier,
@@ -692,7 +692,7 @@ fun ThreadReplyBtn(
 @Composable
 fun ThreadAgreeBtn(
     hasAgree: Boolean,
-    agreeNum: Int,
+    agreeNum: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -709,9 +709,9 @@ fun ThreadAgreeBtn(
         },
         text = {
             Text(
-                text = if (agreeNum == 0)
+                text = if (agreeNum == "0" || agreeNum.isEmpty())
                     stringResource(id = R.string.title_agree)
-                else agreeNum.getShortNumString()
+                else agreeNum.toLongOrNull()?.getShortNumString() ?: agreeNum
             )
         },
         modifier = modifier,
@@ -722,7 +722,7 @@ fun ThreadAgreeBtn(
 
 @Composable
 fun ThreadShareBtn(
-    shareNum: Long,
+    shareNum: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -735,9 +735,9 @@ fun ThreadShareBtn(
         },
         text = {
             Text(
-                text = if (shareNum == 0L)
+                text = if (shareNum == "0" || shareNum.isEmpty())
                     stringResource(id = R.string.title_share)
-                else shareNum.getShortNumString()
+                else shareNum.toLongOrNull()?.getShortNumString() ?: shareNum
             )
         },
         modifier = modifier,
@@ -804,20 +804,20 @@ fun FeedCard(
         action = {
             Row(modifier = Modifier.fillMaxWidth()) {
                 ThreadShareBtn(
-                    shareNum = item.get { shareNum },
+                    shareNum = item.get { shareNum }.toString(),
                     onClick = {},
                     modifier = Modifier.weight(1f)
                 )
 
                 ThreadReplyBtn(
-                    replyNum = item.get { replyNum },
+                    replyNum = item.get { replyNum }.toString(),
                     onClick = { onClickReply(item.get()) },
                     modifier = Modifier.weight(1f)
                 )
 
                 ThreadAgreeBtn(
                     hasAgree = item.get { agree?.hasAgree == 1 },
-                    agreeNum = item.get { agreeNum },
+                    agreeNum = item.get { agreeNum }.toString(),
                     onClick = { onAgree(item.get()) },
                     modifier = Modifier.weight(1f)
                 )
@@ -890,20 +890,20 @@ fun FeedCard(
         action = {
             Row(modifier = Modifier.fillMaxWidth()) {
                 ThreadShareBtn(
-                    shareNum = item.get { share_num }.toLong(),
+                    shareNum = item.get { share_num }.toString(),
                     onClick = {},
                     modifier = Modifier.weight(1f)
                 )
 
                 ThreadReplyBtn(
-                    replyNum = item.get { reply_num },
+                    replyNum = item.get { reply_num }.toString(),
                     onClick = { onClickReply(item.get()) },
                     modifier = Modifier.weight(1f)
                 )
 
                 ThreadAgreeBtn(
                     hasAgree = item.get { agree?.hasAgree == 1 },
-                    agreeNum = item.get { agree_num },
+                    agreeNum = item.get { agree_num }.toString(),
                     onClick = { onAgree(item.get()) },
                     modifier = Modifier.weight(1f)
                 )

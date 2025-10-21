@@ -1,9 +1,9 @@
 package com.huanchengfly.tieba.post.ui.page.main.explore.concern
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.api.models.AgreeBean
-import com.huanchengfly.tieba.post.api.models.protos.updateAgreeStatus
 import com.huanchengfly.tieba.post.api.models.protos.userLike.ConcernData
 import com.huanchengfly.tieba.post.api.models.protos.userLike.UserLikeResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
@@ -17,11 +17,17 @@ import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.repository.ForumOperationRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
+import com.huanchengfly.tieba.post.store.MergeStrategy
+import com.huanchengfly.tieba.post.store.ThreadStore
+import com.huanchengfly.tieba.post.store.mappers.ThreadMapper
 import com.huanchengfly.tieba.post.utils.appPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -29,14 +35,27 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
+
+/**
+ * ConcernMetadata: 轻量级元数据，用于 ConcernPage 的 State
+ *
+ * @param recommendType 推荐类型（默认 1 = 普通帖子）
+ *                      提供默认值实现用户要求的「优雅降级」
+ */
+@Immutable
+data class ConcernMetadata(
+    val recommendType: Int = 1,  // ✅ 默认值 1，优雅降级
+)
 
 @Stable
 @HiltViewModel
 class ConcernViewModel @Inject constructor(
     private val forumOperationRepository: ForumOperationRepository,
     private val userInteractionRepository: UserInteractionRepository,
+    val threadStore: ThreadStore,  // ✅ 公开，供 UI 订阅
     dispatcherProvider: DispatcherProvider
 ) : BaseViewModel<ConcernUiIntent, ConcernPartialChange, ConcernUiState, ConcernUiEvent>(dispatcherProvider) {
     override fun createInitialState(): ConcernUiState = ConcernUiState()
@@ -48,6 +67,7 @@ class ConcernViewModel @Inject constructor(
         when (partialChange) {
             is ConcernPartialChange.Refresh.Failure -> CommonUiEvent.Toast(partialChange.error.getErrorMessage())
             is ConcernPartialChange.LoadMore.Failure -> CommonUiEvent.Toast(partialChange.error.getErrorMessage())
+            is ConcernPartialChange.Agree.Failure -> CommonUiEvent.Toast(partialChange.error.getErrorMessage())
             else -> null
         }
 
@@ -62,10 +82,38 @@ class ConcernViewModel @Inject constructor(
 
         private fun produceRefreshPartialChange(): Flow<ConcernPartialChange.Refresh> =
             forumOperationRepository.userLike("", App.INSTANCE.appPreferences.userLikeLastRequestUnix, 1)
+                .onEach { response ->
+                    // 写入 Store：从 ConcernData 提取 ThreadInfo，转换为 Entity，保护 2 秒内的乐观更新
+                    val threadProtos = response.data_?.threadInfo?.mapNotNull { it.threadList } ?: emptyList()
+                    val entities = threadProtos.map { ThreadMapper.fromProto(it) }
+                    threadStore.upsertThreads(entities, MergeStrategy.PREFER_LOCAL_META)
+                }
                 .map<UserLikeResponse, ConcernPartialChange.Refresh> {
                     App.INSTANCE.appPreferences.userLikeLastRequestUnix = it.data_?.requestUnix ?: 0L
+                    val data = it.toData()
+
+                    // ✅ 构建 threadIds（仅包含有 threadList 的数据）
+                    val threadIds = data.mapNotNull { concernData ->
+                        concernData.threadList?.id
+                    }.distinct().toImmutableList()
+
+                    // ✅ 【性能优化】提前构建索引 Map，避免 O(n²) - O(n) 复杂度
+                    val concernByCanonicalId = data.mapNotNull { concernData ->
+                        val threadList = concernData.threadList ?: return@mapNotNull null
+                        threadList.id to concernData
+                    }.toMap()
+
+                    // ✅ 使用 O(1) 查找构建 metadata - 总复杂度 O(n)
+                    val metadata = threadIds.associateWith { threadId ->
+                        val concernData = concernByCanonicalId[threadId]  // O(1) lookup
+                        ConcernMetadata(
+                            recommendType = concernData?.recommendType ?: 1  // ✅ 默认值 1，优雅降级
+                        )
+                    }.toPersistentMap()
+
                     ConcernPartialChange.Refresh.Success(
-                        data = it.toData(),
+                        threadIds = threadIds,
+                        metadata = metadata,
                         hasMore = it.data_?.hasMore == 1,
                         nextPageTag = it.data_?.pageTag ?: ""
                     )
@@ -75,9 +123,39 @@ class ConcernViewModel @Inject constructor(
 
         private fun ConcernUiIntent.LoadMore.producePartialChange(): Flow<ConcernPartialChange.LoadMore> =
             forumOperationRepository.userLike(pageTag, App.INSTANCE.appPreferences.userLikeLastRequestUnix, 2)
+                .onEach { response ->
+                    // 写入 Store：从 ConcernData 提取 ThreadInfo，转换为 Entity，保护 2 秒内的乐观更新
+                    val threadProtos = response.data_?.threadInfo?.mapNotNull { it.threadList } ?: emptyList()
+                    val entities = threadProtos.map { ThreadMapper.fromProto(it) }
+                    threadStore.upsertThreads(entities, MergeStrategy.PREFER_LOCAL_META)
+                }
                 .map<UserLikeResponse, ConcernPartialChange.LoadMore> {
+                    val data = it.toData()
+
+                    // ✅ 构建 threadIds（仅包含有 threadList 的数据）
+                    val threadIds = data.mapNotNull { concernData ->
+                        concernData.threadList?.let { threadList ->
+                            threadList.threadId.takeIf { it != 0L } ?: threadList.id
+                        }
+                    }.toImmutableList()
+
+                    // ✅ 【性能优化】提前构建索引 Map，避免 O(n²) - O(n) 复杂度
+                    val concernByCanonicalId = data.mapNotNull { concernData ->
+                        val threadList = concernData.threadList ?: return@mapNotNull null
+                        threadList.id to concernData
+                    }.toMap()
+
+                    // ✅ 使用 O(1) 查找构建 metadata - 总复杂度 O(n)
+                    val metadata = threadIds.associateWith { threadId ->
+                        val concernData = concernByCanonicalId[threadId]  // O(1) lookup
+                        ConcernMetadata(
+                            recommendType = concernData?.recommendType ?: 1  // ✅ 默认值 1，优雅降级
+                        )
+                    }.toPersistentMap()
+
                     ConcernPartialChange.LoadMore.Success(
-                        data = it.toData(),
+                        threadIds = threadIds,
+                        metadata = metadata,
                         hasMore = it.data_?.hasMore == 1,
                         nextPageTag = it.data_?.pageTag ?: ""
                     )
@@ -85,12 +163,39 @@ class ConcernViewModel @Inject constructor(
                 .onStart { emit(ConcernPartialChange.LoadMore.Start) }
                 .catch { emit(ConcernPartialChange.LoadMore.Failure(error = it)) }
 
-        private fun ConcernUiIntent.Agree.producePartialChange(): Flow<ConcernPartialChange.Agree> =
-            userInteractionRepository.opAgree(
+        private fun ConcernUiIntent.Agree.producePartialChange(): Flow<ConcernPartialChange.Agree> {
+            var previousHasAgree = 0
+            var previousAgreeNum = 0
+
+            return userInteractionRepository.opAgree(
                 threadId.toString(), postId.toString(), hasAgree, objType = 3
-            ).map<AgreeBean, ConcernPartialChange.Agree> { ConcernPartialChange.Agree.Success(threadId, hasAgree xor 1) }
-                .catch { emit(ConcernPartialChange.Agree.Failure(threadId, hasAgree, it)) }
-                .onStart { emit(ConcernPartialChange.Agree.Start(threadId, hasAgree xor 1)) }
+            )
+                .map<AgreeBean, ConcernPartialChange.Agree> {
+                    ConcernPartialChange.Agree.Success(threadId, hasAgree xor 1)
+                }
+                .catch {
+                    // ✅ 失败时恢复原始值
+                    threadStore.updateThreadMeta(threadId) { meta ->
+                        meta.copy(
+                            hasAgree = previousHasAgree,
+                            agreeNum = previousAgreeNum
+                        )
+                    }
+                    emit(ConcernPartialChange.Agree.Failure(threadId, hasAgree, it))
+                }
+                .onStart {
+                    // ✅ 保存原始值 + 乐观更新
+                    threadStore.updateThreadMeta(threadId) { meta ->
+                        previousHasAgree = meta.hasAgree
+                        previousAgreeNum = meta.agreeNum
+                        meta.copy(
+                            hasAgree = hasAgree xor 1,
+                            agreeNum = if (hasAgree == 0) meta.agreeNum + 1 else meta.agreeNum - 1
+                        )
+                    }
+                    emit(ConcernPartialChange.Agree.Start(threadId, hasAgree xor 1))
+                }
+        }
 
         private fun UserLikeResponse.toData(): List<ConcernData> {
             return data_?.threadInfo ?: emptyList()
@@ -110,42 +215,13 @@ sealed interface ConcernUiIntent : UiIntent {
     ) : ConcernUiIntent
 }
 
-internal fun List<ConcernData>.distinctById(): ImmutableList<ConcernData> {
-    return distinctBy {
-        it.threadList?.id
-    }.toImmutableList()
-}
-
 sealed interface ConcernPartialChange : PartialChange<ConcernUiState> {
     sealed class Agree private constructor() : ConcernPartialChange {
-        private fun List<ConcernData>.updateAgreeStatus(
-            threadId: Long,
-            hasAgree: Int,
-        ): ImmutableList<ConcernData> {
-            return map {
-                val threadInfo = it.threadList
-                if (threadInfo == null) it
-                else it.copy(
-                    threadList = if (threadInfo.threadId == threadId) {
-                        threadInfo.updateAgreeStatus(hasAgree)
-                    } else {
-                        threadInfo
-                    }
-                )
-            }.toImmutableList()
-        }
+        // ✅ 删除 updateAgreeStatus() 方法，Store 已处理更新逻辑
 
         override fun reduce(oldState: ConcernUiState): ConcernUiState =
             when (this) {
-                is Start -> {
-                    oldState.copy(data = oldState.data.updateAgreeStatus(threadId, hasAgree))
-                }
-                is Success -> {
-                    oldState.copy(data = oldState.data.updateAgreeStatus(threadId, hasAgree))
-                }
-                is Failure -> {
-                    oldState.copy(data = oldState.data.updateAgreeStatus(threadId, hasAgree))
-                }
+                is Start, is Success, is Failure -> oldState  // ✅ Store 已更新，State 无需变化
             }
 
         data class Start(
@@ -171,9 +247,10 @@ sealed interface ConcernPartialChange : PartialChange<ConcernUiState> {
                 Start -> oldState.copy(isRefreshing = true)
                 is Success -> oldState.copy(
                     isRefreshing = false,
-                    data = data.distinctById(),
+                    threadIds = threadIds,
+                    metadata = metadata,  // ✅ Refresh 完全替换 metadata，自动清理僵尸数据
                     hasMore = hasMore,
-                    nextPageTag = nextPageTag,
+                    nextPageTag = nextPageTag
                 )
                 is Failure -> oldState.copy(isRefreshing = false)
             }
@@ -181,7 +258,8 @@ sealed interface ConcernPartialChange : PartialChange<ConcernUiState> {
         data object Start : Refresh()
 
         data class Success(
-            val data: List<ConcernData>,
+            val threadIds: ImmutableList<Long>,
+            val metadata: PersistentMap<Long, ConcernMetadata>,  // ✅ 轻量级元数据
             val hasMore: Boolean,
             val nextPageTag: String,
         ) : Refresh()
@@ -195,19 +273,26 @@ sealed interface ConcernPartialChange : PartialChange<ConcernUiState> {
         override fun reduce(oldState: ConcernUiState): ConcernUiState =
             when (this) {
                 Start -> oldState.copy(isLoadingMore = true)
-                is Success -> oldState.copy(
-                    isLoadingMore = false,
-                    data = (oldState.data + data).distinctById(),
-                    hasMore = hasMore,
-                    nextPageTag = nextPageTag,
-                )
+                is Success -> {
+                    val newThreadIds = (oldState.threadIds + threadIds).distinct().toImmutableList()
+                    // ✅ 合并 metadata，只保留 newThreadIds 中的数据，清理僵尸数据
+                    val mergedMetadata = (oldState.metadata + metadata).filterKeys { it in newThreadIds }
+                    oldState.copy(
+                        isLoadingMore = false,
+                        threadIds = newThreadIds,
+                        metadata = mergedMetadata.toPersistentMap(),  // ✅ 转换为 PersistentMap
+                        hasMore = hasMore,
+                        nextPageTag = nextPageTag
+                    )
+                }
                 is Failure -> oldState.copy(isLoadingMore = false)
             }
 
         data object Start : LoadMore()
 
         data class Success(
-            val data: List<ConcernData>,
+            val threadIds: ImmutableList<Long>,
+            val metadata: PersistentMap<Long, ConcernMetadata>,  // ✅ 轻量级元数据
             val hasMore: Boolean,
             val nextPageTag: String,
         ) : LoadMore()
@@ -223,7 +308,8 @@ data class ConcernUiState(
     val isLoadingMore: Boolean = false,
     val hasMore: Boolean = true,
     val nextPageTag: String = "",
-    val data: ImmutableList<ConcernData> = persistentListOf(),
+    val threadIds: ImmutableList<Long> = persistentListOf(),  // ✅ Store 订阅用的 threadId 列表
+    val metadata: PersistentMap<Long, ConcernMetadata> = persistentMapOf(),  // ✅ 轻量级元数据 Map
 ): UiState
 
 sealed interface ConcernUiEvent : UiEvent

@@ -34,6 +34,7 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -46,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.post.arch.wrapImmutable
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.post.api.models.protos.personalized.DislikeReason
@@ -60,6 +62,7 @@ import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.common.theme.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.post.ui.models.ThreadItemData
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
+import com.huanchengfly.tieba.post.utils.appPreferences
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
@@ -75,6 +78,8 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.states.StateScreen
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -100,9 +105,13 @@ fun PersonalizedPage(
         prop1 = PersonalizedUiState::currentPage,
         initial = 1
     )
-    val data by viewModel.uiState.collectPartialAsState(
-        prop1 = PersonalizedUiState::data,
+    val threadIds by viewModel.uiState.collectPartialAsState(
+        prop1 = PersonalizedUiState::threadIds,
         initial = persistentListOf()
+    )
+    val metadata by viewModel.uiState.collectPartialAsState(
+        prop1 = PersonalizedUiState::metadata,
+        initial = persistentMapOf()
     )
     val error by viewModel.uiState.collectPartialAsState(
         prop1 = PersonalizedUiState::error,
@@ -116,19 +125,58 @@ fun PersonalizedPage(
         prop1 = PersonalizedUiState::hiddenThreadIds,
         initial = persistentListOf()
     )
+
+    // ✅ 订阅 Store 的 threadsFlow，获取最新的 ThreadEntity 列表
+    val threadEntities by viewModel.threadStore.threadsFlow(threadIds)
+        .collectAsState(initial = emptyList())
+
+    // ✅ O(n) 查找优化：先构建 entityMap
+    val entityMap by remember(threadEntities) {
+        derivedStateOf {
+            threadEntities.associateBy { it.threadId }
+        }
+    }
+
+    // ✅ 从 Store 和 metadata 构建显示数据
+    val displayData by remember(threadIds, metadata, entityMap) {
+        derivedStateOf<ImmutableList<ThreadItemData>> {
+            threadIds.mapNotNull { threadId ->
+                val meta = metadata[threadId] ?: return@mapNotNull null  // 元数据缺失则跳过
+                val entity = entityMap[threadId] ?: return@mapNotNull null  // Store 中不存在（已被 TTL 清理）
+
+                // 从 Store Entity 构建 ThreadItemData
+                ThreadItemData(
+                    thread = entity.proto.copy(
+                        agreeNum = entity.meta.agreeNum,
+                        agree = entity.proto.agree?.copy(
+                            hasAgree = entity.meta.hasAgree,
+                            agreeNum = entity.meta.agreeNum.toLong()
+                        ),
+                        // ✅ 新增：同步收藏状态，防止详情页显示旧值
+                        collectStatus = entity.meta.collectStatus,
+                        collectMarkPid = entity.meta.collectMarkPid.takeIf { it > 0L }?.toString() ?: "0"
+                    ).wrapImmutable(),
+                    blocked = meta.blocked,
+                    personalized = meta.personalized,
+                    hidden = meta.blocked && com.huanchengfly.tieba.post.App.INSTANCE.appPreferences.hideBlockedContent
+                )
+            }.toImmutableList()
+        }
+    }
+
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
         onRefresh = { viewModel.send(PersonalizedUiIntent.Refresh) }
     )
     val lazyListState = rememberLazyListState()
     viewModel.bindScrollToTopEvent(lazyListState = lazyListState)
-    val isEmpty by remember {
-        derivedStateOf {
-            data.isEmpty()
+    val isEmpty by remember(displayData) {
+        derivedStateOf<Boolean> {
+            displayData.isEmpty()
         }
     }
-    val isError by remember {
-        derivedStateOf {
+    val isError by remember(error) {
+        derivedStateOf<Boolean> {
             error != null
         }
     }
@@ -150,7 +198,7 @@ fun PersonalizedPage(
     }
 
     if (showRefreshTip) {
-        LaunchedEffect(data) {
+        LaunchedEffect(displayData) {  // ✅ 改用 displayData 而非 data
             launch {
                 delay(20)
                 lazyListState.scrollToItem(0, 0)
@@ -187,17 +235,18 @@ fun PersonalizedPage(
                 onLoadMore = { viewModel.send(PersonalizedUiIntent.LoadMore(currentPage + 1)) },
                 loadEnd = false,
                 lazyListState = lazyListState,
-                isEmpty = data.isEmpty()
+                isEmpty = displayData.isEmpty()
             ) {
                 FeedList(
                     state = lazyListState,
-                    dataProvider = { data },
+                    threadStore = viewModel.threadStore,
+                    dataProvider = { displayData },  // ✅ 使用 Store 增强的数据
                     refreshPositionProvider = { refreshPosition },
                     hiddenThreadIdsProvider = { hiddenThreadIds },
                     onItemClick = {
                         navigator.navigate(
                             ThreadPageDestination(
-                                it.id,
+                                it.threadId,
                                 it.forumId,
                                 threadInfo = it
                             )
@@ -206,18 +255,18 @@ fun PersonalizedPage(
                     onItemReplyClick = {
                         navigator.navigate(
                             ThreadPageDestination(
-                                it.id,
+                                it.threadId,
                                 it.forumId,
                                 scrollToReply = true
                             )
                         )
                     },
-                    onAgree = {
+                    onAgree = { threadInfo ->
                         viewModel.send(
                             PersonalizedUiIntent.Agree(
-                                it.threadId,
-                                it.firstPostId,
-                                it.agree?.hasAgree ?: 0
+                                threadInfo.id,
+                                threadInfo.firstPostId,
+                                threadInfo.agree?.hasAgree ?: 0
                             )
                         )
                     },
@@ -280,6 +329,7 @@ private fun BoxScope.RefreshTip(refreshCount: Int) {
 @Composable
 private fun FeedList(
     state: LazyListState,
+    threadStore: com.huanchengfly.tieba.post.store.ThreadStore,
     dataProvider: () -> ImmutableList<ThreadItemData>,
     refreshPositionProvider: () -> Int,
     hiddenThreadIdsProvider: () -> ImmutableList<Long>,
@@ -341,6 +391,10 @@ private fun FeedList(
                                 .padding(vertical = 8.dp, horizontal = 16.dp)
                         ) {
                             Column {
+                                // ✅ 订阅是否正在更新中
+                                val isUpdating by threadStore.isThreadUpdating(item.get { id })
+                                    .collectAsState(initial = false)
+
                                 FeedCard(
                                     item = item,
                                     onClick = onItemClick,
@@ -352,6 +406,7 @@ private fun FeedList(
                                         }
                                     },
                                     onClickUser = onClickUser,
+                                    agreeEnabled = !isUpdating,  // ✅ 传递 enabled 状态
                                 ) {
                                     if (personalized != null) {
                                         Dislike(

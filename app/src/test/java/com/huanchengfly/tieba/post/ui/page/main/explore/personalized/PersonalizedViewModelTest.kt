@@ -38,12 +38,14 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class PersonalizedViewModelTest : BaseViewModelTest() {
 
+    private lateinit var mockThreadStore: com.huanchengfly.tieba.post.store.ThreadStore
     private lateinit var mockPersonalizedRepo: PersonalizedRepository
     private lateinit var mockUserInteractionRepo: UserInteractionRepository
 
     @Before
     override fun setup() {
         super.setup()
+        mockThreadStore = mockk(relaxed = true)
         mockPersonalizedRepo = mockk(relaxed = true)
         mockUserInteractionRepo = mockk(relaxed = true)
     }
@@ -51,7 +53,7 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
     @After
     override fun tearDown() {
         super.tearDown()
-        clearMocks(mockPersonalizedRepo, mockUserInteractionRepo)
+        clearMocks(mockThreadStore, mockPersonalizedRepo, mockUserInteractionRepo)
     }
 
     // ========== Refresh Tests ==========
@@ -67,6 +69,7 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
             val viewModel = PersonalizedViewModel(
                 mockPersonalizedRepo,
                 mockUserInteractionRepo,
+                mockThreadStore,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)
@@ -94,6 +97,7 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
             val viewModel = PersonalizedViewModel(
                 mockPersonalizedRepo,
                 mockUserInteractionRepo,
+                mockThreadStore,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)
@@ -123,6 +127,7 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
             val viewModel = PersonalizedViewModel(
                 mockPersonalizedRepo,
                 mockUserInteractionRepo,
+                mockThreadStore,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)
@@ -151,6 +156,7 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
             val viewModel = PersonalizedViewModel(
                 mockPersonalizedRepo,
                 mockUserInteractionRepo,
+                mockThreadStore,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)

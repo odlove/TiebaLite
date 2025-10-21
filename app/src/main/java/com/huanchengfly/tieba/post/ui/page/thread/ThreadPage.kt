@@ -1,6 +1,5 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
-import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -69,6 +68,7 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -162,6 +162,8 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.UserHeader
 import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalGrid
+import com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButton
+import com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButtonVariant
 import com.huanchengfly.tieba.post.ui.widgets.compose.buildChipInlineContent
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberMenuState
@@ -173,6 +175,8 @@ import com.huanchengfly.tieba.post.utils.StringUtil.getShortNumString
 import com.huanchengfly.tieba.post.utils.TiebaUtil
 import com.huanchengfly.tieba.post.utils.Util.getIconColorByLevel
 import com.huanchengfly.tieba.post.utils.appPreferences
+import com.huanchengfly.tieba.post.store.models.PostEntity
+import com.huanchengfly.tieba.post.store.models.ThreadMeta
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -202,88 +206,62 @@ private fun getDescText(
     return texts.joinToString(" · ")
 }
 
+/**
+ * @deprecated Use AgreeButton with AgreeButtonVariant.PostDetail instead
+ */
+@Deprecated(
+    "Use AgreeButton with AgreeButtonVariant.PostDetail instead",
+    ReplaceWith(
+        "AgreeButton(hasAgreed, agreeNum, onClick, modifier, AgreeButtonVariant.PostDetail)",
+        "com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButton",
+        "com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButtonVariant"
+    )
+)
 @Composable
 fun PostAgreeBtn(
     hasAgreed: Boolean,
-    agreeNum: Long,
+    agreeNum: Int,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
-    val animatedColor by animateColorAsState(
-        targetValue = if (hasAgreed) ExtendedTheme.colors.accent else ExtendedTheme.colors.textSecondary,
-        label = "postAgreeBtnColor"
-    )
-    Button(
+    AgreeButton(
+        hasAgreed = hasAgreed,
+        agreeNum = agreeNum,
         onClick = onClick,
-        shape = RoundedCornerShape(4.dp),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = ExtendedTheme.colors.background,
-            contentColor = animatedColor
-        ),
-        modifier = modifier
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Icon(
-                imageVector = if (hasAgreed) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                contentDescription = stringResource(id = R.string.title_agree),
-                tint = animatedColor,
-                modifier = Modifier.size(16.dp)
-            )
-            if (agreeNum > 0) {
-                Text(
-                    text = agreeNum.getShortNumString(),
-                    color = animatedColor,
-                    style = MaterialTheme.typography.caption,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-    }
+        modifier = modifier,
+        enabled = enabled,
+        variant = AgreeButtonVariant.PostDetail
+    )
 }
 
+/**
+ * @deprecated Use AgreeButton with AgreeButtonVariant.BottomBar instead
+ */
+@Deprecated(
+    "Use AgreeButton with AgreeButtonVariant.BottomBar instead",
+    ReplaceWith(
+        "AgreeButton(hasAgreed, agreeNum, onClick, modifier, AgreeButtonVariant.BottomBar)",
+        "com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButton",
+        "com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButtonVariant"
+    )
+)
 @Composable
 private fun BottomBarAgreeBtn(
     hasAgreed: Boolean,
-    agreeNum: Long,
+    agreeNum: Int,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
-    val color = if (hasAgreed) ExtendedTheme.colors.accent else ExtendedTheme.colors.textSecondary
-    val animatedColor by animateColorAsState(color, label = "agreeBtnColor")
-
-    Button(
+    AgreeButton(
+        hasAgreed = hasAgreed,
+        agreeNum = agreeNum,
         onClick = onClick,
-        shape = RoundedCornerShape(0),
-        contentPadding = PaddingValues(horizontal = 4.dp),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = ExtendedTheme.colors.bottomBar,
-            contentColor = animatedColor
-        ),
-        modifier = modifier
-    ) {
-        Row(
-            modifier = Modifier.align(Alignment.CenterVertically),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = if (hasAgreed) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                contentDescription = stringResource(id = R.string.title_agree),
-                tint = animatedColor
-            )
-            if (agreeNum > 0) {
-                Text(
-                    text = agreeNum.getShortNumString(),
-                    style = MaterialTheme.typography.caption,
-                    color = animatedColor,
-                    fontSize = 12.sp
-                )
-            }
-        }
-    }
+        modifier = modifier,
+        enabled = enabled,
+        variant = AgreeButtonVariant.BottomBar
+    )
 }
 
 @Composable
@@ -603,9 +581,61 @@ fun ThreadPage(
         prop1 = ThreadUiState::latestPosts,
         initial = persistentListOf()
     )
+    val stateThreadId by viewModel.uiState.collectPartialAsState(
+        prop1 = ThreadUiState::threadId,
+        initial = 0L
+    )
+    val statePostIds by viewModel.uiState.collectPartialAsState(
+        prop1 = ThreadUiState::postIds,
+        initial = persistentListOf()
+    )
+    val stateInitMeta by viewModel.uiState.collectPartialAsState(
+        prop1 = ThreadUiState::initMeta,
+        initial = null
+    )
+
+    // ✅ 使用 Store 的真实 threadId，兼容旧入口传入的可能是 id 的情况
+    val effectiveThreadId by remember(stateThreadId, threadId) {
+        derivedStateOf { stateThreadId.takeIf { it != 0L } ?: threadId }
+    }
+
+    // ✅ 订阅 Store 的 threadsFlow 和 postsFlow，获取最新的 Entity 列表
+    val threadEntity by viewModel.threadStore.threadsFlow(listOfNotNull(effectiveThreadId.takeIf { it != 0L }))
+        .collectAsState(initial = emptyList())
+    val postEntities by viewModel.threadStore.postsFlow(effectiveThreadId, statePostIds)
+        .collectAsState(initial = emptyList())
+
+    // ✅ 保持原始 proto，不再 rebuild
+    val displayThread by remember(thread, threadEntity) {
+        derivedStateOf {
+            threadEntity.firstOrNull()?.proto?.wrapImmutable() ?: thread
+        }
+    }
+
+    val threadMeta by remember(threadEntity, stateInitMeta, thread) {
+        derivedStateOf {
+            val storeMetaValue = threadEntity.firstOrNull()?.meta
+            val initMetaValue = stateInitMeta
+            val threadProtoMeta = ThreadMeta(
+                agreeNum = thread?.get { agreeNum } ?: 0,
+                hasAgree = thread?.get { agree?.hasAgree } ?: 0,
+                collectStatus = thread?.get { collectStatus } ?: 0,
+                collectMarkPid = thread?.get { collectMarkPid.toLongOrNull() ?: 0L } ?: 0L
+            )
+
+            storeMetaValue ?: initMetaValue ?: threadProtoMeta
+        }
+    }
+
+    // ✅ 直接使用原始 data，不再 rebuild proto
+    val displayData = data
+
+    // ✅ 直接使用原始 firstPost，不再 rebuild
+    val displayFirstPost = firstPost
+
 
     val isEmpty by remember {
-        derivedStateOf { data.isEmpty() && firstPost == null }
+        derivedStateOf { displayData.isEmpty() && firstPost == null }
     }
     val enablePullRefresh by remember {
         derivedStateOf {
@@ -626,17 +656,17 @@ fun ThreadPage(
             }
         }
     }
-    val isCollected = remember(thread) {
-        thread?.get { collectStatus != 0 } == true
+    val isCollected = remember(threadMeta) {
+        threadMeta.collectStatus != 0
     }
-    val hasThreadAgreed = remember(thread) {
-        thread?.get { agree?.hasAgree == 1 } == true
+    val hasThreadAgreed = remember(threadMeta) {
+        threadMeta.hasAgree == 1
     }
-    val threadAgreeNum = remember(thread) {
-        thread?.get { agree?.diffAgreeNum } ?: 0L
+    val threadAgreeNum = remember(threadMeta) {
+        threadMeta.agreeNum
     }
-    val threadTitle = remember(thread) {
-        thread?.get { title } ?: ""
+    val threadTitle = remember(displayThread) {
+        displayThread?.get { title } ?: ""
     }
     val curForumId = remember(forumId, forum) {
         forumId ?: forum?.get { id }
@@ -652,7 +682,7 @@ fun ThreadPage(
     )
     val lastVisibilityPost by remember {
         derivedStateOf {
-            data.firstOrNull { (post) ->
+            displayData.firstOrNull { (post) ->
                 val lastPostKey = lazyListState.layoutInfo.visibleItemsInfo.lastOrNull { info ->
                     info.key is String && (info.key as String).startsWith("Post_")
                 }?.key as String?
@@ -689,7 +719,7 @@ fun ThreadPage(
     }
     viewModel.onEvent<ThreadUiEvent.ScrollToLatestReply> {
         if (curSortType != ThreadSortType.SORT_TYPE_DESC) {
-            lazyListState.animateScrollToItem(2 + data.size)
+            lazyListState.animateScrollToItem(2 + displayData.size)
         } else {
             lazyListState.animateScrollToItem(1)
         }
@@ -720,20 +750,20 @@ fun ThreadPage(
     }
 
     onGlobalEvent<GlobalEvent.ReplySuccess>(
-        filter = { it.threadId == threadId }
+        filter = { it.threadId == effectiveThreadId }
     ) { event ->
         viewModel.send(
             ThreadUiIntent.LoadMyLatestReply(
-                threadId = threadId,
+                threadId = effectiveThreadId,
                 postId = event.newPostId,
                 forumId = curForumId,
                 isDesc = curSortType == ThreadSortType.SORT_TYPE_DESC,
                 curLatestPostFloor = if (curSortType == ThreadSortType.SORT_TYPE_DESC) {
-                    data.firstOrNull()?.post?.get { floor } ?: 1
+                    displayData.firstOrNull()?.post?.get { floor } ?: 1
                 } else {
-                    data.lastOrNull()?.post?.get { floor } ?: 1
+                    displayData.lastOrNull()?.post?.get { floor } ?: 1
                 },
-                curPostIds = data.map { it.post.get { id } },
+                curPostIds = displayData.map { it.post.get { id } },
             )
         )
     }
@@ -748,7 +778,7 @@ fun ThreadPage(
             if (lastVisibilityPostId != 0L) {
                 viewModel.send(
                     ThreadUiIntent.UpdateFavoriteMark(
-                        threadId = threadId,
+                        threadId = effectiveThreadId,
                         postId = lastVisibilityPostId
                     )
                 )
@@ -787,7 +817,7 @@ fun ThreadPage(
                     ThreadUiIntent.DeleteThread(
                         forumId = curForumId,
                         forumName = curForumName.orEmpty(),
-                        threadId = threadId,
+                        threadId = effectiveThreadId,
                         deleteMyThread = isSelfThread,
                         tbs = curTbs
                     )
@@ -799,7 +829,7 @@ fun ThreadPage(
                         ThreadUiIntent.DeletePost(
                             forumId = curForumId,
                             forumName = curForumName.orEmpty(),
-                            threadId = threadId,
+                            threadId = effectiveThreadId,
                             postId = post.get { id },
                             deleteMyPost = isSelfPost,
                             tbs = curTbs
@@ -823,7 +853,7 @@ fun ThreadPage(
         onConfirm = {
             viewModel.send(
                 ThreadUiIntent.Load(
-                    threadId = threadId,
+                    threadId = effectiveThreadId,
                     forumId = forum?.get { id } ?: forumId,
                     page = it.toInt(),
                     seeLz = isSeeLz,
@@ -855,7 +885,7 @@ fun ThreadPage(
             if (result == SnackbarResult.ActionPerformed) {
                 viewModel.send(
                     ThreadUiIntent.Load(
-                        threadId,
+                        effectiveThreadId,
                         page = 0,
                         postId = extra.maxPid,
                         forumId = forumId,
@@ -890,7 +920,6 @@ fun ThreadPage(
                             async = true
                         )
                         savedHistory = true
-                        Log.i("ThreadPage", "saveHistory $lastVisibilityPostId")
                     }
                 }
             }
@@ -906,7 +935,7 @@ fun ThreadPage(
         onRefresh = {
             viewModel.send(
                 ThreadUiIntent.LoadFirstPage(
-                    threadId,
+                    effectiveThreadId,
                     forumId,
                     isSeeLz,
                     curSortType
@@ -926,21 +955,23 @@ fun ThreadPage(
             postHolder = item,
             contentRenders = contentRenders,
             viewModel = viewModel,
+            threadId = effectiveThreadId,
             subPosts = subPosts,
             threadAuthorId = author?.get { id } ?: 0L,
             blocked = blocked,
+            postEntities = postEntities,
             canDelete = { it.author_id == user.get { id } },
             immersiveMode = isImmersiveMode,
-            isCollected = { it.id == thread?.get { collectMarkPid.toLongOrNull() } },
+            isCollected = { threadMeta.collectStatus == 1 && it.id == threadMeta.collectMarkPid },
             onUserClick = {
                 navigator.navigate(UserProfilePageDestination(it.id))
             },
             onAgree = {
-                val postHasAgreed =
-                    item.get { agree?.hasAgree == 1 }
+                val meta = postEntities.find { it.id == item.get { id } }?.meta
+                val postHasAgreed = (meta?.hasAgree == 1) || item.get { agree?.hasAgree == 1 }
                 viewModel.send(
                     ThreadUiIntent.AgreePost(
-                        threadId = threadId,
+                        threadId = effectiveThreadId,
                         postId = item.get { id },
                         agree = !postHasAgreed
                     )
@@ -951,7 +982,7 @@ fun ThreadPage(
                     ReplyPageDestination(
                         forumId = curForumId ?: 0,
                         forumName = forum?.get { name } ?: "",
-                        threadId = threadId,
+                        threadId = effectiveThreadId,
                         postId = it.id,
                         replyUserId = it.author?.id ?: it.author_id,
                         replyUserName = it.author?.nameShow.takeIf { name -> !name.isNullOrEmpty() }
@@ -965,7 +996,7 @@ fun ThreadPage(
                     ReplyPageDestination(
                         forumId = curForumId ?: 0,
                         forumName = forum?.get { name } ?: "",
-                        threadId = threadId,
+                        threadId = effectiveThreadId,
                         postId = post.id,
                         subPostId = subPost.id,
                         replyUserId = subPost.author?.id ?: subPost.author_id,
@@ -980,7 +1011,7 @@ fun ThreadPage(
                     navigator.navigate(
                         SubPostsSheetPageDestination(
                             forumId = curForumId,
-                            threadId = threadId,
+                            threadId = effectiveThreadId,
                             postId = item.get { id },
                             subPostId = it,
                             loadFromSubPost = false
@@ -994,15 +1025,14 @@ fun ThreadPage(
                 )
             },
             onMenuFavoriteClick = {
-                val isPostCollected =
-                    it.id == thread?.get { collectMarkPid.toLongOrNull() }
+                val isPostCollected = threadMeta.collectStatus == 1 && it.id == threadMeta.collectMarkPid
                 val fid = forum?.get { id } ?: forumId
                 val tbs = anti?.get { tbs }
                 if (fid != null) {
                     if (isPostCollected) {
                         viewModel.send(
                             ThreadUiIntent.RemoveFavorite(
-                                threadId = threadId,
+                                threadId = effectiveThreadId,
                                 forumId = fid,
                                 tbs = tbs
                             )
@@ -1010,7 +1040,7 @@ fun ThreadPage(
                     } else {
                         viewModel.send(
                             ThreadUiIntent.AddFavorite(
-                                threadId = threadId,
+                                threadId = effectiveThreadId,
                                 postId = it.id,
                                 floor = it.floor
                             )
@@ -1100,7 +1130,7 @@ fun ThreadPage(
             onReload = {
                 viewModel.send(
                     ThreadUiIntent.Load(
-                        threadId,
+                        effectiveThreadId,
                         page = 0,
                         postId = postId,
                         forumId = forumId,
@@ -1129,23 +1159,25 @@ fun ThreadPage(
                 bottomBar = {
                     BottomBar(
                         user = user,
+                        threadStore = viewModel.threadStore,
+                        threadId = effectiveThreadId,
                         onClickReply = {
                             navigator.navigate(
                                 ReplyPageDestination(
                                     forumId = curForumId ?: 0,
                                     forumName = forum?.get { name }.orEmpty(),
-                                    threadId = threadId,
+                                    threadId = effectiveThreadId,
                                 )
                             )
                         },
                         onAgree = {
                             val firstPostId =
-                                thread?.get { firstPostId }.takeIf { it != 0L }
+                                displayThread?.get { firstPostId }.takeIf { it != 0L }
                                     ?: firstPost?.get { id }
                                     ?: 0L
                             if (firstPostId != 0L) viewModel.send(
                                 ThreadUiIntent.AgreeThread(
-                                    threadId,
+                                    effectiveThreadId,
                                     firstPostId,
                                     !hasThreadAgreed
                                 )
@@ -1184,7 +1216,7 @@ fun ThreadPage(
                                 if (!bottomSheetState.isVisible) return@ThreadMenu
                                 viewModel.send(
                                     ThreadUiIntent.LoadFirstPage(
-                                        threadId,
+                                        effectiveThreadId,
                                         forumId,
                                         !isSeeLz,
                                         curSortType
@@ -1200,7 +1232,7 @@ fun ThreadPage(
                                     if (fid != null) {
                                         viewModel.send(
                                             ThreadUiIntent.RemoveFavorite(
-                                                threadId,
+                                                effectiveThreadId,
                                                 fid,
                                                 tbs
                                             )
@@ -1211,7 +1243,7 @@ fun ThreadPage(
                                     if (readItem != null) {
                                         viewModel.send(
                                             ThreadUiIntent.AddFavorite(
-                                                threadId,
+                                                effectiveThreadId,
                                                 readItem.get { id },
                                                 readItem.get { floor }
                                             )
@@ -1225,7 +1257,7 @@ fun ThreadPage(
                                 if (!isImmersiveMode && !isSeeLz) {
                                     viewModel.send(
                                         ThreadUiIntent.LoadFirstPage(
-                                            threadId,
+                                            effectiveThreadId,
                                             forumId,
                                             true,
                                             curSortType
@@ -1239,7 +1271,7 @@ fun ThreadPage(
                                 if (!bottomSheetState.isVisible) return@ThreadMenu
                                 viewModel.send(
                                     ThreadUiIntent.LoadFirstPage(
-                                        threadId,
+                                        effectiveThreadId,
                                         forumId,
                                         isSeeLz,
                                         if (curSortType != ThreadSortType.SORT_TYPE_DESC) ThreadSortType.SORT_TYPE_DESC else ThreadSortType.SORT_TYPE_DEFAULT
@@ -1266,7 +1298,7 @@ fun ThreadPage(
                             },
                             onReportClick = {
                                 val firstPostId =
-                                    thread?.get { firstPostId }.takeIf { it != 0L }
+                                    displayThread?.get { firstPostId }.takeIf { it != 0L }
                                         ?: firstPost?.get { id }
                                         ?: 0L
                                 coroutineScope.launch {
@@ -1307,21 +1339,21 @@ fun ThreadPage(
                                 if (hasMore) {
                                     viewModel.send(
                                         ThreadUiIntent.LoadMore(
-                                            threadId = threadId,
+                                            threadId = effectiveThreadId,
                                             page = if (curSortType == ThreadSortType.SORT_TYPE_DESC) totalPage - currentPageMax
                                             else currentPageMax + 1,
                                             forumId = forumId,
                                             postId = nextPagePostId,
                                             seeLz = isSeeLz,
                                             sortType = curSortType,
-                                            postIds = data.map { it.post.get { id } }
+                                            postIds = displayData.map { it.post.get { id } }
                                         )
                                     )
-                                } else if (data.isNotEmpty() && curSortType != ThreadSortType.SORT_TYPE_DESC) {
+                                } else if (displayData.isNotEmpty() && curSortType != ThreadSortType.SORT_TYPE_DESC) {
                                     viewModel.send(
                                         ThreadUiIntent.LoadLatestPosts(
-                                            threadId = threadId,
-                                            curLatestPostId = data.last().post.get { id },
+                                            threadId = effectiveThreadId,
+                                            curLatestPostId = displayData.last().post.get { id },
                                             forumId = curForumId,
                                             seeLz = isSeeLz,
                                             sortType = curSortType
@@ -1339,7 +1371,7 @@ fun ThreadPage(
                                 )
                             },
                             lazyListState = lazyListState,
-                            isEmpty = data.isEmpty(),
+                            isEmpty = displayData.isEmpty(),
                             preloadCount = loadMorePreloadCount,
                         ) {
                             MyLazyColumn(
@@ -1347,7 +1379,7 @@ fun ThreadPage(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 item(key = "FirstPost") {
-                                    firstPost?.let { post ->
+                                    displayFirstPost?.let { post ->
                                         Container {
                                             Column {
                                                 PostCard(
@@ -1356,9 +1388,9 @@ fun ThreadPage(
                                                     viewModel = viewModel,
                                                     canDelete = { it.author_id == user.get { id } },
                                                     immersiveMode = isImmersiveMode,
+                                                    postEntities = postEntities,
                                                     isCollected = {
-                                                        it.id == thread?.get { collectMarkPid }
-                                                            ?.toLongOrNull()
+                                                        threadMeta.collectStatus == 1 && it.id == threadMeta.collectMarkPid
                                                     },
                                                     showSubPosts = false,
                                                     onUserClick = {
@@ -1374,7 +1406,7 @@ fun ThreadPage(
                                                                 forumId = curForumId ?: 0,
                                                                 forumName = forum?.get { name }
                                                                     .orEmpty(),
-                                                                threadId = threadId,
+                                                                threadId = effectiveThreadId,
                                                             )
                                                         )
                                                     },
@@ -1386,7 +1418,7 @@ fun ThreadPage(
                                                     onMenuFavoriteClick = {
                                                         viewModel.send(
                                                             ThreadUiIntent.AddFavorite(
-                                                                threadId,
+                                                                effectiveThreadId,
                                                                 it.id,
                                                                 it.floor
                                                             )
@@ -1397,8 +1429,8 @@ fun ThreadPage(
                                                     confirmDeleteDialogState.show()
                                                 }
 
-                                                thread?.getNullableImmutable { origin_thread_info }
-                                                    .takeIf { thread?.get { is_share_thread } == 1 }
+                                                displayThread?.getNullableImmutable { origin_thread_info }
+                                                    .takeIf { displayThread?.get { is_share_thread } == 1 }
                                                     ?.let {
                                                         OriginThreadCard(
                                                             originThreadInfo = it,
@@ -1440,7 +1472,7 @@ fun ThreadPage(
                                             Text(
                                                 text = stringResource(
                                                     R.string.title_thread_header,
-                                                    "${thread?.get { replyNum - 1 } ?: 0}"),
+                                                    "${displayThread?.get { replyNum - 1 } ?: 0}"),
                                                 fontSize = 13.sp,
                                                 fontWeight = FontWeight.Bold,
                                                 color = ExtendedTheme.colors.text,
@@ -1463,7 +1495,7 @@ fun ThreadPage(
                                                             if (isSeeLz) {
                                                                 viewModel.send(
                                                                     ThreadUiIntent.LoadFirstPage(
-                                                                        threadId = threadId,
+                                                                        threadId = effectiveThreadId,
                                                                         forumId = forumId,
                                                                         seeLz = false,
                                                                         sortType = curSortType
@@ -1488,7 +1520,7 @@ fun ThreadPage(
                                                             if (!isSeeLz) {
                                                                 viewModel.send(
                                                                     ThreadUiIntent.LoadFirstPage(
-                                                                        threadId = threadId,
+                                                                        threadId = effectiveThreadId,
                                                                         forumId = forumId,
                                                                         seeLz = true,
                                                                         sortType = curSortType
@@ -1516,16 +1548,16 @@ fun ThreadPage(
                                                     .clickable {
                                                         viewModel.send(
                                                             ThreadUiIntent.LoadPrevious(
-                                                                threadId,
+                                                                effectiveThreadId,
                                                                 max(currentPageMax - 1, 1),
                                                                 forumId,
-                                                                postId = data
+                                                                postId = displayData
                                                                     .first()
                                                                     .post
                                                                     .get { id },
                                                                 seeLz = isSeeLz,
                                                                 sortType = curSortType,
-                                                                postIds = data.map { it.post.get { id } }
+                                                                postIds = displayData.map { it.post.get { id } }
                                                             )
                                                         )
                                                     }
@@ -1548,7 +1580,7 @@ fun ThreadPage(
                                         }
                                     }
                                 }
-                                if (!isRefreshing && data.isEmpty()) {
+                                if (!isRefreshing && displayData.isEmpty()) {
                                     item(key = "EmptyTip") {
                                         Container {
                                             TipScreen(
@@ -1579,7 +1611,7 @@ fun ThreadPage(
                                     }
                                 } else {
                                     items(
-                                        items = data,
+                                        items = displayData,
                                         key = { (item) -> "Post_${item.get { id }}" }
                                     ) { (item, blocked, renders, subPosts) ->
                                         Container {
@@ -1663,13 +1695,19 @@ private fun TopBar(
 @Composable
 private fun BottomBar(
     user: ImmutableHolder<User>,
+    threadStore: com.huanchengfly.tieba.post.store.ThreadStore,
+    threadId: Long,
     onClickReply: () -> Unit,
     onAgree: () -> Unit,
     onClickMore: () -> Unit,
     modifier: Modifier = Modifier,
     hasAgreed: Boolean = false,
-    agreeNum: Long = 0,
+    agreeNum: Int = 0,
 ) {
+    // ✅ 订阅是否正在更新中
+    val isUpdating by threadStore.isThreadUpdating(threadId)
+        .collectAsState(initial = false)
+
     Column(
         modifier = Modifier.background(ExtendedTheme.colors.threadBottomBar)
     ) {
@@ -1715,6 +1753,7 @@ private fun BottomBar(
                 hasAgreed = hasAgreed,
                 agreeNum = agreeNum,
                 onClick = onAgree,
+                enabled = !isUpdating,  // ✅ 传递 enabled 状态
                 modifier = Modifier.fillMaxHeight()
             )
 
@@ -1750,9 +1789,11 @@ fun PostCard(
     postHolder: ImmutableHolder<Post>,
     contentRenders: ImmutableList<PbContentRender>,
     viewModel: ThreadViewModel? = null,
+    threadId: Long = 0L,
     subPosts: ImmutableList<SubPostItemData> = persistentListOf(),
     threadAuthorId: Long = 0L,
     blocked: Boolean = false,
+    postEntities: List<PostEntity> = emptyList(),
     canDelete: (Post) -> Boolean = { false },
     immersiveMode: Boolean = false,
     isCollected: (Post) -> Boolean = { false },
@@ -1778,11 +1819,15 @@ fun PostCard(
     val showTitle = remember(postHolder) {
         post.title.isNotBlank() && post.floor <= 1 && post.is_ntitle != 1
     }
-    val hasAgreed = remember(postHolder) {
-        post.agree?.hasAgree == 1
+
+    val postMeta = remember(postHolder, postEntities) {
+        postEntities.find { it.id == post.id }?.meta
     }
-    val agreeNum = remember(postHolder) {
-        post.agree?.diffAgreeNum ?: 0L
+    val hasAgreed = remember(postMeta, post) {
+        (postMeta?.hasAgree == 1) || (post.agree?.hasAgree == 1)
+    }
+    val agreeNum = remember(postMeta, post) {
+        postMeta?.agreeNum ?: (post.agree?.diffAgreeNum ?: 0L).toInt()
     }
     val menuState = rememberMenuState()
     BlockableContent(
@@ -1910,10 +1955,17 @@ fun PostCard(
                             }
                         ) {
                             if (post.floor > 1) {
+                                // ✅ 订阅是否正在更新中
+                                val isUpdating = viewModel?.let { vm ->
+                                    vm.threadStore.isPostUpdating(threadId, post.id)
+                                        .collectAsState(initial = false)
+                                }
+
                                 PostAgreeBtn(
                                     hasAgreed = hasAgreed,
                                     agreeNum = agreeNum,
-                                    onClick = onAgree
+                                    onClick = onAgree,
+                                    enabled = isUpdating?.value != true  // ✅ 传递 enabled 状态
                                 )
                             }
                         }

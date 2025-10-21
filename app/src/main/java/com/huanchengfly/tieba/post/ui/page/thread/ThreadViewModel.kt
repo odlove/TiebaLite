@@ -38,6 +38,10 @@ import com.huanchengfly.tieba.post.repository.EmptyDataException
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
+import com.huanchengfly.tieba.post.store.MergeStrategy
+import com.huanchengfly.tieba.post.store.ThreadStore
+import com.huanchengfly.tieba.post.store.mappers.PostMapper
+import com.huanchengfly.tieba.post.store.mappers.ThreadMapper
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -52,6 +56,7 @@ import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
@@ -76,6 +81,7 @@ class ThreadViewModel @Inject constructor(
     private val userInteractionRepository: UserInteractionRepository,
     private val threadOperationRepository: ThreadOperationRepository,
     private val contentModerationRepository: ContentModerationRepository,
+    val threadStore: ThreadStore,  // ✅ 公开，供 UI 订阅
     dispatcherProvider: DispatcherProvider
 ) : BaseViewModel<ThreadUiIntent, ThreadPartialChange, ThreadUiState, ThreadUiEvent>(dispatcherProvider) {
     override fun createInitialState(): ThreadUiState = ThreadUiState()
@@ -169,14 +175,40 @@ class ThreadViewModel @Inject constructor(
                     postId,
                     seeLz,
                     sortType,
+                    sanitizedMeta = threadInfo?.let { ThreadMapper.fromProto(it).meta },
                 )
-            ).catch { emit(ThreadPartialChange.Init.Failure(it)) }
+            )
+                .onEach {
+                    // ✅ 将列表页传来的 threadInfo 写入 Store，覆盖旧数据（如果有）
+                    if (threadInfo != null) {
+                        threadStore.upsertThreads(
+                            listOf(ThreadMapper.fromProto(threadInfo)),
+                            MergeStrategy.REPLACE_ALL  // 完全替换，确保收藏状态同步
+                        )
+                    }
+                }
+                .catch { emit(ThreadPartialChange.Init.Failure(it)) }
 
         fun ThreadUiIntent.Load.producePartialChange(): Flow<ThreadPartialChange.Load> =
             pbPageRepository.pbPage(
                 threadId, page, postId, forumId, seeLz, sortType,
                 from = from.takeIf { it == ThreadPageFrom.FROM_STORE }.orEmpty()
             )
+                .onEach { response ->
+                    // ✅ 写入 Store：Thread + FirstPost + Posts，保护 2 秒内的乐观更新
+                    val thread = response.data_?.thread
+                    val firstPost = response.data_?.first_floor_post
+                    val posts = response.data_?.post_list?.filterNot { it.floor == 1 } ?: emptyList()
+
+                    if (thread != null) {
+                        threadStore.upsertThreads(listOf(ThreadMapper.fromProto(thread)), MergeStrategy.PREFER_LOCAL_META)
+                        val allPosts = listOfNotNull(firstPost) + posts
+                        if (allPosts.isNotEmpty()) {
+                            val canonicalThreadId = thread.id
+                            threadStore.upsertPosts(canonicalThreadId, allPosts.map { PostMapper.fromProto(it, canonicalThreadId) }, MergeStrategy.PREFER_LOCAL_META)
+                        }
+                    }
+                }
                 .map<PbPageResponse, ThreadPartialChange.Load> { response ->
                     if (response.data_?.page == null
                         || response.data_.thread?.author == null
@@ -186,6 +218,7 @@ class ThreadViewModel @Inject constructor(
                     val postList = response.data_.post_list
                     val firstPost = response.data_.first_floor_post
                     val notFirstPosts = postList.filterNot { it.floor == 1 }
+                    val allPosts = listOfNotNull(firstPost) + notFirstPosts
                     ThreadPartialChange.Load.Success(
                         response.data_.thread.title,
                         response.data_.thread.author,
@@ -207,6 +240,8 @@ class ThreadViewModel @Inject constructor(
                         postId,
                         seeLz,
                         sortType,
+                        threadId = response.data_.thread.id,
+                        postIds = allPosts.map { it.id }.toImmutableList(),  // ✅ 新增
                     )
                 }
                 .onStart { emit(ThreadPartialChange.Load.Start) }
@@ -214,6 +249,21 @@ class ThreadViewModel @Inject constructor(
 
         fun ThreadUiIntent.LoadFirstPage.producePartialChange(): Flow<ThreadPartialChange.LoadFirstPage> =
             pbPageRepository.pbPage(threadId, 0, 0, forumId, seeLz, sortType)
+                .onEach { response ->
+                    // ✅ 写入 Store：Thread + FirstPost + Posts，保护 2 秒内的乐观更新
+                    val thread = response.data_?.thread
+                    val firstPost = response.data_?.first_floor_post
+                    val posts = response.data_?.post_list?.filterNot { it.floor == 1 } ?: emptyList()
+
+                    if (thread != null) {
+                        threadStore.upsertThreads(listOf(ThreadMapper.fromProto(thread)), MergeStrategy.PREFER_LOCAL_META)
+                        val allPosts = listOfNotNull(firstPost) + posts
+                        if (allPosts.isNotEmpty()) {
+                            val canonicalThreadId = thread.id
+                            threadStore.upsertPosts(canonicalThreadId, allPosts.map { PostMapper.fromProto(it, canonicalThreadId) }, MergeStrategy.PREFER_LOCAL_META)
+                        }
+                    }
+                }
                 .map<PbPageResponse, ThreadPartialChange.LoadFirstPage> { response ->
                     if (response.data_?.page == null
                         || response.data_.thread?.author == null
@@ -223,6 +273,7 @@ class ThreadViewModel @Inject constructor(
                     val postList = response.data_.post_list
                     val firstPost = response.data_.first_floor_post
                     val notFirstPosts = postList.filterNot { it.floor == 1 }
+                    val allPosts = listOfNotNull(firstPost) + notFirstPosts
                     ThreadPartialChange.LoadFirstPage.Success(
                         response.data_.thread.title,
                         response.data_.thread.author,
@@ -240,6 +291,8 @@ class ThreadViewModel @Inject constructor(
                         postId = 0,
                         seeLz,
                         sortType,
+                        threadId = response.data_.thread.id,
+                        postIds = allPosts.map { it.id }.toImmutableList(),  // ✅ 新增
                     )
                 }
                 .onStart { emit(ThreadPartialChange.LoadFirstPage.Start) }
@@ -247,6 +300,19 @@ class ThreadViewModel @Inject constructor(
 
         fun ThreadUiIntent.LoadMore.producePartialChange(): Flow<ThreadPartialChange.LoadMore> =
             pbPageRepository.pbPage(threadId, page, postId, forumId, seeLz, sortType)
+                .onEach { response ->
+                    // ✅ 写入 Store：Thread + Posts，保护 2 秒内的乐观更新
+                    val thread = response.data_?.thread
+                    val posts = response.data_?.post_list?.filterNot { it.floor == 1 } ?: emptyList()
+
+                    if (thread != null) {
+                        threadStore.upsertThreads(listOf(ThreadMapper.fromProto(thread)), MergeStrategy.PREFER_LOCAL_META)
+                        if (posts.isNotEmpty()) {
+                            val canonicalThreadId = thread.id
+                            threadStore.upsertPosts(canonicalThreadId, posts.map { PostMapper.fromProto(it, canonicalThreadId) }, MergeStrategy.PREFER_LOCAL_META)
+                        }
+                    }
+                }
                 .map<PbPageResponse, ThreadPartialChange.LoadMore> { response ->
                     if (response.data_?.page == null
                         || response.data_.thread?.author == null
@@ -266,6 +332,7 @@ class ThreadViewModel @Inject constructor(
                             postIds + posts.map { it.id },
                             sortType
                         ),
+                        newPostIds = posts.map { it.id }.toImmutableList(),  // ✅ 新增：新加载的 postId 列表
                     )
                 }
                 .onStart { emit(ThreadPartialChange.LoadMore.Start) }
@@ -280,6 +347,19 @@ class ThreadViewModel @Inject constructor(
 
         fun ThreadUiIntent.LoadPrevious.producePartialChange(): Flow<ThreadPartialChange.LoadPrevious> =
             pbPageRepository.pbPage(threadId, page, postId, forumId, seeLz, sortType, back = true)
+                .onEach { response ->
+                    // ✅ 写入 Store：Thread + Posts，保护 2 秒内的乐观更新
+                    val thread = response.data_?.thread
+                    val posts = response.data_?.post_list?.filterNot { it.floor == 1 } ?: emptyList()
+
+                    if (thread != null) {
+                        threadStore.upsertThreads(listOf(ThreadMapper.fromProto(thread)), MergeStrategy.PREFER_LOCAL_META)
+                        if (posts.isNotEmpty()) {
+                            val canonicalThreadId = thread.id
+                            threadStore.upsertPosts(canonicalThreadId, posts.map { PostMapper.fromProto(it, canonicalThreadId) }, MergeStrategy.PREFER_LOCAL_META)
+                        }
+                    }
+                }
                 .map<PbPageResponse, ThreadPartialChange.LoadPrevious> { response ->
                     if (response.data_?.page == null
                         || response.data_.thread?.author == null
@@ -295,6 +375,7 @@ class ThreadViewModel @Inject constructor(
                         response.data_.page.current_page,
                         response.data_.page.new_total_page,
                         response.data_.page.has_prev != 0,
+                        newPostIds = posts.map { it.id }.toImmutableList(),  // ✅ 新增：新加载的 postId 列表
                     )
                 }
                 .onStart { emit(ThreadPartialChange.LoadPrevious.Start) }
@@ -317,6 +398,19 @@ class ThreadViewModel @Inject constructor(
                 sortType = sortType,
                 lastPostId = curLatestPostId
             )
+                .onEach { response ->
+                    // ✅ 写入 Store：Thread + Posts，保护 2 秒内的乐观更新
+                    val thread = response.data_?.thread
+                    val posts = response.data_?.post_list?.filterNot { it.floor == 1 } ?: emptyList()
+
+                    if (thread != null) {
+                        threadStore.upsertThreads(listOf(ThreadMapper.fromProto(thread)), MergeStrategy.PREFER_LOCAL_META)
+                        if (posts.isNotEmpty()) {
+                            val canonicalThreadId = thread.id
+                            threadStore.upsertPosts(canonicalThreadId, posts.map { PostMapper.fromProto(it, canonicalThreadId) }, MergeStrategy.PREFER_LOCAL_META)
+                        }
+                    }
+                }
                 .map { response ->
                     checkNotNull(response.data_)
                     checkNotNull(response.data_.thread)
@@ -337,6 +431,7 @@ class ThreadViewModel @Inject constructor(
                                 postList.map { it.id },
                                 sortType
                             ),
+                            newPostIds = postList.map { it.id }.toImmutableList(),  // ✅ 新增：新加载的 postId 列表
                         )
                     }
                 }
@@ -351,6 +446,13 @@ class ThreadViewModel @Inject constructor(
 
         fun ThreadUiIntent.LoadMyLatestReply.producePartialChange(): Flow<ThreadPartialChange.LoadMyLatestReply> =
             pbPageRepository.pbPage(threadId, page = 0, postId = postId, forumId = forumId)
+                .onEach { response ->
+                    // ✅ 写入 Store：Posts (不包含 Thread，因为这只是回复检查)
+                    val posts = response.data_?.post_list?.filterNot { it.floor == 1 } ?: emptyList()
+                    if (posts.isNotEmpty()) {
+                        threadStore.upsertPosts(threadId, posts.map { PostMapper.fromProto(it, threadId) }, MergeStrategy.PREFER_LOCAL_META)
+                    }
+                }
                 .map<PbPageResponse, ThreadPartialChange.LoadMyLatestReply> { response ->
                     if (response.data_?.page == null
                         || response.data_.thread?.author == null
@@ -358,13 +460,15 @@ class ThreadViewModel @Inject constructor(
                         || response.data_.anti == null
                     ) throw TiebaUnknownException
                     val firstLatestPost = response.data_.post_list.firstOrNull()
+                    val postList = response.data_.post_list
                     ThreadPartialChange.LoadMyLatestReply.Success(
                         anti = response.data_.anti,
-                        posts = response.data_.post_list.map { PostItemData(it.wrapImmutable()) },
+                        posts = postList.map { PostItemData(it.wrapImmutable()) },
                         page = response.data_.page.current_page,
                         isContinuous = firstLatestPost?.floor == curLatestPostFloor + 1,
                         isDesc = isDesc,
-                        hasNewPost = response.data_.post_list.any { !curPostIds.contains(it.id) },
+                        hasNewPost = postList.any { !curPostIds.contains(it.id) },
+                        newPostIds = postList.map { it.id }.toImmutableList(),  // ✅ 新增
                     )
                 }
                 .onStart { emit(ThreadPartialChange.LoadMyLatestReply.Start) }
@@ -373,21 +477,53 @@ class ThreadViewModel @Inject constructor(
         fun ThreadUiIntent.ToggleImmersiveMode.producePartialChange(): Flow<ThreadPartialChange.ToggleImmersiveMode> =
             flowOf(ThreadPartialChange.ToggleImmersiveMode.Success(isImmersiveMode))
 
-        fun ThreadUiIntent.AddFavorite.producePartialChange(): Flow<ThreadPartialChange.AddFavorite> =
-            threadOperationRepository
+        fun ThreadUiIntent.AddFavorite.producePartialChange(): Flow<ThreadPartialChange.AddFavorite> {
+            var previousCollectStatus = 0
+            var previousCollectMarkPid = 0L
+            return threadOperationRepository
                 .addStore(threadId, postId)
                 .map { response ->
                     if (response.errorCode == 0) {
+                        threadStore.updateThreadMeta(threadId) { meta ->
+                            meta.copy(
+                                collectStatus = 1,
+                                collectMarkPid = postId
+                            )
+                        }
                         ThreadPartialChange.AddFavorite.Success(
                             postId, floor
                         )
-                    } else ThreadPartialChange.AddFavorite.Failure(
-                        response.errorCode,
-                        response.errorMsg
-                    )
+                    } else {
+                        threadStore.updateThreadMeta(threadId) { meta ->
+                            meta.copy(
+                                collectStatus = previousCollectStatus,
+                                collectMarkPid = previousCollectMarkPid
+                            )
+                        }
+                        ThreadPartialChange.AddFavorite.Failure(
+                            response.errorCode,
+                            response.errorMsg
+                        )
+                    }
                 }
-                .onStart { emit(ThreadPartialChange.AddFavorite.Start) }
+                .onStart {
+                    threadStore.updateThreadMeta(threadId) { meta ->
+                        previousCollectStatus = meta.collectStatus
+                        previousCollectMarkPid = meta.collectMarkPid
+                        meta.copy(
+                            collectStatus = 1,
+                            collectMarkPid = postId
+                        )
+                    }
+                    emit(ThreadPartialChange.AddFavorite.Start)
+                }
                 .catch {
+                    threadStore.updateThreadMeta(threadId) { meta ->
+                        meta.copy(
+                            collectStatus = previousCollectStatus,
+                            collectMarkPid = previousCollectMarkPid
+                        )
+                    }
                     emit(
                         ThreadPartialChange.AddFavorite.Failure(
                             it.getErrorCode(),
@@ -395,20 +531,53 @@ class ThreadViewModel @Inject constructor(
                         )
                     )
                 }
+        }
 
-        fun ThreadUiIntent.RemoveFavorite.producePartialChange(): Flow<ThreadPartialChange.RemoveFavorite> =
-            threadOperationRepository
+        fun ThreadUiIntent.RemoveFavorite.producePartialChange(): Flow<ThreadPartialChange.RemoveFavorite> {
+            var previousCollectStatus = 0
+            var previousCollectMarkPid = 0L
+            return threadOperationRepository
                 .removeStore(threadId, forumId, tbs)
                 .map { response ->
                     if (response.errorCode == 0) {
+                        threadStore.updateThreadMeta(threadId) { meta ->
+                            meta.copy(
+                                collectStatus = 0,
+                                collectMarkPid = 0
+                            )
+                        }
                         ThreadPartialChange.RemoveFavorite.Success
-                    } else ThreadPartialChange.RemoveFavorite.Failure(
-                        response.errorCode,
-                        response.errorMsg
-                    )
+                    } else {
+                        threadStore.updateThreadMeta(threadId) { meta ->
+                            meta.copy(
+                                collectStatus = previousCollectStatus,
+                                collectMarkPid = previousCollectMarkPid
+                            )
+                        }
+                        ThreadPartialChange.RemoveFavorite.Failure(
+                            response.errorCode,
+                            response.errorMsg
+                        )
+                    }
                 }
-                .onStart { emit(ThreadPartialChange.RemoveFavorite.Start) }
+                .onStart {
+                    threadStore.updateThreadMeta(threadId) { meta ->
+                        previousCollectStatus = meta.collectStatus
+                        previousCollectMarkPid = meta.collectMarkPid
+                        meta.copy(
+                            collectStatus = 0,
+                            collectMarkPid = 0
+                        )
+                    }
+                    emit(ThreadPartialChange.RemoveFavorite.Start)
+                }
                 .catch {
+                    threadStore.updateThreadMeta(threadId) { meta ->
+                        meta.copy(
+                            collectStatus = previousCollectStatus,
+                            collectMarkPid = previousCollectMarkPid
+                        )
+                    }
                     emit(
                         ThreadPartialChange.RemoveFavorite.Failure(
                             it.getErrorCode(),
@@ -416,9 +585,13 @@ class ThreadViewModel @Inject constructor(
                         )
                     )
                 }
+        }
 
-        fun ThreadUiIntent.AgreeThread.producePartialChange(): Flow<ThreadPartialChange.AgreeThread> =
-            userInteractionRepository
+        fun ThreadUiIntent.AgreeThread.producePartialChange(): Flow<ThreadPartialChange.AgreeThread> {
+            var previousHasAgree = 0
+            var previousAgreeNum = 0
+
+            return userInteractionRepository
                 .opAgree(
                     threadId.toString(),
                     postId.toString(),
@@ -426,12 +599,16 @@ class ThreadViewModel @Inject constructor(
                     objType = 3
                 )
                 .map<AgreeBean, ThreadPartialChange.AgreeThread> {
-                    ThreadPartialChange.AgreeThread.Success(
-                        agree
-                    )
+                    ThreadPartialChange.AgreeThread.Success(agree)
                 }
-                .onStart { emit(ThreadPartialChange.AgreeThread.Start(agree)) }
                 .catch {
+                    // ✅ 失败时恢复原始值
+                    threadStore.updateThreadMeta(threadId) { meta ->
+                        meta.copy(
+                            hasAgree = previousHasAgree,
+                            agreeNum = previousAgreeNum
+                        )
+                    }
                     emit(
                         ThreadPartialChange.AgreeThread.Failure(
                             !agree,
@@ -440,9 +617,25 @@ class ThreadViewModel @Inject constructor(
                         )
                     )
                 }
+                .onStart {
+                    // ✅ 保存原始值 + 乐观更新
+                    threadStore.updateThreadMeta(threadId) { meta ->
+                        previousHasAgree = meta.hasAgree
+                        previousAgreeNum = meta.agreeNum
+                        meta.copy(
+                            hasAgree = if (agree) 1 else 0,
+                            agreeNum = if (agree) meta.agreeNum + 1 else meta.agreeNum - 1
+                        )
+                    }
+                    emit(ThreadPartialChange.AgreeThread.Start(agree))
+                }
+        }
 
-        fun ThreadUiIntent.AgreePost.producePartialChange(): Flow<ThreadPartialChange.AgreePost> =
-            userInteractionRepository
+        fun ThreadUiIntent.AgreePost.producePartialChange(): Flow<ThreadPartialChange.AgreePost> {
+            var previousHasAgree = 0
+            var previousAgreeNum = 0
+
+            return userInteractionRepository
                 .opAgree(
                     threadId.toString(),
                     postId.toString(),
@@ -450,13 +643,16 @@ class ThreadViewModel @Inject constructor(
                     objType = 1
                 )
                 .map<AgreeBean, ThreadPartialChange.AgreePost> {
-                    ThreadPartialChange.AgreePost.Success(
-                        postId,
-                        agree
-                    )
+                    ThreadPartialChange.AgreePost.Success(postId, agree)
                 }
-                .onStart { emit(ThreadPartialChange.AgreePost.Start(postId, agree)) }
                 .catch {
+                    // ✅ 失败时恢复原始值
+                    threadStore.updatePostMeta(threadId, postId) { meta ->
+                        meta.copy(
+                            hasAgree = previousHasAgree,
+                            agreeNum = previousAgreeNum
+                        )
+                    }
                     emit(
                         ThreadPartialChange.AgreePost.Failure(
                             postId,
@@ -466,6 +662,19 @@ class ThreadViewModel @Inject constructor(
                         )
                     )
                 }
+                .onStart {
+                    // ✅ 保存原始值 + 乐观更新
+                    threadStore.updatePostMeta(threadId, postId) { meta ->
+                        previousHasAgree = meta.hasAgree
+                        previousAgreeNum = meta.agreeNum
+                        meta.copy(
+                            hasAgree = if (agree) 1 else 0,
+                            agreeNum = if (agree) meta.agreeNum + 1 else meta.agreeNum - 1
+                        )
+                    }
+                    emit(ThreadPartialChange.AgreePost.Start(postId, agree))
+                }
+        }
 
         fun ThreadUiIntent.DeletePost.producePartialChange(): Flow<ThreadPartialChange.DeletePost> =
             threadOperationRepository
@@ -497,21 +706,51 @@ class ThreadViewModel @Inject constructor(
                     )
                 }
 
-        fun ThreadUiIntent.UpdateFavoriteMark.producePartialChange(): Flow<ThreadPartialChange.UpdateFavoriteMark> =
-            threadOperationRepository
+        fun ThreadUiIntent.UpdateFavoriteMark.producePartialChange(): Flow<ThreadPartialChange.UpdateFavoriteMark> {
+            var previousCollectStatus = 0
+            var previousCollectMarkPid = 0L
+            return threadOperationRepository
                 .addStore(threadId, postId)
                 .map { response ->
                     if (response.errorCode == 0) {
+                        threadStore.updateThreadMeta(threadId) { meta ->
+                            meta.copy(
+                                collectStatus = 1,
+                                collectMarkPid = postId
+                            )
+                        }
                         ThreadPartialChange.UpdateFavoriteMark.Success(postId)
                     } else {
+                        threadStore.updateThreadMeta(threadId) { meta ->
+                            meta.copy(
+                                collectStatus = previousCollectStatus,
+                                collectMarkPid = previousCollectMarkPid
+                            )
+                        }
                         ThreadPartialChange.UpdateFavoriteMark.Failure(
                             response.errorCode,
                             response.errorMsg
                         )
                     }
                 }
-                .onStart { emit(ThreadPartialChange.UpdateFavoriteMark.Start) }
+                .onStart {
+                    threadStore.updateThreadMeta(threadId) { meta ->
+                        previousCollectStatus = meta.collectStatus
+                        previousCollectMarkPid = meta.collectMarkPid
+                        meta.copy(
+                            collectStatus = 1,
+                            collectMarkPid = postId
+                        )
+                    }
+                    emit(ThreadPartialChange.UpdateFavoriteMark.Start)
+                }
                 .catch {
+                    threadStore.updateThreadMeta(threadId) { meta ->
+                        meta.copy(
+                            collectStatus = previousCollectStatus,
+                            collectMarkPid = previousCollectMarkPid
+                        )
+                    }
                     emit(
                         ThreadPartialChange.UpdateFavoriteMark.Failure(
                             it.getErrorCode(),
@@ -519,6 +758,7 @@ class ThreadViewModel @Inject constructor(
                         )
                     )
                 }
+        }
     }
 }
 
@@ -666,6 +906,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                 postId = postId,
                 seeLz = seeLz,
                 sortType = sortType,
+                initMeta = sanitizedMeta,
             )
 
             is Failure -> oldState.copy(
@@ -682,6 +923,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             val postId: Long = 0,
             val seeLz: Boolean = false,
             val sortType: Int = 0,
+            val sanitizedMeta: com.huanchengfly.tieba.post.store.models.ThreadMeta? = null,
         ) : Init()
 
         data class Failure(
@@ -717,6 +959,8 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                 postId = postId,
                 seeLz = seeLz,
                 sortType = sortType,
+                threadId = threadId,  // ✅ 新增
+                postIds = postIds,  // ✅ 新增
             )
 
             is Failure -> oldState.copy(
@@ -746,6 +990,8 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             val postId: Long = 0,
             val seeLz: Boolean = false,
             val sortType: Int = 0,
+            val threadId: Long,  // ✅ 新增
+            val postIds: ImmutableList<Long>,  // ✅ 新增
         ) : Load()
 
         data class Failure(
@@ -775,6 +1021,8 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                 postId = postId,
                 seeLz = seeLz,
                 sortType = sortType,
+                threadId = threadId,  // ✅ 新增
+                postIds = postIds,  // ✅ 新增
             )
 
             is Failure -> oldState.copy(
@@ -800,6 +1048,8 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             val postId: Long,
             val seeLz: Boolean,
             val sortType: Int,
+            val threadId: Long,  // ✅ 新增
+            val postIds: ImmutableList<Long>,  // ✅ 新增
         ) : LoadFirstPage()
 
         data class Failure(
@@ -824,6 +1074,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                     hasMore = hasMore,
                     nextPagePostId = nextPagePostId,
                     latestPosts = persistentListOf(),
+                    postIds = (oldState.postIds + newPostIds).distinct().toImmutableList(),  // ✅ 新增
                 )
             }
 
@@ -840,6 +1091,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             val totalPage: Int,
             val hasMore: Boolean,
             val nextPagePostId: Long,
+            val newPostIds: ImmutableList<Long>,  // ✅ 新增
         ) : LoadMore()
 
         data class Failure(
@@ -859,6 +1111,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                 currentPageMin = currentPage,
                 totalPage = totalPage,
                 hasPrevious = hasPrevious,
+                postIds = (newPostIds + oldState.postIds).distinct().toImmutableList(),  // ✅ 新增
             )
 
             is Failure -> oldState.copy(isRefreshing = false)
@@ -873,6 +1126,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             val currentPage: Int,
             val totalPage: Int,
             val hasPrevious: Boolean,
+            val newPostIds: ImmutableList<Long>,  // ✅ 新增
         ) : LoadPrevious()
 
         data class Failure(
@@ -898,6 +1152,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                     hasMore = hasMore,
                     nextPagePostId = nextPagePostId,
                     latestPosts = persistentListOf(),
+                    postIds = (oldState.postIds + newPostIds).distinct().toImmutableList(),  // ✅ 新增
                 )
             }
 
@@ -915,6 +1170,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             val totalPage: Int,
             val hasMore: Boolean,
             val nextPagePostId: Long,
+            val newPostIds: ImmutableList<Long>,  // ✅ 新增
         ) : LoadLatestPosts()
 
         data object SuccessWithNoNewPost : LoadLatestPosts()
@@ -944,24 +1200,28 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                     }
                     when {
                         hasNewPost && continuous && isDesc -> {
+                            val newData = (addPosts.reversed() + newPost).toImmutableList()
                             oldState.copy(
                                 isLoadingLatestReply = false,
                                 isError = false,
                                 error = null,
                                 anti = anti.wrapImmutable(),
-                                data = (addPosts.reversed() + newPost).toImmutableList(),
+                                data = newData,
                                 latestPosts = persistentListOf(),
+                                postIds = newData.map { it.post.get { id } }.distinct().toImmutableList(),  // ✅ 新增
                             )
                         }
 
                         hasNewPost && continuous && !isDesc -> {
+                            val newData = (newPost + addPosts).toImmutableList()
                             oldState.copy(
                                 isLoadingLatestReply = false,
                                 isError = false,
                                 error = null,
                                 anti = anti.wrapImmutable(),
-                                data = (newPost + addPosts).toImmutableList(),
+                                data = newData,
                                 latestPosts = persistentListOf(),
+                                postIds = newData.map { it.post.get { id } }.distinct().toImmutableList(),  // ✅ 新增
                             )
                         }
 
@@ -973,6 +1233,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                                 anti = anti.wrapImmutable(),
                                 data = newPost.toImmutableList(),
                                 latestPosts = posts.toImmutableList(),
+                                postIds = newPost.map { it.post.get { id } }.distinct().toImmutableList(),  // ✅ 新增
                             )
                         }
 
@@ -984,6 +1245,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                                 anti = anti.wrapImmutable(),
                                 data = newPost.toImmutableList(),
                                 latestPosts = persistentListOf(),
+                                postIds = newPost.map { it.post.get { id } }.distinct().toImmutableList(),  // ✅ 新增
                             )
                         }
 
@@ -1013,6 +1275,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             val isContinuous: Boolean,
             val isDesc: Boolean,
             val hasNewPost: Boolean,
+            val newPostIds: ImmutableList<Long>,  // ✅ 新增
         ) : LoadMyLatestReply()
 
         data class Failure(
@@ -1088,27 +1351,11 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
     }
 
     sealed class AgreeThread : ThreadPartialChange {
-        override fun reduce(oldState: ThreadUiState): ThreadUiState {
-            return when (this) {
-                is Start -> oldState.copy(
-                    threadInfo = oldState.threadInfo?.getImmutable {
-                        updateAgreeStatus(hasAgree = if (hasAgree) 1 else 0)
-                    }
-                )
-
-                is Success -> oldState.copy(
-                    threadInfo = oldState.threadInfo?.getImmutable {
-                        updateAgreeStatus(hasAgree = if (hasAgree) 1 else 0)
-                    }
-                )
-
-                is Failure -> oldState.copy(
-                    threadInfo = oldState.threadInfo?.getImmutable {
-                        updateAgreeStatus(hasAgree = if (hasAgree) 1 else 0)
-                    }
-                )
+        // ✅ 删除 Proto 更新逻辑，Store 已处理更新
+        override fun reduce(oldState: ThreadUiState): ThreadUiState =
+            when (this) {
+                is Start, is Success, is Failure -> oldState  // ✅ Store 已更新，State 无需变化
             }
-        }
 
         data class Start(
             val hasAgree: Boolean
@@ -1126,36 +1373,11 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
     }
 
     sealed class AgreePost : ThreadPartialChange {
-        private fun List<PostItemData>.updateAgreeStatus(
-            postId: Long,
-            hasAgree: Int
-        ): ImmutableList<PostItemData> {
-            return map { item ->
-                val (holder) = item
-                val (post) = holder
-                if (post.id == postId) {
-                    item.copy(
-                        post = post.updateAgreeStatus(hasAgree).wrapImmutable()
-                    )
-                } else item
-            }.toImmutableList()
-        }
-
-        override fun reduce(oldState: ThreadUiState): ThreadUiState {
-            return when (this) {
-                is Start -> oldState.copy(
-                    data = oldState.data.updateAgreeStatus(postId, if (hasAgree) 1 else 0)
-                )
-
-                is Success -> oldState.copy(
-                    data = oldState.data.updateAgreeStatus(postId, if (hasAgree) 1 else 0)
-                )
-
-                is Failure -> oldState.copy(
-                    data = oldState.data.updateAgreeStatus(postId, if (hasAgree) 1 else 0)
-                )
+        // ✅ 删除 Proto 更新逻辑，Store 已处理更新
+        override fun reduce(oldState: ThreadUiState): ThreadUiState =
+            when (this) {
+                is Start, is Success, is Failure -> oldState  // ✅ Store 已更新，State 无需变化
             }
-        }
 
         data class Start(
             val postId: Long,
@@ -1255,6 +1477,7 @@ data class ThreadUiState(
     val seeLz: Boolean = false,
     val sortType: Int = ThreadSortType.SORT_TYPE_DEFAULT,
     val postId: Long = 0,
+    val threadId: Long = 0,  // ✅ 新增：Store 订阅用的 threadId
 
     val title: String = "",
     val author: ImmutableHolder<User>? = null,
@@ -1267,7 +1490,9 @@ data class ThreadUiState(
     val firstPostContentRenders: ImmutableList<PbContentRender> = persistentListOf(),
     val data: ImmutableList<PostItemData> = persistentListOf(),
     val latestPosts: ImmutableList<PostItemData> = persistentListOf(),
+    val postIds: ImmutableList<Long> = persistentListOf(),  // ✅ 新增：Store 订阅用的 postId 列表
 
+    val initMeta: com.huanchengfly.tieba.post.store.models.ThreadMeta? = null,
     val isImmersiveMode: Boolean = false,
 ) : UiState
 

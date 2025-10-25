@@ -1,11 +1,11 @@
 package com.huanchengfly.tieba.post.ui
 
-import com.huanchengfly.tieba.post.arch.BaseViewModel
-import com.huanchengfly.tieba.post.arch.DispatcherProvider
-import com.huanchengfly.tieba.post.arch.PartialChange
-import com.huanchengfly.tieba.post.arch.UiEvent
-import com.huanchengfly.tieba.post.arch.UiIntent
-import com.huanchengfly.tieba.post.arch.UiState
+import com.huanchengfly.tieba.core.mvi.BaseViewModel
+import com.huanchengfly.tieba.core.mvi.DispatcherProvider
+import com.huanchengfly.tieba.core.mvi.PartialChange
+import com.huanchengfly.tieba.core.mvi.UiEvent
+import com.huanchengfly.tieba.core.mvi.UiIntent
+import com.huanchengfly.tieba.core.mvi.UiState
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineDispatcher
@@ -85,6 +85,7 @@ abstract class BaseViewModelTest {
         testDispatcherProvider = object : DispatcherProvider {
             override val main: CoroutineDispatcher = testDispatcher
             override val io: CoroutineDispatcher = testDispatcher
+            override val default: CoroutineDispatcher = testDispatcher
         }
     }
 

@@ -84,11 +84,12 @@ import com.eygraber.compose.placeholder.material.fade
 import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.ForumInfo
-import com.huanchengfly.tieba.post.arch.ImmutableHolder
-import com.huanchengfly.tieba.post.arch.collectPartialAsState
-import com.huanchengfly.tieba.post.arch.emitGlobalEvent
-import com.huanchengfly.tieba.post.arch.emitGlobalEventSuspend
-import com.huanchengfly.tieba.post.arch.onEvent
+import com.huanchengfly.tieba.core.mvi.ImmutableHolder
+import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
+import com.huanchengfly.tieba.core.mvi.collectPartialAsState
+import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
+import com.huanchengfly.tieba.core.mvi.emitGlobalEventSuspend
+import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.post.arch.pageViewModel
 import com.huanchengfly.tieba.post.dataStore
 import com.huanchengfly.tieba.post.getInt
@@ -369,6 +370,7 @@ fun ForumPage(
     navigator: DestinationsNavigator
 ) {
     val context = LocalContext.current
+    val globalEventBus = LocalGlobalEventBus.current
     LazyLoad(loaded = viewModel.initialized) {
         viewModel.send(ForumUiIntent.Load(forumName, getSortType(context, forumName)))
         viewModel.initialized = true
@@ -596,12 +598,12 @@ fun ForumPage(
                                 when (context.appPreferences.forumFabFunction) {
                                     "refresh" -> {
                                         coroutineScope.launch {
-                                            emitGlobalEventSuspend(
+                                            globalEventBus.emitGlobalEventSuspend(
                                                 ForumThreadListUiEvent.BackToTop(
                                                     currentPage == 1
                                                 )
                                             )
-                                            emitGlobalEventSuspend(
+                                            globalEventBus.emitGlobalEventSuspend(
                                                 ForumThreadListUiEvent.Refresh(
                                                     currentPage == 1,
                                                     getSortType(
@@ -615,7 +617,7 @@ fun ForumPage(
 
                                     "back_to_top" -> {
                                         coroutineScope.launch {
-                                            emitGlobalEvent(
+                                            globalEventBus.emitGlobalEvent(
                                                 ForumThreadListUiEvent.BackToTop(
                                                     currentPage == 1
                                                 )
@@ -657,6 +659,7 @@ fun ForumPage(
                     refreshing = isFakeLoading,
                     onRefresh = {
                         coroutineScope.emitGlobalEvent(
+                            globalEventBus,
                             ForumThreadListUiEvent.Refresh(
                                 currentPage == 1,
                                 getSortType(
@@ -829,7 +832,7 @@ fun ForumPage(
                                                     currentSortType = value
                                                     coroutineScope.launch {
                                                         setSortType(context, forumName, value)
-                                                        emitGlobalEvent(
+                                                        globalEventBus.emitGlobalEvent(
                                                             ForumThreadListUiEvent.Refresh(
                                                                 currentPage == 1,
                                                                 value
@@ -896,6 +899,7 @@ fun LoadingPlaceholder(
     forumName: String
 ) {
     val context = LocalContext.current
+    val globalEventBus = LocalGlobalEventBus.current
 
     MyScaffold(
         backgroundColor = Color.Transparent,

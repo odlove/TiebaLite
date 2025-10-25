@@ -2,15 +2,15 @@ package com.huanchengfly.tieba.post.ui.page.user.likeforum
 
 import androidx.compose.runtime.Immutable
 import com.huanchengfly.tieba.post.api.models.UserLikeForumBean
-import com.huanchengfly.tieba.post.arch.BaseViewModel
-import com.huanchengfly.tieba.post.arch.DispatcherProvider
-import com.huanchengfly.tieba.post.arch.ImmutableHolder
-import com.huanchengfly.tieba.post.arch.PartialChange
-import com.huanchengfly.tieba.post.arch.PartialChangeProducer
-import com.huanchengfly.tieba.post.arch.UiEvent
-import com.huanchengfly.tieba.post.arch.UiIntent
-import com.huanchengfly.tieba.post.arch.UiState
-import com.huanchengfly.tieba.post.arch.wrapImmutable
+import com.huanchengfly.tieba.core.mvi.BaseViewModel
+import com.huanchengfly.tieba.core.mvi.DispatcherProvider
+import com.huanchengfly.tieba.core.mvi.ImmutableHolder
+import com.huanchengfly.tieba.core.mvi.PartialChange
+import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
+import com.huanchengfly.tieba.core.mvi.UiEvent
+import com.huanchengfly.tieba.core.mvi.UiIntent
+import com.huanchengfly.tieba.core.mvi.UiState
+import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.repository.UserSocialRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList

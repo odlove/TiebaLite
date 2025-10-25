@@ -10,16 +10,17 @@ import com.huanchengfly.tieba.post.api.models.protos.addPost.AddPostResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
-import com.huanchengfly.tieba.post.arch.BaseViewModel
-import com.huanchengfly.tieba.post.arch.CommonUiEvent
-import com.huanchengfly.tieba.post.arch.DispatcherProvider
+import com.huanchengfly.tieba.core.mvi.BaseViewModel
+import com.huanchengfly.tieba.core.mvi.CommonUiEvent
+import com.huanchengfly.tieba.core.mvi.DispatcherProvider
+import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import com.huanchengfly.tieba.post.arch.GlobalEvent
-import com.huanchengfly.tieba.post.arch.PartialChange
-import com.huanchengfly.tieba.post.arch.PartialChangeProducer
-import com.huanchengfly.tieba.post.arch.UiEvent
-import com.huanchengfly.tieba.post.arch.UiIntent
-import com.huanchengfly.tieba.post.arch.UiState
-import com.huanchengfly.tieba.post.arch.emitGlobalEventSuspend
+import com.huanchengfly.tieba.core.mvi.PartialChange
+import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
+import com.huanchengfly.tieba.core.mvi.UiEvent
+import com.huanchengfly.tieba.core.mvi.UiIntent
+import com.huanchengfly.tieba.core.mvi.UiState
+import com.huanchengfly.tieba.core.mvi.emitGlobalEventSuspend
 import com.huanchengfly.tieba.post.components.ImageUploader
 import com.huanchengfly.tieba.post.repository.AddPostRepository
 import com.huanchengfly.tieba.post.utils.FileUtil
@@ -50,6 +51,7 @@ enum class ReplyPanelType {
 @HiltViewModel
 class ReplyViewModel @Inject constructor(
     private val addPostRepository: AddPostRepository,
+    private val globalEventBus: GlobalEventBus,
     dispatcherProvider: DispatcherProvider
 ) :
     BaseViewModel<ReplyUiIntent, ReplyPartialChange, ReplyUiState, ReplyUiEvent>(dispatcherProvider) {
@@ -118,7 +120,7 @@ class ReplyViewModel @Inject constructor(
                 )
                 .onEach { response ->
                     val newPostId = checkNotNull(response.data_?.pid?.toLongOrNull())
-                    emitGlobalEventSuspend(
+                    globalEventBus.emitGlobalEventSuspend(
                         if (postId != null) {
                             GlobalEvent.ReplySuccess(
                                 threadId,

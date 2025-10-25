@@ -24,7 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.arch.emitGlobalEvent
+import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
+import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.history.list.HistoryListPage
@@ -53,6 +54,7 @@ fun HistoryPage(
     val pagerState = rememberPagerState { 2 }
     val coroutineScope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
+    val globalEventBus = LocalGlobalEventBus.current
 
     val context = LocalContext.current
 
@@ -74,7 +76,7 @@ fun HistoryPage(
                     IconButton(onClick = {
                         coroutineScope.launch {
                             HistoryUtil.deleteAll()
-                            emitGlobalEvent(HistoryListUiEvent.DeleteAll)
+                            globalEventBus.emitGlobalEvent(HistoryListUiEvent.DeleteAll)
                             launch {
                                 scaffoldState.snackbarHostState.showSnackbar(
                                     context.getString(

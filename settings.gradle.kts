@@ -36,3 +36,12 @@ refreshVersions {
 
 rootProject.name = "TiebaLite"
 include(":app")
+include(
+    ":core:common",
+    ":core:mvi",
+    ":core:network",
+    ":core:runtime",
+    ":core:ui",
+    ":data:remote",
+    ":data:repository"
+)

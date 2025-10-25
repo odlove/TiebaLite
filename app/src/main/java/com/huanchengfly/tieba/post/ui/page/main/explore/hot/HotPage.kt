@@ -1,5 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.main.explore.hot
 
+import com.huanchengfly.tieba.core.mvi.bindScrollToTopEvent
+
 import android.graphics.Typeface
 import android.util.Log
 import androidx.compose.animation.animateColorAsState
@@ -49,12 +51,11 @@ import androidx.compose.ui.unit.sp
 import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.hasAgree
-import com.huanchengfly.tieba.post.arch.CommonUiEvent.ScrollToTop.bindScrollToTopEvent
 import com.huanchengfly.tieba.post.arch.GlobalEvent
-import com.huanchengfly.tieba.post.arch.collectPartialAsState
-import com.huanchengfly.tieba.post.arch.onGlobalEvent
+import com.huanchengfly.tieba.core.mvi.collectPartialAsState
+import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.post.arch.pageViewModel
-import com.huanchengfly.tieba.post.arch.wrapImmutable
+import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import kotlinx.collections.immutable.toImmutableList
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.common.theme.compose.OrangeA700

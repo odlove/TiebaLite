@@ -165,6 +165,15 @@ android {
                     signingConfigs.getByName("config")
                 else signingConfigs.getByName("debug")
         }
+        create("profile") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".profile"
+            resValue("string", "app_name", "贴吧Lite (Profile)")
+            isDebuggable = false
+            isProfileable = true
+            matchingFallbacks += listOf("release")
+            signingConfig = signingConfigs.getByName("debug")
+        }
     }
     compileOptions {
         targetCompatibility = JavaVersion.VERSION_17
@@ -209,6 +218,14 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:common"))
+    implementation(project(":core:mvi"))
+    implementation(project(":core:network"))
+    implementation(project(":core:runtime"))
+    implementation(project(":core:ui"))
+    implementation(project(":data:remote"))
+    implementation(project(":data:repository"))
+
     //Local Files
 //    implementation fileTree(include: ["*.jar"], dir: "libs")
 

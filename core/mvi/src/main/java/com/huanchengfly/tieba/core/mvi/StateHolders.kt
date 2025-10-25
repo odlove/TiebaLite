@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.arch
+package com.huanchengfly.tieba.core.mvi
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -18,21 +18,15 @@ class ImmutableHolder<T>(val item: T) {
     fun get(): T = item
 
     @Stable
-    fun <R> get(getter: T.() -> R): R {
-        return getter(item)
-    }
+    fun <R> get(getter: T.() -> R): R = getter(item)
 
-    fun <R> getImmutable(getter: T.() -> R): ImmutableHolder<R> {
-        return wrapImmutable(getter(item))
-    }
+    fun <R> getImmutable(getter: T.() -> R): ImmutableHolder<R> = wrapImmutable(getter(item))
 
-    fun <R> getNullableImmutable(getter: T.() -> R?): ImmutableHolder<R>? {
-        return getter(item)?.wrapImmutable()
-    }
+    fun <R> getNullableImmutable(getter: T.() -> R?): ImmutableHolder<R>? =
+        getter(item)?.wrapImmutable()
 
-    fun <R> getImmutableList(getter: T.() -> List<R>): ImmutableList<ImmutableHolder<R>> {
-        return getter(item).map { wrapImmutable(it) }.toImmutableList()
-    }
+    fun <R> getImmutableList(getter: T.() -> List<R>): ImmutableList<ImmutableHolder<R>> =
+        getter(item).map { wrapImmutable(it) }.toImmutableList()
 
     @Stable
     fun isNotNull(): Boolean = item != null

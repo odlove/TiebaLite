@@ -52,7 +52,8 @@ import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.arch.BaseComposeActivity.Companion.LocalWindowSizeClass
 import com.huanchengfly.tieba.post.arch.GlobalEvent
-import com.huanchengfly.tieba.post.arch.emitGlobalEvent
+import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
+import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.common.windowsizeclass.WindowWidthSizeClass.Companion.Compact
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
@@ -77,6 +78,7 @@ fun AccountNavIcon(
 ) {
     val navigator = LocalNavigator.current
     val currentAccount = LocalAccount.current
+    val globalEventBus = LocalGlobalEventBus.current
     if (spacer) Spacer(modifier = Modifier.width(12.dp))
     if (currentAccount == null) {
         Image(
@@ -350,6 +352,7 @@ fun TopAppBarContainer(
     } else {
         Modifier
     }
+    val globalEventBus = LocalGlobalEventBus.current
     val coroutineScope = rememberCoroutineScope()
     Column(modifier) {
         Spacer(
@@ -365,7 +368,7 @@ fun TopAppBarContainer(
                     indication = null,
                     onDoubleClick = {
                         Log.i("TopAppBarContainer", "TopAppBarContainer: onDoubleClick")
-                        coroutineScope.emitGlobalEvent(GlobalEvent.ScrollToTop)
+                        coroutineScope.emitGlobalEvent(globalEventBus, GlobalEvent.ScrollToTop)
                     },
                     onClick = {},
                 ),

@@ -9,7 +9,7 @@ import com.huanchengfly.tieba.post.api.models.protos.SimpleForum
 import com.huanchengfly.tieba.post.api.models.protos.SubPostList
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.User
-import com.huanchengfly.tieba.post.arch.ImmutableHolder
+import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.post.models.database.Account
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.post.ui.page.destinations.CopyTextDialogPageDestination

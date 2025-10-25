@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.di
 
-import com.huanchengfly.tieba.post.arch.DefaultDispatcherProvider
-import com.huanchengfly.tieba.post.arch.DispatcherProvider
+import com.huanchengfly.tieba.core.mvi.DefaultDispatcherProvider
+import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

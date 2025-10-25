@@ -71,10 +71,11 @@ import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.post.arch.BaseComposeActivity.Companion.LocalWindowSizeClass
 import com.huanchengfly.tieba.post.arch.GlobalEvent
-import com.huanchengfly.tieba.post.arch.ImmutableHolder
-import com.huanchengfly.tieba.post.arch.collectPartialAsState
-import com.huanchengfly.tieba.post.arch.emitGlobalEvent
-import com.huanchengfly.tieba.post.arch.getOrNull
+import com.huanchengfly.tieba.core.mvi.ImmutableHolder
+import com.huanchengfly.tieba.core.mvi.collectPartialAsState
+import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
+import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
+import com.huanchengfly.tieba.core.mvi.getOrNull
 import com.huanchengfly.tieba.post.arch.pageViewModel
 import com.huanchengfly.tieba.post.goToActivity
 import com.huanchengfly.tieba.post.models.database.Block
@@ -345,6 +346,8 @@ private fun UserProfileContentNormal(
         }
     }
 
+    val globalEventBus = LocalGlobalEventBus.current
+
     MyScaffold(
         topBar = {
             UserProfileToolbar(
@@ -367,7 +370,7 @@ private fun UserProfileContentNormal(
         PullToRefreshLayout(
             refreshing = isFakeRefreshing,
             onRefresh = {
-                coroutineScope.emitGlobalEvent(GlobalEvent.Refresh(key = "user_profile"))
+                coroutineScope.emitGlobalEvent(globalEventBus, GlobalEvent.Refresh(key = "user_profile"))
                 isFakeRefreshing = true
             }
         ) {

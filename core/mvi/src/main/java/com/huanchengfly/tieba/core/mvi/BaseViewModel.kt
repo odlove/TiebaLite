@@ -1,12 +1,15 @@
-package com.huanchengfly.tieba.post.arch
+package com.huanchengfly.tieba.core.mvi
 
 import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
@@ -25,18 +28,37 @@ abstract class BaseViewModel<
         PC : PartialChange<State>,
         State : UiState,
         Event : UiEvent
-        > (
+        >(
     private val dispatcherProvider: DispatcherProvider = DefaultDispatcherProvider
 ) :
     ViewModel() {
 
     var initialized = false
 
-    private val _internalUiEventFlow: MutableSharedFlow<UiEvent> = MutableSharedFlow()
+    private val _eventFlow: MutableSharedFlow<Event> = MutableSharedFlow(
+        replay = 0,
+        extraBufferCapacity = EVENT_BUFFER_CAPACITY,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
 
-    val uiEventFlow: Flow<UiEvent> = _internalUiEventFlow
+    private val _commonEventFlow: MutableSharedFlow<CommonUiEvent> = MutableSharedFlow(
+        replay = 0,
+        extraBufferCapacity = EVENT_BUFFER_CAPACITY,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
 
-    private val _intentFlow = MutableSharedFlow<Intent>()
+    val eventFlow: SharedFlow<Event> = _eventFlow.asSharedFlow()
+
+    val commonEventFlow: SharedFlow<CommonUiEvent> = _commonEventFlow.asSharedFlow()
+
+    @Deprecated("Use eventFlow or commonEventFlow instead.")
+    val uiEventFlow: SharedFlow<Event> = eventFlow
+
+    private val _intentFlow = MutableSharedFlow<Intent>(
+        replay = 0,
+        extraBufferCapacity = INTENT_BUFFER_CAPACITY,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
 
     private val initialState: State by lazy(LazyThreadSafetyMode.NONE) { createInitialState() }
 
@@ -54,7 +76,7 @@ abstract class BaseViewModel<
                 val event = dispatchEvent(it)
                 if (event != null) {
                     Log.i("ViewModel", "event $event")
-                    _internalUiEventFlow.emit(event)
+                    emitUiEvent(event)
                 }
             }
             .scan(initialState) { oldState, partialChange ->
@@ -69,19 +91,42 @@ abstract class BaseViewModel<
 
     fun send(intent: Intent) {
         Log.i("ViewModel", "send $intent")
-        viewModelScope.launch {
-            _intentFlow.emit(intent)
+        if (!_intentFlow.tryEmit(intent)) {
+            viewModelScope.launch {
+                _intentFlow.emit(intent)
+            }
         }
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+    protected fun emitEvent(event: Event) {
+        if (!_eventFlow.tryEmit(event)) {
+            viewModelScope.launch { _eventFlow.emit(event) }
+        }
+    }
 
-        other as BaseViewModel<*, *, *, *>
+    protected fun emitCommonEvent(event: CommonUiEvent) {
+        if (!_commonEventFlow.tryEmit(event)) {
+            viewModelScope.launch { _commonEventFlow.emit(event) }
+        }
+    }
 
-        if (initialized != other.initialized) return false
+    private fun emitUiEvent(event: UiEvent) {
+        when (event) {
+            is CommonUiEvent -> emitCommonEvent(event)
+            else -> {
+                @Suppress("UNCHECKED_CAST")
+                val typedEvent = event as? Event
+                if (typedEvent != null) {
+                    emitEvent(typedEvent)
+                } else {
+                    Log.w("ViewModel", "Unhandled UiEvent type: $event")
+                }
+            }
+        }
+    }
 
-        return true
+    private companion object {
+        private const val INTENT_BUFFER_CAPACITY = 64
+        private const val EVENT_BUFFER_CAPACITY = 32
     }
 }

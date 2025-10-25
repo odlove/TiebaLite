@@ -11,6 +11,7 @@ import android.provider.MediaStore
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
+import com.huanchengfly.tieba.core.mvi.MediaSelectorType
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.zhihu.matisse.Matisse
@@ -73,7 +74,7 @@ data class PickMediasRequest(
     val maxItems: Int = 1,
     val mediaType: MediaType = ImageAndVideo
 ) {
-    sealed interface MediaType
+    sealed interface MediaType : MediaSelectorType
 
     data object ImageOnly : MediaType
 

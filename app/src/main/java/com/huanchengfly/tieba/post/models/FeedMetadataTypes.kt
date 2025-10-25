@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.models
 
 import androidx.compose.runtime.Immutable
-import com.huanchengfly.tieba.post.arch.ImmutableHolder
+import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import kotlinx.collections.immutable.persistentListOf
 
 /**

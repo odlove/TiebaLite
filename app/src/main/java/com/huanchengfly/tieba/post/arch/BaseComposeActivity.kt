@@ -5,6 +5,10 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.core.view.WindowCompat
+import com.stoyanvuchev.systemuibarstweaker.SystemBarStyle
+import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
+import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -15,16 +19,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.core.view.WindowCompat
-import com.stoyanvuchev.systemuibarstweaker.SystemBarStyle
-import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
-import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
+import com.huanchengfly.tieba.core.mvi.BaseViewModel
+import com.huanchengfly.tieba.core.mvi.CommonUiEvent
+import com.huanchengfly.tieba.core.mvi.GlobalEventBus
+import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
+import com.huanchengfly.tieba.core.mvi.UiEvent
+import com.huanchengfly.tieba.core.mvi.bindScrollToTopEvent
+import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.post.ui.common.theme.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.post.ui.common.windowsizeclass.WindowSizeClass
 import com.huanchengfly.tieba.post.ui.common.windowsizeclass.calculateWindowSizeClass
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccountProvider
 import com.huanchengfly.tieba.post.utils.ThemeUtil
+import dagger.hilt.android.EntryPointAccessors
 
 abstract class BaseComposeActivityWithParcelable<DATA : Parcelable> : BaseComposeActivityWithData<DATA>() {
     abstract val dataExtraKey: String
@@ -56,6 +64,13 @@ abstract class BaseComposeActivityWithData<DATA> : BaseComposeActivity() {
 }
 
 abstract class BaseComposeActivity : BaseActivity() {
+    protected val globalEventBus: GlobalEventBus by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            com.huanchengfly.tieba.post.di.GlobalEventBusEntryPoint::class.java
+        ).globalEventBus()
+    }
+
     override val isNeedImmersionBar: Boolean = false
     override val isNeedFixBg: Boolean = false
     override val isNeedSetTheme: Boolean = false
@@ -100,7 +115,8 @@ abstract class BaseComposeActivity : BaseActivity() {
 
                 LocalAccountProvider {
                     CompositionLocalProvider(
-                        LocalWindowSizeClass provides calculateWindowSizeClass(activity = this)
+                        LocalWindowSizeClass provides calculateWindowSizeClass(activity = this),
+                        LocalGlobalEventBus provides globalEventBus
                     ) {
                         Content()
                     }
@@ -126,6 +142,9 @@ abstract class BaseComposeActivity : BaseActivity() {
             is CommonUiEvent.Toast -> {
                 Toast.makeText(this, event.message, event.length).show()
             }
+            CommonUiEvent.NavigateUp -> {
+                onBackPressedDispatcher.onBackPressed()
+            }
 
             else -> {}
         }
@@ -141,20 +160,4 @@ abstract class BaseComposeActivity : BaseActivity() {
 
 
 
-sealed interface CommonUiEvent : UiEvent {
-    object ScrollToTop : CommonUiEvent
-
-    object NavigateUp : CommonUiEvent
-
-    data class Toast(
-        val message: CharSequence,
-        val length: Int = android.widget.Toast.LENGTH_SHORT
-    ) : CommonUiEvent
-
-    @Composable
-    fun BaseViewModel<*, *, *, *>.bindScrollToTopEvent(lazyListState: LazyListState) {
-        onEvent<ScrollToTop> {
-            lazyListState.scrollToItem(0, 0)
-        }
-    }
-}
+typealias CommonUiEvent = com.huanchengfly.tieba.core.mvi.CommonUiEvent

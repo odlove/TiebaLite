@@ -1,7 +1,13 @@
 package com.huanchengfly.tieba.post.ui.page.settings.block.blocklist
 
+import com.huanchengfly.tieba.core.mvi.BaseViewModel
+import com.huanchengfly.tieba.core.mvi.PartialChange
+import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
+import com.huanchengfly.tieba.core.mvi.UiEvent
+import com.huanchengfly.tieba.core.mvi.UiIntent
+import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
-import com.huanchengfly.tieba.post.arch.*
+import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.post.models.database.Block
 import com.huanchengfly.tieba.post.toJson
 import com.huanchengfly.tieba.post.utils.BlockManager

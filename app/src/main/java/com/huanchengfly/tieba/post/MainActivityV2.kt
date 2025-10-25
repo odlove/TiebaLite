@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.AnimationSpec
@@ -73,8 +74,8 @@ import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseComposeActivity
 import com.huanchengfly.tieba.post.arch.GlobalEvent
-import com.huanchengfly.tieba.post.arch.emitGlobalEvent
-import com.huanchengfly.tieba.post.arch.onGlobalEvent
+import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
+import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.post.components.ClipBoardForumLink
 import com.huanchengfly.tieba.post.components.ClipBoardLink
 import com.huanchengfly.tieba.post.components.ClipBoardLinkDetector
@@ -166,13 +167,15 @@ class MainActivityV2 : BaseComposeActivity() {
 
     private val pickMediasLauncher =
         registerPickMediasLauncher {
-            emitGlobalEvent(GlobalEvent.SelectedImages(it.id, it.uris))
+            globalEventBus.emitGlobalEvent(GlobalEvent.SelectedImages(it.id, it.uris))
         }
 
     private val mLaunchActivityForResultLauncher = registerForActivityResult(
         LaunchActivityForResult()
     ) {
-        emitGlobalEvent(GlobalEvent.ActivityResult(it.requesterId, it.resultCode, it.intent))
+        globalEventBus.emitGlobalEvent(
+            GlobalEvent.ActivityResult(it.requesterId, it.resultCode, it.intent)
+        )
     }
 
     private val devicePostureFlow: StateFlow<DevicePosture> by lazy {
@@ -487,9 +490,17 @@ class MainActivityV2 : BaseComposeActivity() {
             }
         }
         onGlobalEvent<GlobalEvent.StartSelectImages> {
-            pickMediasLauncher.launch(
-                PickMediasRequest(it.id, it.maxCount, it.mediaType)
-            )
+            val mediaType = it.mediaType
+            if (mediaType is PickMediasRequest.MediaType) {
+                pickMediasLauncher.launch(
+                    PickMediasRequest(it.id, it.maxCount, mediaType)
+                )
+            } else {
+                Log.w(
+                    "MainActivityV2",
+                    "StartSelectImages ignored: unsupported mediaType ${mediaType::class.java.simpleName}"
+                )
+            }
         }
         onGlobalEvent<GlobalEvent.StartActivityForResult> {
             mLaunchActivityForResultLauncher.launch(

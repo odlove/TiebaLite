@@ -28,8 +28,9 @@ import com.huanchengfly.tieba.post.LocalNotificationCountFlow
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.arch.BaseComposeActivity.Companion.LocalWindowSizeClass
 import com.huanchengfly.tieba.post.arch.GlobalEvent
-import com.huanchengfly.tieba.post.arch.collectPartialAsState
-import com.huanchengfly.tieba.post.arch.emitGlobalEvent
+import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
+import com.huanchengfly.tieba.core.mvi.collectPartialAsState
+import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.post.arch.pageViewModel
 import com.huanchengfly.tieba.post.rememberPreferenceAsState
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
@@ -98,6 +99,7 @@ fun MainPage(
     navigator: DestinationsNavigator,
     viewModel: MainViewModel = pageViewModel<MainUiIntent, MainViewModel>(emptyList()),
 ) {
+    val globalEventBus = LocalGlobalEventBus.current
     val windowSizeClass = LocalWindowSizeClass.current
     val windowHeightSizeClass by rememberUpdatedState(newValue = windowSizeClass.heightSizeClass)
     val windowWidthSizeClass by rememberUpdatedState(newValue = windowSizeClass.widthSizeClass)
@@ -239,6 +241,7 @@ fun MainPage(
     }
     val onReselected: (Int) -> Unit = {
         coroutineScope.emitGlobalEvent(
+            globalEventBus,
             GlobalEvent.Refresh(navigationItems[it].id)
         )
     }

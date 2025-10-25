@@ -2,13 +2,13 @@ package com.huanchengfly.tieba.post.ui.page.history.list
 
 import androidx.compose.runtime.Stable
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
-import com.huanchengfly.tieba.post.arch.BaseViewModel
-import com.huanchengfly.tieba.post.arch.DispatcherProvider
-import com.huanchengfly.tieba.post.arch.PartialChange
-import com.huanchengfly.tieba.post.arch.PartialChangeProducer
-import com.huanchengfly.tieba.post.arch.UiEvent
-import com.huanchengfly.tieba.post.arch.UiIntent
-import com.huanchengfly.tieba.post.arch.UiState
+import com.huanchengfly.tieba.core.mvi.BaseViewModel
+import com.huanchengfly.tieba.core.mvi.DispatcherProvider
+import com.huanchengfly.tieba.core.mvi.PartialChange
+import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
+import com.huanchengfly.tieba.core.mvi.UiEvent
+import com.huanchengfly.tieba.core.mvi.UiIntent
+import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.post.models.database.History
 import com.huanchengfly.tieba.post.utils.DateTimeUtils
 import com.huanchengfly.tieba.post.utils.HistoryUtil

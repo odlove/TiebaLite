@@ -69,8 +69,8 @@ import com.stoyanvuchev.systemuibarstweaker.SystemBarStyle
 import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.activities.BaseActivity
-import com.huanchengfly.tieba.post.arch.collectIn
-import com.huanchengfly.tieba.post.arch.collectPartialAsState
+import com.huanchengfly.tieba.core.common.collectIn
+import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.common.theme.compose.TiebaLiteTheme
@@ -96,7 +96,6 @@ import com.huanchengfly.tieba.post.utils.shouldUsePhotoPicker
 import com.yalantis.ucrop.UCrop
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.merge
@@ -211,8 +210,7 @@ class EditProfileActivity : BaseActivity() {
         handler.post {
             intents.onEach(viewModel::send).launchIn(lifecycleScope)
         }
-        viewModel.uiEventFlow
-            .filterIsInstance<EditProfileEvent>()
+        viewModel.eventFlow
             .collectIn(this) { handleEvent(it) }
     }
 

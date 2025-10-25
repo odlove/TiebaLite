@@ -3,8 +3,9 @@ package com.huanchengfly.tieba.post.utils.compose
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
+import com.huanchengfly.tieba.core.mvi.GlobalEventBus
+import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.post.arch.GlobalEvent
-import com.huanchengfly.tieba.post.arch.emitGlobalEvent
 import kotlinx.coroutines.CoroutineScope
 
 data class LaunchActivityRequest(
@@ -19,10 +20,11 @@ data class ActivityResult(
 )
 
 fun CoroutineScope.launchActivityForResult(
+    globalEventBus: GlobalEventBus,
     requesterId: String,
     intent: Intent,
 ) {
-    emitGlobalEvent(GlobalEvent.StartActivityForResult(requesterId, intent))
+    emitGlobalEvent(globalEventBus, GlobalEvent.StartActivityForResult(requesterId, intent))
 }
 
 class LaunchActivityForResult : ActivityResultContract<LaunchActivityRequest, ActivityResult>() {

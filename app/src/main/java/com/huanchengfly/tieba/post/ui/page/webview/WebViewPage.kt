@@ -52,7 +52,10 @@ import android.Manifest
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.arch.GlobalEvent
-import com.huanchengfly.tieba.post.arch.onGlobalEvent
+import com.huanchengfly.tieba.core.mvi.GlobalEventBus
+import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
+import com.huanchengfly.tieba.core.mvi.onEvent
+import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.post.components.dialogs.PermissionDialog
 import com.huanchengfly.tieba.post.models.PermissionBean
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
@@ -97,6 +100,7 @@ fun WebViewPage(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val globalEventBus = LocalGlobalEventBus.current
     val webViewState = rememberSaveableWebViewState()
     val webViewNavigator = rememberWebViewNavigator()
     var loaded by rememberSaveable {
@@ -255,7 +259,9 @@ fun WebViewPage(
                     }
                 },
                 client = remember(navigator) { MyWebViewClient(navigator) },
-                chromeClient = remember { MyWebChromeClient(context, coroutineScope) }
+                chromeClient = remember(globalEventBus) {
+                    MyWebChromeClient(context, coroutineScope, globalEventBus)
+                }
             )
 
             if (isLoading) {
@@ -465,6 +471,7 @@ open class MyWebViewClient(
 class MyWebChromeClient(
     context: Context,
     private val coroutineScope: CoroutineScope,
+    private val globalEventBus: GlobalEventBus,
 ) : AccompanistWebChromeClient() {
     private val contextWeakReference = WeakReference(context)
 
@@ -476,7 +483,8 @@ class MyWebChromeClient(
     val id: String = UUID.randomUUID().toString()
 
     init {
-        coroutineScope.onGlobalEvent<GlobalEvent.ActivityResult>(
+        globalEventBus.onEvent<GlobalEvent.ActivityResult>(
+            coroutineScope,
             filter = { it.requesterId == id },
         ) {
             uploadMessage?.onReceiveValue(FileChooserParams.parseResult(it.resultCode, it.intent))
@@ -547,7 +555,7 @@ class MyWebChromeClient(
         if (webView == null || filePathCallback == null || fileChooserParams == null) return false
         uploadMessage?.onReceiveValue(null)
         uploadMessage = filePathCallback
-        coroutineScope.launchActivityForResult(id, fileChooserParams.createIntent())
+        coroutineScope.launchActivityForResult(globalEventBus, id, fileChooserParams.createIntent())
         return true
     }
 

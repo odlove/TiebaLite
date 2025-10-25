@@ -84,10 +84,11 @@ import com.github.panpf.sketch.compose.AsyncImage
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.arch.GlobalEvent
-import com.huanchengfly.tieba.post.arch.collectPartialAsState
-import com.huanchengfly.tieba.post.arch.emitGlobalEvent
-import com.huanchengfly.tieba.post.arch.onEvent
-import com.huanchengfly.tieba.post.arch.onGlobalEvent
+import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
+import com.huanchengfly.tieba.core.mvi.collectPartialAsState
+import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
+import com.huanchengfly.tieba.core.mvi.onEvent
+import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.post.arch.pageViewModel
 import com.huanchengfly.tieba.post.models.database.Draft
 import com.huanchengfly.tieba.post.pxToDpFloat
@@ -203,6 +204,7 @@ internal fun ReplyPageContent(
     }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val globalEventBus = LocalGlobalEventBus.current
     val curTbs = remember(tbs) { tbs ?: AccountUtil.getAccountInfo { this.tbs }.orEmpty() }
 
     val isUploading by viewModel.uiState.collectPartialAsState(
@@ -820,8 +822,9 @@ private fun ImagePanel(
 ) {
     val id = remember { UUID.randomUUID().toString() }
     val coroutineScope = rememberCoroutineScope()
+    val globalEventBus = LocalGlobalEventBus.current
     onGlobalEvent<GlobalEvent.SelectedImages>(
-        coroutineScope,
+        bus = globalEventBus,
         filter = { it.id == id }
     ) {
         onNewImageSelected(it.images)
@@ -870,6 +873,7 @@ private fun ImagePanel(
                             .background(ExtendedTheme.colors.chip)
                             .clickable {
                                 coroutineScope.emitGlobalEvent(
+                                    globalEventBus,
                                     GlobalEvent.StartSelectImages(
                                         id,
                                         9 - selectedImages.size,

@@ -64,10 +64,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.arch.collectPartialAsState
-import com.huanchengfly.tieba.post.arch.emitGlobalEvent
-import com.huanchengfly.tieba.post.arch.emitGlobalEventSuspend
-import com.huanchengfly.tieba.post.arch.onEvent
+import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
+import com.huanchengfly.tieba.core.mvi.collectPartialAsState
+import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
+import com.huanchengfly.tieba.core.mvi.emitGlobalEventSuspend
+import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.post.arch.pageViewModel
 import com.huanchengfly.tieba.post.models.database.SearchHistory
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
@@ -126,6 +127,7 @@ fun SearchPage(
         listOf(SearchUiIntent.Init)
     ),
 ) {
+    val globalEventBus = LocalGlobalEventBus.current
     val context = LocalContext.current
     val searchHistories by viewModel.uiState.collectPartialAsState(
         prop1 = SearchUiState::searchHistories,
@@ -177,11 +179,15 @@ fun SearchPage(
     val initialSortType = remember { SearchThreadSortType.SORT_TYPE_NEWEST }
     var searchThreadSortType by remember { mutableIntStateOf(initialSortType) }
     LaunchedEffect(searchThreadSortType) {
-        emitGlobalEvent(SearchThreadUiEvent.SwitchSortType(searchThreadSortType))
+        globalEventBus.emitGlobalEvent(
+            SearchThreadUiEvent.SwitchSortType(searchThreadSortType)
+        )
     }
     viewModel.onEvent<SearchUiEvent.KeywordChanged> {
         inputKeyword = it.keyword
-        if (it.keyword.isNotBlank()) emitGlobalEventSuspend(it)
+        if (it.keyword.isNotBlank()) {
+            globalEventBus.emitGlobalEventSuspend(it)
+        }
     }
 
     val pages by remember {

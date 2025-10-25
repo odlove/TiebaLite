@@ -29,8 +29,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.arch.GlobalEvent
-import com.huanchengfly.tieba.post.arch.emitGlobalEvent
-import com.huanchengfly.tieba.post.arch.onGlobalEvent
+import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
+import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
+import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.SearchPageDestination
@@ -63,6 +64,7 @@ private fun ColumnScope.ExplorePageTab(
     pages: ImmutableList<ExplorePageItem>
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val globalEventBus = LocalGlobalEventBus.current
 
     TabRow(
         selectedTabIndex = pagerState.currentPage,
@@ -86,7 +88,10 @@ private fun ColumnScope.ExplorePageTab(
                 onClick = {
                     coroutineScope.launch {
                         if (pagerState.currentPage == index) {
-                            emitGlobalEvent(GlobalEvent.Refresh(item.id))
+                            coroutineScope.emitGlobalEvent(
+                                globalEventBus,
+                                GlobalEvent.Refresh(item.id)
+                            )
                         } else {
                             pagerState.animateScrollToPage(index)
                         }
@@ -115,6 +120,7 @@ private fun TabText(
 fun ExplorePage() {
     val account = LocalAccount.current
     val navigator = LocalNavigator.current
+    val globalEventBus = LocalGlobalEventBus.current
 
     val loggedIn = remember(account) { account != null }
 
@@ -151,7 +157,10 @@ fun ExplorePage() {
         filter = { it.key == "explore" }
     ) {
         if (pagerState.currentPage < pages.size) {
-            coroutineScope.emitGlobalEvent(GlobalEvent.Refresh(pages[pagerState.currentPage].id))
+            coroutineScope.emitGlobalEvent(
+                globalEventBus,
+                GlobalEvent.Refresh(pages[pagerState.currentPage].id)
+            )
         }
     }
 

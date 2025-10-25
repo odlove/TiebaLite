@@ -6,8 +6,9 @@ import android.util.Log
 import android.webkit.CookieManager
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.LoginBean
+import com.huanchengfly.tieba.core.mvi.GlobalEventBus
+import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.post.arch.GlobalEvent
-import com.huanchengfly.tieba.post.arch.emitGlobalEvent
 import com.huanchengfly.tieba.post.data.account.AccountConstants
 import com.huanchengfly.tieba.post.di.CoroutineModule
 import com.huanchengfly.tieba.post.models.database.Account
@@ -42,7 +43,8 @@ import javax.inject.Singleton
 class AccountRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     @CoroutineModule.ApplicationScope private val coroutineScope: CoroutineScope,
-    private val api: ITiebaApi
+    private val api: ITiebaApi,
+    private val globalEventBus: GlobalEventBus
 ) : AccountRepository {
 
     companion object {
@@ -132,7 +134,7 @@ class AccountRepositoryImpl @Inject constructor(
                     // 2. 持久化成功后,再更新内存状态
                     context.sendBroadcast(Intent().setAction(AccountConstants.ACTION_SWITCH_ACCOUNT))
                     _currentAccount.value = account
-                    coroutineScope.emitGlobalEvent(GlobalEvent.AccountSwitched)
+                    coroutineScope.emitGlobalEvent(globalEventBus, GlobalEvent.AccountSwitched)
 
                     true
                 }

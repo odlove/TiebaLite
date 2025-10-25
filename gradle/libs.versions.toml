@@ -3,6 +3,7 @@
 [plugins]
 
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
@@ -60,6 +61,8 @@ compose-material-navigation = { group = "androidx.compose.material", name = "mat
 compose-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
 compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 compose-runtime-tracing = { group = "androidx.compose.runtime", name = "runtime-tracing", version = "1.9.3" }
+compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 
 # Wire
 wire-runtime = { group = "com.squareup.wire", name = "wire-runtime", version.ref = "wire" }

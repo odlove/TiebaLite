@@ -7,7 +7,7 @@ import android.os.Bundle
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.MainActivityV2
 import com.huanchengfly.tieba.post.activities.BaseActivity
-import com.huanchengfly.tieba.post.arch.collectIn
+import com.huanchengfly.tieba.core.common.collectIn
 import com.huanchengfly.tieba.post.di.QuickPreviewUtilEntryPoint
 import com.huanchengfly.tieba.post.utils.QuickPreviewUtil
 import com.huanchengfly.tieba.post.utils.getClipBoardText

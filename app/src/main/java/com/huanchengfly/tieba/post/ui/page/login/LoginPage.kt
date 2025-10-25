@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.page.webview.MyWebChromeClient
@@ -81,6 +82,7 @@ fun LoginPage(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val globalEventBus = LocalGlobalEventBus.current
     val webViewState = rememberSaveableWebViewState()
     val webViewNavigator = rememberWebViewNavigator()
     var loaded by rememberSaveable {
@@ -223,7 +225,9 @@ fun LoginPage(
                         snackbarHostState
                     )
                 },
-                chromeClient = remember { MyWebChromeClient(context, coroutineScope) }
+                chromeClient = remember(globalEventBus) {
+                    MyWebChromeClient(context, coroutineScope, globalEventBus)
+                }
             )
 
             if (isLoading) {

@@ -22,6 +22,9 @@ output.json
 # Kotlin compiler cache
 .kotlin/
 
+# KSP (Kotlin Symbol Processing) cache
+kls_database.db
+
 # Local configuration file (sdk path, etc)
 local.properties
 

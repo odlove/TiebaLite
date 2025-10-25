@@ -69,7 +69,7 @@ fun SubPostItem(
         }
     val agreeNum =
         remember(subPost) {
-            subPost.get { agree?.diffAgreeNum ?: 0L }
+            (subPost.get { agree?.diffAgreeNum ?: 0L }).toInt()
         }
 
     // MenuState 在组件内部 remember，避免每次重组重新创建

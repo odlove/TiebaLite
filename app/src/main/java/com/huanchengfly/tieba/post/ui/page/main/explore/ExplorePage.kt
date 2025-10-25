@@ -14,6 +14,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -116,7 +118,7 @@ fun ExplorePage() {
 
     val loggedIn = remember(account) { account != null }
 
-    val pages = remember {
+    val pages = remember(loggedIn) {
         listOfNotNull(
             if (loggedIn) ExplorePageItem(
                 "concern",
@@ -135,13 +137,22 @@ fun ExplorePage() {
             ),
         ).toImmutableList()
     }
-    val pagerState = rememberPagerState(initialPage = if (account != null) 1 else 0) { pages.size }
+
+    val pagerState = key(pages.size) {
+        rememberPagerState(
+            initialPage = if (loggedIn) 1 else 0
+        ) { pages.size }
+    }
+
+
     val coroutineScope = rememberCoroutineScope()
 
     onGlobalEvent<GlobalEvent.Refresh>(
         filter = { it.key == "explore" }
     ) {
-        coroutineScope.emitGlobalEvent(GlobalEvent.Refresh(pages[pagerState.currentPage].id))
+        if (pagerState.currentPage < pages.size) {
+            coroutineScope.emitGlobalEvent(GlobalEvent.Refresh(pages[pagerState.currentPage].id))
+        }
     }
 
     Scaffold(
@@ -171,6 +182,7 @@ fun ExplorePage() {
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.Top,
             userScrollEnabled = true,
+            beyondViewportPageCount = 2,
         ) {
             pages[it].content()
         }

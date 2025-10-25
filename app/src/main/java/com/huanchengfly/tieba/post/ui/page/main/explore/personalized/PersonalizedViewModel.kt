@@ -1,12 +1,10 @@
 package com.huanchengfly.tieba.post.ui.page.main.explore.personalized
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.post.api.models.CommonResponse
-import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.personalized.DislikeReason
-import com.huanchengfly.tieba.post.api.models.protos.personalized.PersonalizedResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
 import com.huanchengfly.tieba.post.arch.CommonUiEvent
@@ -19,15 +17,19 @@ import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.arch.wrapImmutable
 import com.huanchengfly.tieba.post.models.DislikeBean
-import com.huanchengfly.tieba.post.repository.PersonalizedRepository
+import com.huanchengfly.tieba.post.models.ThreadFeedPage
+import com.huanchengfly.tieba.post.models.PersonalizedMetadata
+import com.huanchengfly.tieba.post.repository.ThreadFeedRepository
+import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
-import com.huanchengfly.tieba.post.ui.models.ThreadItemData
-import com.huanchengfly.tieba.post.ui.models.distinctById
-import com.huanchengfly.tieba.post.utils.appPreferences
+import com.huanchengfly.tieba.post.store.ThreadStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -35,14 +37,16 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 @Stable
 @HiltViewModel
 class PersonalizedViewModel @Inject constructor(
-    private val personalizedRepository: PersonalizedRepository,
+    private val threadFeedRepository: ThreadFeedRepository,
     private val userInteractionRepository: UserInteractionRepository,
+    val pbPageRepository: PbPageRepository,  // ✅ 公开，供 UI 订阅 Repository 缓存
     dispatcherProvider: DispatcherProvider
 ) : BaseViewModel<PersonalizedUiIntent, PersonalizedPartialChange, PersonalizedUiState, PersonalizedUiEvent>(dispatcherProvider) {
     override fun createInitialState(): PersonalizedUiState = PersonalizedUiState()
@@ -54,8 +58,9 @@ class PersonalizedViewModel @Inject constructor(
         when (partialChange) {
             is PersonalizedPartialChange.Refresh.Failure -> CommonUiEvent.Toast(partialChange.error.getErrorMessage())
             is PersonalizedPartialChange.LoadMore.Failure -> CommonUiEvent.Toast(partialChange.error.getErrorMessage())
+            is PersonalizedPartialChange.Agree.Failure -> CommonUiEvent.Toast(partialChange.error.getErrorMessage())
             is PersonalizedPartialChange.Refresh.Success -> PersonalizedUiEvent.RefreshSuccess(
-                partialChange.data.size
+                partialChange.threadIds.size  // ✅ 使用 threadIds.size 而非 data.size
             )
 
             else -> null
@@ -72,45 +77,27 @@ class PersonalizedViewModel @Inject constructor(
             )
 
         private fun produceRefreshPartialChange(): Flow<PersonalizedPartialChange.Refresh> =
-            personalizedRepository
-                .personalizedFlow(1, 1)
-                .map<PersonalizedResponse, PersonalizedPartialChange.Refresh> { response ->
-                    val data = response.toData()
-                        .filter {
-                            !App.INSTANCE.appPreferences.blockVideo || it.get { videoInfo } == null
-                        }
-                        .filter { it.get { ala_info } == null }
-                    val threadPersonalizedData = response.data_?.thread_personalized ?: emptyList()
+            threadFeedRepository
+                .personalizedThreads(1)
+                .map<ThreadFeedPage, PersonalizedPartialChange.Refresh> { feedPage ->
+                    @Suppress("UNCHECKED_CAST")
                     PersonalizedPartialChange.Refresh.Success(
-                        data = data.map { thread ->
-                            val threadPersonalized =
-                                threadPersonalizedData.firstOrNull { it.tid == thread.get { id } }
-                                    ?.wrapImmutable()
-                            ThreadItemData(thread = thread, personalized = threadPersonalized)
-                        }.toImmutableList(),
+                        threadIds = feedPage.threadIds,
+                        metadata = feedPage.metadata as PersistentMap<Long, PersonalizedMetadata>
                     )
                 }
                 .onStart { emit(PersonalizedPartialChange.Refresh.Start) }
                 .catch { emit(PersonalizedPartialChange.Refresh.Failure(it)) }
 
         private fun PersonalizedUiIntent.LoadMore.producePartialChange(): Flow<PersonalizedPartialChange.LoadMore> =
-            personalizedRepository
-                .personalizedFlow(2, page)
-                .map<PersonalizedResponse, PersonalizedPartialChange.LoadMore> { response ->
-                    val data = response.toData()
-                        .filter {
-                            !App.INSTANCE.appPreferences.blockVideo || it.get { videoInfo } == null
-                        }
-                        .filter { it.get { ala_info } == null }
-                    val threadPersonalizedData = response.data_?.thread_personalized ?: emptyList()
+            threadFeedRepository
+                .personalizedThreads(page)
+                .map<ThreadFeedPage, PersonalizedPartialChange.LoadMore> { feedPage ->
+                    @Suppress("UNCHECKED_CAST")
                     PersonalizedPartialChange.LoadMore.Success(
                         currentPage = page,
-                        data = data.map { thread ->
-                            val threadPersonalized =
-                                threadPersonalizedData.firstOrNull { it.tid == thread.get { id } }
-                                    ?.wrapImmutable()
-                            ThreadItemData(thread = thread, personalized = threadPersonalized)
-                        }.toImmutableList(),
+                        threadIds = feedPage.threadIds,
+                        metadata = feedPage.metadata as PersistentMap<Long, PersonalizedMetadata>
                     )
                 }
                 .onStart { emit(PersonalizedPartialChange.LoadMore.Start) }
@@ -129,8 +116,13 @@ class PersonalizedViewModel @Inject constructor(
                 .catch { emit(PersonalizedPartialChange.Dislike.Failure(threadId, it)) }
                 .onStart { emit(PersonalizedPartialChange.Dislike.Start(threadId)) }
 
-        private fun PersonalizedUiIntent.Agree.producePartialChange(): Flow<PersonalizedPartialChange.Agree> =
-            userInteractionRepository
+        private fun PersonalizedUiIntent.Agree.producePartialChange(): Flow<PersonalizedPartialChange.Agree> {
+            // ✅ 提前读取当前状态
+            val currentEntity = pbPageRepository.threadFlow(threadId).value
+            val previousHasAgree = currentEntity?.meta?.hasAgree ?: 0
+            val previousAgreeNum = currentEntity?.meta?.agreeNum ?: 0
+
+            return userInteractionRepository
                 .opAgree(
                     threadId.toString(), postId.toString(), hasAgree, objType = 3
                 )
@@ -140,12 +132,40 @@ class PersonalizedViewModel @Inject constructor(
                         hasAgree xor 1
                     )
                 }
-                .catch { emit(PersonalizedPartialChange.Agree.Failure(threadId, hasAgree, it)) }
-                .onStart { emit(PersonalizedPartialChange.Agree.Start(threadId, hasAgree xor 1)) }
-
-        private fun PersonalizedResponse.toData(): ImmutableList<ImmutableHolder<ThreadInfo>> {
-            return (data_?.thread_list ?: emptyList()).wrapImmutable()
+                .catch {
+                    // ✅ 失败时恢复原始值
+                    currentEntity?.let { entity ->
+                        pbPageRepository.upsertThreads(
+                            listOf(
+                                entity.copy(
+                                    meta = entity.meta.copy(
+                                        hasAgree = previousHasAgree,
+                                        agreeNum = previousAgreeNum
+                                    )
+                                )
+                            )
+                        )
+                    }
+                    emit(PersonalizedPartialChange.Agree.Failure(threadId, hasAgree, it))
+                }
+                .onStart {
+                    // ✅ 乐观更新
+                    currentEntity?.let { entity ->
+                        pbPageRepository.upsertThreads(
+                            listOf(
+                                entity.copy(
+                                    meta = entity.meta.copy(
+                                        hasAgree = hasAgree xor 1,
+                                        agreeNum = if (hasAgree == 0) entity.meta.agreeNum + 1 else entity.meta.agreeNum - 1
+                                    )
+                                )
+                            )
+                        )
+                    }
+                    emit(PersonalizedPartialChange.Agree.Start(threadId, hasAgree xor 1))
+                }
         }
+
     }
 }
 
@@ -170,60 +190,11 @@ sealed interface PersonalizedUiIntent : UiIntent {
 
 sealed interface PersonalizedPartialChange : PartialChange<PersonalizedUiState> {
     sealed class Agree private constructor() : PersonalizedPartialChange {
-        private fun List<ThreadItemData>.updateAgreeStatus(
-            threadId: Long,
-            hasAgree: Int,
-        ): ImmutableList<ThreadItemData> {
-            return map {
-                val (threadInfo) = it.thread
-                val newThreadInfo = if (threadInfo.threadId == threadId) {
-                    if (threadInfo.agree != null) {
-                        if (hasAgree != threadInfo.agree.hasAgree) {
-                            if (hasAgree == 1) {
-                                threadInfo.copy(
-                                    agreeNum = threadInfo.agreeNum + 1,
-                                    agree = threadInfo.agree.copy(
-                                        agreeNum = threadInfo.agree.agreeNum + 1,
-                                        diffAgreeNum = threadInfo.agree.diffAgreeNum + 1,
-                                        hasAgree = 1
-                                    )
-                                )
-                            } else {
-                                threadInfo.copy(
-                                    agreeNum = threadInfo.agreeNum - 1,
-                                    agree = threadInfo.agree.copy(
-                                        agreeNum = threadInfo.agree.agreeNum - 1,
-                                        diffAgreeNum = threadInfo.agree.diffAgreeNum - 1,
-                                        hasAgree = 0
-                                    )
-                                )
-                            }
-                        } else {
-                            threadInfo
-                        }
-                    } else {
-                        threadInfo.copy(
-                            agreeNum = if (hasAgree == 1) threadInfo.agreeNum + 1 else threadInfo.agreeNum - 1
-                        )
-                    }
-                } else {
-                    threadInfo
-                }
-                it.copy(thread = newThreadInfo.wrapImmutable())
-            }.toImmutableList()
-        }
+        // ✅ 删除 updateAgreeStatus() 方法，Store 已处理更新逻辑
 
         override fun reduce(oldState: PersonalizedUiState): PersonalizedUiState =
             when (this) {
-                is Start -> {
-                    oldState.copy(data = oldState.data.updateAgreeStatus(threadId, hasAgree))
-                }
-                is Success -> {
-                    oldState.copy(data = oldState.data.updateAgreeStatus(threadId, hasAgree))
-                }
-                is Failure -> {
-                    oldState.copy(data = oldState.data.updateAgreeStatus(threadId, hasAgree))
-                }
+                is Start, is Success, is Failure -> oldState  // ✅ Store 已更新，State 无需变化
             }
 
         data class Start(
@@ -282,13 +253,16 @@ sealed interface PersonalizedPartialChange : PartialChange<PersonalizedUiState> 
             when (this) {
                 Start -> oldState.copy(isRefreshing = true)
                 is Success -> {
-                    val oldSize = oldState.data.size
-                    val newData = (data + oldState.data).distinctById()
+                    val oldSize = oldState.threadIds.size
+                    val newThreadIds = (threadIds + oldState.threadIds).distinct().toImmutableList()
+                    // ✅ Refresh 完全替换 metadata，自动清理僵尸数据
+                    val newMetadata = metadata
                     oldState.copy(
                         isRefreshing = false,
                         currentPage = 1,
-                        data = newData,
-                        refreshPosition = if (oldState.data.isEmpty()) 0 else (newData.size - oldSize),
+                        threadIds = newThreadIds,
+                        metadata = newMetadata,
+                        refreshPosition = if (oldState.threadIds.isEmpty()) 0 else (newThreadIds.size - oldSize),
                     )
                 }
 
@@ -301,7 +275,8 @@ sealed interface PersonalizedPartialChange : PartialChange<PersonalizedUiState> 
         data object Start : Refresh()
 
         data class Success(
-            val data: List<ThreadItemData>,
+            val threadIds: ImmutableList<Long>,
+            val metadata: PersistentMap<Long, PersonalizedMetadata>,  // ✅ 使用 PersistentMap
         ) : Refresh()
 
         data class Failure(
@@ -313,11 +288,17 @@ sealed interface PersonalizedPartialChange : PartialChange<PersonalizedUiState> 
         override fun reduce(oldState: PersonalizedUiState): PersonalizedUiState =
             when (this) {
                 Start -> oldState.copy(isLoadingMore = true)
-                is Success -> oldState.copy(
-                    isLoadingMore = false,
-                    currentPage = currentPage,
-                    data = (oldState.data + data).distinctById(),
-                )
+                is Success -> {
+                    val newThreadIds = (oldState.threadIds + threadIds).distinct().toImmutableList()
+                    // ✅ 合并 metadata，只保留 newThreadIds 中存在的数据，清理僵尸数据
+                    val mergedMetadata = (oldState.metadata + metadata).filterKeys { it in newThreadIds }
+                    oldState.copy(
+                        isLoadingMore = false,
+                        currentPage = currentPage,
+                        threadIds = newThreadIds,
+                        metadata = mergedMetadata.toPersistentMap(),  // ✅ 转换为 PersistentMap
+                    )
+                }
 
                 is Failure -> oldState.copy(
                     isLoadingMore = false,
@@ -329,7 +310,8 @@ sealed interface PersonalizedPartialChange : PartialChange<PersonalizedUiState> 
 
         data class Success(
             val currentPage: Int,
-            val data: List<ThreadItemData>,
+            val threadIds: ImmutableList<Long>,
+            val metadata: PersistentMap<Long, PersonalizedMetadata>,  // ✅ 使用 PersistentMap
         ) : LoadMore()
 
         data class Failure(
@@ -344,7 +326,8 @@ data class PersonalizedUiState(
     val isLoadingMore: Boolean = false,
     val error: ImmutableHolder<Throwable>? = null,
     val currentPage: Int = 1,
-    val data: ImmutableList<ThreadItemData> = persistentListOf(),
+    val threadIds: ImmutableList<Long> = persistentListOf(),  // Store 订阅用的 threadId 列表
+        val metadata: PersistentMap<Long, PersonalizedMetadata> = persistentMapOf(),  // ✅ 不可变 Map，存储 UI 专属元数据
     val hiddenThreadIds: ImmutableList<Long> = persistentListOf(),
     val refreshPosition: Int = 0,
 ): UiState

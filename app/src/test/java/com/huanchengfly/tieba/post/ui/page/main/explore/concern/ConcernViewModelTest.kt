@@ -38,12 +38,14 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class ConcernViewModelTest : BaseViewModelTest() {
 
+    private lateinit var mockThreadStore: com.huanchengfly.tieba.post.store.ThreadStore
     private lateinit var mockForumOperationRepo: ForumOperationRepository
     private lateinit var mockUserInteractionRepo: UserInteractionRepository
 
     @Before
     override fun setup() {
         super.setup()
+        mockThreadStore = mockk(relaxed = true)
         mockForumOperationRepo = mockk(relaxed = true)
         mockUserInteractionRepo = mockk(relaxed = true)
     }
@@ -51,7 +53,7 @@ class ConcernViewModelTest : BaseViewModelTest() {
     @After
     override fun tearDown() {
         super.tearDown()
-        clearMocks(mockForumOperationRepo, mockUserInteractionRepo)
+        clearMocks(mockThreadStore, mockForumOperationRepo, mockUserInteractionRepo)
     }
 
     // ========== Agree Tests ==========
@@ -69,6 +71,7 @@ class ConcernViewModelTest : BaseViewModelTest() {
             val viewModel = ConcernViewModel(
                 mockForumOperationRepo,
                 mockUserInteractionRepo,
+                mockThreadStore,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)

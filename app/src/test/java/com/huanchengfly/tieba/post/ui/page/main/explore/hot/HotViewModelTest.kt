@@ -35,12 +35,14 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class HotViewModelTest : BaseViewModelTest() {
 
+    private lateinit var mockThreadStore: com.huanchengfly.tieba.post.store.ThreadStore
     private lateinit var mockContentRecommendRepo: ContentRecommendRepository
     private lateinit var mockUserInteractionRepo: UserInteractionRepository
 
     @Before
     override fun setup() {
         super.setup()
+        mockThreadStore = mockk(relaxed = true)
         mockContentRecommendRepo = mockk(relaxed = true)
         mockUserInteractionRepo = mockk(relaxed = true)
     }
@@ -48,7 +50,7 @@ class HotViewModelTest : BaseViewModelTest() {
     @After
     override fun tearDown() {
         super.tearDown()
-        clearMocks(mockContentRecommendRepo, mockUserInteractionRepo)
+        clearMocks(mockThreadStore, mockContentRecommendRepo, mockUserInteractionRepo)
     }
 
     // ========== Load Tests ==========
@@ -64,6 +66,7 @@ class HotViewModelTest : BaseViewModelTest() {
             val viewModel = HotViewModel(
                 mockContentRecommendRepo,
                 mockUserInteractionRepo,
+                mockThreadStore,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)
@@ -91,6 +94,7 @@ class HotViewModelTest : BaseViewModelTest() {
             val viewModel = HotViewModel(
                 mockContentRecommendRepo,
                 mockUserInteractionRepo,
+                mockThreadStore,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)
@@ -120,6 +124,7 @@ class HotViewModelTest : BaseViewModelTest() {
             val viewModel = HotViewModel(
                 mockContentRecommendRepo,
                 mockUserInteractionRepo,
+                mockThreadStore,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)

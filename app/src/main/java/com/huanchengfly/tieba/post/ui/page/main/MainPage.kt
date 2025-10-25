@@ -274,7 +274,8 @@ fun MainPage(
                     key = { navigationItems[it].id },
                     modifier = Modifier.fillMaxSize(),
                     verticalAlignment = Alignment.Top,
-                    userScrollEnabled = false
+                    userScrollEnabled = false,
+                    beyondViewportPageCount = 3,
                 ) {
                     navigationItems[it].content()
                 }

@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.main.explore.hot
 
 import android.graphics.Typeface
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,8 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -25,7 +30,11 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,10 +49,13 @@ import androidx.compose.ui.unit.sp
 import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.hasAgree
+import com.huanchengfly.tieba.post.arch.CommonUiEvent.ScrollToTop.bindScrollToTopEvent
 import com.huanchengfly.tieba.post.arch.GlobalEvent
 import com.huanchengfly.tieba.post.arch.collectPartialAsState
 import com.huanchengfly.tieba.post.arch.onGlobalEvent
 import com.huanchengfly.tieba.post.arch.pageViewModel
+import com.huanchengfly.tieba.post.arch.wrapImmutable
+import kotlinx.collections.immutable.toImmutableList
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.common.theme.compose.OrangeA700
 import com.huanchengfly.tieba.post.ui.common.theme.compose.RedA700
@@ -68,31 +80,32 @@ import com.huanchengfly.tieba.post.utils.StringUtil.getShortNumString
 import com.ramcosta.composedestinations.annotation.Destination
 
 @OptIn(ExperimentalMaterialApi::class)
-@Destination
 @Composable
 fun HotPage(
     viewModel: HotViewModel = pageViewModel()
 ) {
+
     LazyLoad(loaded = viewModel.initialized) {
         viewModel.send(HotUiIntent.Load)
         viewModel.initialized = true
     }
+    val navigator = LocalNavigator.current
+    val listState = rememberSaveable(saver = LazyListState.Saver) {
+        LazyListState()
+    }
+
+    viewModel.bindScrollToTopEvent(lazyListState = listState)
     onGlobalEvent<GlobalEvent.Refresh>(
         filter = { it.key == "hot" }
     ) {
         viewModel.send(HotUiIntent.Load)
     }
-    val navigator = LocalNavigator.current
     val isLoading by viewModel.uiState.collectPartialAsState(
         prop1 = HotUiState::isRefreshing,
         initial = false
     )
     val topicList by viewModel.uiState.collectPartialAsState(
         prop1 = HotUiState::topicList,
-        initial = emptyList()
-    )
-    val threadList by viewModel.uiState.collectPartialAsState(
-        prop1 = HotUiState::threadList,
         initial = emptyList()
     )
     val tabList by viewModel.uiState.collectPartialAsState(
@@ -107,11 +120,54 @@ fun HotPage(
         prop1 = HotUiState::isLoadingThreadList,
         initial = false
     )
+    val threadIds by viewModel.uiState.collectPartialAsState(
+        prop1 = HotUiState::threadIds,
+        initial = emptyList()
+    )
+
+    // ✅ 订阅 Repository 的 threadsFlow，获取最新的 ThreadEntity 列表
+    val threadEntities by viewModel.pbPageRepository.threadsFlow(threadIds)
+        .collectAsState(initial = emptyList())
+
+    // ✅ O(n) 查找优化：先构建 entityMap
+    val entityMap by remember(threadEntities) {
+        derivedStateOf {
+            threadEntities.associateBy { it.threadId }
+        }
+    }
+
+    // ✅ 从 Store 构建显示数据（仅包含 Meta 更新，无额外元数据）
+    val displayThreadList by remember(threadIds, entityMap) {
+        derivedStateOf {
+            threadIds.mapNotNull { threadId ->
+                val entity = entityMap[threadId] ?: return@mapNotNull null  // Store 中不存在（已被 TTL 清理）
+
+                // 🔍 调试日志：打印关键信息
+                Log.d("HotPage_DisplayData", "threadId=$threadId, entity.threadId=${entity.threadId}, proto.id=${entity.proto.id}")
+                Log.d("HotPage_DisplayData", "  abstract=${entity.proto._abstract.size}, media=${entity.proto.media.size}")
+                Log.d("HotPage_DisplayData", "  title='${entity.proto.title}', agreeNum=${entity.meta.agreeNum}")
+
+                // 从 Store Entity 构建 ThreadInfo，用 Meta 覆盖 Proto
+                entity.proto.copy(
+                    agreeNum = entity.meta.agreeNum,
+                    agree = entity.proto.agree?.copy(
+                        hasAgree = entity.meta.hasAgree,
+                        agreeNum = entity.meta.agreeNum.toLong()
+                    ),
+                    // ✅ 新增：同步收藏状态，防止详情页显示旧值
+                    collectStatus = entity.meta.collectStatus,
+                    collectMarkPid = entity.meta.collectMarkPid.takeIf { it > 0L }?.toString() ?: "0"
+                ).wrapImmutable()
+            }.toImmutableList()
+        }
+    }
+
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isLoading,
         onRefresh = { viewModel.send(HotUiIntent.Load) })
     Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
         MyLazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxWidth(),
         ) {
@@ -226,7 +282,7 @@ fun HotPage(
                     }
                 }
             }
-            if (threadList.isNotEmpty()) {
+            if (displayThreadList.isNotEmpty()) {
                 if (tabList.isNotEmpty()) {
                     item(key = "ThreadTabs") {
                         Container {
@@ -282,73 +338,75 @@ fun HotPage(
                         )
                     }
                 }
-                if (isLoadingThreadList) {
-                    items(10) { ThreadListItemPlaceholder() }
-                } else {
-                    itemsIndexed(
-                        items = threadList,
-                        key = { _, item -> "Thread_${item.get { threadId }}" }
-                    ) { index, item ->
-                        Container {
-                            FeedCard(
-                                item = item,
-                                onClick = {
-                                    navigator.navigate(
-                                        ThreadPageDestination(
-                                            threadId = it.id,
-                                            threadInfo = it
-                                        )
+                itemsIndexed(
+                    items = displayThreadList,  // ✅ 使用 Store 增强的数据
+                    key = { _, item -> "Thread_${item.get { threadId }}" }
+                ) { index, item ->
+                    Container {
+                        // ✅ 订阅是否正在更新中
+                        val isUpdating by viewModel.pbPageRepository.isThreadUpdating(item.get { id })
+                            .collectAsState(initial = false)
+
+                        FeedCard(
+                            item = item,
+                            onClick = {
+                                navigator.navigate(
+                                    ThreadPageDestination(
+                                        threadId = it.threadId,
+                                        threadInfo = it
                                     )
-                                },
-                                onClickReply = {
-                                    navigator.navigate(
-                                        ThreadPageDestination(
-                                            threadId = it.id,
-                                            scrollToReply = true
-                                        )
+                                )
+                            },
+                            onClickReply = {
+                                navigator.navigate(
+                                    ThreadPageDestination(
+                                        threadId = it.threadId,
+                                        scrollToReply = true
                                     )
-                                },
-                                onAgree = {
-                                    viewModel.send(
-                                        HotUiIntent.Agree(
-                                            threadId = it.threadId,
-                                            postId = it.firstPostId,
-                                            hasAgree = it.hasAgree
-                                        )
+                                )
+                            },
+                            onAgree = { threadInfo ->
+                                viewModel.send(
+                                    HotUiIntent.Agree(
+                                        threadId = threadInfo.id,
+                                        postId = threadInfo.firstPostId,
+                                        hasAgree = threadInfo.hasAgree
                                     )
-                                },
-                                onClickForum = { navigator.navigate(ForumPageDestination(it.name)) },
-                                onClickUser = { navigator.navigate(UserProfilePageDestination(it.id)) },
+                                )
+                            },
+                            onClickForum = { navigator.navigate(ForumPageDestination(it.name)) },
+                            onClickUser = { navigator.navigate(UserProfilePageDestination(it.id)) },
+                            agreeEnabled = !isUpdating,  // ✅ 传递 enabled 状态
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.End,
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
-                                Column(
-                                    horizontalAlignment = Alignment.End,
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    val color = when (index) {
-                                        0 -> RedA700
-                                        1 -> OrangeA700
-                                        2 -> Yellow
-                                        else -> MaterialTheme.colors.onBackground.copy(
-                                            ContentAlpha.medium
-                                        )
-                                    }
-                                    Text(
-                                        text = "${index + 1}",
-                                        color = color,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp
-                                    )
-                                    Text(
-                                        text = stringResource(
-                                            id = R.string.hot_num,
-                                            item.get { hotNum }.getShortNumString()
-                                        ),
-                                        style = MaterialTheme.typography.caption,
-                                        color = color
+                                val color = when (index) {
+                                    0 -> RedA700
+                                    1 -> OrangeA700
+                                    2 -> Yellow
+                                    else -> MaterialTheme.colors.onBackground.copy(
+                                        ContentAlpha.medium
                                     )
                                 }
+                                Text(
+                                    text = "${index + 1}",
+                                    color = color,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp
+                                )
+                                Text(
+                                    text = stringResource(
+                                        id = R.string.hot_num,
+                                        item.get { hotNum }.getShortNumString()
+                                    ),
+                                    style = MaterialTheme.typography.caption,
+                                    color = color
+                                )
                             }
                         }
+                    }
 //                        ThreadListItem(
 //                            index = index,
 //                            itemHolder = item,
@@ -362,7 +420,6 @@ fun HotPage(
 //                            }
 //                        )
                     }
-                }
             }
         }
 

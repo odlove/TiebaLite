@@ -88,6 +88,7 @@ fun LazyLoadHorizontalPager(
         state,
         Orientation.Horizontal
     ),
+    beyondViewportPageCount: Int = PagerDefaults.BeyondViewportPageCount,
     pageContent: @Composable PagerScope.(page: Int) -> Unit,
 ) {
     HorizontalPager(
@@ -101,6 +102,7 @@ fun LazyLoadHorizontalPager(
         userScrollEnabled = userScrollEnabled,
         reverseLayout = reverseLayout,
         key = key,
+        beyondViewportPageCount = beyondViewportPageCount,
         pageNestedScrollConnection = pageNestedScrollConnection
     ) {
         ProvideShouldLoad(

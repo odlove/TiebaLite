@@ -689,6 +689,17 @@ fun ThreadReplyBtn(
     )
 }
 
+/**
+ * @deprecated Use AgreeButton with AgreeButtonVariant.Action instead
+ */
+@Deprecated(
+    "Use AgreeButton with AgreeButtonVariant.Action instead",
+    ReplaceWith(
+        "AgreeButton(hasAgree, agreeNum.toIntOrNull() ?: 0, onClick, modifier, AgreeButtonVariant.Action)",
+        "com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButton",
+        "com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButtonVariant"
+    )
+)
 @Composable
 fun ThreadAgreeBtn(
     hasAgree: Boolean,
@@ -696,27 +707,12 @@ fun ThreadAgreeBtn(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val contentColor =
-        if (hasAgree) ExtendedTheme.colors.primary else ExtendedTheme.colors.textSecondary
-    val animatedColor by animateColorAsState(contentColor, label = "agreeBtnContentColor")
-
-    ActionBtn(
-        icon = {
-            Icon(
-                imageVector = if (hasAgree) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                contentDescription = stringResource(id = R.string.desc_like),
-            )
-        },
-        text = {
-            Text(
-                text = if (agreeNum == "0" || agreeNum.isEmpty())
-                    stringResource(id = R.string.title_agree)
-                else agreeNum.toLongOrNull()?.getShortNumString() ?: agreeNum
-            )
-        },
+    AgreeButton(
+        hasAgreed = hasAgree,
+        agreeNum = agreeNum.toIntOrNull() ?: 0,
+        onClick = onClick,
         modifier = modifier,
-        color = animatedColor,
-        onClick = onClick
+        variant = AgreeButtonVariant.Action
     )
 }
 
@@ -756,6 +752,7 @@ fun FeedCard(
     onClickUser: (User) -> Unit = {},
     onClickForum: (SimpleForum) -> Unit = {},
     onClickOriginThread: (OriginThreadInfo) -> Unit = {},
+    agreeEnabled: Boolean = true,
     dislikeAction: @Composable () -> Unit = {},
 ) {
     Card(
@@ -815,10 +812,12 @@ fun FeedCard(
                     modifier = Modifier.weight(1f)
                 )
 
-                ThreadAgreeBtn(
-                    hasAgree = item.get { agree?.hasAgree == 1 },
-                    agreeNum = item.get { agreeNum }.toString(),
+                AgreeButton(
+                    hasAgreed = item.get { agree?.hasAgree == 1 },
+                    agreeNum = item.get { agreeNum },
                     onClick = { onAgree(item.get()) },
+                    enabled = agreeEnabled,
+                    variant = AgreeButtonVariant.Action,
                     modifier = Modifier.weight(1f)
                 )
             }

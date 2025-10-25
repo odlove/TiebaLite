@@ -26,6 +26,8 @@ import com.huanchengfly.tieba.post.repository.SearchRepository
 import com.huanchengfly.tieba.post.repository.SearchRepositoryImpl
 import com.huanchengfly.tieba.post.repository.SubPostsRepository
 import com.huanchengfly.tieba.post.repository.SubPostsRepositoryImpl
+import com.huanchengfly.tieba.post.repository.ThreadFeedRepository
+import com.huanchengfly.tieba.post.repository.ThreadFeedRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ThreadStoreRepository
@@ -166,4 +168,10 @@ abstract class RepositoryModule {
     abstract fun bindPhotoRepository(
         impl: PhotoRepositoryImpl
     ): PhotoRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindThreadFeedRepository(
+        impl: ThreadFeedRepositoryImpl
+    ): ThreadFeedRepository
 }

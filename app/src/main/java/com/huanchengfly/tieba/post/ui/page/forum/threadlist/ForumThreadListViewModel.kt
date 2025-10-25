@@ -3,9 +3,6 @@ package com.huanchengfly.tieba.post.ui.page.forum.threadlist
 import androidx.compose.runtime.Stable
 import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.Classify
-import com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse
-import com.huanchengfly.tieba.post.api.models.protos.updateAgreeStatus
-import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseViewModel
@@ -18,7 +15,10 @@ import com.huanchengfly.tieba.post.arch.UiEvent
 import com.huanchengfly.tieba.post.arch.UiIntent
 import com.huanchengfly.tieba.post.arch.UiState
 import com.huanchengfly.tieba.post.arch.wrapImmutable
+import com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse
+import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
+import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.ui.models.ThreadItemData
 import com.huanchengfly.tieba.post.ui.models.distinctById
@@ -33,11 +33,13 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 import kotlin.math.min
 
 abstract class ForumThreadListViewModel(
+    val pbPageRepository: PbPageRepository,  // ✅ 公开，供 UI 订阅 Repository 缓存
     dispatcherProvider: DispatcherProvider
 ) :
     BaseViewModel<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState, ForumThreadListUiEvent>(dispatcherProvider) {
@@ -71,10 +73,11 @@ enum class ForumThreadListType {
 class LatestThreadListViewModel @Inject constructor(
     private val frsPageRepository: FrsPageRepository,
     private val userInteractionRepository: UserInteractionRepository,
+    pbPageRepository: PbPageRepository,
     dispatcherProvider: DispatcherProvider
-) : ForumThreadListViewModel(dispatcherProvider) {
+) : ForumThreadListViewModel(pbPageRepository, dispatcherProvider) {
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> =
-        ForumThreadListPartialChangeProducer(frsPageRepository, userInteractionRepository, ForumThreadListType.Latest)
+        ForumThreadListPartialChangeProducer(frsPageRepository, userInteractionRepository, pbPageRepository, ForumThreadListType.Latest)
 }
 
 @Stable
@@ -82,15 +85,17 @@ class LatestThreadListViewModel @Inject constructor(
 class GoodThreadListViewModel @Inject constructor(
     private val frsPageRepository: FrsPageRepository,
     private val userInteractionRepository: UserInteractionRepository,
+    pbPageRepository: PbPageRepository,
     dispatcherProvider: DispatcherProvider
-) : ForumThreadListViewModel(dispatcherProvider) {
+) : ForumThreadListViewModel(pbPageRepository, dispatcherProvider) {
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> =
-        ForumThreadListPartialChangeProducer(frsPageRepository, userInteractionRepository, ForumThreadListType.Good)
+        ForumThreadListPartialChangeProducer(frsPageRepository, userInteractionRepository, pbPageRepository, ForumThreadListType.Good)
 }
 
 private class ForumThreadListPartialChangeProducer(
     private val frsPageRepository: FrsPageRepository,
     private val userInteractionRepository: UserInteractionRepository,
+    private val pbPageRepository: PbPageRepository,
     val type: ForumThreadListType
 ) :
     PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> {
@@ -123,7 +128,7 @@ private class ForumThreadListPartialChangeProducer(
                     response.data_.forum_rule?.title.takeIf {
                         type == ForumThreadListType.Latest && response.data_.forum_rule?.has_forum_rule == 1
                     },
-                    threadList,
+                    threadList.map { it.wrapImmutable() },
                     response.data_.thread_id_list,
                     (response.data_.forum?.good_classify ?: emptyList()).wrapImmutable(),
                     goodClassifyId.takeIf { type == ForumThreadListType.Good },
@@ -147,7 +152,7 @@ private class ForumThreadListPartialChangeProducer(
                 val threadList =
                     response.data_.thread_list.map { ThreadItemData(it.wrapImmutable()) }
                 ForumThreadListPartialChange.Refresh.Success(
-                    threadList,
+                    threadList.map { it.wrapImmutable() },
                     response.data_.thread_id_list,
                     (response.data_.forum?.good_classify ?: emptyList()).wrapImmutable(),
                     goodClassifyId.takeIf { type == ForumThreadListType.Good },
@@ -171,7 +176,7 @@ private class ForumThreadListPartialChangeProducer(
                 val threadList =
                     response.data_.thread_list.map { ThreadItemData(it.wrapImmutable()) }
                 ForumThreadListPartialChange.LoadMore.Success(
-                    threadList = threadList,
+                    threadList = threadList.map { it.wrapImmutable() },
                     threadListIds = threadListIds.drop(size),
                     currentPage = currentPage,
                     hasMore = response.data_.thread_list.isNotEmpty()
@@ -190,7 +195,7 @@ private class ForumThreadListPartialChangeProducer(
                     val threadList =
                         response.data_.thread_list.map { ThreadItemData(it.wrapImmutable()) }
                     ForumThreadListPartialChange.LoadMore.Success(
-                        threadList = threadList,
+                        threadList = threadList.map { it.wrapImmutable() },
                         threadListIds = response.data_.thread_id_list,
                         currentPage = currentPage + 1,
                         response.data_.page.has_more == 1
@@ -202,19 +207,38 @@ private class ForumThreadListPartialChangeProducer(
             .catch { emit(ForumThreadListPartialChange.LoadMore.Failure(it)) }
     }
 
-    private fun ForumThreadListUiIntent.Agree.producePartialChange(): Flow<ForumThreadListPartialChange.Agree> =
-        userInteractionRepository.opAgree(
+    private fun ForumThreadListUiIntent.Agree.producePartialChange(): Flow<ForumThreadListPartialChange.Agree> {
+        // ✅ 提前读取当前状态
+        val currentEntity = pbPageRepository.threadFlow(threadId).value
+        val previousHasAgree = currentEntity?.meta?.hasAgree ?: 0
+        val previousAgreeNum = currentEntity?.meta?.agreeNum ?: 0
+
+        return userInteractionRepository.opAgree(
             threadId.toString(),
             postId.toString(),
             hasAgree,
             objType = 3
-        ).map<AgreeBean, ForumThreadListPartialChange.Agree> {
-            ForumThreadListPartialChange.Agree.Success(
-                threadId,
-                hasAgree xor 1
-            )
-        }
+        )
+            .map<AgreeBean, ForumThreadListPartialChange.Agree> {
+                ForumThreadListPartialChange.Agree.Success(
+                    threadId,
+                    hasAgree xor 1
+                )
+            }
             .catch {
+                // ✅ 失败时恢复原始值
+                currentEntity?.let { entity ->
+                    pbPageRepository.upsertThreads(
+                        listOf(
+                            entity.copy(
+                                meta = entity.meta.copy(
+                                    hasAgree = previousHasAgree,
+                                    agreeNum = previousAgreeNum
+                                )
+                            )
+                        )
+                    )
+                }
                 emit(
                     ForumThreadListPartialChange.Agree.Failure(
                         threadId,
@@ -224,7 +248,23 @@ private class ForumThreadListPartialChangeProducer(
                     )
                 )
             }
-            .onStart { emit(ForumThreadListPartialChange.Agree.Start(threadId, hasAgree xor 1)) }
+            .onStart {
+                // ✅ 乐观更新
+                currentEntity?.let { entity ->
+                    pbPageRepository.upsertThreads(
+                        listOf(
+                            entity.copy(
+                                meta = entity.meta.copy(
+                                    hasAgree = hasAgree xor 1,
+                                    agreeNum = if (hasAgree == 0) entity.meta.agreeNum + 1 else entity.meta.agreeNum - 1
+                                )
+                            )
+                        )
+                    )
+                }
+                emit(ForumThreadListPartialChange.Agree.Start(threadId, hasAgree xor 1))
+            }
+    }
 }
 
 sealed interface ForumThreadListUiIntent : UiIntent {
@@ -264,7 +304,7 @@ sealed interface ForumThreadListPartialChange : PartialChange<ForumThreadListUiS
                 is Success -> oldState.copy(
                     isRefreshing = false,
                     forumRuleTitle = forumRuleTitle,
-                    threadList = threadList.distinctById(),
+                    threadList = threadList.toImmutableList(),
                     threadListIds = threadListIds.toImmutableList(),
                     goodClassifies = goodClassifies.toImmutableList(),
                     goodClassifyId = goodClassifyId,
@@ -279,7 +319,7 @@ sealed interface ForumThreadListPartialChange : PartialChange<ForumThreadListUiS
 
         data class Success(
             val forumRuleTitle: String?,
-            val threadList: List<ThreadItemData>,
+            val threadList: List<ImmutableHolder<ThreadItemData>>,
             val threadListIds: List<Long>,
             val goodClassifies: List<ImmutableHolder<Classify>>,
             val goodClassifyId: Int?,
@@ -297,7 +337,7 @@ sealed interface ForumThreadListPartialChange : PartialChange<ForumThreadListUiS
                 Start -> oldState.copy(isRefreshing = true)
                 is Success -> oldState.copy(
                     isRefreshing = false,
-                    threadList = threadList.distinctById(),
+                    threadList = threadList.toImmutableList(),
                     threadListIds = threadListIds.toImmutableList(),
                     goodClassifies = goodClassifies.toImmutableList(),
                     goodClassifyId = goodClassifyId,
@@ -311,7 +351,7 @@ sealed interface ForumThreadListPartialChange : PartialChange<ForumThreadListUiS
         data object Start : Refresh()
 
         data class Success(
-            val threadList: List<ThreadItemData>,
+            val threadList: List<ImmutableHolder<ThreadItemData>>,
             val threadListIds: List<Long>,
             val goodClassifies: List<ImmutableHolder<Classify>>,
             val goodClassifyId: Int? = null,
@@ -329,7 +369,7 @@ sealed interface ForumThreadListPartialChange : PartialChange<ForumThreadListUiS
                 Start -> oldState.copy(isLoadingMore = true)
                 is Success -> oldState.copy(
                     isLoadingMore = false,
-                    threadList = (oldState.threadList + threadList).distinctById(),
+                    threadList = ((oldState.threadList.map { it.get { this } } + threadList.map { it.get { this } }).distinctById().map { it.wrapImmutable() }).toImmutableList(),
                     threadListIds = threadListIds.toImmutableList(),
                     currentPage = currentPage,
                     hasMore = hasMore
@@ -341,7 +381,7 @@ sealed interface ForumThreadListPartialChange : PartialChange<ForumThreadListUiS
         data object Start : LoadMore()
 
         data class Success(
-            val threadList: List<ThreadItemData>,
+            val threadList: List<ImmutableHolder<ThreadItemData>>,
             val threadListIds: List<Long>,
             val currentPage: Int,
             val hasMore: Boolean,
@@ -352,47 +392,11 @@ sealed interface ForumThreadListPartialChange : PartialChange<ForumThreadListUiS
         ) : LoadMore()
     }
 
-    sealed class Agree private constructor() : ForumThreadListPartialChange {
-        private fun List<ThreadItemData>.updateAgreeStatus(
-            threadId: Long,
-            hasAgree: Int,
-        ): ImmutableList<ThreadItemData> {
-            return map { data ->
-                val (thread) = data
-                if (thread.get { id } == threadId) {
-                    ThreadItemData(thread.getImmutable { updateAgreeStatus(hasAgree) })
-                } else data
-            }.toImmutableList()
-        }
-
+    sealed class Agree : ForumThreadListPartialChange {
+        // ✅ 删除 reduce 逻辑，Store 已处理更新
         override fun reduce(oldState: ForumThreadListUiState): ForumThreadListUiState =
             when (this) {
-                is Start -> {
-                    oldState.copy(
-                        threadList = oldState.threadList.updateAgreeStatus(
-                            threadId,
-                            hasAgree
-                        )
-                    )
-                }
-
-                is Success -> {
-                    oldState.copy(
-                        threadList = oldState.threadList.updateAgreeStatus(
-                            threadId,
-                            hasAgree
-                        )
-                    )
-                }
-
-                is Failure -> {
-                    oldState.copy(
-                        threadList = oldState.threadList.updateAgreeStatus(
-                            threadId,
-                            hasAgree
-                        )
-                    )
-                }
+                is Start, is Success, is Failure -> oldState  // ✅ Store 已更新，State 无需变化
             }
 
         data class Start(
@@ -419,7 +423,7 @@ data class ForumThreadListUiState(
     val isLoadingMore: Boolean = false,
     val goodClassifyId: Int? = null,
     val forumRuleTitle: String? = null,
-    val threadList: ImmutableList<ThreadItemData> = persistentListOf(),
+    val threadList: ImmutableList<ImmutableHolder<ThreadItemData>> = persistentListOf(),
     val threadListIds: ImmutableList<Long> = persistentListOf(),
     val goodClassifies: ImmutableList<ImmutableHolder<Classify>> = persistentListOf(),
     val currentPage: Int = 1,

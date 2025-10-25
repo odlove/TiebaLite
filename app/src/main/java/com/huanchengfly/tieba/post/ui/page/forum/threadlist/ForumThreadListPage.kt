@@ -47,6 +47,7 @@ import com.huanchengfly.tieba.post.arch.collectPartialAsState
 import com.huanchengfly.tieba.post.arch.onEvent
 import com.huanchengfly.tieba.post.arch.onGlobalEvent
 import com.huanchengfly.tieba.post.arch.pageViewModel
+import com.huanchengfly.tieba.post.arch.wrapImmutable
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.common.theme.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.post.ui.common.windowsizeclass.WindowWidthSizeClass
@@ -67,6 +68,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.MyLazyColumn
 import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
 private fun getFirstLoadIntent(
     context: Context,
@@ -165,6 +167,7 @@ private fun TopThreadItem(
 @Composable
 private fun ThreadList(
     state: LazyListState,
+    pbPageRepository: com.huanchengfly.tieba.post.repository.PbPageRepository,
     items: ImmutableList<ThreadItemData>,
     onItemClicked: (ThreadInfo) -> Unit,
     onItemReplyClicked: (ThreadInfo) -> Unit,
@@ -240,13 +243,15 @@ private fun ThreadList(
                             }
                             VerticalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                         }
+
                         FeedCard(
                             item = holder,
                             onClick = onItemClicked,
                             onClickReply = onItemReplyClicked,
                             onAgree = onAgree,
                             onClickOriginThread = onOriginThreadClicked,
-                            onClickUser = onUserClicked
+                            onClickUser = onUserClicked,
+                            agreeEnabled = true  // ✅ 总是启用，PbPageRepository 处理缓存
                         )
                     }
                 }
@@ -387,7 +392,8 @@ fun ForumThreadListPage(
             ) {
                 ThreadList(
                     state = lazyListState,
-                    items = threadList,
+                    pbPageRepository = viewModel.pbPageRepository,
+                    items = threadList.map { it.get { this } }.toImmutableList(),
                     onItemClicked = {
                         navigator.navigate(
                             ThreadPageDestination(

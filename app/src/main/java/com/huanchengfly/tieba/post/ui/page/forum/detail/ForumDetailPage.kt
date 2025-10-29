@@ -37,18 +37,19 @@ import com.huanchengfly.tieba.post.api.models.protos.plainText
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.getOrNull
-import com.huanchengfly.tieba.post.arch.pageViewModel
+import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.common.theme.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.Chip
-import com.huanchengfly.tieba.post.ui.widgets.compose.Container
+import com.huanchengfly.tieba.core.ui.compose.Container
 import com.huanchengfly.tieba.post.ui.widgets.compose.ErrorScreen
 import com.huanchengfly.tieba.post.ui.widgets.compose.HorizontalDivider
-import com.huanchengfly.tieba.post.ui.widgets.compose.LazyLoad
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyScaffold
+import com.huanchengfly.tieba.core.ui.compose.LazyLoad
+import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
+import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.states.StateScreen
@@ -100,7 +101,9 @@ fun ForumDetailPage(
         },
         modifier = Modifier.fillMaxSize(),
     ) {
-        MyScaffold(
+        val snackbarState = rememberSnackbarState()
+        SnackbarScaffold(
+            snackbarState = snackbarState,
             topBar = {
                 TitleCentredToolbar(
                     title = {

@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.ui.widgets.compose.ProvideContentColor
+import com.huanchengfly.tieba.core.ui.compose.ProvideContentColor
 import com.huanchengfly.tieba.post.ui.widgets.compose.TextWithMinWidth
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
@@ -94,5 +94,4 @@ fun <ItemValue> ListSinglePicker(
         }
     }
 }
-
 

@@ -9,27 +9,21 @@ import androidx.core.view.WindowCompat
 import com.stoyanvuchev.systemuibarstweaker.SystemBarStyle
 import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
 import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
-import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
-import com.huanchengfly.tieba.core.mvi.UiEvent
-import com.huanchengfly.tieba.core.mvi.bindScrollToTopEvent
 import com.huanchengfly.tieba.core.mvi.onEvent
+import com.huanchengfly.tieba.core.ui.CommonUiEventHandler
+import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
+import com.huanchengfly.tieba.core.ui.windowsizeclass.calculateWindowSizeClass
 import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.post.ui.common.theme.compose.TiebaLiteTheme
-import com.huanchengfly.tieba.post.ui.common.windowsizeclass.WindowSizeClass
-import com.huanchengfly.tieba.post.ui.common.windowsizeclass.calculateWindowSizeClass
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccountProvider
 import com.huanchengfly.tieba.post.utils.ThemeUtil
 import dagger.hilt.android.EntryPointAccessors
@@ -63,7 +57,7 @@ abstract class BaseComposeActivityWithData<DATA> : BaseComposeActivity() {
     abstract fun Content(data: DATA)
 }
 
-abstract class BaseComposeActivity : BaseActivity() {
+abstract class BaseComposeActivity : BaseActivity(), CommonUiEventHandler {
     protected val globalEventBus: GlobalEventBus by lazy {
         EntryPointAccessors.fromApplication(
             applicationContext,
@@ -137,7 +131,7 @@ abstract class BaseComposeActivity : BaseActivity() {
     @Composable
     abstract fun Content()
 
-    fun handleCommonEvent(event: CommonUiEvent) {
+    override fun handleCommonUiEvent(event: CommonUiEvent) {
         when (event) {
             is CommonUiEvent.Toast -> {
                 Toast.makeText(this, event.message, event.length).show()
@@ -146,18 +140,15 @@ abstract class BaseComposeActivity : BaseActivity() {
                 onBackPressedDispatcher.onBackPressed()
             }
 
+            is CommonUiEvent.StartActivityForResult -> {
+                // 默认无操作，具体 Activity 可选择处理
+            }
+
+            is CommonUiEvent.ActivityResult -> {
+                // 默认无操作，具体 Activity 可选择处理
+            }
+
             else -> {}
         }
     }
-
-    companion object {
-        val LocalWindowSizeClass =
-            staticCompositionLocalOf<WindowSizeClass> {
-                WindowSizeClass.calculateFromSize(DpSize(0.dp, 0.dp))
-            }
-    }
 }
-
-
-
-typealias CommonUiEvent = com.huanchengfly.tieba.core.mvi.CommonUiEvent

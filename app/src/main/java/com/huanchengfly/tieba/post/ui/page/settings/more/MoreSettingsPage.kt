@@ -38,8 +38,8 @@ import com.huanchengfly.tieba.post.ui.page.destinations.AboutPageDestination
 import com.huanchengfly.tieba.post.ui.page.settings.LeadingIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.AvatarIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
-import com.huanchengfly.tieba.post.ui.widgets.compose.LocalSnackbarHostState
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyScaffold
+import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
+import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
 import com.huanchengfly.tieba.post.utils.ImageCacheUtil
@@ -56,7 +56,9 @@ fun MoreSettingsPage(
     navigator: DestinationsNavigator,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    MyScaffold(
+    val snackbarState = rememberSnackbarState()
+    SnackbarScaffold(
+        snackbarState = snackbarState,
         backgroundColor = Color.Transparent,
         topBar = {
             TitleCentredToolbar(
@@ -72,7 +74,6 @@ fun MoreSettingsPage(
             )
         },
     ) { paddingValues ->
-        val snackbarHostState = LocalSnackbarHostState.current
         val context = LocalContext.current
         var cacheSize by remember { mutableStateOf("0.0B") }
         LaunchedEffect(Unit) {
@@ -164,7 +165,7 @@ fun MoreSettingsPage(
                         coroutineScope.launch {
                             ImageCacheUtil.clearImageAllCache(context)
                             cacheSize = "0.0B"
-                            snackbarHostState.showSnackbar(context.getString(R.string.toast_clear_picture_cache_success))
+                            snackbarState.showSnackbar(context.getString(R.string.toast_clear_picture_cache_success))
                         }
                     },
                     summary = stringResource(id = R.string.tip_cache, cacheSize)

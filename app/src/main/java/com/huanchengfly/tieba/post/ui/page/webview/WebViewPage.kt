@@ -51,7 +51,7 @@ import androidx.core.net.toUri
 import android.Manifest
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.arch.GlobalEvent
+import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.onEvent
@@ -66,9 +66,10 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.AccompanistWebChromeClient
 import com.huanchengfly.tieba.post.ui.widgets.compose.AccompanistWebViewClient
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.ClickMenu
-import com.huanchengfly.tieba.post.ui.widgets.compose.LazyLoad
+import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.post.ui.widgets.compose.LoadingState
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyScaffold
+import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
+import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.WebView
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberMenuState
@@ -80,7 +81,7 @@ import com.huanchengfly.tieba.post.utils.PermissionUtils
 import com.huanchengfly.tieba.post.utils.PermissionUtils.PermissionData
 import com.huanchengfly.tieba.post.utils.TiebaUtil
 import com.huanchengfly.tieba.post.utils.appPreferences
-import com.huanchengfly.tieba.post.utils.compose.launchActivityForResult
+import com.huanchengfly.tieba.core.ui.activityresult.launchActivityForResult
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
@@ -167,7 +168,10 @@ fun WebViewPage(
 
     val animatedProgress by animateFloatAsState(targetValue = progress, label = "progress")
 
-    MyScaffold(
+    val snackbarState = rememberSnackbarState()
+
+    SnackbarScaffold(
+        snackbarState = snackbarState,
         topBar = {
             Toolbar(
                 title = {
@@ -483,7 +487,7 @@ class MyWebChromeClient(
     val id: String = UUID.randomUUID().toString()
 
     init {
-        globalEventBus.onEvent<GlobalEvent.ActivityResult>(
+        globalEventBus.onEvent<CommonUiEvent.ActivityResult>(
             coroutineScope,
             filter = { it.requesterId == id },
         ) {

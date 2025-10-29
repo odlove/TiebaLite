@@ -28,8 +28,9 @@ import com.huanchengfly.tieba.post.ui.page.subposts.components.SubPostItem
 import com.huanchengfly.tieba.post.ui.page.subposts.components.SubPostsBottomBar
 import com.huanchengfly.tieba.post.ui.page.thread.PostCard
 import com.huanchengfly.tieba.post.ui.widgets.compose.LoadMoreLayout
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyLazyColumn
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyScaffold
+import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
+import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
+import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.states.StateScreen
@@ -77,7 +78,9 @@ fun SubPostsScreen(
         isError = false,
         isLoading = props.isRefreshing,
     ) {
-        MyScaffold(
+        val snackbarState = rememberSnackbarState()
+        SnackbarScaffold(
+            snackbarState = snackbarState,
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TitleCentredToolbar(

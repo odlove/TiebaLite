@@ -1,11 +1,7 @@
 package com.huanchengfly.tieba.post.ui.widgets.compose
 
-import android.util.Log
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,23 +9,18 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.CheckCircle
@@ -48,14 +39,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.arch.BaseComposeActivity.Companion.LocalWindowSizeClass
-import com.huanchengfly.tieba.post.arch.GlobalEvent
-import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
-import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
+import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
+import com.huanchengfly.tieba.core.ui.compose.ActionItem as CoreActionItem
+import com.huanchengfly.tieba.core.ui.compose.BackNavigationIcon as CoreBackNavigationIcon
+import com.huanchengfly.tieba.core.ui.compose.TitleCentredToolbar as CoreTitleCentredToolbar
+import com.huanchengfly.tieba.core.ui.compose.Toolbar as CoreToolbar
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.post.ui.common.windowsizeclass.WindowWidthSizeClass.Companion.Compact
+import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass.Companion.Compact
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.LoginPageDestination
 import com.huanchengfly.tieba.post.utils.AccountUtil
@@ -63,6 +54,8 @@ import com.huanchengfly.tieba.post.utils.AccountUtil.AllAccounts
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import com.huanchengfly.tieba.post.utils.StringUtil
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
+import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.launch
 
 @Composable
@@ -173,26 +166,22 @@ fun ActionItem(
     contentDescription: String,
     onClick: () -> Unit
 ) {
-    ProvideContentColor(color = ExtendedTheme.colors.onTopBar) {
-        IconButton(onClick = onClick) {
-            Icon(
-                imageVector = icon,
-                contentDescription = contentDescription
-            )
-        }
-    }
+    CoreActionItem(
+        icon = icon,
+        contentDescription = contentDescription,
+        onClick = onClick,
+        tint = ExtendedTheme.colors.onTopBar
+    )
 }
 
 @Composable
 fun BackNavigationIcon(onBackPressed: () -> Unit) {
-    ProvideContentColor(color = ExtendedTheme.colors.onTopBar) {
-        IconButton(onClick = onBackPressed) {
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.ic_round_arrow_back),
-                contentDescription = stringResource(id = R.string.button_back)
-            )
-        }
-    }
+    CoreBackNavigationIcon(
+        onBackPressed = onBackPressed,
+        imageVector = ImageVector.vectorResource(id = R.drawable.ic_round_arrow_back),
+        contentDescription = stringResource(id = R.string.button_back),
+        tint = ExtendedTheme.colors.onTopBar
+    )
 }
 
 @Deprecated(
@@ -241,47 +230,21 @@ fun TitleCentredToolbar(
     actions: @Composable RowScope.() -> Unit = {},
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
-    TopAppBarContainer(
-        topBar = {
-            TopAppBar(
-                backgroundColor = ExtendedTheme.colors.topBar,
-                contentColor = ExtendedTheme.colors.onTopBar,
-                elevation = 0.dp
-            ) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxHeight()
-                    ) {
-                        ProvideContentColor(color = ExtendedTheme.colors.onTopBar) {
-                            navigationIcon?.invoke()
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            actions()
-                        }
-                    }
-
-                    Row(
-                        Modifier
-                            .fillMaxHeight()
-                            .align(Alignment.Center),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        ProvideTextStyle(value = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold)) {
-                            ProvideContentColor(color = ExtendedTheme.colors.onTopBar) {
-                                title()
-                            }
-                        }
-                    }
-                }
-            }
-        },
+    val backgroundColor = ExtendedTheme.colors.topBar
+    val contentColor = ExtendedTheme.colors.onTopBar
+    val statusBarColor = backgroundColor.calcStatusBarColor()
+    val titleTextStyle = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold)
+    CoreTitleCentredToolbar(
+        title = title,
         modifier = modifier,
         insets = insets,
-        content = content
+        navigationIcon = navigationIcon,
+        actions = actions,
+        content = content,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        statusBarColor = statusBarColor,
+        titleTextStyle = titleTextStyle
     )
 }
 
@@ -308,80 +271,19 @@ fun Toolbar(
     navigationIcon: (@Composable () -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
     backgroundColor: Color = ExtendedTheme.colors.topBar,
-    contentColor: Color = ExtendedTheme.colors.onTopBar,
+   contentColor: Color = ExtendedTheme.colors.onTopBar,
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
-    TopAppBarContainer(
-        topBar = {
-            TopAppBar(
-                title = {
-                    ProvideTextStyle(value = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold)) {
-                        ProvideContentColor(color = contentColor, content = title)
-                    }
-                },
-                actions = {
-                    ProvideContentColor(color = contentColor) {
-                        actions()
-                    }
-                },
-                navigationIcon = (@Composable {
-                    ProvideContentColor(color = contentColor) {
-                        navigationIcon?.invoke()
-                    }
-                }).takeIf { navigationIcon != null },
-                backgroundColor = backgroundColor,
-                contentColor = contentColor,
-                elevation = 0.dp
-            )
-        },
+    val statusBarColor = backgroundColor.calcStatusBarColor()
+    val titleTextStyle = MaterialTheme.typography.h6.copy(fontWeight = FontWeight.Bold)
+    CoreToolbar(
+        title = title,
+        navigationIcon = navigationIcon,
+        actions = actions,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        statusBarColor = statusBarColor,
+        titleTextStyle = titleTextStyle,
         content = content
     )
-}
-
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun TopAppBarContainer(
-    topBar: @Composable ColumnScope.() -> Unit,
-    modifier: Modifier = Modifier,
-    insets: Boolean = true,
-    content: (@Composable ColumnScope.() -> Unit)? = null,
-) {
-    val statusBarModifier = if (insets) {
-        Modifier.windowInsetsTopHeight(WindowInsets.statusBars)
-    } else {
-        Modifier
-    }
-    val globalEventBus = LocalGlobalEventBus.current
-    val coroutineScope = rememberCoroutineScope()
-    Column(modifier) {
-        Spacer(
-            modifier = statusBarModifier
-                .fillMaxWidth()
-                .background(color = ExtendedTheme.colors.topBar.calcStatusBarColor())
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .combinedClickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onDoubleClick = {
-                        Log.i("TopAppBarContainer", "TopAppBarContainer: onDoubleClick")
-                        coroutineScope.emitGlobalEvent(globalEventBus, GlobalEvent.ScrollToTop)
-                    },
-                    onClick = {},
-                ),
-            content = topBar
-        )
-        content?.let {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(color = ExtendedTheme.colors.topBar),
-            ) {
-                content()
-            }
-        }
-    }
 }

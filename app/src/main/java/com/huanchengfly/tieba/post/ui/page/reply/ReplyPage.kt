@@ -83,13 +83,13 @@ import androidx.core.widget.addTextChangedListener
 import com.github.panpf.sketch.compose.AsyncImage
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.arch.GlobalEvent
+import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
-import com.huanchengfly.tieba.post.arch.pageViewModel
+import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.models.database.Draft
 import com.huanchengfly.tieba.post.pxToDpFloat
 import com.huanchengfly.tieba.post.toMD5
@@ -105,7 +105,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.Dialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.DialogNegativeButton
 import com.huanchengfly.tieba.post.ui.widgets.compose.DialogPositiveButton
 import com.huanchengfly.tieba.post.ui.widgets.compose.DialogState
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyBackHandler
+import com.huanchengfly.tieba.core.ui.compose.MyBackHandler
 import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.ui.widgets.edittext.widget.UndoableEditText
@@ -823,7 +823,7 @@ private fun ImagePanel(
     val id = remember { UUID.randomUUID().toString() }
     val coroutineScope = rememberCoroutineScope()
     val globalEventBus = LocalGlobalEventBus.current
-    onGlobalEvent<GlobalEvent.SelectedImages>(
+    onGlobalEvent<CommonUiEvent.SelectedImages>(
         bus = globalEventBus,
         filter = { it.id == id }
     ) {
@@ -874,7 +874,7 @@ private fun ImagePanel(
                             .clickable {
                                 coroutineScope.emitGlobalEvent(
                                     globalEventBus,
-                                    GlobalEvent.StartSelectImages(
+                                    CommonUiEvent.StartSelectImages(
                                         id,
                                         9 - selectedImages.size,
                                         PickMediasRequest.ImageOnly

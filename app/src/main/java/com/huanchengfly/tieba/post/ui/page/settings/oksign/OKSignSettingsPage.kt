@@ -14,7 +14,6 @@ import androidx.compose.material.icons.outlined.OfflinePin
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,8 +37,8 @@ import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.page.settings.LeadingIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.AvatarIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
-import com.huanchengfly.tieba.post.ui.widgets.compose.LocalSnackbarHostState
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyScaffold
+import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
+import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
 import com.huanchengfly.tieba.post.utils.isIgnoringBatteryOptimizations
@@ -55,8 +54,9 @@ import kotlinx.coroutines.launch
 fun OKSignSettingsPage(
     navigator: DestinationsNavigator,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    MyScaffold(
+    val snackbarState = rememberSnackbarState()
+    SnackbarScaffold(
+        snackbarState = snackbarState,
         backgroundColor = Color.Transparent,
         topBar = {
             TitleCentredToolbar(
@@ -69,7 +69,6 @@ fun OKSignSettingsPage(
     ) { paddingValues ->
         val context = LocalContext.current
         val dataStore = context.dataStore
-        val snackbarHostState = LocalSnackbarHostState.current
         PrefsScreen(
             dataStore = dataStore,
             dividerThickness = 0.dp,
@@ -171,9 +170,7 @@ fun OKSignSettingsPage(
                             if (!context.powerManager.isIgnoringBatteryOptimizations(context.packageName)) {
                                 context.requestIgnoreBatteryOptimizations()
                             } else {
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar(context.getString(R.string.toast_ignore_battery_optimization_already))
-                                }
+                                snackbarState.showSnackbar(context.getString(R.string.toast_ignore_battery_optimization_already))
                             }
                         }
                     }

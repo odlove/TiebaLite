@@ -72,10 +72,10 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.arch.GlobalEvent
+import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
-import com.huanchengfly.tieba.post.arch.pageViewModel
+import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.common.theme.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
@@ -90,8 +90,9 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.ConfirmDialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.ErrorScreen
 import com.huanchengfly.tieba.post.ui.widgets.compose.LongClickMenu
 import com.huanchengfly.tieba.post.ui.widgets.compose.MenuState
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyLazyVerticalGrid
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyScaffold
+import com.huanchengfly.tieba.core.ui.compose.MyLazyVerticalGrid
+import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
+import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.post.ui.widgets.compose.TextButton
 import com.huanchengfly.tieba.post.ui.widgets.compose.TipScreen
 import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
@@ -423,7 +424,7 @@ fun HomePage(
     val isError by remember { derivedStateOf { error != null } }
     val gridCells by remember { derivedStateOf { getGridCells(context, listSingle) } }
 
-    onGlobalEvent<GlobalEvent.Refresh>(
+    onGlobalEvent<CommonUiEvent.Refresh>(
         filter = { it.key == "home" }
     ) {
         viewModel.send(HomeUiIntent.Refresh)
@@ -451,7 +452,9 @@ fun HomePage(
         if (viewModel.initialized) viewModel.send(HomeUiIntent.RefreshHistory)
     }
 
-    MyScaffold(
+    val snackbarState = rememberSnackbarState()
+    SnackbarScaffold(
+        snackbarState = snackbarState,
         backgroundColor = Color.Transparent,
         topBar = {
             Toolbar(

@@ -69,19 +69,19 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.User
-import com.huanchengfly.tieba.post.arch.BaseComposeActivity.Companion.LocalWindowSizeClass
-import com.huanchengfly.tieba.post.arch.GlobalEvent
+import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
+import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.mvi.getOrNull
-import com.huanchengfly.tieba.post.arch.pageViewModel
+import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.goToActivity
 import com.huanchengfly.tieba.post.models.database.Block
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.post.ui.common.windowsizeclass.WindowWidthSizeClass
+import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.user.edit.EditProfileActivity
 import com.huanchengfly.tieba.post.ui.page.user.likeforum.UserLikeForumPage
@@ -92,13 +92,14 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.Button
 import com.huanchengfly.tieba.post.ui.widgets.compose.Chip
 import com.huanchengfly.tieba.post.ui.widgets.compose.ClickMenu
 import com.huanchengfly.tieba.post.ui.widgets.compose.ErrorScreen
-import com.huanchengfly.tieba.post.ui.widgets.compose.LazyLoad
-import com.huanchengfly.tieba.post.ui.widgets.compose.LazyLoadHorizontalPager
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyScaffold
-import com.huanchengfly.tieba.post.ui.widgets.compose.PagerTabIndicator
-import com.huanchengfly.tieba.post.ui.widgets.compose.ProvideContentColor
+import com.huanchengfly.tieba.core.ui.compose.LazyLoad
+import com.huanchengfly.tieba.core.ui.compose.LazyLoadHorizontalPager
+import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
+import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
+import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
+import com.huanchengfly.tieba.core.ui.compose.ProvideContentColor
 import com.huanchengfly.tieba.post.ui.widgets.compose.PullToRefreshLayout
-import com.huanchengfly.tieba.post.ui.widgets.compose.ScrollableTabRow
+import com.huanchengfly.tieba.core.ui.compose.ScrollableTabRow
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.UserHeader
@@ -347,8 +348,10 @@ private fun UserProfileContentNormal(
     }
 
     val globalEventBus = LocalGlobalEventBus.current
+    val snackbarState = rememberSnackbarState()
 
-    MyScaffold(
+    SnackbarScaffold(
+        snackbarState = snackbarState,
         topBar = {
             UserProfileToolbar(
                 user = user,
@@ -370,7 +373,7 @@ private fun UserProfileContentNormal(
         PullToRefreshLayout(
             refreshing = isFakeRefreshing,
             onRefresh = {
-                coroutineScope.emitGlobalEvent(globalEventBus, GlobalEvent.Refresh(key = "user_profile"))
+                coroutineScope.emitGlobalEvent(globalEventBus, CommonUiEvent.Refresh(key = "user_profile"))
                 isFakeRefreshing = true
             }
         ) {
@@ -556,7 +559,10 @@ private fun UserProfileContentExpanded(
 ) {
     val context = LocalContext.current
 
-    MyScaffold(
+    val snackbarState = rememberSnackbarState()
+
+    SnackbarScaffold(
+        snackbarState = snackbarState,
         topBar = {
             UserProfileToolbar(
                 user = user,

@@ -19,7 +19,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -43,7 +42,7 @@ import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.ThreadStoreBean
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onEvent
-import com.huanchengfly.tieba.post.arch.pageViewModel
+import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.dpToPxFloat
 import com.huanchengfly.tieba.post.pxToSp
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
@@ -56,11 +55,12 @@ import com.huanchengfly.tieba.post.ui.page.thread.ThreadSortType
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.ErrorScreen
-import com.huanchengfly.tieba.post.ui.widgets.compose.LazyLoad
+import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.post.ui.widgets.compose.LoadMoreLayout
 import com.huanchengfly.tieba.post.ui.widgets.compose.LongClickMenu
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyLazyColumn
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyScaffold
+import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
+import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
+import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.UserHeader
@@ -116,9 +116,9 @@ fun ThreadStorePage(
     val isError by remember { derivedStateOf { error != null } }
 
     val context = LocalContext.current
-    val scaffoldState = rememberScaffoldState()
+    val snackbarState = rememberSnackbarState()
     viewModel.onEvent<ThreadStoreUiEvent.Delete.Failure> {
-        scaffoldState.snackbarHostState.showSnackbar(
+        snackbarState.showSnackbar(
             context.getString(
                 R.string.delete_store_failure,
                 it.errorMsg
@@ -126,11 +126,11 @@ fun ThreadStorePage(
         )
     }
     viewModel.onEvent<ThreadStoreUiEvent.Delete.Success> {
-        scaffoldState.snackbarHostState.showSnackbar(context.getString(R.string.delete_store_success))
+        snackbarState.showSnackbar(context.getString(R.string.delete_store_success))
     }
-    MyScaffold(
+    SnackbarScaffold(
         backgroundColor = Color.Transparent,
-        scaffoldState = scaffoldState,
+        snackbarState = snackbarState,
         topBar = {
             TitleCentredToolbar(
                 title = {

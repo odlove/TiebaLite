@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.widgets.compose
+package com.huanchengfly.tieba.core.ui.compose
 
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
@@ -17,7 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.huanchengfly.tieba.post.arch.GlobalEvent
+import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 
 @Composable
@@ -33,7 +33,7 @@ fun MyLazyColumn(
     userScrollEnabled: Boolean = true,
     content: LazyListScope.() -> Unit,
 ) {
-    onGlobalEvent<GlobalEvent.ScrollToTop> {
+    onGlobalEvent<CommonUiEvent.ScrollToTop> {
         state.animateScrollToItem(0)
     }
 
@@ -64,7 +64,7 @@ fun MyLazyVerticalGrid(
     userScrollEnabled: Boolean = true,
     content: LazyGridScope.() -> Unit,
 ) {
-    onGlobalEvent<GlobalEvent.ScrollToTop> {
+    onGlobalEvent<CommonUiEvent.ScrollToTop> {
         state.animateScrollToItem(0)
     }
 

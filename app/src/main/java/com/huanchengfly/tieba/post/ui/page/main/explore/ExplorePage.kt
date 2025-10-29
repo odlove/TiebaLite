@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.arch.GlobalEvent
+import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
@@ -39,9 +39,9 @@ import com.huanchengfly.tieba.post.ui.page.main.explore.concern.ConcernPage
 import com.huanchengfly.tieba.post.ui.page.main.explore.hot.HotPage
 import com.huanchengfly.tieba.post.ui.page.main.explore.personalized.PersonalizedPage
 import com.huanchengfly.tieba.post.ui.widgets.compose.ActionItem
-import com.huanchengfly.tieba.post.ui.widgets.compose.LazyLoadHorizontalPager
-import com.huanchengfly.tieba.post.ui.widgets.compose.PagerTabIndicator
-import com.huanchengfly.tieba.post.ui.widgets.compose.TabRow
+import com.huanchengfly.tieba.core.ui.compose.LazyLoadHorizontalPager
+import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
+import com.huanchengfly.tieba.core.ui.compose.TabRow
 import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.accountNavIconIfCompact
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
@@ -90,7 +90,7 @@ private fun ColumnScope.ExplorePageTab(
                         if (pagerState.currentPage == index) {
                             coroutineScope.emitGlobalEvent(
                                 globalEventBus,
-                                GlobalEvent.Refresh(item.id)
+                                CommonUiEvent.Refresh(item.id)
                             )
                         } else {
                             pagerState.animateScrollToPage(index)
@@ -153,13 +153,13 @@ fun ExplorePage() {
 
     val coroutineScope = rememberCoroutineScope()
 
-    onGlobalEvent<GlobalEvent.Refresh>(
+    onGlobalEvent<CommonUiEvent.Refresh>(
         filter = { it.key == "explore" }
     ) {
         if (pagerState.currentPage < pages.size) {
             coroutineScope.emitGlobalEvent(
                 globalEventBus,
-                GlobalEvent.Refresh(pages[pagerState.currentPage].id)
+                CommonUiEvent.Refresh(pages[pagerState.currentPage].id)
             )
         }
     }

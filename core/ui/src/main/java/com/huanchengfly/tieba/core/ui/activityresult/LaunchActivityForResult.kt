@@ -1,19 +1,21 @@
-package com.huanchengfly.tieba.post.utils.compose
+package com.huanchengfly.tieba.core.ui.activityresult
 
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.contract.ActivityResultContract
+import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
-import com.huanchengfly.tieba.post.arch.GlobalEvent
 import kotlinx.coroutines.CoroutineScope
+
+private const val EXTRA_REQUESTER_ID = "com.huanchengfly.tieba.core.ui.activityresult.extra.REQUESTER_ID"
 
 data class LaunchActivityRequest(
     val requesterId: String,
     val intent: Intent,
 )
 
-data class ActivityResult(
+data class ActivityResultPayload(
     val requesterId: String,
     val resultCode: Int,
     val intent: Intent?,
@@ -24,23 +26,27 @@ fun CoroutineScope.launchActivityForResult(
     requesterId: String,
     intent: Intent,
 ) {
-    emitGlobalEvent(globalEventBus, GlobalEvent.StartActivityForResult(requesterId, intent))
+    emitGlobalEvent(globalEventBus, CommonUiEvent.StartActivityForResult(requesterId, intent))
 }
 
-class LaunchActivityForResult : ActivityResultContract<LaunchActivityRequest, ActivityResult>() {
+class LaunchActivityForResult : ActivityResultContract<LaunchActivityRequest, ActivityResultPayload>() {
     private var currentRequesterId: String? = null
 
     override fun createIntent(context: Context, input: LaunchActivityRequest): Intent {
         currentRequesterId = input.requesterId
-        return input.intent
+        return Intent(input.intent).apply {
+            putExtra(EXTRA_REQUESTER_ID, input.requesterId)
+        }
     }
 
     override fun parseResult(
         resultCode: Int,
         intent: Intent?,
-    ): ActivityResult {
-        return ActivityResult(
-            requesterId = currentRequesterId ?: "",
+    ): ActivityResultPayload {
+        val requesterId = intent?.getStringExtra(EXTRA_REQUESTER_ID)
+            ?: currentRequesterId
+        return ActivityResultPayload(
+            requesterId = requesterId ?: "",
             resultCode = resultCode,
             intent = intent
         )

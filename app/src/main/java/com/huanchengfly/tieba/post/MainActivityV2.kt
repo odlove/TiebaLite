@@ -41,7 +41,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -74,6 +73,7 @@ import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseComposeActivity
 import com.huanchengfly.tieba.post.arch.GlobalEvent
+import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.post.components.ClipBoardForumLink
@@ -104,8 +104,9 @@ import com.huanchengfly.tieba.post.utils.PickMediasRequest
 import com.huanchengfly.tieba.post.utils.QuickPreviewUtil
 import com.huanchengfly.tieba.post.utils.ThemeUtil
 import com.huanchengfly.tieba.post.utils.TiebaUtil
-import com.huanchengfly.tieba.post.utils.compose.LaunchActivityForResult
-import com.huanchengfly.tieba.post.utils.compose.LaunchActivityRequest
+import com.huanchengfly.tieba.core.ui.activityresult.ActivityResultPayload
+import com.huanchengfly.tieba.core.ui.activityresult.LaunchActivityForResult
+import com.huanchengfly.tieba.core.ui.activityresult.LaunchActivityRequest
 import com.huanchengfly.tieba.post.utils.isIgnoringBatteryOptimizations
 import com.huanchengfly.tieba.post.utils.newIntentFilter
 import com.huanchengfly.tieba.post.utils.registerPickMediasLauncher
@@ -119,6 +120,7 @@ import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.utils.currentDestinationAsState
 import com.ramcosta.composedestinations.utils.currentDestinationFlow
+import com.huanchengfly.tieba.core.ui.navigation.LocalDestination
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -141,7 +143,6 @@ val LocalDevicePosture =
     staticCompositionLocalOf<State<DevicePosture>> { throw IllegalStateException("not allowed here!") }
 val LocalNavController =
     staticCompositionLocalOf<NavHostController> { throw IllegalStateException("not allowed here!") }
-val LocalDestination = compositionLocalOf<DestinationSpec<*>?> { null }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -167,14 +168,14 @@ class MainActivityV2 : BaseComposeActivity() {
 
     private val pickMediasLauncher =
         registerPickMediasLauncher {
-            globalEventBus.emitGlobalEvent(GlobalEvent.SelectedImages(it.id, it.uris))
+            globalEventBus.emitGlobalEvent(CommonUiEvent.SelectedImages(it.id, it.uris))
         }
 
     private val mLaunchActivityForResultLauncher = registerForActivityResult(
         LaunchActivityForResult()
-    ) {
+    ) { result: ActivityResultPayload ->
         globalEventBus.emitGlobalEvent(
-            GlobalEvent.ActivityResult(it.requesterId, it.resultCode, it.intent)
+            CommonUiEvent.ActivityResult(result.requesterId, result.resultCode, result.intent)
         )
     }
 
@@ -489,7 +490,7 @@ class MainActivityV2 : BaseComposeActivity() {
                 okSignAlertDialogState.show()
             }
         }
-        onGlobalEvent<GlobalEvent.StartSelectImages> {
+        onGlobalEvent<CommonUiEvent.StartSelectImages> {
             val mediaType = it.mediaType
             if (mediaType is PickMediasRequest.MediaType) {
                 pickMediasLauncher.launch(
@@ -502,7 +503,7 @@ class MainActivityV2 : BaseComposeActivity() {
                 )
             }
         }
-        onGlobalEvent<GlobalEvent.StartActivityForResult> {
+        onGlobalEvent<CommonUiEvent.StartActivityForResult> {
             mLaunchActivityForResultLauncher.launch(
                 LaunchActivityRequest(
                     it.requesterId,

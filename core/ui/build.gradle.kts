@@ -29,9 +29,13 @@ android {
 
 dependencies {
     implementation(project(":core:mvi"))
+    implementation(project(":core:common"))
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.runtime)
+    implementation(libs.compose.material)
+    implementation(libs.compose.material.icons.core)
+    implementation(libs.compose.material.icons.extended)
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
 
@@ -40,4 +44,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.compose.foundation)
+    implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.window)
+    implementation(libs.compose.destinations.core)
 }

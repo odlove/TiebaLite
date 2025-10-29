@@ -12,7 +12,6 @@ import androidx.compose.material.Tab
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -31,9 +30,10 @@ import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.history.list.HistoryListPage
 import com.huanchengfly.tieba.post.ui.page.history.list.HistoryListUiEvent
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyScaffold
-import com.huanchengfly.tieba.post.ui.widgets.compose.PagerTabIndicator
-import com.huanchengfly.tieba.post.ui.widgets.compose.TabRow
+import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
+import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
+import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
+import com.huanchengfly.tieba.core.ui.compose.TabRow
 import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
 import com.huanchengfly.tieba.post.utils.HistoryUtil
 import com.ramcosta.composedestinations.annotation.DeepLink
@@ -53,14 +53,14 @@ fun HistoryPage(
 ) {
     val pagerState = rememberPagerState { 2 }
     val coroutineScope = rememberCoroutineScope()
-    val scaffoldState = rememberScaffoldState()
+    val snackbarState = rememberSnackbarState()
     val globalEventBus = LocalGlobalEventBus.current
 
     val context = LocalContext.current
 
-    MyScaffold(
+    SnackbarScaffold(
         backgroundColor = Color.Transparent,
-        scaffoldState = scaffoldState,
+        snackbarState = snackbarState,
         topBar = {
             TitleCentredToolbar(
                 title = {
@@ -77,13 +77,9 @@ fun HistoryPage(
                         coroutineScope.launch {
                             HistoryUtil.deleteAll()
                             globalEventBus.emitGlobalEvent(HistoryListUiEvent.DeleteAll)
-                            launch {
-                                scaffoldState.snackbarHostState.showSnackbar(
-                                    context.getString(
-                                        R.string.toast_clear_success
-                                    )
-                                )
-                            }
+                            snackbarState.showSnackbar(
+                                context.getString(R.string.toast_clear_success)
+                            )
                         }
                     }) {
                         Icon(

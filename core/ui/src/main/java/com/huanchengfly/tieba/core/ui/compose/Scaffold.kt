@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.widgets.compose
+package com.huanchengfly.tieba.core.ui.compose
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.Dp
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun SwipeToDismissSnackbarHost(hostState: SnackbarHostState) {
+internal fun SwipeToDismissSnackbarHost(hostState: SnackbarHostState) {
     val dismissState = rememberDismissState(
         confirmStateChange = { value ->
             if (value != DismissValue.Default) {
@@ -67,7 +67,7 @@ fun MyScaffold(
     drawerContentColor: Color = contentColorFor(drawerBackgroundColor),
     drawerScrimColor: Color = DrawerDefaults.scrimColor,
     backgroundColor: Color = MaterialTheme.colors.background,
-    contentColor: Color = contentColorFor(backgroundColor),
+    contentColor: Color = if (backgroundColor.alpha == 0f) MaterialTheme.colors.onSurface else contentColorFor(backgroundColor),
     content: @Composable (PaddingValues) -> Unit
 ) {
     CompositionLocalProvider(LocalSnackbarHostState provides scaffoldState.snackbarHostState) {

@@ -23,7 +23,7 @@ import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
-import com.huanchengfly.tieba.post.arch.pageViewModel
+import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.fromJson
 import com.huanchengfly.tieba.post.models.ThreadHistoryInfoBean
 import com.huanchengfly.tieba.post.models.database.History
@@ -34,11 +34,11 @@ import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageFrom
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.post.ui.widgets.compose.Chip
-import com.huanchengfly.tieba.post.ui.widgets.compose.LazyLoad
+import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.post.ui.widgets.compose.LoadMoreLayout
-import com.huanchengfly.tieba.post.ui.widgets.compose.LocalSnackbarHostState
+import com.huanchengfly.tieba.core.ui.compose.LocalSnackbarState
 import com.huanchengfly.tieba.post.ui.widgets.compose.LongClickMenu
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyLazyColumn
+import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.post.ui.widgets.compose.UserHeader
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberMenuState
@@ -81,9 +81,9 @@ fun HistoryListPage(
 
     val context = LocalContext.current
     val navigator = LocalNavigator.current
-    val snackbarHostState = LocalSnackbarHostState.current
+    val snackbarState = LocalSnackbarState.current
     viewModel.onEvent<HistoryListUiEvent.Delete.Failure> {
-        snackbarHostState.showSnackbar(
+        snackbarState.showSnackbar(
             context.getString(
                 R.string.delete_history_failure,
                 it.errorMsg
@@ -91,7 +91,7 @@ fun HistoryListPage(
         )
     }
     viewModel.onEvent<HistoryListUiEvent.Delete.Success> {
-        snackbarHostState.showSnackbar(context.getString(R.string.delete_history_success))
+        snackbarState.showSnackbar(context.getString(R.string.delete_history_success))
     }
     val lazyListState = rememberLazyListState()
     Box(

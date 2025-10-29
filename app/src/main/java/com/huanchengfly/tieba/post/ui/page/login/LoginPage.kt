@@ -47,10 +47,10 @@ import com.huanchengfly.tieba.post.ui.page.webview.MyWebViewClient
 import com.huanchengfly.tieba.post.ui.page.webview.isInternalHost
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.ClickMenu
-import com.huanchengfly.tieba.post.ui.widgets.compose.LazyLoad
+import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.post.ui.widgets.compose.LoadingState
-import com.huanchengfly.tieba.post.ui.widgets.compose.LocalSnackbarHostState
-import com.huanchengfly.tieba.post.ui.widgets.compose.MyScaffold
+import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
+import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.WebView
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberMenuState
@@ -149,7 +149,10 @@ fun LoginPage(
 
     val animatedProgress by animateFloatAsState(targetValue = progress, label = "progress")
 
-    MyScaffold(
+    val snackbarState = rememberSnackbarState()
+
+    SnackbarScaffold(
+        snackbarState = snackbarState,
         topBar = {
             Toolbar(
                 title = {
@@ -202,7 +205,7 @@ fun LoginPage(
         }
     ) { paddingValues ->
         Box {
-            val snackbarHostState = LocalSnackbarHostState.current
+            val snackbarHostState = snackbarState.hostState
             WebView(
                 state = webViewState,
                 modifier = Modifier

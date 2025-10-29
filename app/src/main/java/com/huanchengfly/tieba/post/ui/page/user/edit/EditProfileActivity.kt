@@ -36,6 +36,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,6 +45,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -93,6 +95,7 @@ import com.huanchengfly.tieba.post.utils.ThemeUtil
 import com.huanchengfly.tieba.post.utils.registerPickMediasLauncher
 import com.huanchengfly.tieba.post.utils.requestPermission
 import com.huanchengfly.tieba.post.utils.shouldUsePhotoPicker
+import dagger.hilt.android.EntryPointAccessors
 import com.yalantis.ucrop.UCrop
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.collections.immutable.persistentListOf
@@ -185,8 +188,15 @@ class EditProfileActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            TiebaLiteTheme {
-                val systemUIBarsTweaker = rememberSystemUIBarsTweaker()
+            val globalEventBus = remember {
+                EntryPointAccessors.fromApplication(
+                    applicationContext,
+                    com.huanchengfly.tieba.post.di.GlobalEventBusEntryPoint::class.java
+                ).globalEventBus()
+            }
+            CompositionLocalProvider(LocalGlobalEventBus provides globalEventBus) {
+                TiebaLiteTheme {
+                    val systemUIBarsTweaker = rememberSystemUIBarsTweaker()
                 SideEffect {
                     val statusBarDarkIcons = ThemeUtil.isStatusBarFontDark()
                     val navigationBarDarkIcons = ThemeUtil.isNavigationBarFontDark()
@@ -204,7 +214,8 @@ class EditProfileActivity : BaseActivity() {
                         )
                     )
                 }
-                PageEditProfile(viewModel, onBackPressed = { onBackPressedDispatcher.onBackPressed() })
+                    PageEditProfile(viewModel, onBackPressed = { onBackPressedDispatcher.onBackPressed() })
+                }
             }
         }
         handler.post {

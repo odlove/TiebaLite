@@ -1,6 +1,5 @@
 package com.huanchengfly.tieba.post.api.retrofit.interceptors
 
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.utils.ClientUtils
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -22,7 +21,7 @@ object CookieInterceptor : Interceptor {
                     ) && ClientUtils.baiduId.isNullOrEmpty()
                 ) {
                     MainScope().launch {
-                        ClientUtils.saveBaiduId(App.INSTANCE, cookieValue)
+                        ClientUtils.saveBaiduId(cookieValue)
                     }
                 }
             }

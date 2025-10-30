@@ -30,6 +30,7 @@ androidx-activity = "1.11.0"
 androidx-lifecycle = "2.9.4"
 androidx-media3 = "1.8.0"
 androidx-core = "1.17.0"
+androidx-recyclerview = "1.4.0"
 
 compose-bom = "2025.10.00"
 compose-destinations = "1.11.9"
@@ -145,6 +146,7 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version = "1.9.1" }
 androidx-browser = { group = "androidx.browser", name = "browser", version = "1.9.0" }
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "androidx-recyclerview" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version = "1.2.0-rc01" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version = "1.1.7" }
 androidx-gridlayout = { group = "androidx.gridlayout", name = "gridlayout", version = "1.1.0" }

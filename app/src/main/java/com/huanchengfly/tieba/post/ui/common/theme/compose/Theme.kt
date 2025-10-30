@@ -23,6 +23,7 @@ import com.huanchengfly.tieba.post.rememberPreferenceAsState
 import com.huanchengfly.tieba.post.utils.ThemeUtil
 import com.huanchengfly.tieba.post.utils.appPreferences
 import com.huanchengfly.tieba.post.utils.compose.darken
+import com.huanchengfly.tieba.post.ui.common.theme.DefaultThemeDelegate
 
 @Stable
 data class ExtendedColors(
@@ -316,59 +317,59 @@ private fun getThemeColorForTheme(theme: String): ExtendedColors {
     val context = LocalContext.current
     val nowTheme = ThemeUtil.getCurrentTheme(theme)
     val textColor =
-        Color(App.ThemeDelegate.getColorByAttr(context, R.attr.colorText, nowTheme))
+        Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorText, nowTheme))
     val bottomBarColor =
-        Color(App.ThemeDelegate.getColorByAttr(context, R.attr.colorNavBar, nowTheme))
+        Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorNavBar, nowTheme))
     return ExtendedColors(
         theme = nowTheme,
         isNightMode = ThemeUtil.isNightMode(nowTheme),
         primary = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorNewPrimary,
                 nowTheme
             )
         ),
         onPrimary = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorOnAccent,
                 nowTheme
             )
         ),
-        accent = Color(App.ThemeDelegate.getColorByAttr(context, R.attr.colorAccent, nowTheme)),
-        onAccent = Color(App.ThemeDelegate.getColorByAttr(context, R.attr.colorOnAccent, nowTheme)),
-        topBar = Color(App.ThemeDelegate.getColorByAttr(context, R.attr.colorToolbar, nowTheme)),
+        accent = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorAccent, nowTheme)),
+        onAccent = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorOnAccent, nowTheme)),
+        topBar = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorToolbar, nowTheme)),
         onTopBar = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorToolbarItem,
                 nowTheme
             )
         ),
         onTopBarSecondary = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorToolbarItemSecondary,
                 nowTheme
             )
         ),
         onTopBarActive = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorToolbarItemActive,
                 nowTheme
             )
         ),
         topBarSurface = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorToolbarSurface,
                 nowTheme
             )
         ),
         onTopBarSurface = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorOnToolbarSurface,
                 nowTheme
@@ -376,14 +377,14 @@ private fun getThemeColorForTheme(theme: String): ExtendedColors {
         ),
         bottomBar = bottomBarColor,
         bottomBarSurface = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorNavBarSurface,
                 nowTheme
             )
         ),
         onBottomBarSurface = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorOnNavBarSurface,
                 nowTheme
@@ -392,54 +393,54 @@ private fun getThemeColorForTheme(theme: String): ExtendedColors {
         text = textColor.copy(alpha = ContentAlpha.high),
         textSecondary = textColor.copy(alpha = ContentAlpha.medium),
         textDisabled = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.color_text_disabled,
                 nowTheme
             )
         ),
         background = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorBackground,
                 nowTheme
             )
         ),
-        chip = Color(App.ThemeDelegate.getColorByAttr(context, R.attr.colorChip, nowTheme)),
-        onChip = Color(App.ThemeDelegate.getColorByAttr(context, R.attr.colorOnChip, nowTheme)),
+        chip = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorChip, nowTheme)),
+        onChip = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorOnChip, nowTheme)),
         unselected = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorUnselected,
                 nowTheme
             )
         ),
-        card = Color(App.ThemeDelegate.getColorByAttr(context, R.attr.colorCard, nowTheme)),
+        card = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorCard, nowTheme)),
         floorCard = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorFloorCard,
                 nowTheme
             )
         ),
-        divider = Color(App.ThemeDelegate.getColorByAttr(context, R.attr.colorDivider, nowTheme)),
-        shadow = Color(App.ThemeDelegate.getColorByAttr(context, R.attr.shadow_color, nowTheme)),
+        divider = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorDivider, nowTheme)),
+        shadow = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.shadow_color, nowTheme)),
         indicator = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorIndicator,
                 nowTheme
             )
         ),
         windowBackground = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorWindowBackground,
                 nowTheme
             )
         ),
         placeholder = Color(
-            App.ThemeDelegate.getColorByAttr(
+            DefaultThemeDelegate.getColorByAttr(
                 context,
                 R.attr.colorPlaceholder,
                 nowTheme

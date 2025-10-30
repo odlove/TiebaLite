@@ -36,7 +36,7 @@ import com.huanchengfly.tieba.post.getString
 import com.huanchengfly.tieba.post.interfaces.BackgroundTintable
 import com.huanchengfly.tieba.post.putBoolean
 import com.huanchengfly.tieba.post.putString
-import com.huanchengfly.tieba.post.ui.common.theme.utils.ThemeUtils
+import com.huanchengfly.tieba.core.ui.theme.ThemeUtils
 import com.huanchengfly.tieba.post.ui.widgets.theme.TintSwipeRefreshLayout
 import kotlinx.coroutines.launch
 import java.util.Locale

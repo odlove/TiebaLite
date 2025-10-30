@@ -12,7 +12,7 @@ import androidx.appcompat.widget.MenuPopupWindow;
 import androidx.appcompat.widget.PopupMenu;
 
 import com.huanchengfly.tieba.post.R;
-import com.huanchengfly.tieba.post.ui.common.theme.utils.ThemeUtils;
+import com.huanchengfly.tieba.core.ui.theme.ThemeUtils;
 
 import java.lang.reflect.Field;
 

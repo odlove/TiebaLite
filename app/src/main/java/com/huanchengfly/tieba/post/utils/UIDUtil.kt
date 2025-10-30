@@ -7,8 +7,8 @@ import android.text.TextUtils
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.App.Companion.INSTANCE
 import com.huanchengfly.tieba.post.toMD5
-import com.huanchengfly.tieba.post.utils.helios.Base32
 import com.huanchengfly.tieba.post.utils.helios.Hasher
+import com.huanchengfly.tieba.core.common.util.Base32
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.util.UUID

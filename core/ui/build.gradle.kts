@@ -50,4 +50,5 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.window)
     implementation(libs.compose.destinations.core)
+    implementation(libs.androidx.recyclerview)
 }

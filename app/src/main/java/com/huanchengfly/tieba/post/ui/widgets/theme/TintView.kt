@@ -8,8 +8,8 @@ import android.util.AttributeSet
 import android.view.View
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.getColorStateListCompat
-import com.huanchengfly.tieba.post.ui.common.theme.interfaces.Tintable
-import com.huanchengfly.tieba.post.ui.common.theme.utils.ColorStateListUtils
+import com.huanchengfly.tieba.core.ui.theme.Tintable
+import com.huanchengfly.tieba.core.ui.theme.ColorStateListUtils
 
 @SuppressLint("CustomViewStyleable")
 class TintView @JvmOverloads constructor(

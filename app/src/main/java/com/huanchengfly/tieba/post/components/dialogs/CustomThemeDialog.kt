@@ -12,9 +12,9 @@ import android.widget.LinearLayout
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
-import com.huanchengfly.tieba.post.App.ThemeDelegate.getColorByAttr
+import com.huanchengfly.tieba.post.ui.common.theme.DefaultThemeDelegate.getColorByAttr
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.ui.common.theme.utils.ThemeUtils
+import com.huanchengfly.tieba.core.ui.theme.ThemeUtils
 import com.huanchengfly.tieba.post.utils.ThemeUtil
 import com.huanchengfly.tieba.post.utils.appPreferences
 import com.jaredrummler.android.colorpicker.ColorPickerDialog

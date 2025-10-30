@@ -1,7 +1,6 @@
 package com.huanchengfly.tieba.post.components
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 /**
@@ -76,17 +75,6 @@ class ClipBoardLinkDetectorTest {
     }
 
     // ========== ClipBoardLinkDetector Public API Tests ==========
-
-    @Test
-    fun `ClipBoardLinkDetector should expose previewInfoStateFlow`() {
-        // When: Access previewInfoStateFlow
-        val stateFlow = ClipBoardLinkDetector.previewInfoStateFlow
-
-        // Then: StateFlow should be accessible and not null
-        assertNotNull(stateFlow)
-        // Verify initial value is null (no preview info yet)
-        assertEquals(null, stateFlow.value)
-    }
 
     // Note: Additional tests would require Robolectric setup:
     // - Test parseLink() logic with various URL patterns (private method)

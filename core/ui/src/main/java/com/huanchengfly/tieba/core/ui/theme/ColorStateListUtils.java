@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.common.theme.utils;
+package com.huanchengfly.tieba.core.ui.theme;
 
 import android.content.Context;
 import android.content.res.ColorStateList;

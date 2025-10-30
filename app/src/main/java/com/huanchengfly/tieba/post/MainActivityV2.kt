@@ -135,6 +135,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 import java.util.concurrent.atomic.AtomicBoolean
 
 val LocalNotificationCountFlow =
@@ -160,6 +161,8 @@ fun rememberBottomSheetNavigator(
 
 @AndroidEntryPoint
 class MainActivityV2 : BaseComposeActivity() {
+    @Inject
+    lateinit var clipBoardLinkDetector: ClipBoardLinkDetector
     private val handler = Handler(Looper.getMainLooper())
     private val newMessageReceiver: BroadcastReceiver = NewMessageReceiver()
 
@@ -370,17 +373,18 @@ class MainActivityV2 : BaseComposeActivity() {
 
     @Composable
     private fun ClipBoardDetectDialog() {
-        val previewInfo by ClipBoardLinkDetector.previewInfoStateFlow.collectAsState()
+        val previewInfo by clipBoardLinkDetector.previewInfoStateFlow.collectAsState()
 
         val dialogState = rememberDialogState()
 
         LaunchedEffect(previewInfo) {
-            if (previewInfo != null) {
+            if (previewInfo != null && !dialogState.show) {
                 dialogState.show()
             }
         }
 
         Dialog(
+            onDismiss = { clipBoardLinkDetector.clearPreview() },
             dialogState = dialogState,
             title = {
                 Text(text = stringResource(id = R.string.title_dialog_clip_board_tieba_url))

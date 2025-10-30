@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.utils
 
-import com.huanchengfly.tieba.post.utils.helios.Base32
 import com.huanchengfly.tieba.post.utils.helios.Hasher
+import com.huanchengfly.tieba.core.common.util.Base32
 
 object CuidUtils {
     fun getNewCuid(): String {

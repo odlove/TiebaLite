@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.common.theme.utils;
+package com.huanchengfly.tieba.core.ui.theme;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -20,10 +20,6 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.huanchengfly.tieba.post.ui.common.theme.interfaces.ExtraRefreshable;
-import com.huanchengfly.tieba.post.ui.common.theme.interfaces.ThemeSwitcher;
-import com.huanchengfly.tieba.post.ui.common.theme.interfaces.Tintable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

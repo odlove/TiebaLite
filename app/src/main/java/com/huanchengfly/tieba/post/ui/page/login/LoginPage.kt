@@ -271,7 +271,7 @@ class LoginWebViewClient(
             }
             if (!baiduId.isNullOrEmpty() && ClientUtils.baiduId.isNullOrEmpty()) {
                 coroutineScope.launch {
-                    ClientUtils.saveBaiduId(context, baiduId)
+                    ClientUtils.saveBaiduId(baiduId)
                 }
             }
             coroutineScope.launch {

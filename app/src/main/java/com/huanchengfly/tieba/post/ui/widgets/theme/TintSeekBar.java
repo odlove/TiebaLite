@@ -11,9 +11,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatSeekBar;
 
 import com.huanchengfly.tieba.post.R;
-import com.huanchengfly.tieba.post.ui.common.theme.interfaces.Tintable;
-import com.huanchengfly.tieba.post.ui.common.theme.utils.ColorStateListUtils;
-import com.huanchengfly.tieba.post.ui.common.theme.utils.ThemeUtils;
+import com.huanchengfly.tieba.core.ui.theme.Tintable;
+import com.huanchengfly.tieba.core.ui.theme.ColorStateListUtils;
+import com.huanchengfly.tieba.core.ui.theme.ThemeUtils;
 
 @SuppressLint("CustomViewStyleable")
 public class TintSeekBar extends AppCompatSeekBar implements Tintable {

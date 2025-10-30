@@ -1,100 +1,67 @@
 package com.huanchengfly.tieba.post.utils
 
-import android.content.Context
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
-import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
-import com.huanchengfly.tieba.post.dataStore
-import com.huanchengfly.tieba.post.di.AppEntryPoint
-import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.CoroutineScope
+import com.huanchengfly.tieba.core.runtime.client.ClientConfigRepository
+import com.huanchengfly.tieba.core.runtime.client.ClientConfigState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.ref.WeakReference
 
 object ClientUtils {
-    private const val CLIENT_ID = "client_id"
-    private const val SAMPLE_ID = "sample_id"
-    private const val BAIDU_ID = "baidu_id"
-    private const val ACTIVE_TIMESTAMP = "active_timestamp"
+    @Volatile
+    private var repository: ClientConfigRepository? = null
 
-    private val clientIdKey by lazy { stringPreferencesKey(CLIENT_ID) }
-    private val sampleIdKey by lazy { stringPreferencesKey(SAMPLE_ID) }
-    private val baiduIdKey by lazy { stringPreferencesKey(BAIDU_ID) }
-    private val activeTimestampKey by lazy { longPreferencesKey(ACTIVE_TIMESTAMP) }
+    @Volatile
+    private var state: ClientConfigState = ClientConfigState(
+        clientId = null,
+        sampleId = null,
+        baiduId = null,
+        activeTimestamp = System.currentTimeMillis()
+    )
 
-    private lateinit var contextWeakReference: WeakReference<Context>
-    private val context: Context
-        get() = contextWeakReference.get() ?: App.INSTANCE
-
-    // Lazy load API through EntryPoint
-    private val api: ITiebaApi by lazy {
-        EntryPointAccessors.fromApplication(
-            App.INSTANCE.applicationContext,
-            AppEntryPoint::class.java
-        ).tiebaApi()
+    internal fun configure(repository: ClientConfigRepository, initialState: ClientConfigState) {
+        this.repository = repository
+        this.state = initialState
     }
 
-    var clientId: String? = null
-    var sampleId: String? = null
-    var baiduId: String? = null
-    var activeTimestamp: Long = System.currentTimeMillis()
+    internal fun updateState(newState: ClientConfigState) {
+        state = newState
+    }
 
-    fun init(context: Context) {
-        contextWeakReference = WeakReference(context)
-        CoroutineScope(Dispatchers.IO).launch {
-            clientId = withContext(Dispatchers.IO) {
-                context.dataStore.data.map { it[clientIdKey] }.firstOrNull()
-            }
-            sampleId = withContext(Dispatchers.IO) {
-                context.dataStore.data.map { it[sampleIdKey] }.firstOrNull()
-            }
-            baiduId = withContext(Dispatchers.IO) {
-                context.dataStore.data.map { it[baiduIdKey] }.firstOrNull()
-            }
-            activeTimestamp = withContext(Dispatchers.IO) {
-                context.dataStore.data.map { it[activeTimestampKey] }.firstOrNull()
-                    ?: System.currentTimeMillis()
-            }
-            sync(context)
+    val clientId: String?
+        get() = state.clientId
+
+    val sampleId: String?
+        get() = state.sampleId
+
+    val baiduId: String?
+        get() = state.baiduId
+
+    val activeTimestamp: Long
+        get() = state.activeTimestamp
+
+    suspend fun sync() {
+        val repo = repository ?: return
+        withContext(Dispatchers.IO) {
+            repo.sync()
+            state = repo.load()
         }
     }
 
-    suspend fun saveBaiduId(context: Context, id: String) {
-        baiduId = id
-        context.dataStore.edit {
-            it[baiduIdKey] = id
+    suspend fun saveBaiduId(id: String) {
+        val repo = repository ?: return
+        withContext(Dispatchers.IO) {
+            repo.updateBaiduId(id)
+            state = state.copy(baiduId = id)
         }
     }
 
     suspend fun setActiveTimestamp() {
-        activeTimestamp = System.currentTimeMillis()
-        context.dataStore.edit {
-            it[activeTimestampKey] = activeTimestamp
+        val repo = repository ?: return
+        withContext(Dispatchers.IO) {
+            repo.touchActiveTimestamp()
+            state = state.copy(activeTimestamp = System.currentTimeMillis())
         }
     }
 
-    private suspend fun save(context: Context, clientId: String, sampleId: String) {
-        context.dataStore.edit {
-            it[clientIdKey] = clientId
-            it[sampleIdKey] = sampleId
-        }
-    }
-
-    private suspend fun sync(context: Context) {
-        api
-            .syncFlow(clientId)
-            .catch { it.printStackTrace() }
-            .collect {
-                clientId = it.client.clientId
-                sampleId = it.wlConfig.sampleId
-                save(context, it.client.clientId, it.wlConfig.sampleId)
-            }
-    }
+    val isConfigured: Boolean
+        get() = repository != null
 }

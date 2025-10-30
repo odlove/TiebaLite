@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.common.theme.interfaces;
+package com.huanchengfly.tieba.core.ui.theme;
 
 import android.app.Activity;
 import android.view.View;

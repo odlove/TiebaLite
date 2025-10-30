@@ -41,7 +41,7 @@ import com.huanchengfly.tieba.post.components.dividers.HorizontalSpacesDecoratio
 import com.huanchengfly.tieba.post.components.transformations.SketchBlurTransformation
 import com.huanchengfly.tieba.post.databinding.ActivityTranslucentThemeBinding
 import com.huanchengfly.tieba.post.interfaces.OnItemClickListener
-import com.huanchengfly.tieba.post.ui.common.theme.utils.ThemeUtils
+import com.huanchengfly.tieba.core.ui.theme.ThemeUtils
 import com.huanchengfly.tieba.post.ui.widgets.theme.TintMaterialButton
 import com.huanchengfly.tieba.post.utils.*
 import com.huanchengfly.tieba.post.utils.ThemeUtil.TRANSLUCENT_THEME_DARK

@@ -9,8 +9,8 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.card.MaterialCardView;
 import com.huanchengfly.tieba.post.R;
-import com.huanchengfly.tieba.post.ui.common.theme.interfaces.Tintable;
-import com.huanchengfly.tieba.post.ui.common.theme.utils.ThemeUtils;
+import com.huanchengfly.tieba.core.ui.theme.Tintable;
+import com.huanchengfly.tieba.core.ui.theme.ThemeUtils;
 
 @SuppressLint("CustomViewStyleable")
 public class TintMaterialCardView extends MaterialCardView implements Tintable {

@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post
 
 import com.huanchengfly.tieba.post.api.models.AgreeBean
-import com.huanchengfly.tieba.post.api.models.CommonResponse
+import com.huanchengfly.tieba.core.network.model.CommonResponse
 import com.huanchengfly.tieba.post.api.models.LikeForumResultBean
 import com.huanchengfly.tieba.post.api.models.MessageListBean
 import com.huanchengfly.tieba.post.api.models.SearchThreadBean

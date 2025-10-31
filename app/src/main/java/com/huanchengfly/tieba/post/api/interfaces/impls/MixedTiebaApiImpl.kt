@@ -3,6 +3,7 @@ package com.huanchengfly.tieba.post.api.interfaces.impls
 import android.os.Build
 import android.text.TextUtils
 import com.huanchengfly.tieba.post.App
+import com.huanchengfly.tieba.post.api.AccountTokens
 import com.huanchengfly.tieba.post.api.ClientVersion
 import com.huanchengfly.tieba.post.api.ForumSortType
 import com.huanchengfly.tieba.post.api.Param
@@ -13,13 +14,15 @@ import com.huanchengfly.tieba.post.api.buildAdParam
 import com.huanchengfly.tieba.post.api.buildAppPosInfo
 import com.huanchengfly.tieba.post.api.buildCommonRequest
 import com.huanchengfly.tieba.post.api.buildProtobufRequestBody
+import com.huanchengfly.tieba.post.api.getScreenDensity
 import com.huanchengfly.tieba.post.api.getScreenHeight
 import com.huanchengfly.tieba.post.api.getScreenWidth
+import com.huanchengfly.tieba.core.network.http.urlEncode
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.post.api.models.CheckReportBean
 import com.huanchengfly.tieba.post.api.models.CollectDataBean
-import com.huanchengfly.tieba.post.api.models.CommonResponse
+import com.huanchengfly.tieba.core.network.model.CommonResponse
 import com.huanchengfly.tieba.post.api.models.FollowBean
 import com.huanchengfly.tieba.post.api.models.ForumPageBean
 import com.huanchengfly.tieba.post.api.models.ForumRecommend
@@ -114,8 +117,8 @@ import com.huanchengfly.tieba.post.api.models.web.ForumHome
 import com.huanchengfly.tieba.post.api.models.web.HotMessageListBean
 import com.huanchengfly.tieba.post.api.retrofit.ApiResult
 import com.huanchengfly.tieba.post.api.retrofit.RetrofitTiebaApi
-import com.huanchengfly.tieba.post.api.retrofit.body.MyMultipartBody
-import com.huanchengfly.tieba.post.api.urlEncode
+import com.huanchengfly.tieba.core.network.http.urlEncode
+import com.huanchengfly.tieba.core.network.http.multipart.MyMultipartBody
 import com.huanchengfly.tieba.post.models.DislikeBean
 import com.huanchengfly.tieba.post.models.MyInfoBean
 import com.huanchengfly.tieba.post.models.PhotoInfoBean
@@ -166,7 +169,7 @@ object MixedTiebaApiImpl : ITiebaApi {
                         new_install = 0,
                         request_times = 0,
                         invoke_source = "",
-                        scr_dip = App.ScreenInfo.DENSITY.toDouble(),
+                        scr_dip = getScreenDensity().toDouble(),
                         scr_h = getScreenHeight(),
                         scr_w = getScreenWidth()
                     )
@@ -258,7 +261,7 @@ object MixedTiebaApiImpl : ITiebaApi {
     override fun userLikeForum(
         uid: String, page: Int
     ): Call<UserLikeForumBean> {
-        val myUid = AccountUtil.getUid()
+        val myUid = AccountTokens.uid
         return RetrofitTiebaApi.MINI_TIEBA_API.userLikeForum(
             page = page,
             uid = myUid,
@@ -467,7 +470,7 @@ object MixedTiebaApiImpl : ITiebaApi {
         RetrofitTiebaApi.NEW_TIEBA_API.threadStore(
             pageSize,
             pageSize * page,
-            AccountUtil.getUid()
+            AccountTokens.uid
         )
 
     override fun threadStoreFlow(page: Int, pageSize: Int): Flow<ThreadStoreBean> =
@@ -487,7 +490,7 @@ object MixedTiebaApiImpl : ITiebaApi {
         RetrofitTiebaApi.OFFICIAL_TIEBA_API.removeStoreFlow(
             threadId.toString(),
             forumId.toString(),
-            tbs ?: AccountUtil.requireLoginInfo().tbs
+            tbs ?: AccountTokens.requireLoginTbs()
         )
 
     override fun removeStoreFlow(threadId: String): Flow<CommonResponse> =
@@ -1066,7 +1069,7 @@ object MixedTiebaApiImpl : ITiebaApi {
                         q_type = 2,
                         rn = 90,
                         rn_need = 30,
-                        scr_dip = App.ScreenInfo.DENSITY.toDouble(),
+                        scr_dip = getScreenDensity().toDouble(),
                         scr_h = getScreenHeight(),
                         scr_w = getScreenWidth(),
                         sort_type = sortType,
@@ -1097,14 +1100,14 @@ object MixedTiebaApiImpl : ITiebaApi {
                         ad_param = AdParam(3, 0, null),
                         app_pos = buildAppPosInfo(),
                         common = buildCommonRequest(clientVersion = ClientVersion.TIEBA_V12),
-                        scr_dip = App.ScreenInfo.DENSITY.toDouble(),
+                        scr_dip = getScreenDensity().toDouble(),
                         scr_h = getScreenHeight(),
                         scr_w = getScreenWidth(),
                         forum_id = forumId,
                         forum_name = forumName,
                         pn = page,
                         q_type = 2,
-                        user_id = AccountUtil.getUid()?.toLongOrNull(),
+                        user_id = AccountTokens.uid?.toLongOrNull(),
                         thread_ids = threadIds,
                         sort_type = sortType,
                         need_abstract = 0,
@@ -1141,7 +1144,7 @@ object MixedTiebaApiImpl : ITiebaApi {
                             can_no_forum = "0",
                             common = buildCommonRequest(
                                 clientVersion = ClientVersion.TIEBA_V12_POST,
-                                tbs = tbs ?: AccountUtil.getAccountInfo { this.tbs }
+                                tbs = tbs ?: AccountTokens.loginTbs
                             ),
                             content = content,
                             entrance_type = "0",
@@ -1156,7 +1159,7 @@ object MixedTiebaApiImpl : ITiebaApi {
                             is_pictxt = "0",
                             is_show_bless = 0,
                             is_twzhibo_thread = "0",
-                            name_show = nameShow ?: AccountUtil.getAccountInfo { this.nameShow }
+                            name_show = nameShow ?: AccountTokens.loginNameShow
                                 .orEmpty(),
                             new_vcode = "1",
                             post_from = if (postId.isNullOrEmpty() && subPostId.isNullOrEmpty()) "13" else if (subPostId.isNullOrEmpty()) "0" else null,
@@ -1178,7 +1181,7 @@ object MixedTiebaApiImpl : ITiebaApi {
     }
 
     override fun userProfileFlow(uid: Long): Flow<ProfileResponse> {
-        val selfUid = AccountUtil.getUid()?.toLongOrNull()
+        val selfUid = AccountTokens.uid?.toLongOrNull()
         val isSelf = selfUid == uid
         return RetrofitTiebaApi.OFFICIAL_PROTOBUF_TIEBA_V12_API.profileFlow(
             buildProtobufRequestBody(
@@ -1195,7 +1198,7 @@ object MixedTiebaApiImpl : ITiebaApi {
                         pn = 1,
                         q_type = 0,
                         rn = 20,
-                        scr_dip = App.ScreenInfo.DENSITY.toDouble(),
+                        scr_dip = getScreenDensity().toDouble(),
                         scr_h = getScreenHeight(),
                         scr_w = getScreenWidth(),
                         uid = selfUid,
@@ -1259,7 +1262,7 @@ object MixedTiebaApiImpl : ITiebaApi {
                         request_times = 0,
                         rn = 15,
                         s_model = 0,
-                        scr_dip = App.ScreenInfo.DENSITY.toDouble(),
+                        scr_dip = getScreenDensity().toDouble(),
                         scr_h = getScreenHeight(),
                         scr_w = getScreenWidth(),
                         similar_from = 0,
@@ -1292,7 +1295,7 @@ object MixedTiebaApiImpl : ITiebaApi {
                         pid = postId,
                         pn = page,
                         spid = subPostId,
-                        scr_dip = App.ScreenInfo.DENSITY.toDouble(),
+                        scr_dip = getScreenDensity().toDouble(),
                         scr_h = getScreenHeight(),
                         scr_w = getScreenWidth(),
                         is_comm_reverse = 0,
@@ -1409,7 +1412,7 @@ object MixedTiebaApiImpl : ITiebaApi {
                         common = buildCommonRequest(clientVersion = ClientVersion.TIEBA_V12),
                         scr_w = getScreenWidth(),
                         scr_h = getScreenHeight(),
-                        scr_dip = App.ScreenInfo.DENSITY.toDouble(),
+                        scr_dip = getScreenDensity().toDouble(),
                         q_type = 1,
                         is_view_card = if (isThread) 1 else 0,
                         subtype = 0.takeUnless { isThread },
@@ -1422,7 +1425,7 @@ object MixedTiebaApiImpl : ITiebaApi {
     }
 
     override fun userLikeForumFlow(uid: String, page: Int): Flow<UserLikeForumBean> {
-        val myUid = AccountUtil.getUid()
+        val myUid = AccountTokens.uid
         return RetrofitTiebaApi.OFFICIAL_TIEBA_API.userLikeForumFlow(
             page = page,
             uid = myUid,
@@ -1432,7 +1435,7 @@ object MixedTiebaApiImpl : ITiebaApi {
     }
 
     override fun getUserInfoFlow(): Flow<GetUserInfoResponse> {
-        return getUserInfoFlow(AccountUtil.requireUid().toLong(), null, null)
+        return getUserInfoFlow(AccountTokens.requireUid().toLong(), null, null)
     }
 
     override fun getUserInfoFlow(

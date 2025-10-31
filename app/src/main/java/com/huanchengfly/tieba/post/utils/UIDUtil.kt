@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.provider.Settings
 import android.text.TextUtils
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.App.Companion.INSTANCE
+import com.huanchengfly.tieba.core.network.device.DeviceConfigRegistry
 import com.huanchengfly.tieba.post.toMD5
 import com.huanchengfly.tieba.post.utils.helios.Hasher
 import com.huanchengfly.tieba.core.common.util.Base32
@@ -26,8 +26,9 @@ object UIDUtil {
     }
 
     fun getOAID(): String {
-        if (App.Config.encodedOAID.isBlank()) return ""
-        val raw = "A10-${App.Config.encodedOAID}-"
+        val deviceConfig = DeviceConfigRegistry.current
+        if (deviceConfig.encodedOaid.isBlank()) return ""
+        val raw = "A10-${deviceConfig.encodedOaid}-"
         val sign = Base32.encode(Hasher.hash(raw.toByteArray()))
         return "$raw$sign"
     }

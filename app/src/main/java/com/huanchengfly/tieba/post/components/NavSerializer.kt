@@ -2,8 +2,8 @@ package com.huanchengfly.tieba.post.components
 
 import android.util.Log
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
-import com.huanchengfly.tieba.post.api.urlDecode
-import com.huanchengfly.tieba.post.api.urlEncode
+import com.huanchengfly.tieba.core.network.http.urlDecode
+import com.huanchengfly.tieba.core.network.http.urlEncode
 import com.ramcosta.composedestinations.navargs.DestinationsNavTypeSerializer
 import com.ramcosta.composedestinations.navargs.NavTypeSerializer
 import com.ramcosta.composedestinations.navargs.utils.base64ToByteArray

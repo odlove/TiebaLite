@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package tieba.network;
+
+option java_package = "com.huanchengfly.tieba.core.network.proto";
+
+import "NetworkError.proto";
+
+message ProtoCommonResponse {
+  Error error = 1;
+}

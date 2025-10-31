@@ -1,5 +1,6 @@
 package com.huanchengfly.tieba.post.api.retrofit.exception
 
+import com.huanchengfly.tieba.core.network.exception.TiebaLocalException
 import com.huanchengfly.tieba.post.api.Error.ERROR_NOT_LOGGED_IN
 
 class TiebaNotLoggedInException(

@@ -5,7 +5,7 @@ import com.huanchengfly.tieba.post.api.models.SearchForumBean
 import com.huanchengfly.tieba.post.api.models.SearchThreadBean
 import com.huanchengfly.tieba.post.api.models.SearchUserBean
 import com.huanchengfly.tieba.post.api.models.TopicDetailBean
-import com.huanchengfly.tieba.post.api.urlEncode
+import com.huanchengfly.tieba.core.network.http.urlEncode
 import kotlinx.coroutines.flow.Flow
 import retrofit2.http.GET
 import retrofit2.http.Header

@@ -2,7 +2,7 @@ package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.AgreeBean
-import com.huanchengfly.tieba.post.api.models.CommonResponse
+import com.huanchengfly.tieba.core.network.model.CommonResponse
 import com.huanchengfly.tieba.post.models.DislikeBean
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

@@ -1,13 +1,15 @@
 package com.huanchengfly.tieba.post.api.retrofit.interfaces
 
 import android.text.TextUtils
-import com.huanchengfly.tieba.post.App.ScreenInfo
+import com.huanchengfly.tieba.post.api.AccountTokens
 import com.huanchengfly.tieba.post.api.Header
+import com.huanchengfly.tieba.post.api.getScreenDensity
 import com.huanchengfly.tieba.post.api.getScreenHeight
 import com.huanchengfly.tieba.post.api.getScreenWidth
 import com.huanchengfly.tieba.post.api.models.*
-import com.huanchengfly.tieba.post.api.retrofit.ApiResult
+import com.huanchengfly.tieba.core.network.model.CommonResponse
 import com.huanchengfly.tieba.post.utils.AccountUtil
+import com.huanchengfly.tieba.post.api.retrofit.ApiResult
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Call
@@ -20,7 +22,7 @@ interface MiniTiebaApi {
     fun personalized(
         @Field("load_type") load_type: Int,
         @Field("pn") page: Int = 1,
-        @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountUtil.getUid(),
+        @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountTokens.uid,
         @Field("_client_version") client_version: String = "8.0.8.0",
         @retrofit2.http.Header(Header.USER_AGENT) user_agent: String = "bdtb for Android $client_version",
         @Field("cuid_gid") cuid_gid: String = "",
@@ -35,7 +37,7 @@ interface MiniTiebaApi {
         @Field("new_install") new_install: Int = 0,
         @Field("request_time") request_time: Long = System.currentTimeMillis(),
         @Field("invoke_source") invoke_source: String = "",
-        @Field("scr_dip") scr_dip: String = ScreenInfo.DENSITY.toString(),
+        @Field("scr_dip") scr_dip: String = getScreenDensity().toString(),
         @Field("scr_h") scr_h: String = getScreenHeight().toString(),
         @Field("scr_w") scr_w: String = getScreenWidth().toString()
     ): Call<PersonalizedBean>
@@ -45,7 +47,7 @@ interface MiniTiebaApi {
     fun personalizedAsync(
         @Field("load_type") load_type: Int,
         @Field("pn") page: Int = 1,
-        @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountUtil.getUid(),
+        @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountTokens.uid,
         @Field("_client_version") client_version: String = "8.0.8.0",
         @retrofit2.http.Header(Header.USER_AGENT) user_agent: String = "bdtb for Android $client_version",
         @Field("cuid_gid") cuid_gid: String = "",
@@ -60,7 +62,7 @@ interface MiniTiebaApi {
         @Field("new_install") new_install: Int = 0,
         @Field("request_time") request_time: Long = System.currentTimeMillis(),
         @Field("invoke_source") invoke_source: String = "",
-        @Field("scr_dip") scr_dip: String = ScreenInfo.DENSITY.toString(),
+        @Field("scr_dip") scr_dip: String = getScreenDensity().toString(),
         @Field("scr_h") scr_h: String = getScreenHeight().toString(),
         @Field("scr_w") scr_w: String = getScreenWidth().toString()
     ): Deferred<ApiResult<PersonalizedBean>>
@@ -70,7 +72,7 @@ interface MiniTiebaApi {
     fun personalizedFlow(
         @Field("load_type") load_type: Int,
         @Field("pn") page: Int = 1,
-        @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountUtil.getUid(),
+        @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountTokens.uid,
         @Field("_client_version") client_version: String = "8.0.8.0",
         @retrofit2.http.Header(Header.USER_AGENT) user_agent: String = "bdtb for Android $client_version",
         @Field("cuid_gid") cuid_gid: String = "",
@@ -85,7 +87,7 @@ interface MiniTiebaApi {
         @Field("new_install") new_install: Int = 0,
         @Field("request_time") request_time: Long = System.currentTimeMillis(),
         @Field("invoke_source") invoke_source: String = "",
-        @Field("scr_dip") scr_dip: String = ScreenInfo.DENSITY.toString(),
+        @Field("scr_dip") scr_dip: String = getScreenDensity().toString(),
         @Field("scr_h") scr_h: String = getScreenHeight().toString(),
         @Field("scr_w") scr_w: String = getScreenWidth().toString()
     ): Flow<PersonalizedBean>
@@ -96,15 +98,15 @@ interface MiniTiebaApi {
     fun agree(
         @Field("post_id") postId: String,
         @Field("thread_id") threadId: String,
-        @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountUtil.getUid(),
+        @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountTokens.uid,
         @Field("_client_version") client_version: String = "8.0.8.0",
         @retrofit2.http.Header(Header.USER_AGENT) user_agent: String = "bdtb for Android $client_version",
         @Field("cuid_gid") cuid_gid: String = "",
         @Field("agree_type") agree_type: Int = 2,
         @Field("obj_type") obj_type: Int = 3,
         @Field("op_type") op_type: Int = 0,
-        @Field("tbs") tbs: String? = AccountUtil.getLoginInfo()?.tbs,
-        @Field("stoken") stoken: String? = AccountUtil.getSToken()
+        @Field("tbs") tbs: String? = AccountTokens.loginTbs,
+        @Field("stoken") stoken: String? = AccountTokens.stoken
     ): Call<AgreeBean>
 
     @Headers("${Header.FORCE_LOGIN}: ${Header.FORCE_LOGIN_TRUE}")
@@ -116,10 +118,10 @@ interface MiniTiebaApi {
         @Field("agree_type") agreeType: Int = 2,
         @Field("obj_type") objType: Int = 3,
         @Field("op_type") opType: Int = 0,
-        @retrofit2.http.Header("client_user_token") clientUserToken: String? = AccountUtil.getUid(),
+        @retrofit2.http.Header("client_user_token") clientUserToken: String? = AccountTokens.uid,
         @Field("cuid_gid") cuidGid: String = "",
-        @Field("tbs") tbs: String? = AccountUtil.getLoginInfo()?.tbs,
-        @Field("stoken") stoken: String? = AccountUtil.getSToken(),
+        @Field("tbs") tbs: String? = AccountTokens.loginTbs,
+        @Field("stoken") stoken: String? = AccountTokens.stoken,
     ): Flow<AgreeBean>
 
     @Headers("${Header.FORCE_LOGIN}: ${Header.FORCE_LOGIN_TRUE}")
@@ -128,15 +130,15 @@ interface MiniTiebaApi {
     fun disagree(
         @Field("post_id") postId: String,
         @Field("thread_id") threadId: String,
-        @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountUtil.getUid(),
+        @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountTokens.uid,
         @Field("_client_version") client_version: String = "8.0.8.0",
         @retrofit2.http.Header(Header.USER_AGENT) user_agent: String = "bdtb for Android $client_version",
         @Field("cuid_gid") cuid_gid: String = "",
         @Field("agree_type") agree_type: Int = 2,
         @Field("obj_type") obj_type: Int = 3,
         @Field("op_type") op_type: Int = 1,
-        @Field("tbs") tbs: String = AccountUtil.requireLoginInfo().tbs,
-        @Field("stoken") stoken: String = AccountUtil.requireSToken()
+        @Field("tbs") tbs: String = AccountTokens.requireLoginTbs(),
+        @Field("stoken") stoken: String = AccountTokens.requireStoken()
     ): Call<AgreeBean>
 
     @Headers("${Header.FORCE_LOGIN}: ${Header.FORCE_LOGIN_TRUE}")
@@ -145,15 +147,15 @@ interface MiniTiebaApi {
     fun disagreeFlow(
         @Field("post_id") postId: String,
         @Field("thread_id") threadId: String,
-        @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountUtil.getUid(),
+        @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountTokens.uid,
         @Field("_client_version") client_version: String = "8.0.8.0",
         @retrofit2.http.Header(Header.USER_AGENT) user_agent: String = "bdtb for Android $client_version",
         @Field("cuid_gid") cuid_gid: String = "",
         @Field("agree_type") agree_type: Int = 5,
         @Field("obj_type") obj_type: Int = 3,
         @Field("op_type") op_type: Int = 1,
-        @Field("tbs") tbs: String = AccountUtil.requireLoginInfo().tbs,
-        @Field("stoken") stoken: String = AccountUtil.requireSToken()
+        @Field("tbs") tbs: String = AccountTokens.requireLoginTbs(),
+        @Field("stoken") stoken: String = AccountTokens.requireStoken()
     ): Flow<AgreeBean>
 
     @Headers("${Header.FORCE_LOGIN}: ${Header.FORCE_LOGIN_TRUE}")
@@ -195,7 +197,7 @@ interface MiniTiebaApi {
         @Field("st_type") st_type: String = "tb_forumlist",
         @Field("with_group") with_group: String = "0",
         @Field("rn") rn: String = "20",
-        @Field("scr_dip") scr_dip: String = ScreenInfo.DENSITY.toString(),
+        @Field("scr_dip") scr_dip: String = getScreenDensity().toString(),
         @Field("scr_h") scr_h: String = getScreenHeight().toString(),
         @Field("scr_w") scr_w: String = getScreenWidth().toString()
     ): Call<ForumPageBean>
@@ -212,7 +214,7 @@ interface MiniTiebaApi {
         @Field("st_type") st_type: String = "tb_forumlist",
         @Field("with_group") with_group: String = "0",
         @Field("rn") rn: String = "20",
-        @Field("scr_dip") scr_dip: String = ScreenInfo.DENSITY.toString(),
+        @Field("scr_dip") scr_dip: String = getScreenDensity().toString(),
         @Field("scr_h") scr_h: String = getScreenHeight().toString(),
         @Field("scr_w") scr_w: String = getScreenWidth().toString()
     ): Deferred<ApiResult<ForumPageBean>>
@@ -259,7 +261,7 @@ interface MiniTiebaApi {
         @Field("obj_type") objType: String,
         @Field("page_name") page_name: String = "PB",
         @Field("next") next: Int = 10,
-        @Field("user_id") myUid: String? = AccountUtil.getUid(),
+        @Field("user_id") myUid: String? = AccountTokens.uid,
         @Field("scr_h") scr_h: String = getScreenHeight().toString(),
         @Field("scr_w") scr_w: String = getScreenWidth().toString(),
         @Field("q_type") q_type: Int = 2,
@@ -278,7 +280,7 @@ interface MiniTiebaApi {
         @Field("obj_type") objType: String,
         @Field("page_name") page_name: String = "PB",
         @Field("next") next: Int = 10,
-        @Field("user_id") myUid: String? = AccountUtil.getUid(),
+        @Field("user_id") myUid: String? = AccountTokens.uid,
         @Field("scr_h") scr_h: String = getScreenHeight().toString(),
         @Field("scr_w") scr_w: String = getScreenWidth().toString(),
         @Field("q_type") q_type: Int = 2,
@@ -306,7 +308,7 @@ interface MiniTiebaApi {
     fun unlikeForum(
         @Field("fid") forumId: String,
         @Field("kw") forumName: String,
-        @Field("tbs") tbs: String? = AccountUtil.getLoginInfo()?.tbs
+        @Field("tbs") tbs: String? = AccountTokens.loginTbs
     ): Call<CommonResponse>
 
     @Headers("${Header.FORCE_LOGIN}: ${Header.FORCE_LOGIN_TRUE}")
@@ -315,7 +317,7 @@ interface MiniTiebaApi {
     fun unlikeForumFlow(
         @Field("fid") forumId: String,
         @Field("kw") forumName: String,
-        @Field("tbs") tbs: String? = AccountUtil.getLoginInfo()?.tbs
+        @Field("tbs") tbs: String? = AccountTokens.loginTbs
     ): Flow<CommonResponse>
 
     @Headers("${Header.FORCE_LOGIN}: ${Header.FORCE_LOGIN_TRUE}")
@@ -324,7 +326,7 @@ interface MiniTiebaApi {
     fun likeForum(
         @Field("fid") forumId: String,
         @Field("kw") forumName: String,
-        @Field("tbs") tbs: String? = AccountUtil.getLoginInfo()?.tbs
+        @Field("tbs") tbs: String? = AccountTokens.loginTbs
     ): Call<LikeForumResultBean>
 
     @Headers("${Header.FORCE_LOGIN}: ${Header.FORCE_LOGIN_TRUE}")
@@ -333,7 +335,7 @@ interface MiniTiebaApi {
     fun likeForumFlow(
         @Field("fid") forumId: String,
         @Field("kw") forumName: String,
-        @Field("tbs") tbs: String? = AccountUtil.getLoginInfo()?.tbs
+        @Field("tbs") tbs: String? = AccountTokens.loginTbs
     ): Flow<LikeForumResultBean>
 
     @Headers("${Header.FORCE_LOGIN}: ${Header.FORCE_LOGIN_TRUE}")
@@ -405,7 +407,7 @@ interface MiniTiebaApi {
     @GET("/mo/q/search/user")
     fun searchUser(
         @Query("word") keyword: String,
-        @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountUtil.getUid(),
+        @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountTokens.uid,
         @Query("_client_version") client_version: String = "8.0.8.0",
         @retrofit2.http.Header(Header.USER_AGENT) user_agent: String = "bdtb for Android $client_version",
         @Query("cuid_gid") cuid_gid: String = ""
@@ -417,7 +419,6 @@ interface MiniTiebaApi {
     fun checkReport(
         @Field("category") category: String,
         @FieldMap reportParam: Map<String, String>,
-        @Field("stoken") stoken: String? = AccountUtil.getLoginInfo()
-            ?.sToken
+        @Field("stoken") stoken: String? = AccountTokens.stoken
     ): Call<CheckReportBean>
 }

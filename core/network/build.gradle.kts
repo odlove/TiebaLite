@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.wire)
 }
 
 android {
@@ -26,6 +27,16 @@ android {
     }
 }
 
+wire {
+    sourcePath {
+        srcDir("src/main/proto")
+    }
+
+    kotlin {
+        android = true
+    }
+}
+
 dependencies {
     implementation(project(":core:common"))
 
@@ -34,4 +45,5 @@ dependencies {
     api(libs.retrofit2.converter.wire)
     api(libs.wire.runtime)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.google.gson)
 }

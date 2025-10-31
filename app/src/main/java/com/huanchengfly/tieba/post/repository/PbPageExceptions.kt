@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaException
+import com.huanchengfly.tieba.core.network.exception.TiebaException
 
 /**
  * 当 PbPage 数据为空时抛出此异常

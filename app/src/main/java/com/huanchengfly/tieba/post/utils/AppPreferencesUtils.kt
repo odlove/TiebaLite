@@ -149,6 +149,11 @@ open class AppPreferencesUtils private constructor(ctx: Context) {
 
     var listSingle by DataStoreDelegates.boolean(defaultValue = false)
 
+    var kzModeEnabled by DataStoreDelegates.boolean(
+        defaultValue = true,
+        key = "kz_mode_enabled"
+    )
+
     var littleTail by DataStoreDelegates.string(key = "little_tail")
 
     var loadPictureWhenScroll by DataStoreDelegates.boolean(defaultValue = true)

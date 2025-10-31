@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.forum
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.models.CommonResponse
+import com.huanchengfly.tieba.core.network.model.CommonResponse
 import com.huanchengfly.tieba.post.api.models.LikeForumResultBean
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.ForumInfo
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode

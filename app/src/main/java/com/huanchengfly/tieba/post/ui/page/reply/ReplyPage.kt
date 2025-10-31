@@ -109,7 +109,7 @@ import com.huanchengfly.tieba.core.ui.compose.MyBackHandler
 import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.ui.widgets.edittext.widget.UndoableEditText
-import com.huanchengfly.tieba.post.utils.AccountUtil
+import com.huanchengfly.tieba.post.api.AccountTokens
 import com.huanchengfly.tieba.post.utils.Emoticon
 import com.huanchengfly.tieba.post.utils.EmoticonManager
 import com.huanchengfly.tieba.post.utils.PickMediasRequest
@@ -205,7 +205,7 @@ internal fun ReplyPageContent(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val globalEventBus = LocalGlobalEventBus.current
-    val curTbs = remember(tbs) { tbs ?: AccountUtil.getAccountInfo { this.tbs }.orEmpty() }
+    val curTbs = remember(tbs) { tbs ?: AccountTokens.loginTbs.orEmpty() }
 
     val isUploading by viewModel.uiState.collectPartialAsState(
         prop1 = ReplyUiState::isUploading,

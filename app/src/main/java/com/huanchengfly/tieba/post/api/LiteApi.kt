@@ -3,7 +3,8 @@ package com.huanchengfly.tieba.post.api
 import com.huanchengfly.tieba.post.api.retrofit.NullOnEmptyConverterFactory
 import com.huanchengfly.tieba.post.api.retrofit.adapter.DeferredCallAdapterFactory
 import com.huanchengfly.tieba.post.api.retrofit.converter.gson.GsonConverterFactory
-import com.huanchengfly.tieba.post.api.retrofit.interceptors.CommonHeaderInterceptor
+import com.huanchengfly.tieba.core.network.http.Header
+import com.huanchengfly.tieba.core.network.retrofit.interceptors.CommonHeaderInterceptor
 import com.huanchengfly.tieba.post.api.retrofit.interfaces.LiteApiInterface
 import okhttp3.ConnectionPool
 import okhttp3.OkHttpClient

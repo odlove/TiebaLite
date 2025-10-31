@@ -1,8 +1,14 @@
 package com.huanchengfly.tieba.post.api.retrofit.exception
 
-import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.network.error.ErrorMessageProvider
+import com.huanchengfly.tieba.core.network.error.ErrorMessages
+import com.huanchengfly.tieba.core.network.error.defaultErrorMessage
+import com.huanchengfly.tieba.core.network.exception.TiebaException
 import com.huanchengfly.tieba.post.api.Error
+
+fun registerErrorMessageProvider(provider: ErrorMessageProvider) {
+    ErrorMessages.register(provider)
+}
 
 fun Throwable.getErrorCode(): Int {
     return if (this is TiebaException) {
@@ -12,7 +18,4 @@ fun Throwable.getErrorCode(): Int {
     }
 }
 
-fun Throwable.getErrorMessage(): String {
-    return message.takeUnless { it.isNullOrEmpty() }
-        ?: App.INSTANCE.getString(R.string.error_unknown)
-}
+fun Throwable.getErrorMessage(): String = defaultErrorMessage()

@@ -75,9 +75,10 @@ class ThreadStoreViewModel @Inject constructor(
             threadStoreRepository
                 .threadStore()
                 .map {
-                    if (it.storeThread != null) ThreadStorePartialChange.Refresh.Success(
-                        it.storeThread,
-                        it.storeThread.isNotEmpty()
+                    val storeThread = it.storeThread
+                    if (storeThread != null) ThreadStorePartialChange.Refresh.Success(
+                        storeThread,
+                        storeThread.isNotEmpty()
                     )
                     else ThreadStorePartialChange.Refresh.Failure(NullPointerException("未知错误"))
                 }
@@ -88,9 +89,10 @@ class ThreadStoreViewModel @Inject constructor(
             threadStoreRepository
                 .threadStore(page)
                 .map {
-                    if (it.storeThread != null) ThreadStorePartialChange.LoadMore.Success(
-                        it.storeThread,
-                        it.storeThread.isNotEmpty(),
+                    val storeThread = it.storeThread
+                    if (storeThread != null) ThreadStorePartialChange.LoadMore.Success(
+                        storeThread,
+                        storeThread.isNotEmpty(),
                         page
                     )
                     else ThreadStorePartialChange.LoadMore.Failure(NullPointerException("未知错误"))

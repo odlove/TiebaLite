@@ -88,12 +88,14 @@ class ForumViewModel @Inject constructor(
 
         private fun ForumUiIntent.Load.produceLoadPartialChange() =
             frsPageRepository.frsPage(forumName, 1, 1, sortType, null, true)
-                .map {
-                    if (it.data_?.forum != null) ForumPartialChange.Load.Success(
-                        it.data_.forum,
-                        it.data_.anti?.tbs
+                .map { response ->
+                    val failure = ForumPartialChange.Load.Failure(NullPointerException("未知错误"))
+                    val data = response.data_ ?: return@map failure
+                    val forum = data.forum ?: return@map failure
+                    ForumPartialChange.Load.Success(
+                        forum,
+                        data.anti?.tbs
                     )
-                    else ForumPartialChange.Load.Failure(NullPointerException("未知错误"))
                 }
                 .onStart { emit(ForumPartialChange.Load.Start) }
                 .catch { emit(ForumPartialChange.Load.Failure(it)) }
@@ -101,25 +103,28 @@ class ForumViewModel @Inject constructor(
         private fun ForumUiIntent.SignIn.produceLoadPartialChange() =
             forumOperationRepository.sign("$forumId", forumName, tbs)
                 .map { signResultBean ->
-                    if (signResultBean.userInfo?.signBonusPoint != null &&
-                        signResultBean.userInfo.levelUpScore != null &&
-                        signResultBean.userInfo.contSignNum != null &&
-                        signResultBean.userInfo.userSignRank != null &&
-                        signResultBean.userInfo.isSignIn != null &&
-                        signResultBean.userInfo.levelName != null &&
-                        signResultBean.userInfo.allLevelInfo.isNotEmpty()
-                    ) {
-                        val levelUpScore = signResultBean.userInfo.levelUpScore.toInt()
-                        ForumPartialChange.SignIn.Success(
-                            signResultBean.userInfo.signBonusPoint.toInt(),
-                            levelUpScore,
-                            signResultBean.userInfo.contSignNum.toInt(),
-                            signResultBean.userInfo.userSignRank.toInt(),
-                            signResultBean.userInfo.isSignIn.toInt(),
-                            signResultBean.userInfo.allLevelInfo.last { it.score.toInt() < levelUpScore }.id.toInt(),
-                            signResultBean.userInfo.levelName
-                        )
-                    } else ForumPartialChange.SignIn.Failure(NullPointerException("未知错误"))
+                    val failure =
+                        ForumPartialChange.SignIn.Failure(NullPointerException("未知错误"))
+                    val userInfo = signResultBean.userInfo ?: return@map failure
+                    val signBonusPoint = userInfo.signBonusPoint ?: return@map failure
+                    val levelUpScore = userInfo.levelUpScore ?: return@map failure
+                    val contSignNum = userInfo.contSignNum ?: return@map failure
+                    val userSignRank = userInfo.userSignRank ?: return@map failure
+                    val isSignIn = userInfo.isSignIn ?: return@map failure
+                    val levelName = userInfo.levelName ?: return@map failure
+                    val allLevelInfo = userInfo.allLevelInfo
+                    if (allLevelInfo.isEmpty()) return@map failure
+
+                    val levelUpScoreInt = levelUpScore.toInt()
+                    ForumPartialChange.SignIn.Success(
+                        signBonusPoint.toInt(),
+                        levelUpScoreInt,
+                        contSignNum.toInt(),
+                        userSignRank.toInt(),
+                        isSignIn.toInt(),
+                        allLevelInfo.last { it.score.toInt() < levelUpScoreInt }.id.toInt(),
+                        levelName
+                    )
                 }
                 .catch { emit(ForumPartialChange.SignIn.Failure(it)) }
 

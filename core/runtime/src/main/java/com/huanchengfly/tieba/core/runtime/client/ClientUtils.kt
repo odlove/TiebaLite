@@ -1,7 +1,5 @@
-package com.huanchengfly.tieba.post.utils
+package com.huanchengfly.tieba.core.runtime.client
 
-import com.huanchengfly.tieba.core.runtime.client.ClientConfigRepository
-import com.huanchengfly.tieba.core.runtime.client.ClientConfigState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -17,12 +15,12 @@ object ClientUtils {
         activeTimestamp = System.currentTimeMillis()
     )
 
-    internal fun configure(repository: ClientConfigRepository, initialState: ClientConfigState) {
+    fun configure(repository: ClientConfigRepository, initialState: ClientConfigState) {
         this.repository = repository
         this.state = initialState
     }
 
-    internal fun updateState(newState: ClientConfigState) {
+    fun updateState(newState: ClientConfigState) {
         state = newState
     }
 

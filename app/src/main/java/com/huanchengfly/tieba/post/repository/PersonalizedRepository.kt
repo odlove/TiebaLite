@@ -23,14 +23,14 @@ class PersonalizedRepositoryImpl @Inject constructor(
     override fun personalizedFlow(loadType: Int, page: Int): Flow<PersonalizedResponse> =
         api.personalizedProtoFlow(loadType, page)
             .map { response ->
+                val data = response.data_ ?: return@map response
                 // 过滤掉直播帖子
                 val liveThreadIds =
-                    response.data_?.thread_list?.filter { it.ala_info != null }?.map { it.id }
-                        ?: emptyList()
+                    data.thread_list.filter { it.ala_info != null }.map { it.id }
                 response.copy(
-                    data_ = response.data_?.copy(
-                        thread_list = response.data_.thread_list.filter { !liveThreadIds.contains(it.id) },
-                        thread_personalized = response.data_.thread_personalized.filter {
+                    data_ = data.copy(
+                        thread_list = data.thread_list.filter { !liveThreadIds.contains(it.id) },
+                        thread_personalized = data.thread_personalized.filter {
                             !liveThreadIds.contains(
                                 it.tid
                             )

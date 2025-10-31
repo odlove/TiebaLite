@@ -58,7 +58,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.rememberSaveableWebViewSta
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberWebViewNavigator
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import com.huanchengfly.tieba.post.utils.AccountUtil.parseCookie
-import com.huanchengfly.tieba.post.utils.ClientUtils
+import com.huanchengfly.tieba.core.runtime.client.ClientUtils
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope

@@ -140,9 +140,8 @@ class ThreadFeedRepositoryImpl @Inject constructor(
             }
             .map { response ->
                 // ✅ 构建返回结果
-                if (response.data_ == null) throw TiebaUnknownException
-
-                val threadProtos = response.data_.thread_list
+                val data = response.data_ ?: throw TiebaUnknownException
+                val threadProtos = data.thread_list
                 val threadIds = threadProtos.map { it.id }.toImmutableList()
 
                 ThreadFeedPage(
@@ -163,7 +162,8 @@ class ThreadFeedRepositoryImpl @Inject constructor(
             }
             .map { response ->
                 // ✅ 构建返回结果
-                val threadProtos = response.data_?.threadInfo?.mapNotNull { it.threadList } ?: emptyList()
+                val data = response.data_ ?: throw TiebaUnknownException
+                val threadProtos = data.threadInfo?.mapNotNull { it.threadList } ?: emptyList()
 
                 // 构建 threadIds（仅包含有 threadList 的数据）
                 val threadIds = threadProtos.map { it.id }.distinct().toImmutableList()

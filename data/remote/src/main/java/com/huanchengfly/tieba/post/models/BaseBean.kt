@@ -1,9 +1,9 @@
 package com.huanchengfly.tieba.post.models
 
-import com.huanchengfly.tieba.post.toJson
+import com.huanchengfly.tieba.post.utils.GsonUtil
 
 open class BaseBean {
     override fun toString(): String {
-        return toJson()
+        return GsonUtil.getGson().toJson(this)
     }
 }

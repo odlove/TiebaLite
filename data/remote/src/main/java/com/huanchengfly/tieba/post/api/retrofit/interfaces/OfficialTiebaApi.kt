@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.api.retrofit.interfaces
 
 import android.os.Build
-import com.huanchengfly.tieba.post.App
+import android.util.Base64
 import com.huanchengfly.tieba.post.api.AccountTokens
 import com.huanchengfly.tieba.post.api.Header
 import com.huanchengfly.tieba.post.api.Param
@@ -10,18 +10,16 @@ import com.huanchengfly.tieba.post.api.getScreenHeight
 import com.huanchengfly.tieba.post.api.getScreenWidth
 import com.huanchengfly.tieba.post.api.models.*
 import com.huanchengfly.tieba.core.network.model.CommonResponse
-import com.huanchengfly.tieba.post.utils.AccountUtil
 import com.huanchengfly.tieba.post.api.retrofit.ApiResult
 import com.huanchengfly.tieba.core.network.http.multipart.MyMultipartBody
-import com.huanchengfly.tieba.post.utils.CacheUtil.base64Encode
 import com.huanchengfly.tieba.core.network.identity.ClientIdentityRegistry
-import com.huanchengfly.tieba.post.utils.MobileInfoUtil
-import com.huanchengfly.tieba.post.utils.UIDUtil
+import com.huanchengfly.tieba.post.api.resolveDeviceInfo
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.*
+import java.nio.charset.StandardCharsets
 
 
 interface OfficialTiebaApi {
@@ -350,9 +348,9 @@ interface OfficialTiebaApi {
         @Field("_pic_quality") picQuality: String = "0",
         @Field("board") board: String = Build.BOARD,
         @Field("brand") brand: String = Build.BRAND,
-        @Field("cam") cam: String = base64Encode("02:00:00:00:00:00"),
-        @Field("di_diordna") androidIdR: String = base64Encode(UIDUtil.getAndroidId("000")),
-        @Field("iemi") imeiR: String = base64Encode(MobileInfoUtil.getIMEI(App.INSTANCE)),
+        @Field("cam") cam: String = encodeBase64("02:00:00:00:00:00"),
+        @Field("di_diordna") androidIdR: String = encodeBase64(ClientIdentityRegistry.current.androidId ?: DEFAULT_ANDROID_ID),
+        @Field("iemi") imeiR: String = encodeBase64(resolveDeviceInfo().imei ?: DEFAULT_IMEI),
         @Field("incremental") incremental: String = Build.VERSION.INCREMENTAL,
         @Field("md5") md5: String = "F86F4C238491AB3BEBFA33AC42C1582B",
         @Field("signmd5") signmd5: String = "225172691",
@@ -557,3 +555,10 @@ interface OfficialTiebaApi {
         @Field("rn") rn: Int = 20
     ): Call<SubFloorListBean>
 }
+
+private fun encodeBase64(value: String): String {
+    return Base64.encodeToString(value.toByteArray(StandardCharsets.UTF_8), Base64.DEFAULT)
+}
+
+private const val DEFAULT_ANDROID_ID = "000"
+private const val DEFAULT_IMEI = "000000000000000"

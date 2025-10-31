@@ -1,9 +1,9 @@
 package com.huanchengfly.tieba.post.di
 
-import com.huanchengfly.tieba.post.api.TiebaApi
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
+import com.huanchengfly.tieba.post.api.interfaces.impls.MixedTiebaApiImpl
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -15,9 +15,9 @@ import javax.inject.Singleton
  */
 @Module
 @InstallIn(SingletonComponent::class)
-object ApiModule {
+abstract class ApiModule {
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideTiebaApi(): ITiebaApi = TiebaApi.getInstance()
+    abstract fun bindTiebaApi(impl: MixedTiebaApiImpl): ITiebaApi
 }

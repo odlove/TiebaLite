@@ -79,13 +79,13 @@ class UserPostViewModel @Inject constructor(
             userContentRepository
                 .userPost(uid, 1, isThread)
                 .map<UserPostResponse, UserPostPartialChange.Refresh> {
-                    checkNotNull(it.data_)
-                    val postList = it.data_.post_list
+                    val data = checkNotNull(it.data_)
+                    val postList = data.post_list
                     UserPostPartialChange.Refresh.Success(
                         currentPage = 1,
                         hasMore = postList.isNotEmpty(),
                         posts = postList,
-                        hidePost = it.data_.hide_post == 1
+                        hidePost = data.hide_post == 1
                     )
                 }
                 .onStart { emit(UserPostPartialChange.Refresh.Start) }
@@ -95,8 +95,8 @@ class UserPostViewModel @Inject constructor(
             userContentRepository
                 .userPost(uid, page + 1, isThread)
                 .map<UserPostResponse, UserPostPartialChange.LoadMore> {
-                    checkNotNull(it.data_)
-                    val postList = it.data_.post_list
+                    val data = checkNotNull(it.data_)
+                    val postList = data.post_list
                     UserPostPartialChange.LoadMore.Success(
                         currentPage = page + 1,
                         hasMore = postList.isNotEmpty(),

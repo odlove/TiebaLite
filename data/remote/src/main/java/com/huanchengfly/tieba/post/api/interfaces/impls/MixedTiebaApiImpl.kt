@@ -1,8 +1,5 @@
 package com.huanchengfly.tieba.post.api.interfaces.impls
-
-import android.os.Build
 import android.text.TextUtils
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.api.AccountTokens
 import com.huanchengfly.tieba.post.api.ClientVersion
 import com.huanchengfly.tieba.post.api.ForumSortType
@@ -121,11 +118,8 @@ import com.huanchengfly.tieba.core.network.http.urlEncode
 import com.huanchengfly.tieba.core.network.http.multipart.MyMultipartBody
 import com.huanchengfly.tieba.post.models.DislikeBean
 import com.huanchengfly.tieba.post.models.MyInfoBean
-import com.huanchengfly.tieba.post.models.PhotoInfoBean
-import com.huanchengfly.tieba.post.toJson
-import com.huanchengfly.tieba.post.utils.AccountUtil
-import com.huanchengfly.tieba.post.utils.CuidUtils
-import com.huanchengfly.tieba.post.utils.ImageUtil
+import com.huanchengfly.tieba.post.utils.GsonUtil
+import com.huanchengfly.tieba.core.network.identity.ClientIdentityRegistry
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -134,8 +128,11 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.net.URLEncoder
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object MixedTiebaApiImpl : ITiebaApi {
+@Singleton
+class MixedTiebaApiImpl @Inject constructor() : ITiebaApi {
     override fun personalized(loadType: Int, page: Int): Call<PersonalizedBean> =
         RetrofitTiebaApi.MINI_TIEBA_API.personalized(loadType, page)
 
@@ -498,37 +495,43 @@ object MixedTiebaApiImpl : ITiebaApi {
 
     override fun addStore(threadId: String, postId: String, tbs: String): Call<CommonResponse> =
         RetrofitTiebaApi.NEW_TIEBA_API.addStore(
-            listOf(
-                CollectDataBean(
-                    threadId,
-                    postId,
-                    "0",
-                    "0"
+            GsonUtil.getGson().toJson(
+                listOf(
+                    CollectDataBean(
+                        threadId,
+                        postId,
+                        "0",
+                        "0"
+                    )
                 )
-            ).toJson(),
+            ),
             tbs
         )
 
     override fun addStoreAsync(threadId: Long, postId: Long): Deferred<ApiResult<CommonResponse>> =
         RetrofitTiebaApi.OFFICIAL_TIEBA_API.addStoreAsync(
-            listOf(
-                NewCollectDataBean(
-                    threadId.toString(),
-                    postId.toString(),
-                    status = 1
+            GsonUtil.getGson().toJson(
+                listOf(
+                    NewCollectDataBean(
+                        threadId.toString(),
+                        postId.toString(),
+                        status = 1
+                    )
                 )
-            ).toJson()
+            )
         )
 
     override fun addStoreFlow(threadId: Long, postId: Long): Flow<CommonResponse> =
         RetrofitTiebaApi.OFFICIAL_TIEBA_API.addStoreFlow(
-            listOf(
-                NewCollectDataBean(
-                    threadId.toString(),
-                    postId.toString(),
-                    status = 1
+            GsonUtil.getGson().toJson(
+                listOf(
+                    NewCollectDataBean(
+                        threadId.toString(),
+                        postId.toString(),
+                        status = 1
+                    )
                 )
-            ).toJson()
+            )
         )
 
 
@@ -603,10 +606,15 @@ object MixedTiebaApiImpl : ITiebaApi {
         dislikeBean: DislikeBean,
         stoken: String
     ): Call<CommonResponse> =
-        RetrofitTiebaApi.OFFICIAL_TIEBA_API.submitDislike(listOf(dislikeBean).toJson(), stoken = stoken)
+        RetrofitTiebaApi.OFFICIAL_TIEBA_API.submitDislike(
+            GsonUtil.getGson().toJson(listOf(dislikeBean)),
+            stoken = stoken
+        )
 
     override fun submitDislikeFlow(dislikeBean: DislikeBean): Flow<CommonResponse> =
-        RetrofitTiebaApi.OFFICIAL_TIEBA_API.submitDislikeFlow(listOf(dislikeBean).toJson())
+        RetrofitTiebaApi.OFFICIAL_TIEBA_API.submitDislikeFlow(
+            GsonUtil.getGson().toJson(listOf(dislikeBean))
+        )
 
     override fun follow(
         portrait: String, tbs: String
@@ -697,29 +705,8 @@ object MixedTiebaApiImpl : ITiebaApi {
             ct = 2,
             isUseZonghe = null,
             clientVersion = ClientVersion.TIEBA_V12.version,
-            referer = "https://tieba.baidu.com/mo/q/hybrid-usergrow-search/searchGlobal?entryPage=frs&loadingSignal=1&forumName=${forumName.urlEncode()}&forumId=$forumId&customfullscreen=1&nonavigationbar=1&cuid=${CuidUtils.getNewCuid()}&cuid_galaxy2=${CuidUtils.getNewCuid()}&cuid_gid=&timestamp=${System.currentTimeMillis()}&_client_version=${ClientVersion.TIEBA_V12.version}&_client_type=2"
+            referer = "https://tieba.baidu.com/mo/q/hybrid-usergrow-search/searchGlobal?entryPage=frs&loadingSignal=1&forumName=${forumName.urlEncode()}&forumId=$forumId&customfullscreen=1&nonavigationbar=1&cuid=${ClientIdentityRegistry.current.newCuid.orEmpty()}&cuid_galaxy2=${ClientIdentityRegistry.current.newCuid.orEmpty()}&cuid_gid=&timestamp=${System.currentTimeMillis()}&_client_version=${ClientVersion.TIEBA_V12.version}&_client_type=2"
         )
-
-    override fun webUploadPic(photoInfoBean: PhotoInfoBean): Call<WebUploadPicBean> {
-        var base64: String? = null
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            base64 = ImageUtil.imageToBase64(photoInfoBean.file)
-        } else {
-            try {
-                App.INSTANCE.contentResolver.openAssetFileDescriptor(
-                    photoInfoBean.fileUri,
-                    "r"
-                )?.use { afd ->
-                    base64 =
-                        ImageUtil.imageToBase64(FileInputStream(afd.parcelFileDescriptor.fileDescriptor))
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-                base64 = null
-            }
-        }
-        return RetrofitTiebaApi.WEB_TIEBA_API.webUploadPic(base64)
-    }
 
     override fun webReply(
         forumId: String,

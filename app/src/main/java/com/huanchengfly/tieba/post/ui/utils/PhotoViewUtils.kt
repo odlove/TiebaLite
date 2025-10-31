@@ -19,11 +19,11 @@ fun getPhotoViewData(
     originSize: Int,
     seeLz: Boolean = false
 ): PhotoViewData? {
-    if (post.from_forum == null) return null
+    val forum = post.from_forum ?: return null
     return PhotoViewData(
         data = LoadPicPageData(
-            forumId = post.from_forum.id,
-            forumName = post.from_forum.name,
+            forumId = forum.id,
+            forumName = forum.name,
             threadId = post.tid,
             postId = post.id,
             objType = "pb",

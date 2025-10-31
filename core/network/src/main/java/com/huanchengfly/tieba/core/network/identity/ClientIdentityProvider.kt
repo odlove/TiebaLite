@@ -8,4 +8,8 @@ interface ClientIdentityProvider {
     val sampleId: String?
     val baiduId: String?
     val activeTimestamp: Long
+    val finalCuid: String?
+    val newCuid: String?
+    val aid: String?
+    val androidId: String?
 }

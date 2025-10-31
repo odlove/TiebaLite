@@ -150,14 +150,15 @@ fun ConcernPage(
                     contentType = { _, item -> item.recommendType }
                 ) { index, item ->
                     Container {
-                        if (item.recommendType == 1 && item.threadList != null) {
+                        val threadInfo = item.threadList
+                        if (item.recommendType == 1 && threadInfo != null) {
                             Column {
                                 // ✅ 订阅是否正在更新中
-                                val isUpdating by viewModel.pbPageRepository.isThreadUpdating(item.threadList.id)
+                                val isUpdating by viewModel.pbPageRepository.isThreadUpdating(threadInfo.id)
                                     .collectAsState(initial = false)
 
                                 FeedCard(
-                                    item = wrapImmutable(item.threadList),
+                                    item = wrapImmutable(threadInfo),
                                     onClick = {
                                         navigator.navigate(
                                             ThreadPageDestination(

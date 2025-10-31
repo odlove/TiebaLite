@@ -1,16 +1,17 @@
 package com.huanchengfly.tieba.post.repository
-
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.pbPage.PbPageResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
-import com.huanchengfly.tieba.post.di.CoroutineModule
+import com.huanchengfly.tieba.core.runtime.di.ApplicationScope
 import com.huanchengfly.tieba.post.models.PostEntity
 import com.huanchengfly.tieba.post.models.ProtoFieldTags
 import com.huanchengfly.tieba.post.models.ThreadEntity
 import com.huanchengfly.tieba.post.models.mappers.PostMapper
 import com.huanchengfly.tieba.post.models.mappers.ThreadMapper
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageFrom
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -20,8 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 /**
  * PbPage（帖子详情页）数据仓库实现
@@ -40,7 +40,7 @@ import javax.inject.Singleton
 @Singleton
 class PbPageRepositoryImpl @Inject constructor(
     private val api: ITiebaApi,
-    @param:CoroutineModule.ApplicationScope
+    @param:ApplicationScope
     private val applicationScope: CoroutineScope
 ) : PbPageRepository {
     companion object {
@@ -122,32 +122,36 @@ class PbPageRepositoryImpl @Inject constructor(
                 lastPostId = lastPostId
             )
             .map { response ->
-                if (response.data_ == null) {
-                    throw TiebaUnknownException
-                }
-                if (response.data_.post_list.isEmpty()) {
+                val data = response.data_ ?: throw TiebaUnknownException
+                if (data.post_list.isEmpty()) {
                     throw EmptyDataException
                 }
                 if (
-                    response.data_.page == null
-                    || response.data_.thread?.author == null
-                    || response.data_.forum == null
-                    || response.data_.anti == null
+                    data.page == null
+                    || data.thread?.author == null
+                    || data.forum == null
+                    || data.anti == null
                 ) {
                     throw TiebaUnknownException
                 }
-                val userList = response.data_.user_list
-                val postList = response.data_.post_list.map {
-                    val author = it.author
-                        ?: userList.first { user -> user.id == it.author_id }
-                    it.copy(
+                val thread = data.thread ?: throw TiebaUnknownException
+                val threadAuthor = thread.author ?: throw TiebaUnknownException
+                val forum = data.forum ?: throw TiebaUnknownException
+                data.page ?: throw TiebaUnknownException
+                data.anti ?: throw TiebaUnknownException
+                val userList = data.user_list
+                val postList = data.post_list.map { post ->
+                    val author = post.author
+                        ?: userList.first { user -> user.id == post.author_id }
+                    val subPostList = post.sub_post_list
+                    post.copy(
                         author_id = author.id,
-                        author = it.author
-                            ?: userList.first { user -> user.id == it.author_id },
-                        from_forum = response.data_.forum,
-                        tid = response.data_.thread.id,
-                        sub_post_list = it.sub_post_list?.copy(
-                            sub_post_list = it.sub_post_list.sub_post_list.map { subPost ->
+                        author = post.author
+                            ?: userList.first { user -> user.id == post.author_id },
+                        from_forum = forum,
+                        tid = thread.id,
+                        sub_post_list = subPostList?.copy(
+                            sub_post_list = subPostList.sub_post_list.map { subPost ->
                                 subPost.copy(
                                     author = subPost.author
                                         ?: userList.first { user -> user.id == subPost.author_id }
@@ -155,44 +159,46 @@ class PbPageRepositoryImpl @Inject constructor(
                             }
                         ),
                         origin_thread_info = OriginThreadInfo(
-                            author = response.data_.thread.author
+                            author = threadAuthor
                         )
                     )
                 }
+                val firstFloorPost = data.first_floor_post
                 val firstPost = postList.firstOrNull { it.floor == 1 }
-                    ?: response.data_.first_floor_post?.copy(
-                        author_id = response.data_.thread.author.id,
-                        author = response.data_.thread.author,
-                        from_forum = response.data_.forum,
-                        tid = response.data_.thread.id,
-                        sub_post_list = response.data_.first_floor_post.sub_post_list?.copy(
-                            sub_post_list = response.data_.first_floor_post.sub_post_list.sub_post_list.map { subPost ->
-                                subPost.copy(
-                                    author = subPost.author
-                                        ?: userList.first { user -> user.id == subPost.author_id }
-                                )
-                            }
+                    ?: firstFloorPost?.let { first ->
+                        val subPosts = first.sub_post_list
+                        first.copy(
+                            author_id = threadAuthor.id,
+                            author = threadAuthor,
+                            from_forum = forum,
+                            tid = thread.id,
+                            sub_post_list = subPosts?.copy(
+                                sub_post_list = subPosts.sub_post_list.map { subPost ->
+                                    subPost.copy(
+                                        author = subPost.author
+                                            ?: userList.first { user -> user.id == subPost.author_id }
+                                    )
+                                }
+                            )
                         )
-                    )
+                    }
 
                 val finalResponse = response.copy(
-                    data_ = response.data_.copy(
+                    data_ = data.copy(
                         post_list = postList,
                         first_floor_post = firstPost,
                     )
                 )
 
                 // ✅ API 调用成功时更新缓存
-                response.data_.thread?.let { threadProto ->
-                    // ✅ 传入正确的 threadId（来自方法参数，而不是 proto.id）
-                    updateThreadCache(threadId, threadProto, null)
-                    // 同时更新回复缓存
-                    val postList = response.data_.post_list
-                    val firstPost = response.data_.first_floor_post
-                    val allPosts = listOfNotNull(firstPost) + postList.filterNot { it.floor == 1 }
-                    if (allPosts.isNotEmpty()) {
-                        updatePostsCache(threadId, allPosts)
-                    }
+                // ✅ 传入正确的 threadId（来自方法参数，而不是 proto.id）
+                updateThreadCache(threadId, thread, null)
+                // 同时更新回复缓存
+                val originalPostList = data.post_list
+                val originalFirstPost = data.first_floor_post
+                val allPosts = listOfNotNull(originalFirstPost) + originalPostList.filterNot { it.floor == 1 }
+                if (allPosts.isNotEmpty()) {
+                    updatePostsCache(threadId, allPosts)
                 }
 
                 finalResponse

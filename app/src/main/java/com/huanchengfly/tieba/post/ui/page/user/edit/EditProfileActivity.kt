@@ -45,6 +45,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -95,7 +96,7 @@ import com.huanchengfly.tieba.post.utils.ThemeUtil
 import com.huanchengfly.tieba.post.utils.registerPickMediasLauncher
 import com.huanchengfly.tieba.post.utils.requestPermission
 import com.huanchengfly.tieba.post.utils.shouldUsePhotoPicker
-import dagger.hilt.android.EntryPointAccessors
+import javax.inject.Inject
 import com.yalantis.ucrop.UCrop
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.collections.immutable.persistentListOf
@@ -175,6 +176,9 @@ class EditProfileActivity : BaseActivity() {
 
     private val viewModel: EditProfileViewModel by viewModels()
 
+    @Inject
+    lateinit var globalEventBus: GlobalEventBus
+
     private val intents by lazy {
         merge(
             flowOf(EditProfileIntent.Init(AccountUtil.getUid() ?: "0"))
@@ -188,12 +192,6 @@ class EditProfileActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            val globalEventBus = remember {
-                EntryPointAccessors.fromApplication(
-                    applicationContext,
-                    com.huanchengfly.tieba.post.di.GlobalEventBusEntryPoint::class.java
-                ).globalEventBus()
-            }
             CompositionLocalProvider(LocalGlobalEventBus provides globalEventBus) {
                 TiebaLiteTheme {
                     val systemUIBarsTweaker = rememberSystemUIBarsTweaker()

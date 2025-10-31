@@ -143,23 +143,23 @@ fun NotificationsListPage(
                                     .padding(horizontal = 16.dp, vertical = 12.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                if (info.replyer != null) {
+                                val replyer = info.replyer
+                                if (replyer != null) {
                                     UserHeader(
                                         avatar = {
                                             Avatar(
-                                                data = StringUtil.getAvatarUrl(info.replyer.portrait),
+                                                data = StringUtil.getAvatarUrl(replyer.portrait),
                                                 size = Sizes.Small,
                                                 contentDescription = null
                                             )
                                         },
                                         name = {
                                             Text(
-                                                text = info.replyer.nameShow ?: info.replyer.name
-                                                ?: ""
+                                                text = replyer.nameShow ?: replyer.name ?: ""
                                             )
                                         },
                                         onClick = {
-                                            info.replyer.id?.toLongOrNull()?.let { userId ->
+                                            replyer.id?.toLongOrNull()?.let { userId ->
                                                 navigator.navigate(UserProfilePageDestination(userId))
                                             }
                                         },

@@ -34,16 +34,15 @@ import com.huanchengfly.tieba.post.api.retrofit.interfaces.OfficialTiebaApi
 import com.huanchengfly.tieba.post.api.retrofit.interfaces.SofireApi
 import com.huanchengfly.tieba.post.api.retrofit.interfaces.WebTiebaApi
 import com.huanchengfly.tieba.post.api.resolveDeviceInfo
-import com.huanchengfly.tieba.post.toJson
-import com.huanchengfly.tieba.post.utils.CacheUtil.base64Encode
-import com.huanchengfly.tieba.post.utils.CuidUtils
-import com.huanchengfly.tieba.post.utils.UIDUtil
+import android.util.Base64
+import com.google.gson.Gson
 import com.huanchengfly.tieba.core.network.retrofit.RetrofitClientFactory
 import kotlinx.serialization.json.Json
 import okhttp3.ConnectionPool
 import okhttp3.Interceptor
 import retrofit2.Retrofit
 import retrofit2.converter.wire.WireConverterFactory
+import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -68,6 +67,14 @@ object RetrofitTiebaApi {
     private val stParamInterceptor = StParamInterceptor()
     private val connectionPool = ConnectionPool(32, 5, TimeUnit.MINUTES)
     private val retrofitClientFactory = RetrofitClientFactory()
+    private val gson = Gson()
+
+    private fun identity() = ClientIdentityRegistry.current
+
+    private fun encodedAndroidId(): String = Base64.encodeToString(
+        (identity().androidId ?: "000").toByteArray(StandardCharsets.UTF_8),
+        Base64.NO_WRAP
+    )
 
     private val defaultCommonParamInterceptor = CommonParamInterceptor(
         Param.BDUSS to { AccountTokenRegistry.current.bduss },
@@ -94,10 +101,10 @@ object RetrofitTiebaApi {
             defaultCommonHeaderInterceptor,
             CommonHeaderInterceptor(
                 Header.USER_AGENT to { "bdtb for Android 8.2.2" },
-                Header.CUID to { UIDUtil.finalCUID }
+                Header.CUID to { identity().finalCuid }
             ),
             defaultCommonParamInterceptor + CommonParamInterceptor(
-                Param.CUID to { UIDUtil.finalCUID },
+                Param.CUID to { identity().finalCuid },
                 Param.FROM to { "baidu_appstore" },
                 Param.CLIENT_VERSION to { "8.2.2" }
             ),
@@ -109,10 +116,10 @@ object RetrofitTiebaApi {
         createJsonApi<WebTiebaApi>("https://tieba.baidu.com/",
             CommonHeaderInterceptor(
                 Header.USER_AGENT to { getUserAgent("tieba/11.10.8.6 skin/default") },
-                Header.CUID to { CuidUtils.getNewCuid() },
-                Header.CUID_GALAXY2 to { CuidUtils.getNewCuid() },
+                Header.CUID to { identity().newCuid },
+                Header.CUID_GALAXY2 to { identity().newCuid },
                 Header.CUID_GID to { "" },
-                Header.CUID_GALAXY3 to { UIDUtil.getAid() },
+                Header.CUID_GALAXY3 to { identity().aid },
                 Header.CLIENT_USER_TOKEN to { AccountTokenRegistry.current.uid },
                 Header.CHARSET to { "UTF-8" },
                 Header.HOST to { "tieba.baidu.com" },
@@ -135,19 +142,20 @@ object RetrofitTiebaApi {
                 "Sec-Fetch-Mode" to { "cors" },
                 "Sec-Fetch-Dest" to { "empty" },
                 Header.COOKIE to {
+                    val id = identity()
                     getCookie(
-                        "CUID" to { CuidUtils.getNewCuid() },
+                        "CUID" to { id.newCuid },
                         "TBBRAND" to { deviceInfo().model },
-                        "cuid_galaxy2" to { CuidUtils.getNewCuid() },
+                        "cuid_galaxy2" to { id.newCuid },
                         "SP_FW_VER" to { "3.340.42" },
                         "SG_FW_VER" to { "1.38.0" },
                         "BDUSS" to { AccountTokenRegistry.current.bduss },
                         "STOKEN" to { AccountTokenRegistry.current.stoken },
-                        "BAIDU_WISE_UID" to { ClientIdentityRegistry.current.clientId },
+                        "BAIDU_WISE_UID" to { id.clientId },
                         "USER_JUMP" to { "-1" },
                         "BDUSS_BFESS" to { AccountTokenRegistry.current.bduss },
-                        "BAIDUID" to { ClientIdentityRegistry.current.baiduId },
-                        "BAIDUID_BFESS" to { ClientIdentityRegistry.current.baiduId },
+                        "BAIDUID" to { id.baiduId },
+                        "BAIDUID_BFESS" to { id.baiduId },
                         "mo_originid" to { "2" },
                         "BAIDUZID" to { AccountTokenRegistry.current.zid },
                     )
@@ -167,12 +175,12 @@ object RetrofitTiebaApi {
             defaultCommonHeaderInterceptor,
             CommonHeaderInterceptor(
                 Header.USER_AGENT to { "bdtb for Android 7.2.0.0" },
-                Header.CUID to { UIDUtil.finalCUID },
-                Header.CUID_GALAXY2 to { UIDUtil.finalCUID }
+                Header.CUID to { identity().finalCuid },
+                Header.CUID_GALAXY2 to { identity().finalCuid }
             ),
             defaultCommonParamInterceptor + CommonParamInterceptor(
-                Param.CUID to { UIDUtil.finalCUID },
-                Param.CUID_GALAXY2 to { UIDUtil.finalCUID },
+                Param.CUID to { identity().finalCuid },
+                Param.CUID_GALAXY2 to { identity().finalCuid },
                 Param.FROM to { "1021636m" },
                 Param.CLIENT_VERSION to { "7.2.0.0" },
                 Param.SUBAPP_TYPE to { "mini" }
@@ -186,23 +194,26 @@ object RetrofitTiebaApi {
             "http://c.tieba.baidu.com/",
             CommonHeaderInterceptor(
                 Header.USER_AGENT to { "bdtb for Android 12.25.1.0" },
-                Header.COOKIE to { "CUID=${CuidUtils.getNewCuid()};ka=open;TBBRAND=${deviceInfo().model};BAIDUID=${ClientIdentityRegistry.current.baiduId};" },
-                Header.CUID to { CuidUtils.getNewCuid() },
-                Header.CUID_GALAXY2 to { CuidUtils.getNewCuid() },
+                Header.COOKIE to {
+                    val id = identity()
+                    "CUID=${id.newCuid.orEmpty()};ka=open;TBBRAND=${deviceInfo().model};BAIDUID=${id.baiduId.orEmpty()};"
+                },
+                Header.CUID to { identity().newCuid },
+                Header.CUID_GALAXY2 to { identity().newCuid },
                 Header.CUID_GID to { "" },
-                Header.CUID_GALAXY3 to { UIDUtil.getAid() },
+                Header.CUID_GALAXY3 to { identity().aid },
                 Header.CLIENT_TYPE to { "2" },
                 Header.CHARSET to { "UTF-8" },
                 "client_logid" to { "$initTime" }
             ),
             defaultCommonParamInterceptor + CommonParamInterceptor(
                 Param.ACTIVE_TIMESTAMP to { ClientIdentityRegistry.current.activeTimestamp.toString() },
-                Param.ANDROID_ID to { base64Encode(UIDUtil.getAndroidId("000")) },
+                Param.ANDROID_ID to { encodedAndroidId() },
                 Param.BAIDU_ID to { ClientIdentityRegistry.current.baiduId },
                 Param.BRAND to { deviceInfo().brand },
                 Param.CMODE to { "1" },
-                Param.CUID to { CuidUtils.getNewCuid() },
-                Param.CUID_GALAXY2 to { CuidUtils.getNewCuid() },
+                Param.CUID to { identity().newCuid },
+                Param.CUID_GALAXY2 to { identity().newCuid },
                 Param.CUID_GID to { "" },
                 Param.EVENT_DAY to {
                     SimpleDateFormat("yyyyMdd", Locale.getDefault()).format(
@@ -224,8 +235,8 @@ object RetrofitTiebaApi {
                 Param.START_TYPE to { "1" },
                 Param.SWAN_GAME_VER to { "1038000" },
                 Param.CLIENT_VERSION to { "12.25.1.0" },
-                Param.CUID_GALAXY3 to { UIDUtil.getAid() },
-                Param.OAID to { OAID().toJson() },
+                Param.CUID_GALAXY3 to { identity().aid },
+                Param.OAID to { gson.toJson(OAID()) },
             ),
             stParamInterceptor,
         )
@@ -238,22 +249,25 @@ object RetrofitTiebaApi {
                 Header.CHARSET to { "UTF-8" },
                 Header.CLIENT_TYPE to { "2" },
                 Header.CLIENT_USER_TOKEN to { AccountTokenRegistry.current.uid },
-                Header.COOKIE to { "CUID=${CuidUtils.getNewCuid()};ka=open;TBBRAND=${deviceInfo().model};" },
-                Header.CUID to { CuidUtils.getNewCuid() },
-                Header.CUID_GALAXY2 to { CuidUtils.getNewCuid() },
+                Header.COOKIE to {
+                    val id = identity()
+                    "CUID=${id.newCuid.orEmpty()};ka=open;TBBRAND=${deviceInfo().model};"
+                },
+                Header.CUID to { identity().newCuid },
+                Header.CUID_GALAXY2 to { identity().newCuid },
                 Header.CUID_GID to { "" },
-                Header.CUID_GALAXY3 to { UIDUtil.getAid() },
+                Header.CUID_GALAXY3 to { identity().aid },
                 Header.USER_AGENT to { "bdtb for Android ${ClientVersion.TIEBA_V11.version}" },
                 Header.X_BD_DATA_TYPE to { "protobuf" },
             ),
             defaultCommonParamInterceptor - Param.OS_VERSION + CommonParamInterceptor(
-                Param.CUID to { CuidUtils.getNewCuid() },
-                Param.CUID_GALAXY2 to { CuidUtils.getNewCuid() },
+                Param.CUID to { identity().newCuid },
+                Param.CUID_GALAXY2 to { identity().newCuid },
                 Param.CUID_GID to { "" },
                 Param.FROM to { "tieba" },
                 Param.CLIENT_VERSION to { ClientVersion.TIEBA_V11.version },
-                Param.CUID_GALAXY3 to { UIDUtil.getAid() },
-                Param.OAID to { OAID().toJson() },
+                Param.CUID_GALAXY3 to { identity().aid },
+                Param.OAID to { gson.toJson(OAID()) },
             ),
             stParamInterceptor,
         )
@@ -267,16 +281,17 @@ object RetrofitTiebaApi {
                 Header.CLIENT_TYPE to { "2" },
                 Header.CLIENT_USER_TOKEN to { AccountTokenRegistry.current.uid },
                 Header.COOKIE to {
+                    val id = identity()
                     getCookie(
                         "ka" to { "open" },
-                        "CUID" to { CuidUtils.getNewCuid() },
+                        "CUID" to { id.newCuid },
                         "TBBRAND" to { deviceInfo().model }
                     )
                 },
-                Header.CUID to { CuidUtils.getNewCuid() },
-                Header.CUID_GALAXY2 to { CuidUtils.getNewCuid() },
+                Header.CUID to { identity().newCuid },
+                Header.CUID_GALAXY2 to { identity().newCuid },
                 Header.CUID_GID to { "" },
-                Header.CUID_GALAXY3 to { UIDUtil.getAid() },
+                Header.CUID_GALAXY3 to { identity().aid },
                 Header.USER_AGENT to { getUserAgent("tieba/${ClientVersion.TIEBA_V12.version}") },
                 Header.X_BD_DATA_TYPE to { "protobuf" },
             ),
@@ -292,30 +307,31 @@ object RetrofitTiebaApi {
 //                Header.CLIENT_TYPE to { "2" },
                 Header.CLIENT_USER_TOKEN to { AccountTokenRegistry.current.uid },
                 Header.COOKIE to {
+                    val id = identity()
                     getCookie(
                         "BAIDUZID" to { AccountTokenRegistry.current.zid },
                         "ka" to { "open" },
-                        "CUID" to { CuidUtils.getNewCuid() },
+                        "CUID" to { id.newCuid },
                         "TBBRAND" to { deviceInfo().model }
                     )
                 },
-                Header.CUID to { CuidUtils.getNewCuid() },
-                Header.CUID_GALAXY2 to { CuidUtils.getNewCuid() },
+                Header.CUID to { identity().newCuid },
+                Header.CUID_GALAXY2 to { identity().newCuid },
                 Header.CUID_GID to { "" },
-                Header.CUID_GALAXY3 to { UIDUtil.getAid() },
+                Header.CUID_GALAXY3 to { identity().aid },
                 Header.USER_AGENT to { getUserAgent("tieba/${ClientVersion.TIEBA_V12_POST.version}") },
                 Header.X_BD_DATA_TYPE to { "protobuf" },
             ),
             defaultCommonParamInterceptor - Param.OS_VERSION + CommonParamInterceptor(
                 Param.CLIENT_VERSION to { ClientVersion.TIEBA_V12_POST.version },
                 Param.ACTIVE_TIMESTAMP to { ClientIdentityRegistry.current.activeTimestamp.toString() },
-                Param.ANDROID_ID to { base64Encode(UIDUtil.getAndroidId("000")) },
+                Param.ANDROID_ID to { encodedAndroidId() },
                 Param.BAIDU_ID to { ClientIdentityRegistry.current.baiduId },
                 Param.BRAND to { deviceInfo().brand },
-                Param.CUID_GALAXY3 to { UIDUtil.getAid() },
+                Param.CUID_GALAXY3 to { identity().aid },
                 Param.CMODE to { "1" },
-                Param.CUID to { CuidUtils.getNewCuid() },
-                Param.CUID_GALAXY2 to { CuidUtils.getNewCuid() },
+                Param.CUID to { identity().newCuid },
+                Param.CUID_GALAXY2 to { identity().newCuid },
                 Param.CUID_GID to { "" },
                 Param.DEVICE_SCORE to { "${deviceInfo().deviceScore}" },
                 Param.EVENT_DAY to {
@@ -333,7 +349,7 @@ object RetrofitTiebaApi {
                 Param.LAST_UPDATE_TIME to { deviceConfig().appLastUpdateTime.toString() },
                 Param.MAC to { "02:00:00:00:00:00" },
                 "naws_game_ver" to { "1038000" },
-                Param.OAID to { OAID().toJson() },
+                Param.OAID to { gson.toJson(OAID()) },
                 "personalized_rec_switch" to { "1" },
                 Param.SAMPLE_ID to { ClientIdentityRegistry.current.sampleId },
                 Param.SDK_VER to { "2.34.0" },

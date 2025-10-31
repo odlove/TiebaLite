@@ -31,7 +31,6 @@ import com.huanchengfly.tieba.post.api.models.web.HotMessageListBean
 import com.huanchengfly.tieba.post.api.retrofit.ApiResult
 import com.huanchengfly.tieba.post.models.DislikeBean
 import com.huanchengfly.tieba.post.models.MyInfoBean
-import com.huanchengfly.tieba.post.models.PhotoInfoBean
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Call
@@ -969,16 +968,6 @@ interface ITiebaApi {
         page: Int = 1,
         pageSize: Int = 20,
     ): Flow<SearchThreadBean>
-
-    /**
-     * 上传图片（web 接口）
-     *
-     * **需登录**
-     */
-    fun webUploadPic(
-        photoInfoBean: PhotoInfoBean,
-    ): Call<WebUploadPicBean>
-
 
     /**
      * 回贴 - 回复主题贴（web 接口）

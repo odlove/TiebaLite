@@ -3,6 +3,8 @@ package com.huanchengfly.tieba.post.api
 import com.huanchengfly.tieba.core.network.device.DeviceConfigRegistry
 import com.huanchengfly.tieba.core.network.account.AccountTokenRegistry
 import com.huanchengfly.tieba.core.network.identity.ClientIdentityRegistry
+import android.util.Base64
+import com.google.gson.Gson
 import com.huanchengfly.tieba.post.api.models.OAID
 import com.huanchengfly.tieba.post.api.models.protos.AppPosInfo
 import com.huanchengfly.tieba.post.api.models.protos.CommonRequest
@@ -10,16 +12,12 @@ import com.huanchengfly.tieba.post.api.models.protos.frsPage.AdParam
 import com.huanchengfly.tieba.post.api.retrofit.RetrofitTiebaApi
 import com.huanchengfly.tieba.core.network.http.multipart.MyMultipartBody
 import com.huanchengfly.tieba.core.network.runtime.KzModeRegistry
-import com.huanchengfly.tieba.post.toJson
-import com.huanchengfly.tieba.post.utils.CacheUtil.base64Encode
-import com.huanchengfly.tieba.post.utils.CuidUtils
-import com.huanchengfly.tieba.post.utils.MobileInfoUtil
-import com.huanchengfly.tieba.post.utils.UIDUtil
 import com.squareup.wire.Message
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.nio.charset.StandardCharsets
 
 const val BOUNDARY = "--------7da3d81520810*"
 
@@ -73,29 +71,30 @@ fun buildCommonRequest(
 ): CommonRequest {
     val deviceInfo = resolveDeviceInfo()
     val deviceConfig = DeviceConfigRegistry.current
+    val identity = ClientIdentityRegistry.current
     return when (clientVersion) {
         ClientVersion.TIEBA_V11 -> {
             CommonRequest(
                 BDUSS = bduss ?: AccountTokenRegistry.current.bduss,
-                _client_id = ClientIdentityRegistry.current.clientId ?: RetrofitTiebaApi.randomClientId,
+                _client_id = identity.clientId ?: RetrofitTiebaApi.randomClientId,
                 _client_type = 2,
                 _client_version = clientVersion.version,
                 _os_version = deviceInfo.osVersion,
-                _phone_imei = deviceInfo.imei ?: MobileInfoUtil.DEFAULT_IMEI,
+                _phone_imei = deviceInfo.imei ?: DEFAULT_IMEI,
                 _timestamp = System.currentTimeMillis(),
                 brand = deviceInfo.brand,
-                c3_aid = UIDUtil.getAid(),
-                cuid = CuidUtils.getNewCuid(),
-                cuid_galaxy2 = CuidUtils.getNewCuid(),
+                c3_aid = identity.aid.orEmpty(),
+                cuid = identity.newCuid.orEmpty(),
+                cuid_galaxy2 = identity.newCuid.orEmpty(),
                 cuid_gid = "",
                 from = "1024324o",
                 is_teenager = 0,
                 lego_lib_version = "3.0.0",
                 model = deviceInfo.model,
                 net_type = 1,
-                oaid = OAID().toJson(),
+                oaid = gson.toJson(OAID()),
                 pversion = "1.0.3",
-                sample_id = ClientIdentityRegistry.current.sampleId,
+                sample_id = identity.sampleId,
                 stoken = stoken ?: AccountTokenRegistry.current.stoken,
             )
         }
@@ -103,19 +102,19 @@ fun buildCommonRequest(
         ClientVersion.TIEBA_V12 -> {
             CommonRequest(
                 BDUSS = AccountTokenRegistry.current.bduss,
-                _client_id = ClientIdentityRegistry.current.clientId ?: RetrofitTiebaApi.randomClientId,
+                _client_id = identity.clientId ?: RetrofitTiebaApi.randomClientId,
                 _client_type = 2,
                 _client_version = clientVersion.version,
                 _os_version = deviceInfo.osVersion,
-                _phone_imei = deviceInfo.imei ?: MobileInfoUtil.DEFAULT_IMEI,
+                _phone_imei = deviceInfo.imei ?: DEFAULT_IMEI,
                 _timestamp = System.currentTimeMillis(),
-                active_timestamp = ClientIdentityRegistry.current.activeTimestamp,
-                android_id = base64Encode(UIDUtil.getAndroidId("000")),
+                active_timestamp = identity.activeTimestamp,
+                android_id = encodeAndroidId(identity.androidId),
                 brand = deviceInfo.brand,
-                c3_aid = UIDUtil.getAid(),
+                c3_aid = identity.aid.orEmpty(),
                 cmode = if (KzModeRegistry.current.isKzEnabled) 1 else 0,
-                cuid = CuidUtils.getNewCuid(),
-                cuid_galaxy2 = CuidUtils.getNewCuid(),
+                cuid = identity.newCuid.orEmpty(),
+                cuid_galaxy2 = identity.newCuid.orEmpty(),
                 cuid_gid = "",
                 event_day = SimpleDateFormat("yyyyMdd", Locale.getDefault()).format(Date(System.currentTimeMillis())),
                 extra = "",
@@ -131,7 +130,7 @@ fun buildCommonRequest(
                 personalized_rec_switch = 1,
                 pversion = "1.0.3",
                 q_type = 0,
-                sample_id = ClientIdentityRegistry.current.sampleId,
+                sample_id = identity.sampleId,
                 scr_dip = deviceInfo.screenDensity.toDouble(),
                 scr_h = deviceInfo.screenHeight,
                 scr_w = deviceInfo.screenWidth,
@@ -148,20 +147,20 @@ fun buildCommonRequest(
         ClientVersion.TIEBA_V12_POST -> {
             CommonRequest(
                 BDUSS = AccountTokenRegistry.current.bduss,
-                _client_id = ClientIdentityRegistry.current.clientId ?: RetrofitTiebaApi.randomClientId,
+                _client_id = identity.clientId ?: RetrofitTiebaApi.randomClientId,
                 _client_type = 2,
                 _client_version = clientVersion.version,
                 _os_version = deviceInfo.osVersion,
-                _phone_imei = deviceInfo.imei ?: MobileInfoUtil.DEFAULT_IMEI,
+                _phone_imei = deviceInfo.imei ?: DEFAULT_IMEI,
                 _timestamp = System.currentTimeMillis(),
-                active_timestamp = ClientIdentityRegistry.current.activeTimestamp,
-                android_id = UIDUtil.getAndroidId("000"),
+                active_timestamp = identity.activeTimestamp,
+                android_id = identity.androidId ?: DEFAULT_ANDROID_ID,
                 applist = "",
                 brand = deviceInfo.brand,
-                c3_aid = UIDUtil.getAid(),
+                c3_aid = identity.aid.orEmpty(),
                 cmode = if (KzModeRegistry.current.isKzEnabled) 1 else 0,
-                cuid = CuidUtils.getNewCuid(),
-                cuid_galaxy2 = CuidUtils.getNewCuid(),
+                cuid = identity.newCuid.orEmpty(),
+                cuid_galaxy2 = identity.newCuid.orEmpty(),
                 cuid_gid = "",
                 device_score = "${deviceInfo.deviceScore}",
                 event_day = SimpleDateFormat("yyyyMdd", Locale.getDefault()).format(Date(System.currentTimeMillis())),
@@ -178,7 +177,7 @@ fun buildCommonRequest(
                 personalized_rec_switch = 1,
                 pversion = "1.0.3",
                 q_type = 0,
-                sample_id = ClientIdentityRegistry.current.sampleId,
+                sample_id = identity.sampleId,
                 scr_dip = deviceInfo.screenDensity.toDouble(),
                 scr_h = deviceInfo.screenHeight,
                 scr_w = deviceInfo.screenWidth,
@@ -194,3 +193,13 @@ fun buildCommonRequest(
         }
     }
 }
+
+private fun encodeAndroidId(androidId: String?): String {
+    val value = androidId ?: DEFAULT_ANDROID_ID
+    return Base64.encodeToString(value.toByteArray(StandardCharsets.UTF_8), Base64.DEFAULT)
+}
+
+private val gson = Gson()
+
+private const val DEFAULT_IMEI = "000000000000000"
+private const val DEFAULT_ANDROID_ID = "000"

@@ -1,19 +1,21 @@
 package com.huanchengfly.tieba.post.repository
-
+import com.huanchengfly.tieba.core.runtime.di.ApplicationScope
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.webkit.CookieManager
-import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
-import com.huanchengfly.tieba.post.api.models.LoginBean
 import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
+import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
+import com.huanchengfly.tieba.post.api.models.LoginBean
 import com.huanchengfly.tieba.post.arch.GlobalEvent
 import com.huanchengfly.tieba.post.data.account.AccountConstants
-import com.huanchengfly.tieba.post.di.CoroutineModule
 import com.huanchengfly.tieba.post.models.database.Account
 import com.huanchengfly.tieba.post.utils.SofireUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,14 +37,12 @@ import org.litepal.LitePal.findAll
 import org.litepal.LitePal.where
 import org.litepal.extension.findAllAsync
 import org.litepal.extension.findFirst
-import java.util.UUID
-import javax.inject.Inject
-import javax.inject.Singleton
+
 
 @Singleton
 class AccountRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    @CoroutineModule.ApplicationScope private val coroutineScope: CoroutineScope,
+    @ApplicationScope private val coroutineScope: CoroutineScope,
     private val api: ITiebaApi,
     private val globalEventBus: GlobalEventBus
 ) : AccountRepository {

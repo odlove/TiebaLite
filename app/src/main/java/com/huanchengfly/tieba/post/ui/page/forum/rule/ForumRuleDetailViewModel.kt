@@ -55,14 +55,14 @@ class ForumRuleDetailViewModel @Inject constructor(
             forumInfoRepository
                 .forumRuleDetail(forumId)
                 .map<ForumRuleDetailResponse, ForumRuleDetailPartialChange.Load> { response ->
-                    checkNotNull(response.data_)
-                    checkNotNull(response.data_.bazhu)
+                    val data = checkNotNull(response.data_)
+                    val bazhu = checkNotNull(data.bazhu)
                     ForumRuleDetailPartialChange.Load.Success(
-                        title = response.data_.title,
-                        publishTime = response.data_.publish_time,
-                        preface = response.data_.preface,
-                        data = response.data_.rules.map { it.toData() }.toImmutableList(),
-                        author = response.data_.bazhu
+                        title = data.title,
+                        publishTime = data.publish_time,
+                        preface = data.preface,
+                        data = data.rules.map { it.toData() }.toImmutableList(),
+                        author = bazhu
                     )
                 }
                 .onStart { emit(ForumRuleDetailPartialChange.Load.Start) }

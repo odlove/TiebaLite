@@ -73,33 +73,28 @@ val ThreadInfo.hasAbstract: Boolean
 
 fun ThreadInfo.updateAgreeStatus(
     hasAgree: Int
-) = if (agree != null) {
-    if (hasAgree != agree.hasAgree) {
-        if (hasAgree == 1) {
-            copy(
-                agreeNum = agreeNum + 1,
-                agree = agree.copy(
-                    agreeNum = agree.agreeNum + 1,
-                    diffAgreeNum = agree.diffAgreeNum + 1,
-                    hasAgree = 1
-                )
-            )
-        } else {
-            copy(
-                agreeNum = agreeNum - 1,
-                agree = agree.copy(
-                    agreeNum = agree.agreeNum - 1,
-                    diffAgreeNum = agree.diffAgreeNum - 1,
-                    hasAgree = 0
-                )
-            )
-        }
-    } else {
-        this
-    }
-} else {
-    copy(
+): ThreadInfo {
+    val agreeInfo = agree ?: return copy(
         agreeNum = if (hasAgree == 1) agreeNum + 1 else agreeNum - 1
+    )
+    if (hasAgree == agreeInfo.hasAgree) return this
+    val updatedAgree = if (hasAgree == 1) {
+        agreeInfo.copy(
+            agreeNum = agreeInfo.agreeNum + 1,
+            diffAgreeNum = agreeInfo.diffAgreeNum + 1,
+            hasAgree = 1
+        )
+    } else {
+        agreeInfo.copy(
+            agreeNum = agreeInfo.agreeNum - 1,
+            diffAgreeNum = agreeInfo.diffAgreeNum - 1,
+            hasAgree = 0
+        )
+    }
+    val updatedAgreeNum = if (hasAgree == 1) agreeNum + 1 else agreeNum - 1
+    return copy(
+        agreeNum = updatedAgreeNum,
+        agree = updatedAgree
     )
 }
 
@@ -117,88 +112,69 @@ fun ThreadInfo.updateCollectStatus(
 
 fun Post.updateAgreeStatus(
     hasAgree: Int
-) = if (agree != null) {
-    if (hasAgree != agree.hasAgree) {
-        if (hasAgree == 1) {
-            copy(
-                agree = agree.copy(
-                    agreeNum = agree.agreeNum + 1,
-                    diffAgreeNum = agree.diffAgreeNum + 1,
-                    hasAgree = 1
-                )
-            )
-        } else {
-            copy(
-                agree = agree.copy(
-                    agreeNum = agree.agreeNum - 1,
-                    diffAgreeNum = agree.diffAgreeNum - 1,
-                    hasAgree = 0
-                )
-            )
-        }
+): Post {
+    val agreeInfo = agree ?: return this
+    if (hasAgree == agreeInfo.hasAgree) return this
+    val updatedAgree = if (hasAgree == 1) {
+        agreeInfo.copy(
+            agreeNum = agreeInfo.agreeNum + 1,
+            diffAgreeNum = agreeInfo.diffAgreeNum + 1,
+            hasAgree = 1
+        )
     } else {
-        this
+        agreeInfo.copy(
+            agreeNum = agreeInfo.agreeNum - 1,
+            diffAgreeNum = agreeInfo.diffAgreeNum - 1,
+            hasAgree = 0
+        )
     }
-} else {
-    this
+    return copy(agree = updatedAgree)
 }
 
 fun SubPostList.updateAgreeStatus(
     hasAgree: Int
-) = if (agree != null) {
-    if (hasAgree != agree.hasAgree) {
-        if (hasAgree == 1) {
-            copy(
-                agree = agree.copy(
-                    agreeNum = agree.agreeNum + 1,
-                    diffAgreeNum = agree.diffAgreeNum + 1,
-                    hasAgree = 1
-                )
-            )
-        } else {
-            copy(
-                agree = agree.copy(
-                    agreeNum = agree.agreeNum - 1,
-                    diffAgreeNum = agree.diffAgreeNum - 1,
-                    hasAgree = 0
-                )
-            )
-        }
+): SubPostList {
+    val agreeInfo = agree ?: return this
+    if (hasAgree == agreeInfo.hasAgree) return this
+    val updatedAgree = if (hasAgree == 1) {
+        agreeInfo.copy(
+            agreeNum = agreeInfo.agreeNum + 1,
+            diffAgreeNum = agreeInfo.diffAgreeNum + 1,
+            hasAgree = 1
+        )
     } else {
-        this
+        agreeInfo.copy(
+            agreeNum = agreeInfo.agreeNum - 1,
+            diffAgreeNum = agreeInfo.diffAgreeNum - 1,
+            hasAgree = 0
+        )
     }
-} else {
-    this
+    return copy(agree = updatedAgree)
 }
 
 fun PostInfoList.updateAgreeStatus(
     hasAgree: Int,
-) = if (agree != null) {
-    if (hasAgree != agree.hasAgree) {
-        if (hasAgree == 1) {
-            copy(
-                agree = agree.copy(
-                    agreeNum = agree.agreeNum + 1,
-                    diffAgreeNum = agree.diffAgreeNum + 1,
-                    hasAgree = 1
-                ),
-                agree_num = agree_num + 1
-            )
-        } else {
-            copy(
-                agree = agree.copy(
-                    agreeNum = agree.agreeNum - 1,
-                    diffAgreeNum = agree.diffAgreeNum - 1,
-                    hasAgree = 0
-                ),
-                agree_num = agree_num - 1
-            )
-        }
+): PostInfoList {
+    val agreeInfo = agree ?: return this
+    if (hasAgree == agreeInfo.hasAgree) return this
+    val updatedAgree = if (hasAgree == 1) {
+        agreeInfo.copy(
+            agreeNum = agreeInfo.agreeNum + 1,
+            diffAgreeNum = agreeInfo.diffAgreeNum + 1,
+            hasAgree = 1
+        )
     } else {
-        this
+        agreeInfo.copy(
+            agreeNum = agreeInfo.agreeNum - 1,
+            diffAgreeNum = agreeInfo.diffAgreeNum - 1,
+            hasAgree = 0
+        )
     }
-} else {
-    this
+    val updatedAgreeNum = if (hasAgree == 1) agree_num + 1 else agree_num - 1
+    return copy(
+        agree = updatedAgree,
+        agree_num = updatedAgreeNum
+    )
 }
 
 private val PbContent.picUrl: String

@@ -2,16 +2,15 @@ package com.huanchengfly.tieba.post.data.account
 
 import android.content.Context
 import android.util.Log
-import com.huanchengfly.tieba.post.di.CoroutineModule
+import com.huanchengfly.tieba.core.runtime.di.ApplicationScope
 import com.huanchengfly.tieba.post.models.database.Account
 import com.huanchengfly.tieba.post.repository.AccountRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
+
 
 /**
  * 账号管理器
@@ -22,7 +21,7 @@ import javax.inject.Singleton
 @Singleton
 class AccountManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    @CoroutineModule.ApplicationScope private val coroutineScope: CoroutineScope,
+    @ApplicationScope private val coroutineScope: CoroutineScope,
     private val repository: AccountRepository
 ) {
 

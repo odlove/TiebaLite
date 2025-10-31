@@ -280,8 +280,10 @@ private fun ForumHeader(
                     }
                 }
             }
+            val signInfo = forum.sign_in_info
+            val signUser = signInfo?.user_info
             val btnEnabled =
-                (forum.is_like != 1) || (forum.sign_in_info?.user_info?.is_sign_in != 1)
+                (forum.is_like != 1) || (signUser?.is_sign_in != 1)
             if (LocalAccount.current != null) {
                 Button(
                     onClick = onBtnClick,
@@ -296,9 +298,9 @@ private fun ForumHeader(
                 ) {
                     val text = when {
                         forum.is_like != 1 -> stringResource(id = R.string.button_follow)
-                        forum.sign_in_info?.user_info?.is_sign_in == 1 -> stringResource(
+                        signUser?.is_sign_in == 1 -> stringResource(
                             id = R.string.button_signed_in,
-                            forum.sign_in_info.user_info.cont_sign_num
+                            signUser.cont_sign_num
                         )
 
                         else -> stringResource(id = R.string.button_sign_in)

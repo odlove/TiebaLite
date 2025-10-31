@@ -227,9 +227,10 @@ private fun SearchUserItem(
                 ),
                 style = MaterialTheme.typography.subtitle1
             )
-            if (!item.intro.isNullOrEmpty()) {
+            val intro = item.intro
+            if (!intro.isNullOrEmpty()) {
                 Text(
-                    text = item.intro,
+                    text = intro,
                     style = MaterialTheme.typography.body2,
                     maxLines = 1
                 )

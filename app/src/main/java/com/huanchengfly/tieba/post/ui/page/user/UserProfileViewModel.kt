@@ -82,9 +82,9 @@ class UserProfileViewModel @Inject constructor(
             userProfileRepository
                 .userProfile(uid)
                 .map<ProfileResponse, UserProfilePartialChange.Refresh> {
-                    checkNotNull(it.data_)
-                    checkNotNull(it.data_.user)
-                    UserProfilePartialChange.Refresh.Success(it.data_.user)
+                    val data = checkNotNull(it.data_)
+                    val user = checkNotNull(data.user)
+                    UserProfilePartialChange.Refresh.Success(user)
                 }
                 .onStart { emit(UserProfilePartialChange.Refresh.Start) }
                 .catch { emit(UserProfilePartialChange.Refresh.Failure(it)) }

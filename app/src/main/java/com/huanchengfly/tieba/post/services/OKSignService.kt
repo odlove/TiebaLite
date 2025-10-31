@@ -13,7 +13,6 @@ import androidx.core.app.ServiceCompat
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.SignResultBean
-import com.huanchengfly.tieba.post.di.AppEntryPoint
 import com.huanchengfly.tieba.post.models.SignDataBean
 import com.huanchengfly.tieba.post.pendingIntentFlagImmutable
 import com.huanchengfly.tieba.core.ui.theme.ThemeUtils
@@ -21,14 +20,16 @@ import com.huanchengfly.tieba.post.utils.AccountUtil
 import com.huanchengfly.tieba.post.utils.ProgressListener
 import com.huanchengfly.tieba.post.utils.SingleAccountSigner
 import com.huanchengfly.tieba.post.utils.extension.addFlag
-import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.CoroutineContext
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class OKSignService : IntentService(TAG), CoroutineScope, ProgressListener {
     private var job: Job = Job()
     override val coroutineContext: CoroutineContext
@@ -40,12 +41,8 @@ class OKSignService : IntentService(TAG), CoroutineScope, ProgressListener {
         NotificationManagerCompat.from(this)
     }
 
-    private val api: ITiebaApi by lazy {
-        EntryPointAccessors.fromApplication(
-            applicationContext,
-            AppEntryPoint::class.java
-        ).tiebaApi()
-    }
+    @Inject
+    lateinit var api: ITiebaApi
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i(TAG, "onStartCommand")
@@ -184,6 +181,7 @@ class OKSignService : IntentService(TAG), CoroutineScope, ProgressListener {
         current: Int,
         total: Int
     ) {
+        val userInfo = signResultBean.userInfo
         updateNotification(
             getString(
                 R.string.title_signing_progress,
@@ -191,11 +189,11 @@ class OKSignService : IntentService(TAG), CoroutineScope, ProgressListener {
                 current + 1,
                 total
             ),
-            if (signResultBean.userInfo?.signBonusPoint != null)
+            if (userInfo?.signBonusPoint != null)
                 getString(
                     R.string.text_singing_progress_exp,
                     signDataBean.forumName,
-                    signResultBean.userInfo.signBonusPoint
+                    userInfo.signBonusPoint
                 )
             else
                 getString(R.string.text_singing_progress, signDataBean.forumName)

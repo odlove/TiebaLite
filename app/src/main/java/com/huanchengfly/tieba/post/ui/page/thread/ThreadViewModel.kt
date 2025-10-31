@@ -186,32 +186,33 @@ class ThreadViewModel @Inject constructor(
                 from = from.takeIf { it == ThreadPageFrom.FROM_STORE }.orEmpty()
             )
                 .map<PbPageResponse, ThreadPartialChange.Load> { response ->
-                    if (response.data_?.page == null
-                        || response.data_.thread?.author == null
-                        || response.data_.forum == null
-                        || response.data_.anti == null
-                    ) throw TiebaUnknownException
-                    val postList = response.data_.post_list
-                    val firstPost = response.data_.first_floor_post
+                    val data = response.data_ ?: throw TiebaUnknownException
+                    val page = data.page ?: throw TiebaUnknownException
+                    val thread = data.thread ?: throw TiebaUnknownException
+                    val author = thread.author ?: throw TiebaUnknownException
+                    val forum = data.forum ?: throw TiebaUnknownException
+                    val anti = data.anti ?: throw TiebaUnknownException
+                    val postList = data.post_list
+                    val firstPost = data.first_floor_post
                     val notFirstPosts = postList.filterNot { it.floor == 1 }
                     val allPosts = listOfNotNull(firstPost) + notFirstPosts
                     ThreadPartialChange.Load.Success(
-                        response.data_.thread.title,
-                        response.data_.thread.author,
-                        response.data_.user ?: User(),
+                        thread.title,
+                        author,
+                        data.user ?: User(),
                         firstPost,
                         notFirstPosts.map { PostItemData(it.wrapImmutable()) },
-                        response.data_.thread,
-                        response.data_.forum,
-                        response.data_.anti,
-                        response.data_.page.current_page,
-                        response.data_.page.new_total_page,
-                        response.data_.page.has_more != 0,
-                        response.data_.thread.getNextPagePostId(
+                        thread,
+                        forum,
+                        anti,
+                        page.current_page,
+                        page.new_total_page,
+                        page.has_more != 0,
+                        thread.getNextPagePostId(
                             postList.map { it.id },
                             sortType
                         ),
-                        response.data_.page.has_prev != 0,
+                        page.has_prev != 0,
                         firstPost?.contentRenders,
                         postId,
                         seeLz,
@@ -226,28 +227,29 @@ class ThreadViewModel @Inject constructor(
         fun ThreadUiIntent.LoadFirstPage.producePartialChange(): Flow<ThreadPartialChange.LoadFirstPage> =
             pbPageRepository.pbPage(threadId, 0, 0, forumId, seeLz, sortType)
                 .map<PbPageResponse, ThreadPartialChange.LoadFirstPage> { response ->
-                    if (response.data_?.page == null
-                        || response.data_.thread?.author == null
-                        || response.data_.forum == null
-                        || response.data_.anti == null
-                    ) throw TiebaUnknownException
-                    val postList = response.data_.post_list
-                    val firstPost = response.data_.first_floor_post
+                    val data = response.data_ ?: throw TiebaUnknownException
+                    val page = data.page ?: throw TiebaUnknownException
+                    val thread = data.thread ?: throw TiebaUnknownException
+                    val author = thread.author ?: throw TiebaUnknownException
+                    data.forum ?: throw TiebaUnknownException
+                    data.anti ?: throw TiebaUnknownException
+                    val postList = data.post_list
+                    val firstPost = data.first_floor_post
                     val notFirstPosts = postList.filterNot { it.floor == 1 }
                     val allPosts = listOfNotNull(firstPost) + notFirstPosts
                     ThreadPartialChange.LoadFirstPage.Success(
-                        response.data_.thread.title,
-                        response.data_.thread.author,
+                        thread.title,
+                        author,
                         notFirstPosts.map { PostItemData(it.wrapImmutable()) },
-                        response.data_.thread,
-                        response.data_.page.current_page,
-                        response.data_.page.new_total_page,
-                        response.data_.page.has_more != 0,
-                        response.data_.thread.getNextPagePostId(
+                        thread,
+                        page.current_page,
+                        page.new_total_page,
+                        page.has_more != 0,
+                        thread.getNextPagePostId(
                             postList.map { it.id },
                             sortType
                         ),
-                        response.data_.page.has_prev != 0,
+                        page.has_prev != 0,
                         firstPost?.contentRenders ?: emptyList(),
                         postId = 0,
                         seeLz,
@@ -262,21 +264,22 @@ class ThreadViewModel @Inject constructor(
         fun ThreadUiIntent.LoadMore.producePartialChange(): Flow<ThreadPartialChange.LoadMore> =
             pbPageRepository.pbPage(threadId, page, postId, forumId, seeLz, sortType)
                 .map<PbPageResponse, ThreadPartialChange.LoadMore> { response ->
-                    if (response.data_?.page == null
-                        || response.data_.thread?.author == null
-                        || response.data_.forum == null
-                        || response.data_.anti == null
-                    ) throw TiebaUnknownException
-                    val postList = response.data_.post_list
+                    val data = response.data_ ?: throw TiebaUnknownException
+                    val page = data.page ?: throw TiebaUnknownException
+                    val thread = data.thread ?: throw TiebaUnknownException
+                    val author = thread.author ?: throw TiebaUnknownException
+                    data.forum ?: throw TiebaUnknownException
+                    data.anti ?: throw TiebaUnknownException
+                    val postList = data.post_list
                     val posts = postList.filterNot { it.floor == 1 || postIds.contains(it.id) }
                     ThreadPartialChange.LoadMore.Success(
-                        response.data_.thread.author,
+                        author,
                         posts.map { PostItemData(it.wrapImmutable()) },
-                        response.data_.thread,
-                        response.data_.page.current_page,
-                        response.data_.page.new_total_page,
-                        response.data_.page.has_more != 0,
-                        response.data_.thread.getNextPagePostId(
+                        thread,
+                        page.current_page,
+                        page.new_total_page,
+                        page.has_more != 0,
+                        thread.getNextPagePostId(
                             postIds + posts.map { it.id },
                             sortType
                         ),
@@ -296,20 +299,21 @@ class ThreadViewModel @Inject constructor(
         fun ThreadUiIntent.LoadPrevious.producePartialChange(): Flow<ThreadPartialChange.LoadPrevious> =
             pbPageRepository.pbPage(threadId, page, postId, forumId, seeLz, sortType, back = true)
                 .map<PbPageResponse, ThreadPartialChange.LoadPrevious> { response ->
-                    if (response.data_?.page == null
-                        || response.data_.thread?.author == null
-                        || response.data_.forum == null
-                        || response.data_.anti == null
-                    ) throw TiebaUnknownException
-                    val postList = response.data_.post_list
+                    val data = response.data_ ?: throw TiebaUnknownException
+                    val page = data.page ?: throw TiebaUnknownException
+                    val thread = data.thread ?: throw TiebaUnknownException
+                    val author = thread.author ?: throw TiebaUnknownException
+                    data.forum ?: throw TiebaUnknownException
+                    data.anti ?: throw TiebaUnknownException
+                    val postList = data.post_list
                     val posts = postList.filterNot { it.floor == 1 || postIds.contains(it.id) }
                     ThreadPartialChange.LoadPrevious.Success(
-                        response.data_.thread.author,
+                        author,
                         posts.map { PostItemData(it.wrapImmutable()) },
-                        response.data_.thread,
-                        response.data_.page.current_page,
-                        response.data_.page.new_total_page,
-                        response.data_.page.has_prev != 0,
+                        thread,
+                        page.current_page,
+                        page.new_total_page,
+                        page.has_prev != 0,
                         newPostIds = posts.map { it.id }.toImmutableList(),  // ✅ 新增：新加载的 postId 列表
                     )
                 }
@@ -334,22 +338,22 @@ class ThreadViewModel @Inject constructor(
                 lastPostId = curLatestPostId
             )
                 .map { response ->
-                    checkNotNull(response.data_)
-                    checkNotNull(response.data_.thread)
-                    checkNotNull(response.data_.thread.author)
-                    checkNotNull(response.data_.page)
-                    val postList = response.data_.post_list.filterNot { it.floor == 1 }
+                    val data = checkNotNull(response.data_)
+                    val thread = checkNotNull(data.thread)
+                    val author = checkNotNull(thread.author)
+                    val page = checkNotNull(data.page)
+                    val postList = data.post_list.filterNot { it.floor == 1 }
                     if (postList.isEmpty()) {
                         ThreadPartialChange.LoadLatestPosts.SuccessWithNoNewPost
                     } else {
                         ThreadPartialChange.LoadLatestPosts.Success(
-                            author = response.data_.thread.author,
+                            author = author,
                             data = postList.map { PostItemData(it.wrapImmutable()) },
-                            threadInfo = response.data_.thread,
-                            currentPage = response.data_.page.current_page,
-                            totalPage = response.data_.page.new_total_page,
-                            hasMore = response.data_.page.has_more != 0,
-                            nextPagePostId = response.data_.thread.getNextPagePostId(
+                            threadInfo = thread,
+                            currentPage = page.current_page,
+                            totalPage = page.new_total_page,
+                            hasMore = page.has_more != 0,
+                            nextPagePostId = thread.getNextPagePostId(
                                 postList.map { it.id },
                                 sortType
                             ),
@@ -369,17 +373,18 @@ class ThreadViewModel @Inject constructor(
         fun ThreadUiIntent.LoadMyLatestReply.producePartialChange(): Flow<ThreadPartialChange.LoadMyLatestReply> =
             pbPageRepository.pbPage(threadId, page = 0, postId = postId, forumId = forumId)
                 .map<PbPageResponse, ThreadPartialChange.LoadMyLatestReply> { response ->
-                    if (response.data_?.page == null
-                        || response.data_.thread?.author == null
-                        || response.data_.forum == null
-                        || response.data_.anti == null
-                    ) throw TiebaUnknownException
-                    val firstLatestPost = response.data_.post_list.firstOrNull()
-                    val postList = response.data_.post_list
+                    val data = response.data_ ?: throw TiebaUnknownException
+                    val page = data.page ?: throw TiebaUnknownException
+                    val anti = data.anti ?: throw TiebaUnknownException
+                    val thread = data.thread ?: throw TiebaUnknownException
+                    thread.author ?: throw TiebaUnknownException
+                    data.forum ?: throw TiebaUnknownException
+                    val postList = data.post_list
+                    val firstLatestPost = postList.firstOrNull()
                     ThreadPartialChange.LoadMyLatestReply.Success(
-                        anti = response.data_.anti,
+                        anti = anti,
                         posts = postList.map { PostItemData(it.wrapImmutable()) },
-                        page = response.data_.page.current_page,
+                        page = page.current_page,
                         isContinuous = firstLatestPost?.floor == curLatestPostFloor + 1,
                         isDesc = isDesc,
                         hasNewPost = postList.any { !curPostIds.contains(it.id) },

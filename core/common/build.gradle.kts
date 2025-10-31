@@ -28,4 +28,6 @@ android {
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.androidx.lifecycle.runtime)
+    implementation(libs.androidx.annotation)
+    implementation(libs.google.gson)
 }

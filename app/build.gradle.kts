@@ -46,7 +46,6 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.ksp)
-    alias(libs.plugins.wire)
 }
 
 val sha: String? = System.getenv("GITHUB_SHA")
@@ -69,16 +68,6 @@ val gitHash = try {
 
 if (isPerVersion) {
     applicationVersionName += "-${appProperties.getProperty("preReleaseName")}-${gitHash}"
-}
-
-wire {
-    sourcePath {
-        srcDir("src/main/protos")
-    }
-
-    kotlin {
-        android = true
-    }
 }
 
 android {

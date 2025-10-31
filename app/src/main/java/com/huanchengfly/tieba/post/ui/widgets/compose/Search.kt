@@ -252,31 +252,33 @@ fun SearchThreadItem(
                 maxLines = 2,
                 highlightKeywords = (searchKeyword?.split(" ") ?: emptyList()).toImmutableList(),
             )
-            if (item.mainPost != null) {
-                if (item.postInfo != null) {
+            val mainPost = item.mainPost
+            val postInfo = item.postInfo
+            if (mainPost != null) {
+                if (postInfo != null) {
                     QuotePostCard(
-                        quotePostInfo = item.postInfo,
-                        mainPost = item.mainPost,
+                        quotePostInfo = postInfo,
+                        mainPost = mainPost,
                         onMainPostClick = onMainPostClick,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(6.dp))
                             .background(ExtendedTheme.colors.floorCard)
                             .clickable {
-                                onQuotePostClick(item.postInfo)
+                                onQuotePostClick(postInfo)
                             },
                         medias = item.media.toImmutableList(),
                         keyword = searchKeyword
                     )
                 } else {
                     MainPostCard(
-                        mainPost = item.mainPost,
+                        mainPost = mainPost,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(6.dp))
                             .background(ExtendedTheme.colors.floorCard)
                             .clickable {
-                                onMainPostClick(item.mainPost)
+                                onMainPostClick(mainPost)
                             },
                         medias = item.media.toImmutableList(),
                         keyword = searchKeyword

@@ -26,7 +26,7 @@ import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.post.ui.common.theme.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccountProvider
 import com.huanchengfly.tieba.post.utils.ThemeUtil
-import dagger.hilt.android.EntryPointAccessors
+import javax.inject.Inject
 
 abstract class BaseComposeActivityWithParcelable<DATA : Parcelable> : BaseComposeActivityWithData<DATA>() {
     abstract val dataExtraKey: String
@@ -58,12 +58,8 @@ abstract class BaseComposeActivityWithData<DATA> : BaseComposeActivity() {
 }
 
 abstract class BaseComposeActivity : BaseActivity(), CommonUiEventHandler {
-    protected val globalEventBus: GlobalEventBus by lazy {
-        EntryPointAccessors.fromApplication(
-            applicationContext,
-            com.huanchengfly.tieba.post.di.GlobalEventBusEntryPoint::class.java
-        ).globalEventBus()
-    }
+    @Inject
+    lateinit var globalEventBus: GlobalEventBus
 
     override val isNeedImmersionBar: Boolean = false
     override val isNeedFixBg: Boolean = false

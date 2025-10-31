@@ -32,5 +32,6 @@ dependencies {
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+    implementation(libs.kotlinx.coroutines.core)
     implementation(libs.androidx.startup.runtime)
 }

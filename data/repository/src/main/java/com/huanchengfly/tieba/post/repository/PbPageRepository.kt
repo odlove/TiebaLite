@@ -1,4 +1,5 @@
 package com.huanchengfly.tieba.post.repository
+
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.pbPage.PbPageResponse
@@ -9,7 +10,6 @@ import com.huanchengfly.tieba.post.models.ProtoFieldTags
 import com.huanchengfly.tieba.post.models.ThreadEntity
 import com.huanchengfly.tieba.post.models.mappers.PostMapper
 import com.huanchengfly.tieba.post.models.mappers.ThreadMapper
-import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageFrom
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.persistentListOf
@@ -40,8 +40,7 @@ import kotlinx.coroutines.flow.stateIn
 @Singleton
 class PbPageRepositoryImpl @Inject constructor(
     private val api: ITiebaApi,
-    @param:ApplicationScope
-    private val applicationScope: CoroutineScope
+    @ApplicationScope private val applicationScope: CoroutineScope
 ) : PbPageRepository {
     companion object {
         const val ST_TYPE_MENTION = "mention"

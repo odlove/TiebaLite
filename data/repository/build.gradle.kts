@@ -29,9 +29,16 @@ android {
 
 dependencies {
     implementation(project(":core:common"))
+    implementation(project(":core:mvi"))
+    implementation(project(":core:network"))
+    implementation(project(":core:runtime"))
     implementation(project(":data:remote"))
 
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.org.litepal.android.kotlin)
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.runtime)
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 }

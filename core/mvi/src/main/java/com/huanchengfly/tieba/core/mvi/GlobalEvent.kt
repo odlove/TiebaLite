@@ -1,7 +1,4 @@
-package com.huanchengfly.tieba.post.arch
-
-import com.huanchengfly.tieba.core.mvi.UiEvent
-
+package com.huanchengfly.tieba.core.mvi
 sealed interface GlobalEvent : UiEvent {
     data object AccountSwitched : GlobalEvent
 

@@ -1,11 +1,9 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse
 import com.huanchengfly.tieba.post.api.models.protos.threadList.ThreadListResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
-import com.huanchengfly.tieba.post.utils.appPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -18,7 +16,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class FrsPageRepositoryImpl @Inject constructor(
-    private val api: ITiebaApi
+    private val api: ITiebaApi,
+    private val forumPreferences: ForumPreferences
 ) : FrsPageRepository {
     // 缓存最后一次请求的数据，用于避免重复请求
     private var lastHash: String = ""
@@ -46,7 +45,7 @@ class FrsPageRepositoryImpl @Inject constructor(
                     .map { threadInfo ->
                         threadInfo.copy(author = userList.find { it.id == threadInfo.authorId })
                     }
-                    .filter { !App.INSTANCE.appPreferences.blockVideo || it.videoInfo == null }
+                    .filter { !forumPreferences.blockVideo || it.videoInfo == null }
                     .filter { it.ala_info == null } // 去他妈的直播
                 response.copy(data_ = data.copy(thread_list = threadList))
             }
@@ -68,7 +67,7 @@ class FrsPageRepositoryImpl @Inject constructor(
                     .map { threadInfo ->
                         threadInfo.copy(author = userList.find { it.id == threadInfo.authorId })
                     }
-                    .filter { !App.INSTANCE.appPreferences.blockVideo || it.videoInfo == null }
+                    .filter { !forumPreferences.blockVideo || it.videoInfo == null }
                     .filter { it.ala_info == null } // 去他妈的直播
                 response.copy(data_ = data.copy(thread_list = threadList))
             }

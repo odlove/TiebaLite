@@ -107,7 +107,7 @@ import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.post.api.models.protos.bawuType
 import com.huanchengfly.tieba.post.api.models.protos.plainText
-import com.huanchengfly.tieba.post.arch.GlobalEvent
+import com.huanchengfly.tieba.core.mvi.GlobalEvent
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onEvent
@@ -157,6 +157,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.OriginThreadCard
 import com.huanchengfly.tieba.post.ui.widgets.compose.PromptDialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.post.ui.widgets.compose.TextWithMinWidth
+import com.huanchengfly.tieba.post.repository.ThreadPageFrom
 import com.huanchengfly.tieba.post.ui.widgets.compose.TipScreen
 import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.UserHeader
@@ -364,15 +365,6 @@ private fun ToggleButton(
             }
         }
     }
-}
-
-object ThreadPageFrom {
-    const val FROM_FORUM = "forum"
-
-    // 收藏
-    const val FROM_STORE = "store_thread"
-    const val FROM_PERSONALIZED = "personalized"
-    const val FROM_HISTORY = "history"
 }
 
 @Serializable

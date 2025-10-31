@@ -14,7 +14,7 @@ import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import com.huanchengfly.tieba.core.mvi.GlobalEventBus
-import com.huanchengfly.tieba.post.arch.GlobalEvent
+import com.huanchengfly.tieba.core.mvi.GlobalEvent
 import com.huanchengfly.tieba.core.mvi.PartialChange
 import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
 import com.huanchengfly.tieba.core.mvi.UiEvent

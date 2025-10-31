@@ -4,14 +4,13 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.webkit.CookieManager
+import com.huanchengfly.tieba.core.mvi.GlobalEvent
 import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.LoginBean
-import com.huanchengfly.tieba.post.arch.GlobalEvent
 import com.huanchengfly.tieba.post.data.account.AccountConstants
 import com.huanchengfly.tieba.post.models.database.Account
-import com.huanchengfly.tieba.post.utils.SofireUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
 import javax.inject.Inject
@@ -44,7 +43,8 @@ class AccountRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     @ApplicationScope private val coroutineScope: CoroutineScope,
     private val api: ITiebaApi,
-    private val globalEventBus: GlobalEventBus
+    private val globalEventBus: GlobalEventBus,
+    private val zidProvider: ZidProvider
 ) : AccountRepository {
 
     companion object {
@@ -249,7 +249,7 @@ class AccountRepositoryImpl @Inject constructor(
      * 为账号添加 zid 信息
      */
     private fun enrichAccountWithZid(accountFlow: Flow<Account>): Flow<Account> {
-        return accountFlow.zip(SofireUtils.fetchZid()) { account, zid ->
+        return accountFlow.zip(zidProvider.fetchZid()) { account, zid ->
             account.apply { this.zid = zid }
         }
     }

@@ -160,10 +160,14 @@ object AccountUtil {
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
             val message = when {
                 !result.success -> "退出登录失败"
-                result.switchedToAccount != null ->
-                    "退出登录成功，已切换至账号 ${result.switchedToAccount.nameShow}"
-                else ->
-                    context.getString(com.huanchengfly.tieba.post.R.string.toast_exit_account_success)
+                else -> {
+                    val switched = result.switchedToAccount
+                    if (switched != null) {
+                        "退出登录成功，已切换至账号 ${switched.nameShow}"
+                    } else {
+                        context.getString(com.huanchengfly.tieba.post.R.string.toast_exit_account_success)
+                    }
+                }
             }
             android.widget.Toast.makeText(context, message, android.widget.Toast.LENGTH_SHORT).show()
         }

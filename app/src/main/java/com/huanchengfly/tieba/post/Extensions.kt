@@ -17,13 +17,9 @@ import androidx.annotation.ColorRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.huanchengfly.tieba.post.utils.GsonUtil
 import com.huanchengfly.tieba.post.utils.MD5Util
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import java.io.File
 import kotlin.math.roundToInt
 
 private val Context.scaledDensity: Float
@@ -64,18 +60,6 @@ fun Int.pxToSpFloat(): Float = this.toFloat().pxToSpFloat()
 
 fun Int.pxToDpFloat(): Float =
     this.toFloat().pxToDpFloat()
-
-inline fun <reified Data> String.fromJson(): Data {
-    val type = object : TypeToken<Data>() {}.type
-    return GsonUtil.getGson().fromJson(this, type)
-}
-
-inline fun <reified Data> File.fromJson(): Data {
-    val type = object : TypeToken<Data>() {}.type
-    return GsonUtil.getGson().fromJson(reader(), type)
-}
-
-fun Any.toJson(): String = Gson().toJson(this)
 
 fun String.toMD5(): String = MD5Util.toMd5(this)
 

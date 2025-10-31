@@ -38,6 +38,7 @@ import com.huanchengfly.tieba.post.repository.EmptyDataException
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
+import com.huanchengfly.tieba.post.repository.ThreadPageFrom
 import com.huanchengfly.tieba.post.store.MergeStrategy
 import com.huanchengfly.tieba.post.store.ThreadStore
 import com.huanchengfly.tieba.post.models.mappers.PostMapper

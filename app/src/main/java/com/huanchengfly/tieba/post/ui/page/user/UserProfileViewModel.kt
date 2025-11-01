@@ -1,6 +1,5 @@
 package com.huanchengfly.tieba.post.ui.page.user
 
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.network.model.CommonResponse
 import com.huanchengfly.tieba.post.api.models.FollowBean
@@ -20,6 +19,7 @@ import com.huanchengfly.tieba.core.mvi.getOrNull
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.repository.UserProfileRepository
 import com.huanchengfly.tieba.post.repository.UserSocialRepository
+import com.huanchengfly.tieba.core.common.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -35,7 +35,8 @@ import javax.inject.Inject
 class UserProfileViewModel @Inject constructor(
     dispatcherProvider: DispatcherProvider,
     private val userProfileRepository: UserProfileRepository,
-    private val userSocialRepository: UserSocialRepository
+    private val userSocialRepository: UserSocialRepository,
+    private val resourceProvider: ResourceProvider
 ) :
     BaseViewModel<UserProfileUiIntent, UserProfilePartialChange, UserProfileUiState, UiEvent>(dispatcherProvider) {
     override fun createInitialState(): UserProfileUiState = UserProfileUiState()
@@ -46,14 +47,14 @@ class UserProfileViewModel @Inject constructor(
     override fun dispatchEvent(partialChange: UserProfilePartialChange): UiEvent? =
         when (partialChange) {
             is UserProfilePartialChange.Follow.Failure -> CommonUiEvent.Toast(
-                App.INSTANCE.getString(
+                resourceProvider.getString(
                     R.string.toast_like_failed,
                     partialChange.error.getErrorMessage()
                 )
             )
 
             is UserProfilePartialChange.Unfollow.Failure -> CommonUiEvent.Toast(
-                App.INSTANCE.getString(
+                resourceProvider.getString(
                     R.string.toast_unlike_failed,
                     partialChange.error.getErrorMessage()
                 )

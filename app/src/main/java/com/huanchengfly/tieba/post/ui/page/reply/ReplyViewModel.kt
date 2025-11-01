@@ -3,7 +3,6 @@ package com.huanchengfly.tieba.post.ui.page.reply
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.UploadPictureResultBean
 import com.huanchengfly.tieba.post.api.models.protos.addPost.AddPostResponse
@@ -24,6 +23,9 @@ import com.huanchengfly.tieba.core.mvi.emitGlobalEventSuspend
 import com.huanchengfly.tieba.post.components.ImageUploader
 import com.huanchengfly.tieba.post.repository.AddPostRepository
 import com.huanchengfly.tieba.post.utils.FileUtil
+import com.huanchengfly.tieba.core.common.ResourceProvider
+import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -52,7 +54,10 @@ enum class ReplyPanelType {
 class ReplyViewModel @Inject constructor(
     private val addPostRepository: AddPostRepository,
     private val globalEventBus: GlobalEventBus,
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    private val resourceProvider: ResourceProvider,
+    @ApplicationContext private val context: android.content.Context,
+    private val appPreferences: AppPreferencesUtils
 ) :
     BaseViewModel<ReplyUiIntent, ReplyPartialChange, ReplyUiState, ReplyUiEvent>(dispatcherProvider) {
     override fun createInitialState() = ReplyUiState()
@@ -70,7 +75,7 @@ class ReplyViewModel @Inject constructor(
         is ReplyPartialChange.UploadImages.Success -> ReplyUiEvent.UploadSuccess(partialChange.resultList)
 
         is ReplyPartialChange.Send.Failure -> CommonUiEvent.Toast(
-            App.INSTANCE.getString(
+            resourceProvider.getString(
                 R.string.toast_reply_failed,
                 partialChange.errorCode,
                 partialChange.errorMessage
@@ -78,7 +83,7 @@ class ReplyViewModel @Inject constructor(
         )
 
         is ReplyPartialChange.UploadImages.Failure -> CommonUiEvent.Toast(
-            App.INSTANCE.getString(
+            resourceProvider.getString(
                 R.string.toast_upload_image_failed,
                 partialChange.errorMessage
             )
@@ -151,11 +156,11 @@ class ReplyViewModel @Inject constructor(
         }
 
         private fun ReplyUiIntent.UploadImages.producePartialChange() =
-            ImageUploader(forumName)
+            ImageUploader(forumName, appPreferences)
                 .uploadImages(
                     imageUris.map {
                         FileUtil.getRealPathFromUri(
-                            App.INSTANCE,
+                            context,
                             Uri.parse(it)
                         )
                     },

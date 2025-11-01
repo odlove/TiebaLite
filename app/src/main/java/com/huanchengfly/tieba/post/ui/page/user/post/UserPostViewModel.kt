@@ -1,7 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.user.post
 
 import androidx.compose.runtime.Immutable
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.post.api.models.protos.PostInfoList
@@ -21,6 +20,7 @@ import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.repository.UserContentRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
+import com.huanchengfly.tieba.core.common.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -39,7 +39,8 @@ import javax.inject.Inject
 class UserPostViewModel @Inject constructor(
     dispatcherProvider: DispatcherProvider,
     private val userContentRepository: UserContentRepository,
-    private val userInteractionRepository: UserInteractionRepository
+    private val userInteractionRepository: UserInteractionRepository,
+    private val resourceProvider: ResourceProvider
 ) :
     BaseViewModel<UserPostUiIntent, UserPostPartialChange, UserPostUiState, UiEvent>(dispatcherProvider) {
     override fun createInitialState(): UserPostUiState = UserPostUiState()
@@ -50,7 +51,7 @@ class UserPostViewModel @Inject constructor(
     override fun dispatchEvent(partialChange: UserPostPartialChange): UiEvent? =
         when (partialChange) {
             is UserPostPartialChange.Agree.Failure -> CommonUiEvent.Toast(
-                App.INSTANCE.getString(
+                resourceProvider.getString(
                     R.string.toast_agree_failed,
                     partialChange.error.getErrorMessage()
                 )

@@ -25,6 +25,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.gyf.immersionbar.ImmersionBar
+import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsRegistry
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.App.Companion.INSTANCE
 import com.huanchengfly.tieba.post.R
@@ -33,6 +34,7 @@ import com.huanchengfly.tieba.core.ui.theme.ThemeUtils
 import com.huanchengfly.tieba.post.ui.widgets.VoicePlayerView
 import com.huanchengfly.tieba.post.ui.widgets.theme.TintToolbar
 import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
+import com.huanchengfly.tieba.post.utils.appPreferences
 import com.huanchengfly.tieba.post.utils.DialogUtil
 import com.huanchengfly.tieba.post.utils.HandleBackUtil
 import com.huanchengfly.tieba.post.utils.ThemeUtil
@@ -56,7 +58,7 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     private var customStatusColor = -1
     private var statusBarTinted = false
 
-    val appPreferences: AppPreferencesUtils by lazy { AppPreferencesUtils.getInstance(this) }
+    val appPreferences: AppPreferencesUtils by lazy { applicationContext.appPreferences }
 
     override fun onPause() {
         super.onPause()
@@ -222,14 +224,7 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     private fun getDeviceDensity() {
         val metrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(metrics)
-        val width = metrics.widthPixels
-        val height = metrics.heightPixels
-        App.ScreenInfo.EXACT_SCREEN_HEIGHT = height
-        App.ScreenInfo.EXACT_SCREEN_WIDTH = width
-        val density = metrics.density
-        App.ScreenInfo.DENSITY = metrics.density
-        App.ScreenInfo.SCREEN_HEIGHT = (height / density).toInt()
-        App.ScreenInfo.SCREEN_WIDTH = (width / density).toInt()
+        ScreenMetricsRegistry.update(metrics)
     }
 
     protected fun colorAnim(view: ImageView, vararg value: Int): ValueAnimator {

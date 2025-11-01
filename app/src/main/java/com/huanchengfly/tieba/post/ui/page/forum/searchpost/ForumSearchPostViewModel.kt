@@ -1,6 +1,5 @@
 package com.huanchengfly.tieba.post.ui.page.forum.searchpost
 
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.SearchThreadBean
 import com.huanchengfly.tieba.post.repository.SearchRepository
@@ -16,6 +15,7 @@ import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.models.database.SearchPostHistory
+import com.huanchengfly.tieba.core.common.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -43,7 +43,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ForumSearchPostViewModel @Inject constructor(
     dispatcherProvider: DispatcherProvider,
-    private val searchRepository: SearchRepository
+    private val searchRepository: SearchRepository,
+    private val resourceProvider: ResourceProvider
 ) : BaseViewModel<ForumSearchPostUiIntent, ForumSearchPostPartialChange, ForumSearchPostUiState, UiEvent>(dispatcherProvider) {
     override fun createInitialState(): ForumSearchPostUiState = ForumSearchPostUiState()
 
@@ -53,18 +54,18 @@ class ForumSearchPostViewModel @Inject constructor(
     override fun dispatchEvent(partialChange: ForumSearchPostPartialChange): UiEvent? =
         when (partialChange) {
             is ForumSearchPostPartialChange.DeleteHistory.Failure -> CommonUiEvent.Toast(
-                App.INSTANCE.getString(
+                resourceProvider.getString(
                     R.string.toast_delete_failure,
                     partialChange.error.getErrorMessage()
                 )
             )
 
             is ForumSearchPostPartialChange.ClearHistory.Success -> CommonUiEvent.Toast(
-                App.INSTANCE.getString(R.string.toast_clear_success)
+                resourceProvider.getString(R.string.toast_clear_success)
             )
 
             is ForumSearchPostPartialChange.ClearHistory.Failure -> CommonUiEvent.Toast(
-                App.INSTANCE.getString(
+                resourceProvider.getString(
                     R.string.toast_clear_failure,
                     partialChange.error.getErrorMessage()
                 )

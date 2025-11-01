@@ -239,7 +239,7 @@ class EditProfileActivity : BaseActivity() {
             }
 
             EditProfileEvent.UploadPortrait.Pick -> {
-                if (shouldUsePhotoPicker()) {
+                if (shouldUsePhotoPicker(appPreferences)) {
                     pickMediasLauncher.launch(PickMediasRequest(mediaType = PickMediasRequest.ImageOnly))
                 } else {
                     requestPermission {

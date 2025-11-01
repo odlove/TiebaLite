@@ -1,5 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
+import android.content.Context
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -189,14 +190,15 @@ import kotlin.concurrent.thread
 import kotlin.math.max
 
 private fun getDescText(
+    context: Context,
     time: Long?,
     floor: Int,
     ipAddress: String?
 ): String {
     val texts = listOfNotNull(
-        time?.let { getRelativeTimeString(App.INSTANCE, it) },
-        if (floor > 1) App.INSTANCE.getString(R.string.tip_post_floor, floor) else null,
-        if (ipAddress.isNullOrEmpty()) null else App.INSTANCE.getString(
+        time?.let { getRelativeTimeString(context, it) },
+        if (floor > 1) context.getString(R.string.tip_post_floor, floor) else null,
+        if (ipAddress.isNullOrEmpty()) null else context.getString(
             R.string.text_ip_location,
             ipAddress
         )
@@ -1944,6 +1946,7 @@ fun PostCard(
                             desc = {
                                 Text(
                                     text = getDescText(
+                                        LocalContext.current,
                                         post.time.toLong(),
                                         post.floor,
                                         author.ip_address

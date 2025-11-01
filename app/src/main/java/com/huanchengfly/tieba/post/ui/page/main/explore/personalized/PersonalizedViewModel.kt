@@ -22,7 +22,6 @@ import com.huanchengfly.tieba.post.models.PersonalizedMetadata
 import com.huanchengfly.tieba.post.repository.ThreadFeedRepository
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
-import com.huanchengfly.tieba.post.store.ThreadStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.PersistentMap

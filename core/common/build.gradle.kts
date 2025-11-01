@@ -30,4 +30,5 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.annotation)
     implementation(libs.google.gson)
+    implementation(libs.androidx.datastore.preferences)
 }

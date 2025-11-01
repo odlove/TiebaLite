@@ -22,6 +22,7 @@ import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.ui.models.ThreadItemData
 import com.huanchengfly.tieba.post.ui.models.distinctById
+import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -74,10 +75,17 @@ class LatestThreadListViewModel @Inject constructor(
     private val frsPageRepository: FrsPageRepository,
     private val userInteractionRepository: UserInteractionRepository,
     pbPageRepository: PbPageRepository,
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    private val appPreferences: AppPreferencesUtils
 ) : ForumThreadListViewModel(pbPageRepository, dispatcherProvider) {
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> =
-        ForumThreadListPartialChangeProducer(frsPageRepository, userInteractionRepository, pbPageRepository, ForumThreadListType.Latest)
+        ForumThreadListPartialChangeProducer(
+            frsPageRepository,
+            userInteractionRepository,
+            pbPageRepository,
+            ForumThreadListType.Latest,
+            appPreferences
+        )
 }
 
 @Stable
@@ -86,17 +94,25 @@ class GoodThreadListViewModel @Inject constructor(
     private val frsPageRepository: FrsPageRepository,
     private val userInteractionRepository: UserInteractionRepository,
     pbPageRepository: PbPageRepository,
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    private val appPreferences: AppPreferencesUtils
 ) : ForumThreadListViewModel(pbPageRepository, dispatcherProvider) {
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> =
-        ForumThreadListPartialChangeProducer(frsPageRepository, userInteractionRepository, pbPageRepository, ForumThreadListType.Good)
+        ForumThreadListPartialChangeProducer(
+            frsPageRepository,
+            userInteractionRepository,
+            pbPageRepository,
+            ForumThreadListType.Good,
+            appPreferences
+        )
 }
 
 private class ForumThreadListPartialChangeProducer(
     private val frsPageRepository: FrsPageRepository,
     private val userInteractionRepository: UserInteractionRepository,
     private val pbPageRepository: PbPageRepository,
-    val type: ForumThreadListType
+    val type: ForumThreadListType,
+    private val appPreferences: AppPreferencesUtils
 ) :
     PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> {
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -123,7 +139,12 @@ private class ForumThreadListPartialChangeProducer(
             .map<FrsPageResponse, ForumThreadListPartialChange.FirstLoad> { response ->
                 val data = response.data_ ?: throw TiebaUnknownException
                 val page = data.page ?: throw TiebaUnknownException
-                val threadList = data.thread_list.map { ThreadItemData(it.wrapImmutable()) }
+                val threadList = data.thread_list.map {
+                    ThreadItemData(
+                        thread = it.wrapImmutable(),
+                        hideBlockedContent = appPreferences.hideBlockedContent
+                    )
+                }
                 val forumRule = data.forum_rule
                 ForumThreadListPartialChange.FirstLoad.Success(
                     forumRule?.title.takeIf {
@@ -151,7 +172,12 @@ private class ForumThreadListPartialChangeProducer(
             .map<FrsPageResponse, ForumThreadListPartialChange.Refresh> { response ->
                 val data = response.data_ ?: throw TiebaUnknownException
                 val page = data.page ?: throw TiebaUnknownException
-                val threadList = data.thread_list.map { ThreadItemData(it.wrapImmutable()) }
+                val threadList = data.thread_list.map {
+                    ThreadItemData(
+                        thread = it.wrapImmutable(),
+                        hideBlockedContent = appPreferences.hideBlockedContent
+                    )
+                }
                 ForumThreadListPartialChange.Refresh.Success(
                     threadList.map { it.wrapImmutable() },
                     data.thread_id_list,
@@ -174,7 +200,12 @@ private class ForumThreadListPartialChangeProducer(
                 threadListIds.subList(0, size).joinToString(separator = ",") { "$it" }
             ).map { response ->
                 val data = response.data_ ?: throw TiebaUnknownException
-                val threadList = data.thread_list.map { ThreadItemData(it.wrapImmutable()) }
+                val threadList = data.thread_list.map {
+                    ThreadItemData(
+                        thread = it.wrapImmutable(),
+                        hideBlockedContent = appPreferences.hideBlockedContent
+                    )
+                }
                 ForumThreadListPartialChange.LoadMore.Success(
                     threadList = threadList.map { it.wrapImmutable() },
                     threadListIds = threadListIds.drop(size),
@@ -193,12 +224,17 @@ private class ForumThreadListPartialChangeProducer(
                 .map<FrsPageResponse, ForumThreadListPartialChange.LoadMore> { response ->
                     val data = response.data_ ?: throw TiebaUnknownException
                     val page = data.page ?: throw TiebaUnknownException
-                    val threadList = data.thread_list.map { ThreadItemData(it.wrapImmutable()) }
+                    val threadList = data.thread_list.map {
+                        ThreadItemData(
+                            thread = it.wrapImmutable(),
+                            hideBlockedContent = appPreferences.hideBlockedContent
+                        )
+                    }
                     ForumThreadListPartialChange.LoadMore.Success(
                         threadList = threadList.map { it.wrapImmutable() },
                         threadListIds = data.thread_id_list,
                         currentPage = currentPage + 1,
-                        page.has_more == 1
+                        hasMore = page.has_more == 1
                     )
                 }
         }

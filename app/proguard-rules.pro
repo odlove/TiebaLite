@@ -284,3 +284,6 @@
 -keepclassmembers,allowobfuscation class * {
  @com.google.gson.annotations.SerializedName <fields>;
 }
+
+-keep class com.huanchengfly.tieba.post.emoticon.EmoticonCache { *; }
+-keep class com.huanchengfly.tieba.post.emoticon.Emoticon { *; }

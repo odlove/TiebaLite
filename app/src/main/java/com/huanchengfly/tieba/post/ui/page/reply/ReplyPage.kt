@@ -110,7 +110,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.ui.widgets.edittext.widget.UndoableEditText
 import com.huanchengfly.tieba.post.api.AccountTokens
-import com.huanchengfly.tieba.post.utils.Emoticon
+import com.huanchengfly.tieba.post.emoticon.Emoticon
 import com.huanchengfly.tieba.post.utils.EmoticonManager
 import com.huanchengfly.tieba.post.utils.PickMediasRequest
 import com.huanchengfly.tieba.post.utils.StringUtil

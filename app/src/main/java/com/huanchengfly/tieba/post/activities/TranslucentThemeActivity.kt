@@ -462,7 +462,7 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
     }
 
     private fun askPermission(granted: () -> Unit) {
-        if (shouldUsePhotoPicker()) {
+        if (shouldUsePhotoPicker(appPreferences)) {
             granted()
             return
         }

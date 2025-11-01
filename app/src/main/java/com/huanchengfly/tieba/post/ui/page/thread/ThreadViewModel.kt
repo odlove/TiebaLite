@@ -3,7 +3,6 @@ package com.huanchengfly.tieba.post.ui.page.thread
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.AnnotatedString
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.core.network.model.CommonResponse
@@ -39,8 +38,7 @@ import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.repository.ThreadPageFrom
-import com.huanchengfly.tieba.post.store.MergeStrategy
-import com.huanchengfly.tieba.post.store.ThreadStore
+import com.huanchengfly.tieba.core.common.ResourceProvider
 import com.huanchengfly.tieba.post.models.mappers.PostMapper
 import com.huanchengfly.tieba.post.models.mappers.ThreadMapper
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
@@ -82,8 +80,8 @@ class ThreadViewModel @Inject constructor(
     private val userInteractionRepository: UserInteractionRepository,
     private val threadOperationRepository: ThreadOperationRepository,
     private val contentModerationRepository: ContentModerationRepository,
-    val threadStore: ThreadStore,  // ✅ 公开，供 UI 订阅（待移除）
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    private val resourceProvider: ResourceProvider
 ) : BaseViewModel<ThreadUiIntent, ThreadPartialChange, ThreadUiState, ThreadUiEvent>(dispatcherProvider) {
     override fun createInitialState(): ThreadUiState = ThreadUiState()
 
@@ -106,16 +104,16 @@ class ThreadViewModel @Inject constructor(
             }
 
             is ThreadPartialChange.DeletePost.Success -> CommonUiEvent.Toast(
-                App.INSTANCE.getString(R.string.toast_delete_success)
+                resourceProvider.getString(R.string.toast_delete_success)
             )
 
             is ThreadPartialChange.DeletePost.Failure -> CommonUiEvent.Toast(
-                App.INSTANCE.getString(R.string.toast_delete_failure, partialChange.errorMessage)
+                resourceProvider.getString(R.string.toast_delete_failure, partialChange.errorMessage)
             )
 
             is ThreadPartialChange.DeleteThread.Success -> CommonUiEvent.NavigateUp
             is ThreadPartialChange.DeleteThread.Failure -> CommonUiEvent.Toast(
-                App.INSTANCE.getString(R.string.toast_delete_failure, partialChange.errorMessage)
+                resourceProvider.getString(R.string.toast_delete_failure, partialChange.errorMessage)
             )
 
             is ThreadPartialChange.UpdateFavoriteMark.Success -> ThreadUiEvent.UpdateFavoriteMarkSuccess

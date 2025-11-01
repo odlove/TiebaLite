@@ -12,12 +12,13 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
 import com.huanchengfly.tieba.core.mvi.MediaSelectorType
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
 import com.zhihu.matisse.engine.impl.GlideEngine
 import com.zhihu.matisse.ui.MatisseActivity
+import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
+import com.huanchengfly.tieba.post.utils.appPreferences
 
 fun AppCompatActivity.registerPickMediasLauncher(callback: (PickMediasResult) -> Unit): ActivityResultLauncher<PickMediasRequest> {
     return registerForActivityResult(
@@ -37,8 +38,8 @@ fun isPhotoPickerAvailable(): Boolean {
     }
 }
 
-fun shouldUsePhotoPicker(): Boolean {
-    return !App.INSTANCE.appPreferences.doNotUsePhotoPicker && isPhotoPickerAvailable()
+fun shouldUsePhotoPicker(preferences: AppPreferencesUtils): Boolean {
+    return !preferences.doNotUsePhotoPicker && isPhotoPickerAvailable()
 }
 
 fun Intent.getClipDataUris(): List<Uri> {
@@ -63,11 +64,12 @@ fun Intent.getClipDataUris(): List<Uri> {
 }
 
 @SuppressLint("NewApi")
-private fun getMaxItems() = if (shouldUsePhotoPicker()) {
-    MediaStore.getPickImagesMaxLimit()
-} else {
-    Integer.MAX_VALUE
-}
+private fun getMaxItems(preferences: AppPreferencesUtils): Int =
+    if (shouldUsePhotoPicker(preferences)) {
+        MediaStore.getPickImagesMaxLimit()
+    } else {
+        Integer.MAX_VALUE
+    }
 
 data class PickMediasRequest(
     val id: String = "",
@@ -103,13 +105,16 @@ data class PickMediasResult(
 
 object PickMediasContract : ActivityResultContract<PickMediasRequest, PickMediasResult>() {
     private var curRequestId: String? = null
+    private var lastUsePhotoPicker: Boolean = false
 
     val hasCurrentRequest: Boolean
         get() = curRequestId != null
 
     override fun createIntent(context: Context, input: PickMediasRequest): Intent {
         curRequestId = input.id
-        if (shouldUsePhotoPicker()) {
+        val preferences = context.applicationContext.appPreferences
+        lastUsePhotoPicker = shouldUsePhotoPicker(preferences)
+        if (lastUsePhotoPicker) {
             return Intent(MediaStore.ACTION_PICK_IMAGES).apply {
                 type = PickMediasRequest.getMimeType(input.mediaType)
                 if (input.maxItems > 1) {
@@ -127,7 +132,7 @@ object PickMediasContract : ActivityResultContract<PickMediasRequest, PickMedias
             .choose(mimeType)
             .theme(if (ThemeUtil.isNightMode()) R.style.Matisse_Dracula else R.style.Matisse_Zhihu)
             .countable(input.maxItems > 1)
-            .maxSelectable(input.maxItems)
+            .maxSelectable(minOf(input.maxItems, getMaxItems(preferences)))
             .imageEngine(GlideEngine())
         return Intent(context, MatisseActivity::class.java)
     }
@@ -138,7 +143,7 @@ object PickMediasContract : ActivityResultContract<PickMediasRequest, PickMedias
         if (resultCode != Activity.RESULT_OK || intent == null) {
             return PickMediasResult(id, emptyList())
         }
-        if (shouldUsePhotoPicker()) {
+        if (lastUsePhotoPicker) {
             return PickMediasResult(id, intent.getClipDataUris())
         }
         return PickMediasResult(id, Matisse.obtainResult(intent))

@@ -17,7 +17,6 @@ import androidx.annotation.ColorRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.huanchengfly.tieba.post.utils.MD5Util
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlin.math.roundToInt
@@ -60,10 +59,6 @@ fun Int.pxToSpFloat(): Float = this.toFloat().pxToSpFloat()
 
 fun Int.pxToDpFloat(): Float =
     this.toFloat().pxToDpFloat()
-
-fun String.toMD5(): String = MD5Util.toMd5(this)
-
-fun ByteArray.toMD5(): String = MD5Util.toMd5(this)
 
 fun Context.getColorCompat(@ColorRes id: Int): Int {
     return ContextCompat.getColor(this, id)

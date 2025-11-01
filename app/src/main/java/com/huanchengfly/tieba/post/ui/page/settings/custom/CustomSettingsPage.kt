@@ -160,7 +160,7 @@ fun CustomSettingsPage(
                             )
                         },
                     ),
-                    onValueChange = { AppIconUtil.setIcon(icon = it) },
+                    onValueChange = { AppIconUtil.setIcon(context, icon = it) },
                     useSelectedAsSummary = true,
                 )
             }
@@ -195,9 +195,7 @@ fun CustomSettingsPage(
                                 )
                             }
                         },
-                        onCheckedChange = {
-                            AppIconUtil.setIcon(isThemed = it)
-                        },
+                        onCheckedChange = { AppIconUtil.setIcon(context, isThemed = it) },
                         summary = stringResource(id = R.string.tip_settings_use_themed_icon_summary_not_supported).takeUnless { isCurrentSupportThemedIcon },
                     )
                 }

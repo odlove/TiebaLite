@@ -1,6 +1,5 @@
 package com.huanchengfly.tieba.post.ui.page.search
 
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.searchSug.SearchSugResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
@@ -15,6 +14,7 @@ import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.post.models.database.SearchHistory
 import com.huanchengfly.tieba.post.repository.SearchRepository
+import com.huanchengfly.tieba.core.common.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -40,7 +40,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val searchRepository: SearchRepository,
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    private val resourceProvider: ResourceProvider
 ) :
     BaseViewModel<SearchUiIntent, SearchPartialChange, SearchUiState, SearchUiEvent>(dispatcherProvider) {
     override fun createInitialState() = SearchUiState()
@@ -51,15 +52,15 @@ class SearchViewModel @Inject constructor(
     override fun dispatchEvent(partialChange: SearchPartialChange): UiEvent? =
         when (partialChange) {
             is SearchPartialChange.ClearSearchHistory.Success -> CommonUiEvent.Toast(
-                App.INSTANCE.getString(R.string.toast_clear_success)
+                resourceProvider.getString(R.string.toast_clear_success)
             )
 
             is SearchPartialChange.ClearSearchHistory.Failure -> CommonUiEvent.Toast(
-                App.INSTANCE.getString(R.string.toast_clear_failure, partialChange.errorMessage)
+                resourceProvider.getString(R.string.toast_clear_failure, partialChange.errorMessage)
             )
 
             is SearchPartialChange.DeleteSearchHistory.Failure -> CommonUiEvent.Toast(
-                App.INSTANCE.getString(R.string.toast_delete_failure, partialChange.errorMessage)
+                resourceProvider.getString(R.string.toast_delete_failure, partialChange.errorMessage)
             )
 
             is SearchPartialChange.SubmitKeyword -> SearchUiEvent.KeywordChanged(partialChange.keyword)

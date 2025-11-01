@@ -5,6 +5,7 @@ import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
+import com.huanchengfly.tieba.core.common.ResourceProvider
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -52,6 +53,7 @@ class ThreadViewModelTest : BaseViewModelTest() {
     private lateinit var mockUserInteractionRepo: UserInteractionRepository
     private lateinit var mockThreadOperationRepo: ThreadOperationRepository
     private lateinit var mockContentModerationRepo: com.huanchengfly.tieba.post.repository.ContentModerationRepository
+    private lateinit var mockResourceProvider: ResourceProvider
 
     @Before
     override fun setup() {
@@ -61,6 +63,7 @@ class ThreadViewModelTest : BaseViewModelTest() {
         mockUserInteractionRepo = mockk(relaxed = true)
         mockThreadOperationRepo = mockk(relaxed = true)
         mockContentModerationRepo = mockk(relaxed = true)
+        mockResourceProvider = mockk(relaxed = true)
     }
 
     @After
@@ -76,7 +79,8 @@ class ThreadViewModelTest : BaseViewModelTest() {
             mockThreadOperationRepo,
             mockContentModerationRepo,
             mockThreadStore,
-            testDispatcherProvider
+            testDispatcherProvider,
+            mockResourceProvider
         )
     }
 

@@ -2,8 +2,10 @@ package com.huanchengfly.tieba.post.ui.page.forum.threadlist
 
 import com.huanchengfly.tieba.post.TestFixtures
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
+import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
+import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -30,20 +32,22 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
 
     private lateinit var mockFrsRepo: FrsPageRepository
     private lateinit var mockUserRepo: UserInteractionRepository
-    private lateinit var mockThreadStore: com.huanchengfly.tieba.post.store.ThreadStore
+    private lateinit var mockPbPageRepo: PbPageRepository
+    private lateinit var mockAppPreferences: AppPreferencesUtils
 
     @Before
     override fun setup() {
         super.setup()
         mockFrsRepo = mockk(relaxed = true)
         mockUserRepo = mockk(relaxed = true)
-        mockThreadStore = mockk(relaxed = true)
+        mockPbPageRepo = mockk(relaxed = true)
+        mockAppPreferences = mockk(relaxed = true)
     }
 
     @After
     override fun tearDown() {
         super.tearDown()
-        clearMocks(mockFrsRepo, mockUserRepo, mockThreadStore)
+        clearMocks(mockFrsRepo, mockUserRepo, mockPbPageRepo, mockAppPreferences)
     }
 
     private fun createFrsPageResponseForList(): com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse {
@@ -85,7 +89,13 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
             flowOf(response)
         }
 
-        val viewModel = LatestThreadListViewModel(mockFrsRepo, mockUserRepo, mockThreadStore, testDispatcherProvider)
+        val viewModel = LatestThreadListViewModel(
+            mockFrsRepo,
+            mockUserRepo,
+            mockPbPageRepo,
+            testDispatcherProvider,
+            mockAppPreferences
+        )
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -114,7 +124,13 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
             flowOf(threadListResponse)
         }
 
-        val viewModel = LatestThreadListViewModel(mockFrsRepo, mockUserRepo, mockThreadStore, testDispatcherProvider)
+        val viewModel = LatestThreadListViewModel(
+            mockFrsRepo,
+            mockUserRepo,
+            mockPbPageRepo,
+            testDispatcherProvider,
+            mockAppPreferences
+        )
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -156,7 +172,13 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
             flowOf(response)
         }
 
-        val viewModel = LatestThreadListViewModel(mockFrsRepo, mockUserRepo, mockThreadStore, testDispatcherProvider)
+        val viewModel = LatestThreadListViewModel(
+            mockFrsRepo,
+            mockUserRepo,
+            mockPbPageRepo,
+            testDispatcherProvider,
+            mockAppPreferences
+        )
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -181,7 +203,13 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
         val agreeBean = TestFixtures.fakeAgreeBean()
         every { mockUserRepo.opAgree(threadId = "1", postId = "2", hasAgree = 0, objType = 3) } returns flowOf(agreeBean)
 
-        val viewModel = LatestThreadListViewModel(mockFrsRepo, mockUserRepo, mockThreadStore, testDispatcherProvider)
+        val viewModel = LatestThreadListViewModel(
+            mockFrsRepo,
+            mockUserRepo,
+            mockPbPageRepo,
+            testDispatcherProvider,
+            mockAppPreferences
+        )
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -218,7 +246,13 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
             flowOf(response)
         }
 
-        val viewModel = GoodThreadListViewModel(mockFrsRepo, mockUserRepo, mockThreadStore, testDispatcherProvider)
+        val viewModel = GoodThreadListViewModel(
+            mockFrsRepo,
+            mockUserRepo,
+            mockPbPageRepo,
+            testDispatcherProvider,
+            mockAppPreferences
+        )
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -258,7 +292,13 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
             flowOf(response)
         }
 
-        val viewModel = GoodThreadListViewModel(mockFrsRepo, mockUserRepo, mockThreadStore, testDispatcherProvider)
+        val viewModel = GoodThreadListViewModel(
+            mockFrsRepo,
+            mockUserRepo,
+            mockPbPageRepo,
+            testDispatcherProvider,
+            mockAppPreferences
+        )
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()
 

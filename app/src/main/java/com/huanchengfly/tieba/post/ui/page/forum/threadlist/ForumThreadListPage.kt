@@ -202,38 +202,38 @@ private fun ThreadList(
         }
         itemsIndexed(
             items = items,
-            key = { index, (holder) ->
-                val (item) = holder
-                "${index}_${item.id}"
+            key = { index, item ->
+                "${index}_${item.thread.get { id }}"
             },
-            contentType = { _, (holder) ->
-                val (item) = holder
-                if (item.isTop == 1) ItemType.Top
-                else {
-                    if (item.media.isNotEmpty())
-                        if (item.media.size == 1) ItemType.SingleMedia else ItemType.MultiMedia
-                    else if (item.videoInfo != null)
-                        ItemType.Video
-                    else ItemType.PlainText
+            contentType = { _, item ->
+                val thread = item.thread.get()
+                if (thread.isTop == 1) {
+                    ItemType.Top
+                } else when {
+                    thread.media.isNotEmpty() ->
+                        if (thread.media.size == 1) ItemType.SingleMedia else ItemType.MultiMedia
+                    thread.videoInfo != null -> ItemType.Video
+                    else -> ItemType.PlainText
                 }
             }
-        ) { index, (holder, blocked) ->
+        ) { index, item ->
             BlockableContent(
-                blocked = blocked,
+                blocked = item.blocked,
                 blockedTip = { BlockTip(text = { Text(text = stringResource(id = R.string.tip_blocked_thread)) }) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp, horizontal = 16.dp),
             ) {
-                val (item) = holder
+                val threadHolder = item.thread
+                val thread = threadHolder.get()
                 Column(
                     modifier = Modifier.fillMaxWidth(itemFraction)
                 ) {
-                    if (item.isTop == 1) {
-                        val title = item.title.takeUnless { it.isBlank() } ?: item.abstractText
+                    if (thread.isTop == 1) {
+                        val title = thread.title.takeUnless { it.isBlank() } ?: thread.abstractText
                         TopThreadItem(
                             title = title,
-                            onClick = { onItemClicked(item) },
+                            onClick = { onItemClicked(thread) },
                             modifier = Modifier.fillMaxWidth(),
                         )
                     } else {
@@ -245,7 +245,7 @@ private fun ThreadList(
                         }
 
                         FeedCard(
-                            item = holder,
+                            item = threadHolder,
                             onClick = onItemClicked,
                             onClickReply = onItemReplyClicked,
                             onAgree = onAgree,

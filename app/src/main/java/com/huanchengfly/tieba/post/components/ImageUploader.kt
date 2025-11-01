@@ -2,7 +2,6 @@ package com.huanchengfly.tieba.post.components
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.api.BOUNDARY
 import com.huanchengfly.tieba.post.api.booleanToString
 import com.huanchengfly.tieba.post.api.models.UploadPictureResultBean
@@ -14,7 +13,7 @@ import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.utils.ImageUtil
 import com.huanchengfly.tieba.post.utils.MD5Util
-import com.huanchengfly.tieba.post.utils.appPreferences
+import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -33,6 +32,7 @@ import java.io.RandomAccessFile
 
 class ImageUploader(
     private val forumName: String,
+    private val appPreferences: AppPreferencesUtils,
     private val chunkSize: Int = DEFAULT_CHUNK_SIZE
 ) {
     companion object {
@@ -119,7 +119,7 @@ class ImageUploader(
         val isMultipleChunkSize = fileLength % chunkSize == 0L
         val totalChunkNum = fileLength / chunkSize + if (isMultipleChunkSize) 0 else 1
         val picWatermarkType =
-            App.INSTANCE.appPreferences.picWatermarkType ?: PIC_WATER_TYPE_FORUM_NAME
+            appPreferences.picWatermarkType ?: PIC_WATER_TYPE_FORUM_NAME
         val requestBodies = (0 until totalChunkNum).map { chunk ->
             val isFinish = chunk == totalChunkNum - 1
             val curChunkSize = if (isFinish) {

@@ -16,15 +16,16 @@ import com.github.panpf.sketch.decode.WebpAnimatedDrawableDecoder
 import com.github.panpf.sketch.http.OkHttpStack
 import com.github.panpf.sketch.request.PauseLoadWhenScrollingDrawableDecodeInterceptor
 import com.huanchengfly.tieba.post.activities.BaseActivity
-import com.huanchengfly.tieba.post.utils.SharedPreferencesUtil
-import com.huanchengfly.tieba.post.utils.appPreferences
 import com.huanchengfly.tieba.core.runtime.RuntimeInitializer
 import com.huanchengfly.tieba.core.runtime.device.DeviceConfig
 import com.huanchengfly.tieba.core.runtime.device.DeviceConfigHolder
+import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsRegistry
 import com.microsoft.appcenter.distribute.Distribute
 import com.microsoft.appcenter.distribute.DistributeListener
 import com.microsoft.appcenter.distribute.ReleaseDetails
 import com.microsoft.appcenter.distribute.UpdateAction
+import com.huanchengfly.tieba.post.utils.SharedPreferencesUtil
+import com.huanchengfly.tieba.post.utils.appPreferences
 import dagger.hilt.android.HiltAndroidApp
 import net.swiftzer.semver.SemVer
 import javax.inject.Inject
@@ -143,20 +144,24 @@ class App : Application(), SketchFactory {
     }
 
     object ScreenInfo {
-        @JvmField
-        var EXACT_SCREEN_HEIGHT = 0
+        val EXACT_SCREEN_HEIGHT: Int
+            get() = ScreenMetricsRegistry.current.exactScreenHeightPx
 
-        @JvmField
-        var EXACT_SCREEN_WIDTH = 0
+        val EXACT_SCREEN_WIDTH: Int
+            get() = ScreenMetricsRegistry.current.exactScreenWidthPx
 
-        @JvmField
-        var SCREEN_HEIGHT = 0
+        val SCREEN_HEIGHT: Int
+            get() = ScreenMetricsRegistry.current.screenHeightDp
 
-        @JvmField
-        var SCREEN_WIDTH = 0
+        val SCREEN_WIDTH: Int
+            get() = ScreenMetricsRegistry.current.screenWidthDp
 
-        @JvmField
-        var DENSITY = 0f
+        val DENSITY: Float
+            get() = ScreenMetricsRegistry.current.density
+
+        fun update(density: Float, widthPx: Int, heightPx: Int) {
+            ScreenMetricsRegistry.update(density, widthPx, heightPx)
+        }
     }
 
     class MyDistributeListener : DistributeListener {

@@ -3,7 +3,7 @@ package com.huanchengfly.tieba.post.utils
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
-import com.huanchengfly.tieba.post.App
+import com.huanchengfly.tieba.post.utils.appPreferences
 import kotlinx.collections.immutable.persistentListOf
 
 
@@ -28,19 +28,17 @@ object LauncherIcons {
 object AppIconUtil {
     const val PREF_KEY_APP_ICON = "app_icon"
 
-    private val context: Context
-        get() = App.INSTANCE
-
-    private val appPreferences: AppPreferencesUtils
-        get() = context.appPreferences
-
     fun setIcon(
-        icon: String = appPreferences.appIcon ?: LauncherIcons.NEW_ICON,
-        isThemed: Boolean = appPreferences.useThemedIcon,
+        context: Context,
+        icon: String? = null,
+        isThemed: Boolean? = null,
     ) {
-        val useThemedIcon = isThemed && LauncherIcons.SUPPORT_THEMED_ICON.contains(icon)
-        var newIcon = if (LauncherIcons.ICONS.contains(icon)) {
-            icon
+        val appPreferences = context.appPreferences
+        val resolvedIcon = icon ?: appPreferences.appIcon ?: LauncherIcons.NEW_ICON
+        val resolvedThemed = isThemed ?: appPreferences.useThemedIcon
+        val useThemedIcon = resolvedThemed && LauncherIcons.SUPPORT_THEMED_ICON.contains(resolvedIcon)
+        var newIcon = if (LauncherIcons.ICONS.contains(resolvedIcon)) {
+            resolvedIcon
         } else LauncherIcons.DEFAULT_ICON
         if (useThemedIcon) {
             newIcon = LauncherIcons.THEMED_ICON_MAPPING[newIcon] ?: newIcon

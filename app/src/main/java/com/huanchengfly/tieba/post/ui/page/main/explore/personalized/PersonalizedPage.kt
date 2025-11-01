@@ -44,6 +44,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -132,6 +133,7 @@ fun PersonalizedPage(
     // ✅ 订阅 Repository 的 threadsFlow，获取最新的 ThreadEntity 列表
     val threadEntities by viewModel.pbPageRepository.threadsFlow(threadIds)
         .collectAsState(initial = emptyList())
+    val appPreferences = LocalContext.current.appPreferences
 
     // ✅ O(n) 查找优化：先构建 entityMap
     val entityMap by remember(threadEntities) {
@@ -163,6 +165,7 @@ fun PersonalizedPage(
                         collectStatus = entity.meta.collectStatus,
                         collectMarkPid = entity.meta.collectMarkPid.takeIf { it > 0L }?.toString() ?: "0"
                     ).wrapImmutable(),
+                    hideBlockedContent = appPreferences.hideBlockedContent,
                     personalized = meta.personalized
                 )
             }.toImmutableList()
@@ -355,22 +358,24 @@ private fun FeedList(
     ) {
         itemsIndexed(
             items = data,
-            key = { _, (item) -> "${item.get { id }}" },
-            contentType = { _, (item) ->
+            key = { _, threadItem -> "${threadItem.thread.get { id }}" },
+            contentType = { _, threadItem ->
+                val thread = threadItem.thread.get()
                 when {
-                    item.get { videoInfo } != null -> "Video"
-                    item.get { media }.size == 1 -> "SingleMedia"
-                    item.get { media }.size > 1 -> "MultiMedia"
+                    thread.videoInfo != null -> "Video"
+                    thread.media.size == 1 -> "SingleMedia"
+                    thread.media.size > 1 -> "MultiMedia"
                     else -> "PlainText"
                 }
             }
-        ) { index, (item, blocked, personalized, hidden) ->
+        ) { index, threadItem ->
+            val threadHolder = threadItem.thread
             val isHidden =
                 remember(
                     hiddenThreadIds,
-                    item,
-                    hidden
-                ) { hiddenThreadIds.contains(item.get { threadId }) || hidden }
+                    threadHolder,
+                    threadItem.hidden
+                ) { hiddenThreadIds.contains(threadHolder.get { threadId }) || threadItem.hidden }
             val isRefreshPosition =
                 remember(index, refreshPosition) { index + 1 == refreshPosition }
             val isNotLast = remember(index, data.size) { index < data.size - 1 }
@@ -387,7 +392,7 @@ private fun FeedList(
                 ) {
                     Column {
                         BlockableContent(
-                            blocked = blocked,
+                            blocked = threadItem.blocked,
                             blockedTip = { BlockTip(text = { Text(text = stringResource(id = R.string.tip_blocked_thread)) }) },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -396,7 +401,7 @@ private fun FeedList(
                             Column {
                                 // TODO: 实现 Repository 的 StateFlow 支持用于更新状态订阅
                                 FeedCard(
-                                    item = item,
+                                    item = threadHolder,
                                     onClick = onItemClick,
                                     onClickReply = onItemReplyClick,
                                     onAgree = onAgree,
@@ -408,11 +413,11 @@ private fun FeedList(
                                     onClickUser = onClickUser,
                                     agreeEnabled = true,  // 暂时始终启用，待 Repository 实现
                                 ) {
-                                    if (personalized != null) {
+                                    threadItem.personalized?.let { personalized ->
                                         Dislike(
                                             personalized = personalized,
                                             onDislike = { clickTime, reasons ->
-                                                onDislike(item.get(), clickTime, reasons)
+                                                onDislike(threadHolder.get(), clickTime, reasons)
                                             }
                                         )
                                     }

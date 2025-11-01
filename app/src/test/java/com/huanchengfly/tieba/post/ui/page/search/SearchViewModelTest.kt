@@ -3,6 +3,7 @@ package com.huanchengfly.tieba.post.ui.page.search
 import com.huanchengfly.tieba.post.TestFixtures
 import com.huanchengfly.tieba.post.repository.SearchRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
+import com.huanchengfly.tieba.core.common.ResourceProvider
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -37,11 +38,13 @@ import org.junit.Test
 class SearchViewModelTest : BaseViewModelTest() {
 
     private lateinit var mockSearchRepo: SearchRepository
+    private lateinit var mockResourceProvider: ResourceProvider
 
     @Before
     override fun setup() {
         super.setup()
         mockSearchRepo = mockk(relaxed = true)
+        mockResourceProvider = mockk(relaxed = true)
     }
 
     @After
@@ -62,7 +65,7 @@ class SearchViewModelTest : BaseViewModelTest() {
             } returns flowOf(response)
 
             // When: Create ViewModel and send KeywordInputChanged intent
-            val viewModel = SearchViewModel(mockSearchRepo, testDispatcherProvider)
+            val viewModel = SearchViewModel(mockSearchRepo, testDispatcherProvider, mockResourceProvider)
             val job = collectUiState(viewModel)
             testDispatcher.scheduler.advanceUntilIdle() // Let initialization complete
             viewModel.send(SearchUiIntent.KeywordInputChanged("test keyword"))

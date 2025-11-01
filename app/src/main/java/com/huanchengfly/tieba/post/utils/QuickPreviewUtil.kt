@@ -6,34 +6,37 @@ import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
-import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
-import com.huanchengfly.tieba.post.api.models.ForumPageBean
-import com.huanchengfly.tieba.post.api.models.ThreadContentBean
+import com.huanchengfly.tieba.core.common.ResourceProvider
+import com.huanchengfly.tieba.core.mvi.DispatcherProvider
+import com.huanchengfly.tieba.core.runtime.di.ApplicationScope
 import com.huanchengfly.tieba.core.network.exception.TiebaException
+import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.components.ClipBoardForumLink
 import com.huanchengfly.tieba.post.components.ClipBoardLink
 import com.huanchengfly.tieba.post.components.ClipBoardThreadLink
 import com.huanchengfly.tieba.post.interfaces.CommonCallback
-import com.huanchengfly.tieba.post.repository.FrsPageRepository
-import com.huanchengfly.tieba.post.repository.PbPageRepository
+import com.huanchengfly.tieba.post.preview.ForumPreviewData
+import com.huanchengfly.tieba.post.preview.QuickPreviewRepository
+import com.huanchengfly.tieba.post.preview.ThreadPreviewData
 import com.huanchengfly.tieba.post.ui.page.forum.getSortType
+import com.huanchengfly.tieba.post.utils.StringUtil
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import javax.inject.Inject
-import javax.inject.Singleton
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Singleton
 class QuickPreviewUtil @Inject constructor(
-    private val pbPageRepository: PbPageRepository,
-    private val frsPageRepository: FrsPageRepository,
-    private val api: ITiebaApi
+    private val quickPreviewRepository: QuickPreviewRepository,
+    private val resourceProvider: ResourceProvider,
+    @ApplicationScope private val applicationScope: CoroutineScope,
+    private val dispatcherProvider: DispatcherProvider,
 ) {
     companion object {
         private fun isTiebaUrl(host: String?): Boolean {
@@ -90,124 +93,27 @@ class QuickPreviewUtil @Inject constructor(
         }
     }
 
-    private fun getThreadPreviewInfo(
-        context: Context,
-        link: ClipBoardThreadLink,
-        callback: CommonCallback<PreviewInfo>,
-    ) {
-        api.threadContent(link.threadId)
-            .enqueue(object : Callback<ThreadContentBean> {
-                override fun onFailure(call: Call<ThreadContentBean>, t: Throwable) {
-                    val code = if (t is TiebaException) t.code else -1
-                    callback.onFailure(code, t.message)
-                }
-
-                override fun onResponse(
-                    call: Call<ThreadContentBean>,
-                    response: Response<ThreadContentBean>
-                ) {
-                    val threadContentBean = response.body() ?: return callback.onFailure(-1, "Empty response")
-                    callback.onSuccess(
-                        PreviewInfo(
-                            clipBoardLink = link,
-                            url = link.url,
-                            title = threadContentBean.thread?.title,
-                            subtitle = context.getString(
-                                R.string.subtitle_quick_preview_thread,
-                                threadContentBean.forum?.name,
-                                threadContentBean.thread?.replyNum
-                            ),
-                            icon = Icon(threadContentBean.thread?.author?.portrait)
-                        )
-                    )
-                }
-            })
-    }
-
-    private fun getThreadPreviewInfoFlow(
-        context: Context,
-        link: ClipBoardThreadLink,
-        lifeCycle: Lifecycle? = null,
-    ): Flow<PreviewInfo> =
-        pbPageRepository.pbPage(link.threadId.toLong())
-            .map {
-                PreviewInfo(
-                    clipBoardLink = link,
-                    url = link.url,
-                    title = it.data_?.thread?.title,
-                    subtitle = context.getString(
-                        R.string.subtitle_quick_preview_thread,
-                        it.data_?.forum?.name,
-                        it.data_?.thread?.replyNum?.toString()
-                    ),
-                    icon = Icon(StringUtil.getAvatarUrl(it.data_?.thread?.author?.portrait))
-                )
-            }
-            .catch { it.printStackTrace() }
-            .let { flow ->
-                if (lifeCycle != null) flow.flowWithLifecycle(lifeCycle) else flow
-            }
-
-    private fun getForumPreviewInfo(
-        context: Context,
-        link: ClipBoardForumLink,
-        callback: CommonCallback<PreviewInfo>,
-    ) {
-        api.forumPage(link.forumName).enqueue(object : Callback<ForumPageBean> {
-            override fun onFailure(call: Call<ForumPageBean>, t: Throwable) {
-                val code = if (t is TiebaException) t.code else -1
-                callback.onFailure(code, t.message)
-            }
-
-            override fun onResponse(call: Call<ForumPageBean>, response: Response<ForumPageBean>) {
-                val forumPageBean = response.body() ?: return callback.onFailure(-1, "Empty response")
-                callback.onSuccess(
-                    PreviewInfo(
-                        clipBoardLink = link,
-                        url = link.url,
-                        title = context.getString(
-                            R.string.title_forum,
-                            forumPageBean.forum?.name
-                        ),
-                        subtitle = forumPageBean.forum?.slogan,
-                        icon = Icon(forumPageBean.forum?.avatar)
-                    )
-                )
-            }
-        })
-    }
-
-    private fun getForumPreviewInfoFlow(
-        context: Context,
-        link: ClipBoardForumLink,
-        lifeCycle: Lifecycle? = null,
-    ): Flow<PreviewInfo> =
-        frsPageRepository.frsPage(link.forumName, 1, 1, getSortType(context, link.forumName))
-            .map {
-                PreviewInfo(
-                    clipBoardLink = link,
-                    url = link.url,
-                    title = context.getString(
-                        R.string.title_forum,
-                        link.forumName
-                    ),
-                    subtitle = it.data_?.forum?.slogan,
-                    icon = Icon(it.data_?.forum?.avatar)
-                )
-            }
-            .catch { it.printStackTrace() }
-            .let { flow ->
-                if (lifeCycle != null) flow.flowWithLifecycle(lifeCycle) else flow
-            }
-
     fun getPreviewInfoFlow(
         context: Context,
         clipBoardLink: ClipBoardLink,
         lifeCycle: Lifecycle? = null,
     ): Flow<PreviewInfo?> {
-        val detailFlow = when (clipBoardLink) {
-            is ClipBoardForumLink -> getForumPreviewInfoFlow(context, clipBoardLink, lifeCycle)
-            is ClipBoardThreadLink -> getThreadPreviewInfoFlow(context, clipBoardLink, lifeCycle)
+        val detailFlow: Flow<PreviewInfo>? = when (clipBoardLink) {
+            is ClipBoardForumLink -> quickPreviewRepository
+                .observeForum(
+                    forumName = clipBoardLink.forumName,
+                    sortType = getSortType(context, clipBoardLink.forumName)
+                )
+                .map { it.toPreviewInfo(clipBoardLink) }
+                .catch { it.printStackTrace() }
+                .let { flow -> if (lifeCycle != null) flow.flowWithLifecycle(lifeCycle) else flow }
+            is ClipBoardThreadLink -> clipBoardLink.threadId.toLongOrNull()?.let { threadId ->
+                quickPreviewRepository
+                    .observeThread(threadId)
+                    .map { it.toPreviewInfo(clipBoardLink) }
+                    .catch { it.printStackTrace() }
+                    .let { flow -> if (lifeCycle != null) flow.flowWithLifecycle(lifeCycle) else flow }
+            }
             else -> null
         }
         val flow = flowOf(
@@ -215,7 +121,7 @@ class QuickPreviewUtil @Inject constructor(
                 clipBoardLink = clipBoardLink,
                 url = clipBoardLink.url,
                 title = clipBoardLink.url,
-                subtitle = context.getString(R.string.subtitle_link),
+                subtitle = resourceProvider.getString(R.string.subtitle_link),
                 icon = Icon(R.drawable.ic_link)
             )
         )
@@ -229,19 +135,90 @@ class QuickPreviewUtil @Inject constructor(
         callback: CommonCallback<PreviewInfo>,
     ) {
         when (link) {
-            is ClipBoardForumLink -> getForumPreviewInfo(context, link, callback)
-            is ClipBoardThreadLink -> getThreadPreviewInfo(context, link, callback)
-            else -> callback.onSuccess(
-                PreviewInfo(
-                    clipBoardLink = link,
-                    url = link.url,
-                    title = link.url,
-                    subtitle = context.getString(R.string.subtitle_link),
-                    icon = Icon(R.drawable.ic_link)
-                )
-            )
+            is ClipBoardForumLink -> fetchForumPreview(link, callback)
+            is ClipBoardThreadLink -> fetchThreadPreview(link, callback)
+            else -> callback.onSuccess(defaultPreview(link))
         }
     }
+
+    private fun fetchThreadPreview(
+        link: ClipBoardThreadLink,
+        callback: CommonCallback<PreviewInfo>,
+    ) {
+        val threadId = link.threadId.toLongOrNull()
+        if (threadId == null) {
+            callback.onFailure(-1, "Invalid thread id")
+            return
+        }
+        applicationScope.launch(dispatcherProvider.io) {
+            val result = runCatching { quickPreviewRepository.fetchThread(threadId) }
+            withContext(dispatcherProvider.main) {
+                result.fold(
+                    onSuccess = { data -> callback.onSuccess(data.toPreviewInfo(link)) },
+                    onFailure = { error ->
+                        val code = (error as? TiebaException)?.code ?: -1
+                        callback.onFailure(code, error.message)
+                    }
+                )
+            }
+        }
+    }
+
+    private fun fetchForumPreview(
+        link: ClipBoardForumLink,
+        callback: CommonCallback<PreviewInfo>,
+    ) {
+        applicationScope.launch(dispatcherProvider.io) {
+            val result = runCatching { quickPreviewRepository.fetchForum(link.forumName) }
+            withContext(dispatcherProvider.main) {
+                result.fold(
+                    onSuccess = { data -> callback.onSuccess(data.toPreviewInfo(link)) },
+                    onFailure = { error ->
+                        val code = (error as? TiebaException)?.code ?: -1
+                        callback.onFailure(code, error.message)
+                    }
+                )
+            }
+        }
+    }
+
+    private fun defaultPreview(link: ClipBoardLink): PreviewInfo =
+        PreviewInfo(
+            clipBoardLink = link,
+            url = link.url,
+            title = link.url,
+            subtitle = resourceProvider.getString(R.string.subtitle_link),
+            icon = Icon(R.drawable.ic_link)
+        )
+
+    private fun ThreadPreviewData.toPreviewInfo(
+        link: ClipBoardThreadLink,
+    ): PreviewInfo =
+        PreviewInfo(
+            clipBoardLink = link,
+            url = link.url,
+            title = title,
+            subtitle = resourceProvider.getString(
+                R.string.subtitle_quick_preview_thread,
+                forumName.orEmpty(),
+                replyNum?.toString() ?: "0"
+            ),
+            icon = Icon(StringUtil.getAvatarUrl(authorPortrait))
+        )
+
+    private fun ForumPreviewData.toPreviewInfo(
+        link: ClipBoardForumLink,
+    ): PreviewInfo =
+        PreviewInfo(
+            clipBoardLink = link,
+            url = link.url,
+            title = resourceProvider.getString(
+                R.string.title_forum,
+                name ?: link.forumName
+            ),
+            subtitle = slogan,
+            icon = Icon(avatar)
+        )
 
     @Immutable
     data class PreviewInfo(

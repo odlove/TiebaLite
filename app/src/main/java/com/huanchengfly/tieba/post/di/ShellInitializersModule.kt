@@ -39,7 +39,7 @@ class AppCenterInitializer @Inject constructor() : ApplicationInitializer {
 
 class AppIconInitializer @Inject constructor() : ApplicationInitializer {
     override fun initialize(application: Application) {
-        AppIconUtil.setIcon()
+        AppIconUtil.setIcon(application)
     }
 }
 

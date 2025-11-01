@@ -1,5 +1,9 @@
 package com.huanchengfly.tieba.post.di
 
+import com.huanchengfly.tieba.core.runtime.client.ClientConfigRepository
+import com.huanchengfly.tieba.post.data.client.ClientConfigRepositoryImpl
+import com.huanchengfly.tieba.post.preferences.ForumPreferencesImpl
+import com.huanchengfly.tieba.post.preferences.SofireZidProvider
 import com.huanchengfly.tieba.post.repository.AccountRepository
 import com.huanchengfly.tieba.post.repository.AccountRepositoryImpl
 import com.huanchengfly.tieba.post.repository.AddPostRepository
@@ -12,6 +16,7 @@ import com.huanchengfly.tieba.post.repository.ForumInfoRepository
 import com.huanchengfly.tieba.post.repository.ForumInfoRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ForumOperationRepository
 import com.huanchengfly.tieba.post.repository.ForumOperationRepositoryImpl
+import com.huanchengfly.tieba.post.repository.ForumPreferences
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
 import com.huanchengfly.tieba.post.repository.FrsPageRepositoryImpl
 import com.huanchengfly.tieba.post.repository.NotificationRepository
@@ -24,6 +29,8 @@ import com.huanchengfly.tieba.post.repository.PersonalizedRepository
 import com.huanchengfly.tieba.post.repository.PersonalizedRepositoryImpl
 import com.huanchengfly.tieba.post.repository.SearchRepository
 import com.huanchengfly.tieba.post.repository.SearchRepositoryImpl
+import com.huanchengfly.tieba.post.preview.QuickPreviewRepository
+import com.huanchengfly.tieba.post.preview.QuickPreviewRepositoryImpl
 import com.huanchengfly.tieba.post.repository.SubPostsRepository
 import com.huanchengfly.tieba.post.repository.SubPostsRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ThreadFeedRepository
@@ -40,6 +47,7 @@ import com.huanchengfly.tieba.post.repository.UserProfileRepository
 import com.huanchengfly.tieba.post.repository.UserProfileRepositoryImpl
 import com.huanchengfly.tieba.post.repository.UserSocialRepository
 import com.huanchengfly.tieba.post.repository.UserSocialRepositoryImpl
+import com.huanchengfly.tieba.post.repository.ZidProvider
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -54,6 +62,24 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindClientConfigRepository(
+        impl: ClientConfigRepositoryImpl
+    ): ClientConfigRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindForumPreferences(
+        impl: ForumPreferencesImpl
+    ): ForumPreferences
+
+    @Binds
+    @Singleton
+    abstract fun bindZidProvider(
+        impl: SofireZidProvider
+    ): ZidProvider
 
     @Binds
     @Singleton
@@ -174,4 +200,10 @@ abstract class RepositoryModule {
     abstract fun bindThreadFeedRepository(
         impl: ThreadFeedRepositoryImpl
     ): ThreadFeedRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindQuickPreviewRepository(
+        impl: QuickPreviewRepositoryImpl
+    ): QuickPreviewRepository
 }

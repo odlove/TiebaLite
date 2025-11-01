@@ -4,13 +4,12 @@ import android.app.Application
 import com.huanchengfly.tieba.core.runtime.DataInitializer
 import com.huanchengfly.tieba.core.runtime.OrderedDataInitializer
 import com.huanchengfly.tieba.post.data.account.AccountManager
+import com.huanchengfly.tieba.post.emoticon.EmoticonRepository
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import com.huanchengfly.tieba.post.utils.BlockManager
-import com.huanchengfly.tieba.post.utils.EmoticonManager
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
 import javax.inject.Inject
@@ -55,13 +54,13 @@ class AccountDataInitializer @Inject constructor(
 
 class BlockAndEmoticonInitializer @Inject constructor(
     @ApplicationScope private val applicationScope: CoroutineScope,
-    @ApplicationContext private val context: android.content.Context,
+    private val emoticonRepository: EmoticonRepository,
 ) : OrderedDataInitializer {
     override val order: Int = 30
     override fun initialize(application: Application) {
+        emoticonRepository.initialize()
         applicationScope.launch(Dispatchers.IO) {
             BlockManager.init()
-            EmoticonManager.init(context)
         }
     }
 }

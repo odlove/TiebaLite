@@ -3,6 +3,9 @@ package com.huanchengfly.tieba.post.ui.page.reply
 import com.huanchengfly.tieba.post.TestFixtures
 import com.huanchengfly.tieba.post.repository.AddPostRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
+import com.huanchengfly.tieba.core.mvi.GlobalEventBus
+import com.huanchengfly.tieba.core.common.ResourceProvider
+import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -38,6 +41,10 @@ import org.junit.Test
 class ReplyViewModelTest : BaseViewModelTest() {
 
     private lateinit var mockAddPostRepo: AddPostRepository
+    private lateinit var mockGlobalEventBus: GlobalEventBus
+    private lateinit var mockResourceProvider: ResourceProvider
+    private lateinit var mockContext: android.content.Context
+    private lateinit var mockAppPreferences: AppPreferencesUtils
 
     @Before
     override fun setup() {
@@ -45,12 +52,16 @@ class ReplyViewModelTest : BaseViewModelTest() {
         // Mock AccountUtil for tbs
         mockAccountUtil(tbs = "test_tbs")
         mockAddPostRepo = mockk(relaxed = true)
+        mockGlobalEventBus = mockk(relaxed = true)
+        mockResourceProvider = mockk(relaxed = true)
+        mockContext = mockk(relaxed = true)
+        mockAppPreferences = mockk(relaxed = true)
     }
 
     @After
     override fun tearDown() {
         super.tearDown()
-        clearMocks(mockAddPostRepo)
+        clearMocks(mockAddPostRepo, mockGlobalEventBus, mockResourceProvider, mockAppPreferences)
     }
 
     // ========== Send Tests ==========
@@ -74,7 +85,14 @@ class ReplyViewModelTest : BaseViewModelTest() {
             } returns flowOf(response)
 
             // When: Create ViewModel and send Send intent
-            val viewModel = ReplyViewModel(mockAddPostRepo, testDispatcherProvider)
+            val viewModel = ReplyViewModel(
+                mockAddPostRepo,
+                mockGlobalEventBus,
+                testDispatcherProvider,
+                mockResourceProvider,
+                mockContext,
+                mockAppPreferences
+            )
             val job = collectUiState(viewModel)
             testDispatcher.scheduler.advanceUntilIdle() // Let initialization complete
             viewModel.send(
@@ -126,7 +144,14 @@ class ReplyViewModelTest : BaseViewModelTest() {
             } returns flowOf(response)
 
             // When: Create ViewModel and send Send intent with postId/subPostId
-            val viewModel = ReplyViewModel(mockAddPostRepo, testDispatcherProvider)
+            val viewModel = ReplyViewModel(
+                mockAddPostRepo,
+                mockGlobalEventBus,
+                testDispatcherProvider,
+                mockResourceProvider,
+                mockContext,
+                mockAppPreferences
+            )
             val job = collectUiState(viewModel)
             testDispatcher.scheduler.advanceUntilIdle() // Let initialization complete
             viewModel.send(

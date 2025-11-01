@@ -9,7 +9,6 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.dataStore
 import com.huanchengfly.tieba.post.getBoolean
 import com.huanchengfly.tieba.post.getFloat
@@ -17,6 +16,11 @@ import com.huanchengfly.tieba.post.getInt
 import com.huanchengfly.tieba.post.getLong
 import com.huanchengfly.tieba.post.getString
 import com.huanchengfly.tieba.post.utils.ThemeUtil.TRANSLUCENT_THEME_LIGHT
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,25 +28,22 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 
-open class AppPreferencesUtils private constructor(ctx: Context) {
-    companion object {
-        private var instance: AppPreferencesUtils? = null
-
-        fun getInstance(context: Context): AppPreferencesUtils {
-            return instance ?: AppPreferencesUtils(context).also {
-                instance = it
-            }
-        }
-    }
+@Singleton
+class AppPreferencesUtils @Inject constructor(
+    @ApplicationContext ctx: Context
+) {
+    private val appContext: Context = ctx.applicationContext
 
     private val contextWeakReference: WeakReference<Context> = WeakReference(ctx)
 
     private val context: Context
-        get() = contextWeakReference.get() ?: App.INSTANCE
+        get() = contextWeakReference.get() ?: appContext
 
     private val preferencesDataStore: DataStore<Preferences>
         get() = context.dataStore
@@ -429,4 +430,13 @@ open class AppPreferencesUtils private constructor(ctx: Context) {
 }
 
 val Context.appPreferences: AppPreferencesUtils
-    get() = AppPreferencesUtils.getInstance(this)
+    get() = EntryPointAccessors.fromApplication(
+        applicationContext,
+        AppPreferencesEntryPoint::class.java
+    ).appPreferences()
+
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface AppPreferencesEntryPoint {
+    fun appPreferences(): AppPreferencesUtils
+}

@@ -36,7 +36,7 @@ import com.huanchengfly.tieba.post.App.Companion.translucentBackground
 import com.huanchengfly.tieba.post.adapters.TranslucentThemeColorAdapter
 import com.huanchengfly.tieba.post.adapters.WallpaperAdapter
 import com.huanchengfly.tieba.post.api.LiteApi
-import com.huanchengfly.tieba.post.api.retrofit.doIfSuccess
+import com.huanchengfly.tieba.core.network.retrofit.doIfSuccess
 import com.huanchengfly.tieba.post.components.MyLinearLayoutManager
 import com.huanchengfly.tieba.post.components.dividers.HorizontalSpacesDecoration
 import com.huanchengfly.tieba.post.components.transformations.SketchBlurTransformation

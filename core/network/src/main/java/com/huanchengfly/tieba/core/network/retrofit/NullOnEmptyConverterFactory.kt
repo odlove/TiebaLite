@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.api.retrofit
+package com.huanchengfly.tieba.core.network.retrofit
 
 import okhttp3.ResponseBody
 import retrofit2.Converter
@@ -13,9 +13,9 @@ class NullOnEmptyConverterFactory : Converter.Factory() {
     ): Converter<ResponseBody, *> {
         val delegate: Converter<ResponseBody, *> =
             retrofit.nextResponseBodyConverter<Any>(this, type, annotations)
-        return (Converter<ResponseBody, Any?> { body: ResponseBody ->
+        return Converter<ResponseBody, Any?> { body ->
             if (body.contentLength() == 0L) return@Converter null
             delegate.convert(body)
-        })
+        }
     }
 }

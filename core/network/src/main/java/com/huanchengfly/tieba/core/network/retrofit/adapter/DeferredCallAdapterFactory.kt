@@ -1,9 +1,14 @@
-package com.huanchengfly.tieba.post.api.retrofit.adapter
+package com.huanchengfly.tieba.core.network.retrofit.adapter
 
-import com.huanchengfly.tieba.post.api.retrofit.ApiResult
+import com.huanchengfly.tieba.core.network.retrofit.ApiResult
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import retrofit2.*
+import retrofit2.Call
+import retrofit2.CallAdapter
+import retrofit2.Callback
+import retrofit2.HttpException
+import retrofit2.Response
+import retrofit2.Retrofit
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 import java.lang.reflect.WildcardType
@@ -20,20 +25,18 @@ class DeferredCallAdapterFactory : CallAdapter.Factory() {
         require(returnType is ParameterizedType) { "Call return type must be parameterized as Call<Foo> or Call<? extends Foo>" }
         val responseType = getParameterUpperBound(0, returnType)
         val rawDeferredType = getRawType(responseType)
-        if (rawDeferredType == ApiResult::class.java) {
+        return if (rawDeferredType == ApiResult::class.java) {
             require(responseType is ParameterizedType) { "ApiResult must be parameterized as ApiResult<Foo> or ApiResult<out Foo>" }
-            return ApiResultCallAdapter<Any>(getParameterUpperBound(0, responseType))
+            ApiResultCallAdapter<Any>(getParameterUpperBound(0, responseType))
         } else {
-            return BodyCallAdapter<Any>(responseType)
+            BodyCallAdapter<Any>(responseType)
         }
     }
 
     class ApiResultCallAdapter<T>(
         private val responseType: Type
     ) : CallAdapter<T, Any> {
-        override fun responseType(): Type {
-            return responseType
-        }
+        override fun responseType(): Type = responseType
 
         override fun adapt(call: Call<T>): Any {
             val deferred = CompletableDeferred<ApiResult<T>>()
@@ -66,9 +69,7 @@ class DeferredCallAdapterFactory : CallAdapter.Factory() {
     class BodyCallAdapter<T>(
         private val responseType: Type
     ) : CallAdapter<T, Any> {
-        override fun responseType(): Type {
-            return responseType
-        }
+        override fun responseType(): Type = responseType
 
         override fun adapt(call: Call<T>): Any {
             val deferred = CompletableDeferred<T>()

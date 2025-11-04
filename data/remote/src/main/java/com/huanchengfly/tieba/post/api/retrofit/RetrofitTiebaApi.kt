@@ -11,10 +11,11 @@ import com.huanchengfly.tieba.core.network.identity.ClientIdentityRegistry
 import com.huanchengfly.tieba.core.network.device.DeviceInfoProvider
 import com.huanchengfly.tieba.core.network.device.DeviceInfoRegistry
 import com.huanchengfly.tieba.post.api.models.OAID
-import com.huanchengfly.tieba.post.api.retrofit.adapter.DeferredCallAdapterFactory
-import com.huanchengfly.tieba.post.api.retrofit.adapter.FlowCallAdapterFactory
-import com.huanchengfly.tieba.post.api.retrofit.converter.gson.GsonConverterFactory
-import com.huanchengfly.tieba.post.api.retrofit.converter.kotlinx.serialization.asConverterFactory
+import com.huanchengfly.tieba.core.network.retrofit.adapter.DeferredCallAdapterFactory
+import com.huanchengfly.tieba.core.network.retrofit.adapter.FlowCallAdapterFactory
+import com.huanchengfly.tieba.core.network.retrofit.NullOnEmptyConverterFactory
+import com.huanchengfly.tieba.core.network.retrofit.converter.gson.GsonConverterFactory
+import com.huanchengfly.tieba.core.network.retrofit.converter.kotlinx.serialization.asConverterFactory
 import com.huanchengfly.tieba.core.network.retrofit.interceptors.ConnectivityInterceptor
 import com.huanchengfly.tieba.core.network.retrofit.interceptors.ProtoFailureResponseInterceptor
 import com.huanchengfly.tieba.core.network.retrofit.interceptors.FailureResponseInterceptor
@@ -37,10 +38,10 @@ import com.huanchengfly.tieba.post.api.resolveDeviceInfo
 import android.util.Base64
 import com.google.gson.Gson
 import com.huanchengfly.tieba.core.network.retrofit.RetrofitClientFactory
+import com.huanchengfly.tieba.core.network.retrofit.RetrofitClients
 import kotlinx.serialization.json.Json
 import okhttp3.ConnectionPool
 import okhttp3.Interceptor
-import retrofit2.Retrofit
 import retrofit2.converter.wire.WireConverterFactory
 import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
@@ -66,8 +67,68 @@ object RetrofitTiebaApi {
     internal val randomClientId = "wappc_${initTime}_${(Math.random() * 1000).roundToInt()}"
     private val stParamInterceptor = StParamInterceptor()
     private val connectionPool = ConnectionPool(32, 5, TimeUnit.MINUTES)
-    private val retrofitClientFactory = RetrofitClientFactory()
+    private val retrofitClients = RetrofitClients(RetrofitClientFactory())
     private val gson = Gson()
+    private val json = Json {
+        isLenient = true
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
+    private val gsonConverterFactory = GsonConverterFactory.create()
+    private val jsonBuilderConfig = RetrofitClients.BuilderConfig(
+        callAdapterFactories = listOf(
+            DeferredCallAdapterFactory(),
+            FlowCallAdapterFactory.create()
+        ),
+        converterFactories = listOf(
+            NullOnEmptyConverterFactory(),
+            json.asConverterFactory(),
+            gsonConverterFactory
+        )
+    )
+    private val protoBuilderConfig = RetrofitClients.BuilderConfig(
+        callAdapterFactories = listOf(
+            DeferredCallAdapterFactory(),
+            FlowCallAdapterFactory.create()
+        ),
+        converterFactories = listOf(
+            NullOnEmptyConverterFactory(),
+            WireConverterFactory.create()
+        )
+    )
+    private val jsonClientConfig = RetrofitClients.ClientConfig(
+        readTimeoutSec = READ_TIMEOUT,
+        connectTimeoutSec = CONNECT_TIMEOUT,
+        writeTimeoutSec = WRITE_TIMEOUT,
+        connectionPool = connectionPool,
+        interceptors = listOf(
+            DropInterceptor,
+            FailureResponseInterceptor,
+            ForceLoginInterceptor,
+            SortAndSignInterceptor,
+            ConnectivityInterceptor
+        )
+    )
+    private val protoClientConfig = RetrofitClients.ClientConfig(
+        readTimeoutSec = READ_TIMEOUT,
+        connectTimeoutSec = CONNECT_TIMEOUT,
+        writeTimeoutSec = WRITE_TIMEOUT,
+        connectionPool = connectionPool,
+        interceptors = listOf(
+            DropInterceptor,
+            ProtoFailureResponseInterceptor,
+            ForceLoginInterceptor,
+            CookieInterceptor,
+            SortAndSignInterceptor,
+            ConnectivityInterceptor
+        )
+    )
+    private val sofireClientConfig = RetrofitClients.ClientConfig(
+        readTimeoutSec = READ_TIMEOUT,
+        connectTimeoutSec = CONNECT_TIMEOUT,
+        writeTimeoutSec = WRITE_TIMEOUT,
+        connectionPool = connectionPool
+    )
 
     private fun identity() = ClientIdentityRegistry.current
 
@@ -93,7 +154,6 @@ object RetrofitTiebaApi {
             Header.COOKIE to { "ka=open" },
             Header.PRAGMA to { "no-cache" }
         )
-    private val gsonConverterFactory = GsonConverterFactory.create()
 
     val NEW_TIEBA_API: NewTiebaApi by lazy {
         createJsonApi<NewTiebaApi>(
@@ -362,103 +422,31 @@ object RetrofitTiebaApi {
         )
     }
 
-    private val json = Json {
-        isLenient = true
-        ignoreUnknownKeys = true
-        coerceInputValues = true
-    }
-
     val SOFIRE_API: SofireApi by lazy {
-        val client = retrofitClientFactory.createOkHttpClient(
-            RetrofitClientFactory.OkHttpConfig(
-                readTimeoutSec = READ_TIMEOUT,
-                connectTimeoutSec = CONNECT_TIMEOUT,
-                writeTimeoutSec = WRITE_TIMEOUT,
-                connectionPool = connectionPool
-            )
+        retrofitClients.createService(
+            baseUrl = "https://sofire.baidu.com/",
+            builderConfig = jsonBuilderConfig,
+            clientConfig = sofireClientConfig
         )
-        retrofitClientFactory
-            .createRetrofit(
-                baseUrl = "https://sofire.baidu.com/",
-                okHttpClient = client,
-                builder = jsonRetrofitBuilder()
-            )
-            .create(SofireApi::class.java)
     }
 
     private inline fun <reified T : Any> createJsonApi(
         baseUrl: String,
         vararg interceptors: Interceptor
-    ): T {
-        val client = createJsonOkHttpClient(interceptors.toList())
-        return retrofitClientFactory
-            .createRetrofit(
-                baseUrl = baseUrl,
-                okHttpClient = client,
-                builder = jsonRetrofitBuilder()
-            )
-            .create(T::class.java)
-    }
+    ): T = retrofitClients.createService(
+        baseUrl = baseUrl,
+        builderConfig = jsonBuilderConfig,
+        clientConfig = jsonClientConfig,
+        extraInterceptors = interceptors.toList()
+    )
 
     private inline fun <reified T : Any> createProtobufApi(
         baseUrl: String,
         vararg interceptors: Interceptor
-    ): T {
-        val client = createProtobufOkHttpClient(interceptors.toList())
-        return retrofitClientFactory
-            .createRetrofit(
-                baseUrl = baseUrl,
-                okHttpClient = client,
-                builder = protoRetrofitBuilder()
-            )
-            .create(T::class.java)
-    }
-
-    private fun jsonRetrofitBuilder(): Retrofit.Builder = Retrofit.Builder()
-        .addCallAdapterFactory(DeferredCallAdapterFactory())
-        .addCallAdapterFactory(FlowCallAdapterFactory.create())
-        .addConverterFactory(NullOnEmptyConverterFactory())
-        .addConverterFactory(json.asConverterFactory())
-        .addConverterFactory(gsonConverterFactory)
-
-    private fun protoRetrofitBuilder(): Retrofit.Builder = Retrofit.Builder()
-        .addCallAdapterFactory(DeferredCallAdapterFactory())
-        .addCallAdapterFactory(FlowCallAdapterFactory.create())
-        .addConverterFactory(NullOnEmptyConverterFactory())
-        .addConverterFactory(WireConverterFactory.create())
-
-    private fun createJsonOkHttpClient(extraInterceptors: List<Interceptor>) =
-        retrofitClientFactory.createOkHttpClient(
-            RetrofitClientFactory.OkHttpConfig(
-                readTimeoutSec = READ_TIMEOUT,
-                connectTimeoutSec = CONNECT_TIMEOUT,
-                writeTimeoutSec = WRITE_TIMEOUT,
-                connectionPool = connectionPool,
-                interceptors = extraInterceptors + listOf(
-                    DropInterceptor,
-                    FailureResponseInterceptor,
-                    ForceLoginInterceptor,
-                    SortAndSignInterceptor,
-                    ConnectivityInterceptor
-                )
-            )
-        )
-
-    private fun createProtobufOkHttpClient(extraInterceptors: List<Interceptor>) =
-        retrofitClientFactory.createOkHttpClient(
-            RetrofitClientFactory.OkHttpConfig(
-                readTimeoutSec = READ_TIMEOUT,
-                connectTimeoutSec = CONNECT_TIMEOUT,
-                writeTimeoutSec = WRITE_TIMEOUT,
-                connectionPool = connectionPool,
-                interceptors = extraInterceptors + listOf(
-                    DropInterceptor,
-                    ProtoFailureResponseInterceptor,
-                    ForceLoginInterceptor,
-                    CookieInterceptor,
-                    SortAndSignInterceptor,
-                    ConnectivityInterceptor
-                )
-            )
-        )
+    ): T = retrofitClients.createService(
+        baseUrl = baseUrl,
+        builderConfig = protoBuilderConfig,
+        clientConfig = protoClientConfig,
+        extraInterceptors = interceptors.toList()
+    )
 }

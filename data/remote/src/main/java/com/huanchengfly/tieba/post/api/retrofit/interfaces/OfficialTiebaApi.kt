@@ -10,7 +10,7 @@ import com.huanchengfly.tieba.post.api.getScreenHeight
 import com.huanchengfly.tieba.post.api.getScreenWidth
 import com.huanchengfly.tieba.post.api.models.*
 import com.huanchengfly.tieba.core.network.model.CommonResponse
-import com.huanchengfly.tieba.post.api.retrofit.ApiResult
+import com.huanchengfly.tieba.core.network.retrofit.ApiResult
 import com.huanchengfly.tieba.core.network.http.multipart.MyMultipartBody
 import com.huanchengfly.tieba.core.network.identity.ClientIdentityRegistry
 import com.huanchengfly.tieba.post.api.resolveDeviceInfo

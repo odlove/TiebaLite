@@ -5,7 +5,7 @@ import com.huanchengfly.tieba.core.network.model.CommonResponse
 import com.huanchengfly.tieba.post.api.models.MessageListBean
 import com.huanchengfly.tieba.post.api.models.MsgBean
 import com.huanchengfly.tieba.post.api.models.ThreadStoreBean
-import com.huanchengfly.tieba.post.api.retrofit.ApiResult
+import com.huanchengfly.tieba.core.network.retrofit.ApiResult
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Call

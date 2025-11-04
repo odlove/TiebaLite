@@ -98,8 +98,8 @@ import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.booleanToString
 import com.huanchengfly.tieba.post.api.models.protos.Post
-import com.huanchengfly.tieba.post.api.retrofit.doIfFailure
-import com.huanchengfly.tieba.post.api.retrofit.doIfSuccess
+import com.huanchengfly.tieba.core.network.retrofit.doIfFailure
+import com.huanchengfly.tieba.core.network.retrofit.doIfSuccess
 import com.huanchengfly.tieba.post.components.dialogs.LoadingDialog
 import com.huanchengfly.tieba.post.ui.page.destinations.WebViewPageDestination
 import com.huanchengfly.tieba.post.api.models.protos.SimpleForum

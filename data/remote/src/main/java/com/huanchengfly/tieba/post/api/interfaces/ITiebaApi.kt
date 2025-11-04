@@ -28,7 +28,7 @@ import com.huanchengfly.tieba.post.api.models.protos.userPost.UserPostResponse
 import com.huanchengfly.tieba.post.api.models.web.ForumBean
 import com.huanchengfly.tieba.post.api.models.web.ForumHome
 import com.huanchengfly.tieba.post.api.models.web.HotMessageListBean
-import com.huanchengfly.tieba.post.api.retrofit.ApiResult
+import com.huanchengfly.tieba.core.network.retrofit.ApiResult
 import com.huanchengfly.tieba.post.models.DislikeBean
 import com.huanchengfly.tieba.post.models.MyInfoBean
 import kotlinx.coroutines.Deferred

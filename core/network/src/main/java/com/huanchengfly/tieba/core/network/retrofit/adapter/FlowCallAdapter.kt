@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.api.retrofit.adapter
+package com.huanchengfly.tieba.core.network.retrofit.adapter
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -33,11 +33,12 @@ class ResponseCallAdapter<T>(
         }
     }
 
-    override fun responseType() = responseType
+    override fun responseType(): Type = responseType
 }
 
-
-class BodyCallAdapter<T>(private val responseType: Type) : CallAdapter<T, Flow<T>> {
+class BodyCallAdapter<T>(
+    private val responseType: Type
+) : CallAdapter<T, Flow<T>> {
     override fun adapt(call: Call<T>): Flow<T> {
         return flow {
             emit(
@@ -52,9 +53,7 @@ class BodyCallAdapter<T>(private val responseType: Type) : CallAdapter<T, Flow<T
                             if (body != null) {
                                 continuation.resume(body)
                             } else {
-                                continuation.resumeWithException(
-                                    IllegalStateException("Response body is null")
-                                )
+                                continuation.resumeWithException(IllegalStateException("Response body is null"))
                             }
                         }
                     })
@@ -64,5 +63,5 @@ class BodyCallAdapter<T>(private val responseType: Type) : CallAdapter<T, Flow<T
         }
     }
 
-    override fun responseType() = responseType
+    override fun responseType(): Type = responseType
 }

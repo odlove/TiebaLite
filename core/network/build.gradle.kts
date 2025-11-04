@@ -45,5 +45,7 @@ dependencies {
     api(libs.retrofit2.converter.wire)
     api(libs.wire.runtime)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.google.gson)
+    implementation(libs.javax.inject)
 }

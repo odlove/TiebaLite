@@ -8,7 +8,7 @@ import com.huanchengfly.tieba.post.api.getScreenHeight
 import com.huanchengfly.tieba.post.api.getScreenWidth
 import com.huanchengfly.tieba.post.api.models.*
 import com.huanchengfly.tieba.core.network.model.CommonResponse
-import com.huanchengfly.tieba.post.api.retrofit.ApiResult
+import com.huanchengfly.tieba.core.network.retrofit.ApiResult
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Call

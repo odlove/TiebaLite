@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.api.retrofit.converter.kotlinx.serialization
+package com.huanchengfly.tieba.core.network.retrofit.converter.kotlinx.serialization
 
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer

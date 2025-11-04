@@ -1,6 +1,6 @@
-@file:OptIn(ExperimentalSerializationApi::class)
+@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 
-package com.huanchengfly.tieba.post.api.retrofit.converter.kotlinx.serialization
+package com.huanchengfly.tieba.core.network.retrofit.converter.kotlinx.serialization
 
 import android.util.Log
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -13,7 +13,7 @@ import java.lang.reflect.Type
 internal class Factory(
     private val serializer: Serializer,
 ) : Converter.Factory() {
-    @Suppress("RedundantNullableReturnType") // Retaining interface contract.
+    @Suppress("RedundantNullableReturnType")
     override fun responseBodyConverter(
         type: Type,
         annotations: Array<out Annotation>,

@@ -264,8 +264,8 @@
 -keep,allowobfuscation,allowshrinking class kotlinx.coroutines.Deferred
 -keep,allowobfuscation,allowshrinking class * extends kotlinx.coroutines.Deferred
 
--keep,allowobfuscation,allowshrinking class com.huanchengfly.tieba.post.api.retrofit.ApiResult
--keep,allowobfuscation,allowshrinking class * extends com.huanchengfly.tieba.post.api.retrofit.ApiResult
+-keep,allowobfuscation,allowshrinking class com.huanchengfly.tieba.core.network.retrofit.ApiResult
+-keep,allowobfuscation,allowshrinking class * extends com.huanchengfly.tieba.core.network.retrofit.ApiResult
 
 -keep,allowobfuscation,allowshrinking interface retrofit2.Call
 -keep,allowobfuscation,allowshrinking class retrofit2.Response

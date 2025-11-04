@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.api.retrofit
+package com.huanchengfly.tieba.core.network.retrofit
 
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -6,7 +6,6 @@ import kotlinx.coroutines.withContext
 
 sealed interface ApiResult<Data> {
     data class Success<Data>(val data: Data) : ApiResult<Data>
-
     data class Failure<Data>(val error: Throwable) : ApiResult<Data>
 }
 
@@ -24,9 +23,7 @@ suspend fun <Data> ApiResult<Data>.doIfSuccess(action: suspend (Data) -> Unit): 
 
 suspend fun <Data> ApiResult<Data>.doIfFailure(action: (Throwable) -> Unit): ApiResult<Data> {
     if (this is ApiResult.Failure) {
-        withContext(Dispatchers.Main) {
-            action(error)
-        }
+        withContext(Dispatchers.Main) { action(error) }
     }
     return this
 }
@@ -39,25 +36,22 @@ suspend fun <Data, GetData> ApiResult<Data>.fetchIfSuccess(fetcher: suspend (Dat
             ApiResult.Failure(e)
         }
     } else {
+        @Suppress("UNCHECKED_CAST")
         ApiResult.Failure((this as ApiResult.Failure).error)
     }
 }
 
 suspend fun <Data> Deferred<ApiResult<Data>>.getData(): Data {
-    val apiResult = await()
-    if (apiResult is ApiResult.Success) {
-        return apiResult.data
-    } else {
-        throw (apiResult as ApiResult.Failure).error
+    return when (val apiResult = await()) {
+        is ApiResult.Success -> apiResult.data
+        is ApiResult.Failure -> throw apiResult.error
     }
 }
 
 suspend fun <Data> Deferred<ApiResult<Data>>.doIfSuccess(action: suspend (Data) -> Unit): ApiResult<Data> {
     val apiResult = await()
     if (apiResult is ApiResult.Success) {
-        withContext(Dispatchers.Main) {
-            action(apiResult.data)
-        }
+        withContext(Dispatchers.Main) { action(apiResult.data) }
     }
     return apiResult
 }
@@ -65,9 +59,7 @@ suspend fun <Data> Deferred<ApiResult<Data>>.doIfSuccess(action: suspend (Data) 
 suspend fun <Data> Deferred<ApiResult<Data>>.doIfFailure(action: (Throwable) -> Unit): ApiResult<Data> {
     val apiResult = await()
     if (apiResult is ApiResult.Failure) {
-        withContext(Dispatchers.Main) {
-            action(apiResult.error)
-        }
+        withContext(Dispatchers.Main) { action(apiResult.error) }
     }
     return apiResult
 }

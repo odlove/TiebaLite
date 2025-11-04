@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.api.retrofit.adapter
+package com.huanchengfly.tieba.core.network.retrofit.adapter
 
 import kotlinx.coroutines.flow.Flow
 import retrofit2.CallAdapter
@@ -21,12 +21,7 @@ class FlowCallAdapterFactory private constructor() : CallAdapter.Factory() {
         val rawFlowType = getRawType(responseType)
         return if (rawFlowType == Response::class.java) {
             check(responseType is ParameterizedType) { "Response must be parameterized as Response<Foo> or Response<out Foo>" }
-            ResponseCallAdapter<Any>(
-                getParameterUpperBound(
-                    0,
-                    responseType
-                )
-            )
+            ResponseCallAdapter<Any>(getParameterUpperBound(0, responseType))
         } else {
             BodyCallAdapter<Any>(responseType)
         }

@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.api.retrofit.converter.gson;
+package com.huanchengfly.tieba.core.network.retrofit.converter.gson;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;

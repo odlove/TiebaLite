@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.api.retrofit.interfaces
 
-import com.huanchengfly.tieba.post.api.retrofit.ApiResult
+import com.huanchengfly.tieba.core.network.retrofit.ApiResult
 import kotlinx.coroutines.Deferred
 import okhttp3.ResponseBody
 import retrofit2.http.GET

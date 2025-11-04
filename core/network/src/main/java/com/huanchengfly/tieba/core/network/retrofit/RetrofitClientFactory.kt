@@ -5,8 +5,9 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class RetrofitClientFactory {
+class RetrofitClientFactory @Inject constructor() {
     data class OkHttpConfig(
         val readTimeoutSec: Long = 60,
         val connectTimeoutSec: Long = 60,

@@ -76,8 +76,9 @@ import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.post.ui.common.theme.compose.pullRefreshIndicator
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.LoginPageDestination
@@ -117,11 +118,13 @@ private fun getGridCells(context: Context, listSingle: Boolean = context.appPref
 @Preview("SearchBoxPreview")
 @Composable
 fun SearchBoxPreview() {
-    SearchBox(
-        backgroundColor = Color(0xFFF8F8F8),
-        contentColor = Color(0xFFBFBFBF),
-        onClick =  {}
-    )
+    PreviewTheme {
+        SearchBox(
+            backgroundColor = Color(0xFFF8F8F8),
+            contentColor = Color(0xFFBFBFBF),
+            onClick =  {}
+        )
+    }
 }
 
 @Composable

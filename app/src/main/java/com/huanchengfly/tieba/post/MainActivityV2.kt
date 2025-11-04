@@ -83,8 +83,8 @@ import com.huanchengfly.tieba.post.components.ClipBoardLink
 import com.huanchengfly.tieba.post.components.ClipBoardLinkDetector
 import com.huanchengfly.tieba.post.components.ClipBoardThreadLink
 import com.huanchengfly.tieba.post.services.NotifyJobService
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.post.ui.common.theme.compose.THEME_DIAGNOSTICS_TAG
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
 import com.huanchengfly.tieba.post.ui.page.NavGraphs
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination

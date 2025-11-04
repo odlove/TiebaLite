@@ -62,9 +62,9 @@ import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.models.database.SearchPostHistory
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
-import com.huanchengfly.tieba.post.ui.common.theme.compose.pullRefreshIndicator
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.SubPostsPageDestination

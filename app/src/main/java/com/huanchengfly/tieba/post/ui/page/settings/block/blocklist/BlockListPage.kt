@@ -48,7 +48,7 @@ import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.models.database.Block
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.page.main.BottomNavigationDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.LongClickMenu

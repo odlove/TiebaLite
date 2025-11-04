@@ -9,7 +9,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.huanchengfly.tieba.core.ui.compose.ListMenuItem as CoreListMenuItem
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 
 @Composable
 fun ListMenuItem(

@@ -16,7 +16,7 @@ import com.huanchengfly.tieba.core.ui.compose.CoreCounterTextField
 import com.huanchengfly.tieba.core.ui.compose.CoreCounterTextFieldColors
 import com.huanchengfly.tieba.core.ui.compose.CoreTextFieldColors
 import com.huanchengfly.tieba.core.ui.compose.CoreTextFieldDefaults
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 
 @Composable
 fun BaseTextField(

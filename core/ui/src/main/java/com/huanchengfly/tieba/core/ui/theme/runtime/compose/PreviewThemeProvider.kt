@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.common.theme.compose
+package com.huanchengfly.tieba.core.ui.theme.runtime.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -12,7 +12,7 @@ import com.huanchengfly.tieba.core.ui.theme.ThemeState
 import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.core.ui.theme.ThemeType
 import com.huanchengfly.tieba.core.ui.theme.TranslucentThemeConfig
-import com.huanchengfly.tieba.post.ui.common.theme.ThemePaletteProvider
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemePaletteProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 

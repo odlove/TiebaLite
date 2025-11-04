@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.eygraber.compose.placeholder.PlaceholderHighlight
 import com.eygraber.compose.placeholder.material.fade
 import com.eygraber.compose.placeholder.material.placeholder
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 
 @Composable
 fun UserHeaderPlaceholder(

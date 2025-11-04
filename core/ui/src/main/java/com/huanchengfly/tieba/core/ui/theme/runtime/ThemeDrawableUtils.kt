@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.common.theme
+package com.huanchengfly.tieba.core.ui.theme.runtime
 
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable

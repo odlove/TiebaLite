@@ -23,10 +23,10 @@ import com.huanchengfly.tieba.core.ui.CommonUiEventHandler
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.ui.windowsizeclass.calculateWindowSizeClass
 import com.huanchengfly.tieba.post.activities.BaseActivity
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ApplySystemBars
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ApplySystemBars
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ProvideThemeController
-import com.huanchengfly.tieba.post.ui.common.theme.compose.TiebaLiteTheme
-import com.huanchengfly.tieba.post.ui.common.theme.compose.THEME_DIAGNOSTICS_TAG
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccountProvider
 import javax.inject.Inject
 import java.util.concurrent.atomic.AtomicInteger

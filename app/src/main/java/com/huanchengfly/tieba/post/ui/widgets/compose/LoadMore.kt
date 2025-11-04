@@ -10,8 +10,8 @@ import com.huanchengfly.tieba.core.ui.compose.LoadMoreIndicatorDefaults
 import com.huanchengfly.tieba.core.ui.compose.LoadMoreIndicatorTexts
 import com.huanchengfly.tieba.core.ui.compose.LoadMoreLayout as CoreLoadMoreLayout
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.post.ui.common.theme.compose.loadMoreIndicator
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.loadMoreIndicator
 
 @Composable
 fun LoadMoreLayout(

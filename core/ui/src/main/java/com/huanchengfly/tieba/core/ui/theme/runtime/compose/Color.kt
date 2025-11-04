@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.common.theme.compose
+package com.huanchengfly.tieba.core.ui.theme.runtime.compose
 
 import androidx.compose.ui.graphics.Color
 

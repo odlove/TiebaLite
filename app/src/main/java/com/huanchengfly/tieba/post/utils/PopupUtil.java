@@ -13,8 +13,8 @@ import androidx.appcompat.widget.PopupMenu;
 
 import com.huanchengfly.tieba.post.R;
 import com.huanchengfly.tieba.post.di.entrypoints.ThemeControllerEntryPoint;
-import com.huanchengfly.tieba.post.ui.common.theme.ThemeBridge;
-import com.huanchengfly.tieba.post.ui.common.theme.ThemeDrawableUtils;
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeBridge;
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeDrawableUtils;
 
 import dagger.hilt.android.EntryPointAccessors;
 

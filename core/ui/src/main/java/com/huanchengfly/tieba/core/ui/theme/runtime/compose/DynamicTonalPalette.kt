@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.common.theme.compose
+package com.huanchengfly.tieba.core.ui.theme.runtime.compose
 
 import android.content.Context
 import androidx.annotation.ColorRes
@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.Color
 
 /** Dynamic colors in Material. */
 @RequiresApi(31)
-internal fun dynamicTonalPalette(context: Context): TonalPalette = TonalPalette(
+fun dynamicTonalPalette(context: Context): TonalPalette = TonalPalette(
     // The neutral tonal range from the generated dynamic color palette.
     neutral100 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_0),
     neutral99 = ColorResourceHelper.getColor(context, android.R.color.system_neutral1_10),

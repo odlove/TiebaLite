@@ -1,9 +1,9 @@
-package com.huanchengfly.tieba.post.ui.common.theme
+package com.huanchengfly.tieba.core.ui.theme.runtime
 
 import androidx.annotation.ColorRes
+import com.huanchengfly.tieba.core.ui.R
 import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.core.ui.theme.ThemeType
-import com.huanchengfly.tieba.post.R
 
 internal data class PaletteColorSet(
     @ColorRes val primary: Int,

@@ -11,7 +11,7 @@ import androidx.appcompat.widget.AlertDialogLayout;
 import com.huanchengfly.tieba.post.R;
 import com.huanchengfly.tieba.core.ui.theme.Tintable;
 import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver;
-import com.huanchengfly.tieba.post.ui.common.theme.ThemeDrawableUtils;
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeDrawableUtils;
 
 @SuppressLint("RestrictedApi")
 public class TintAlertDialogLayout extends AlertDialogLayout implements Tintable {

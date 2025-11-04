@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.di
 
 import com.huanchengfly.tieba.core.ui.theme.ThemeController
-import com.huanchengfly.tieba.post.ui.common.theme.AppThemeController
+import com.huanchengfly.tieba.core.ui.theme.runtime.AppThemeController
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

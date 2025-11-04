@@ -1,8 +1,11 @@
-package com.huanchengfly.tieba.post.data.theme
+package com.huanchengfly.tieba.core.ui.theme.preferences
 
 import kotlinx.coroutines.flow.Flow
 
-interface ThemeRepository {
+/**
+ * 面向主题系统的偏好访问接口，仅暴露主题相关的字段与 Flow。
+ */
+interface ThemePreferencesDataSource {
     val themeFlow: Flow<String>
     val dynamicThemeFlow: Flow<Boolean>
 

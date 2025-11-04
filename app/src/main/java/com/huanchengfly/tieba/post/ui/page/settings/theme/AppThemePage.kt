@@ -72,11 +72,11 @@ import com.huanchengfly.tieba.post.activities.TranslucentThemeActivity
 import com.huanchengfly.tieba.post.components.dialogs.CustomThemeDialog
 import com.huanchengfly.tieba.post.goToActivity
 import com.huanchengfly.tieba.post.rememberPreferenceAsMutableState
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.post.ui.common.theme.compose.LocalThemeController
-import com.huanchengfly.tieba.post.ui.common.theme.compose.LocalThemeState
-import com.huanchengfly.tieba.post.ui.common.theme.compose.rememberThemePalette
-import com.huanchengfly.tieba.post.ui.common.theme.compose.dynamicTonalPalette
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.LocalThemeController
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.LocalThemeState
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.rememberThemePalette
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dynamicTonalPalette
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.Dialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.DialogNegativeButton

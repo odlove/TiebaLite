@@ -51,7 +51,7 @@ import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.post.goToActivity
 import com.huanchengfly.tieba.post.models.PhotoViewData
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.post.ui.page.photoview.PhotoViewActivity
 import com.huanchengfly.tieba.post.ui.page.photoview.PhotoViewActivity.Companion.EXTRA_PHOTO_VIEW_DATA

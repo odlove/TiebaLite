@@ -1,5 +1,6 @@
-package com.huanchengfly.tieba.post.ui.common.theme.compose
+package com.huanchengfly.tieba.core.ui.theme.runtime.compose
 
+import android.graphics.Color as AndroidColor
 import android.util.Log
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
@@ -12,11 +13,11 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import com.huanchengfly.tieba.core.ui.theme.ThemeState
 import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
-import com.huanchengfly.tieba.post.utils.compose.darken
 
-internal const val THEME_DIAGNOSTICS_TAG = "ThemeDiagnostics"
+const val THEME_DIAGNOSTICS_TAG = "ThemeDiagnostics"
 
 @Stable
 data class ExtendedColors(
@@ -93,6 +94,15 @@ fun getColorPalette(
     }
 }
 
+private fun Color.darken(amount: Float = 0.1f): Color {
+    val hsv = FloatArray(3)
+    AndroidColor.colorToHSV(this.toArgb(), hsv)
+    hsv[2] = (hsv[2] * (1f - amount)).coerceIn(0f, 1f)
+    val alphaInt = (this.alpha * 255).toInt().coerceIn(0, 255)
+    val argb = AndroidColor.HSVToColor(alphaInt, hsv)
+    return Color(argb)
+}
+
 private fun ThemeState.toExtendedColors(): ExtendedColors {
     val palette = palette
     return ExtendedColors(
@@ -139,7 +149,7 @@ fun TiebaLiteTheme(
     val themeState = LocalThemeState.current
     val extendedColors = remember(themeState) { themeState.toExtendedColors() }
     val isDarkColorPalette = themeState.isNightMode ||
-        (themeState.isTranslucent && themeState.effectiveTheme.contains("light", ignoreCase = true))
+        (themeState.isTranslucent && themeState.effectiveTheme.contains("dark", ignoreCase = true))
 
     SideEffect {
         Log.i(

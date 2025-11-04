@@ -39,8 +39,9 @@ import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.getOrNull
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.post.ui.common.theme.compose.TiebaLiteTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.Chip
@@ -217,7 +218,7 @@ private fun RowScope.StatCardItem(
 @Preview("ForumDetailPage", backgroundColor = 0xFFFFFFFF, showBackground = true)
 @Composable
 fun PreviewForumDetailPage() {
-    TiebaLiteTheme {
+    PreviewTheme {
         ForumDetailContent(
             forumInfo = RecommendForumInfo(
                 forum_name = "minecraft",

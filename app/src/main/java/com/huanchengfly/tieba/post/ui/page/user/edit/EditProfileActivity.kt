@@ -73,10 +73,11 @@ import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.core.common.collectIn
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.post.toastShort
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ApplySystemBars
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ApplySystemBars
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ProvideThemeController
-import com.huanchengfly.tieba.post.ui.common.theme.compose.TiebaLiteTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver
 import com.huanchengfly.tieba.post.ui.widgets.compose.ActionItem
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
@@ -593,27 +594,31 @@ fun PageEditProfile(
 @Preview
 @Composable
 fun EditProfileCardPreview() {
-    EditProfileCard(
-        portrait = "",
-        name = "test",
-        nickName = "test",
-        sex = 1,
-        intro = "test",
-        loading = false,
-        color = Color.White
-    )
+    PreviewTheme {
+        EditProfileCard(
+            portrait = "",
+            name = "test",
+            nickName = "test",
+            sex = 1,
+            intro = "test",
+            loading = false,
+            color = Color.White
+        )
+    }
 }
 
 @Preview
 @Composable
 fun EditProfileCardLoadingPreview() {
-    EditProfileCard(
-        portrait = "",
-        name = "",
-        nickName = "",
-        sex = 0,
-        intro = "",
-        loading = true,
-        color = Color.White
-    )
+    PreviewTheme {
+        EditProfileCard(
+            portrait = "",
+            name = "",
+            nickName = "",
+            sex = 0,
+            intro = "",
+            loading = true,
+            color = Color.White
+        )
+    }
 }

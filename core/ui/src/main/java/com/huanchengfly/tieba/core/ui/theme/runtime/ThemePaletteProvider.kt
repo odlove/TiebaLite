@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.common.theme
+package com.huanchengfly.tieba.core.ui.theme.runtime
 
 import android.content.Context
 import android.graphics.Color
@@ -6,6 +6,8 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import com.huanchengfly.tieba.core.common.ext.getColorCompat
+import com.huanchengfly.tieba.core.ui.R
 import com.huanchengfly.tieba.core.ui.theme.CustomThemeConfig
 import com.huanchengfly.tieba.core.ui.theme.ThemeCatalog
 import com.huanchengfly.tieba.core.ui.theme.ThemePalette
@@ -13,10 +15,8 @@ import com.huanchengfly.tieba.core.ui.theme.ThemeSpec
 import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.core.ui.theme.ThemeType
 import com.huanchengfly.tieba.core.ui.theme.TranslucentThemeConfig
-import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.getColorCompat
-import com.huanchengfly.tieba.post.ui.common.theme.compose.dynamicTonalPalette
-import com.huanchengfly.tieba.post.utils.ColorUtils
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dynamicTonalPalette
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -41,7 +41,7 @@ interface ThemePaletteProvider {
 }
 
 class ThemePaletteProviderImpl @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ) : ThemePaletteProvider {
     private val logTag = "ThemePaletteProvider"
 
@@ -102,15 +102,24 @@ class ThemePaletteProviderImpl @Inject constructor(
         val themeKey = spec.key
         val isNight = spec.isNight
 
-        val topBarColor = if (toolbarPrimary) tonalPalette.primary40 else tonalPalette.neutralVariant99
-        val onTopBar = if (toolbarPrimary) tonalPalette.primary100 else tonalPalette.neutralVariant10
-        val onTopBarSecondary = if (toolbarPrimary) tonalPalette.primary80 else tonalPalette.neutralVariant40
-        val onTopBarActive = if (toolbarPrimary) tonalPalette.primary100 else tonalPalette.neutralVariant0
-        val topBarSurface = if (toolbarPrimary) tonalPalette.primary90 else tonalPalette.neutralVariant95
-        val onTopBarSurface = if (toolbarPrimary) tonalPalette.primary10 else tonalPalette.neutralVariant30
+        val topBarColor = if (toolbarPrimary) tonalPalette.primary40 else if (isNight) tonalPalette.neutralVariant20 else tonalPalette.neutralVariant95
+        val onTopBar = if (toolbarPrimary) tonalPalette.primary100 else if (isNight) tonalPalette.neutralVariant90 else tonalPalette.neutralVariant10
+        val onTopBarSecondary = if (toolbarPrimary) tonalPalette.primary80 else if (isNight) tonalPalette.neutralVariant60 else tonalPalette.neutralVariant40
+        val onTopBarActive = if (toolbarPrimary) tonalPalette.primary100 else if (isNight) tonalPalette.neutralVariant80 else tonalPalette.neutralVariant20
+        val topBarSurface = if (toolbarPrimary) tonalPalette.primary90 else if (isNight) tonalPalette.neutralVariant20 else tonalPalette.neutralVariant95
+        val onTopBarSurface = if (toolbarPrimary) tonalPalette.primary10 else if (isNight) tonalPalette.neutralVariant80 else tonalPalette.neutralVariant10
 
-        val backgroundBase = if (themeKey == ThemeTokens.THEME_AMOLED_DARK) tonalPalette.neutralVariant0 else tonalPalette.neutralVariant10
+        val backgroundBase = when {
+            themeKey == ThemeTokens.THEME_AMOLED_DARK -> tonalPalette.neutralVariant0
+            isNight -> tonalPalette.neutralVariant10
+            else -> tonalPalette.neutralVariant99
+        }
+        val cardBase = if (isNight) tonalPalette.neutralVariant20 else tonalPalette.neutralVariant99
+        val floorCardBase = if (isNight) tonalPalette.neutralVariant20 else tonalPalette.neutralVariant95
+        val chipBase = if (isNight) tonalPalette.neutralVariant20 else tonalPalette.neutralVariant95
         val navBar = if (isNight) tonalPalette.neutralVariant0 else tonalPalette.neutralVariant99
+        val navBarSurface = if (isNight) tonalPalette.neutralVariant10 else tonalPalette.neutralVariant95
+        val onNavBarSurface = if (isNight) tonalPalette.neutralVariant70 else tonalPalette.neutralVariant10
 
         return ThemePalette(
             primary = tonalPalette.primary40.toArgb(),
@@ -119,10 +128,10 @@ class ThemePaletteProviderImpl @Inject constructor(
             onAccent = tonalPalette.secondary90.toArgb(),
             background = backgroundBase.toArgb(),
             windowBackground = backgroundBase.toArgb(),
-            card = tonalPalette.neutralVariant20.toArgb(),
-            floorCard = tonalPalette.neutralVariant20.toArgb(),
-            chip = tonalPalette.neutralVariant20.toArgb(),
-            onChip = tonalPalette.neutralVariant60.toArgb(),
+            card = cardBase.toArgb(),
+            floorCard = floorCardBase.toArgb(),
+            chip = chipBase.toArgb(),
+            onChip = (if (isNight) tonalPalette.neutralVariant80 else tonalPalette.neutralVariant30).toArgb(),
             textPrimary = tonalPalette.neutralVariant90.toArgb(),
             textSecondary = tonalPalette.neutralVariant70.toArgb(),
             textDisabled = tonalPalette.neutralVariant50.toArgb(),
@@ -134,13 +143,13 @@ class ThemePaletteProviderImpl @Inject constructor(
             toolbarSurface = topBarSurface.toArgb(),
             onToolbarSurface = onTopBarSurface.toArgb(),
             navBar = navBar.toArgb(),
-            navBarSurface = tonalPalette.neutralVariant10.toArgb(),
-            onNavBarSurface = tonalPalette.neutralVariant70.toArgb(),
-            unselected = tonalPalette.neutralVariant40.toArgb(),
-            indicator = tonalPalette.neutralVariant20.toArgb(),
-            placeholder = tonalPalette.neutralVariant60.toArgb(),
-            divider = tonalPalette.neutralVariant20.toArgb(),
-            shadow = tonalPalette.neutralVariant20.toArgb()
+            navBarSurface = navBarSurface.toArgb(),
+            onNavBarSurface = onNavBarSurface.toArgb(),
+            unselected = (if (isNight) tonalPalette.neutralVariant60 else tonalPalette.neutralVariant40).toArgb(),
+            indicator = (if (isNight) tonalPalette.neutralVariant30 else tonalPalette.neutralVariant90).toArgb(),
+            placeholder = (if (isNight) tonalPalette.neutralVariant60 else tonalPalette.neutralVariant40).toArgb(),
+            divider = (if (isNight) tonalPalette.neutralVariant30 else tonalPalette.neutralVariant90).toArgb(),
+            shadow = (if (isNight) tonalPalette.neutralVariant30 else tonalPalette.neutralVariant80).toArgb()
         )
     }
 
@@ -398,9 +407,9 @@ class ThemePaletteProviderImpl @Inject constructor(
     ): ThemePalette {
         val primaryColor = config?.primaryColor ?: return palette
         val primaryAlt = if (isNight) {
-            ColorUtils.getDarkerColor(primaryColor, 0.12f)
+            darkenColor(primaryColor, 0.12f)
         } else {
-            ColorUtils.getLighterColor(primaryColor, 0.12f)
+            lightenColor(primaryColor, 0.12f)
         }
         return palette.copy(
             primary = primaryColor,
@@ -408,6 +417,22 @@ class ThemePaletteProviderImpl @Inject constructor(
             accent = primaryColor,
             toolbarItemActive = primaryColor
         )
+    }
+
+    private fun lightenColor(@ColorInt color: Int, factor: Float): Int {
+        val hsv = FloatArray(3)
+        Color.colorToHSV(color, hsv)
+        hsv[1] = (hsv[1] - factor).coerceIn(0f, 1f)
+        hsv[2] = (hsv[2] + factor).coerceIn(0f, 1f)
+        return Color.HSVToColor(Color.alpha(color), hsv)
+    }
+
+    private fun darkenColor(@ColorInt color: Int, factor: Float): Int {
+        val hsv = FloatArray(3)
+        Color.colorToHSV(color, hsv)
+        hsv[1] = (hsv[1] + factor).coerceIn(0f, 1f)
+        hsv[2] = (hsv[2] - factor).coerceIn(0f, 1f)
+        return Color.HSVToColor(Color.alpha(color), hsv)
     }
 
     private fun androidx.compose.ui.graphics.Color.toArgb(): Int = (this.alpha * 255).roundToInt() shl 24 or

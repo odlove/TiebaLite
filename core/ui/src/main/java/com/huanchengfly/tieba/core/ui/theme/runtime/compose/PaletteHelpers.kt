@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.common.theme.compose
+package com.huanchengfly.tieba.core.ui.theme.runtime.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -8,7 +8,7 @@ import com.huanchengfly.tieba.core.ui.theme.ThemeCatalog
 import com.huanchengfly.tieba.core.ui.theme.ThemePalette
 import com.huanchengfly.tieba.core.ui.theme.ThemeSpec
 import com.huanchengfly.tieba.core.ui.theme.TranslucentThemeConfig
-import com.huanchengfly.tieba.post.ui.common.theme.ThemePaletteProvider
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemePaletteProvider
 
 @Composable
 fun rememberThemePaletteProvider(): ThemePaletteProvider {

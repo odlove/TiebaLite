@@ -1,9 +1,9 @@
-package com.huanchengfly.tieba.post.ui.common.theme
+package com.huanchengfly.tieba.core.ui.theme.runtime
 
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorRes
 import com.huanchengfly.tieba.core.ui.theme.ThemePalette
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R
 
 object ThemePaletteMapper {
     fun colorForAttr(palette: ThemePalette, @AttrRes attrId: Int): Int? = when (attrId) {

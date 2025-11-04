@@ -95,7 +95,7 @@ import com.huanchengfly.tieba.post.getInt
 import com.huanchengfly.tieba.post.models.ForumHistoryExtra
 import com.huanchengfly.tieba.post.models.database.History
 import com.huanchengfly.tieba.post.toastShort
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumDetailPageDestination

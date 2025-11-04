@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.di.entrypoints
 
 import com.huanchengfly.tieba.core.ui.theme.ThemeController
-import com.huanchengfly.tieba.post.ui.common.theme.ThemeBridge
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeBridge
 import com.huanchengfly.tieba.post.ui.common.theme.ThemeUiDelegate
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn

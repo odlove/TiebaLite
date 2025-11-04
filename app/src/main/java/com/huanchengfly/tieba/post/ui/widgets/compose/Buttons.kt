@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.core.ui.compose.CommonButton
 import com.huanchengfly.tieba.core.ui.compose.CommonTextButton
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 
 @Composable
 fun Button(

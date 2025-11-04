@@ -32,7 +32,7 @@ import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.SearchPageDestination
 import com.huanchengfly.tieba.post.ui.page.main.explore.concern.ConcernPage

@@ -61,8 +61,8 @@ import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.post.ui.common.theme.compose.pullRefreshIndicator
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.post.ui.models.ThreadItemData
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
 import com.huanchengfly.tieba.post.utils.appPreferences

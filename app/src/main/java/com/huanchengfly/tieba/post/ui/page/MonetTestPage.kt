@@ -14,8 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.huanchengfly.tieba.post.ui.common.theme.compose.TonalPalette
-import com.huanchengfly.tieba.post.ui.common.theme.compose.dynamicTonalPalette
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TonalPalette
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dynamicTonalPalette
 import com.ramcosta.composedestinations.annotation.Destination
 import kotlinx.collections.immutable.toImmutableList
 import kotlin.reflect.full.declaredMemberProperties

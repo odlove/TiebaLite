@@ -26,13 +26,14 @@ import com.huanchengfly.tieba.core.ui.theme.ExtraRefreshable
 import com.huanchengfly.tieba.core.ui.theme.ThemeState
 import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.core.ui.theme.Tintable
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeBridge
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeDrawableUtils
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.post.interfaces.BackgroundTintable
-import com.huanchengfly.tieba.post.ui.common.theme.ThemeDrawableUtils
 import com.huanchengfly.tieba.post.ui.widgets.theme.TintSwipeRefreshLayout
-import com.huanchengfly.tieba.post.ui.common.theme.compose.THEME_DIAGNOSTICS_TAG
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

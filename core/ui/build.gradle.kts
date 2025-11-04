@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose.compiler)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.hilt.android)
 }
 
 android {
@@ -30,6 +32,12 @@ android {
 dependencies {
     implementation(project(":core:mvi"))
     implementation(project(":core:common"))
+    implementation(project(":core:runtime"))
+
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    implementation(libs.javax.inject)
+    implementation(libs.systemuibars.tweaker)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.runtime)

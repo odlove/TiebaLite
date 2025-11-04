@@ -1,12 +1,12 @@
-package com.huanchengfly.tieba.post.ui.common.theme
+package com.huanchengfly.tieba.core.ui.theme.runtime
 
 import android.content.Context
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorRes
+import com.huanchengfly.tieba.core.common.ext.getColorCompat
 import com.huanchengfly.tieba.core.ui.theme.ThemeController
 import com.huanchengfly.tieba.core.ui.theme.ThemePalette
 import com.huanchengfly.tieba.core.ui.theme.ThemeState
-import com.huanchengfly.tieba.post.getColorCompat
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.StateFlow

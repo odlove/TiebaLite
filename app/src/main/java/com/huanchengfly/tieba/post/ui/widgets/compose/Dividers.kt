@@ -7,7 +7,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.core.ui.compose.CommonHorizontalDivider
 import com.huanchengfly.tieba.core.ui.compose.CommonVerticalDivider
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 
 @Composable
 fun HorizontalDivider(

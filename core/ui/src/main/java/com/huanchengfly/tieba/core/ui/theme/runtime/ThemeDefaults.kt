@@ -1,7 +1,7 @@
-package com.huanchengfly.tieba.post.ui.common.theme
+package com.huanchengfly.tieba.core.ui.theme.runtime
 
 import androidx.annotation.AttrRes
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R
 
 internal object ThemeDefaults {
     fun resolveAttr(@AttrRes attrId: Int): Int = when (attrId) {

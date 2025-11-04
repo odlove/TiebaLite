@@ -94,7 +94,7 @@ import com.huanchengfly.tieba.post.models.database.Draft
 import com.huanchengfly.tieba.post.pxToDpFloat
 import com.huanchengfly.tieba.post.toMD5
 import com.huanchengfly.tieba.post.toastShort
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.page.destinations.ReplyPageDestination
 import com.huanchengfly.tieba.post.ui.page.reply.ReplyPanelType.EMOJI
 import com.huanchengfly.tieba.post.ui.page.reply.ReplyPanelType.IMAGE

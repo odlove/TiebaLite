@@ -82,7 +82,8 @@ import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.findActivity
 import com.huanchengfly.tieba.post.goToActivity
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.post.ui.page.photoview.PhotoViewActivity
 import com.huanchengfly.tieba.post.ui.utils.getPhotoViewData
@@ -1025,16 +1026,18 @@ fun VideoPlayer(
 @Preview("FeedCardPreview")
 @Composable
 fun FeedCardPreview() {
-    FeedCard(
-        item = wrapImmutable(
-            ThreadInfo(
-                title = "预览",
-                author = User(),
-                lastTimeInt = (System.currentTimeMillis() / 1000).toInt()
-            )
-        ),
-        onClick = {},
-        onAgree = {},
-        modifier = Modifier.background(ExtendedTheme.colors.card)
-    )
+    PreviewTheme {
+        FeedCard(
+            item = wrapImmutable(
+                ThreadInfo(
+                    title = "预览",
+                    author = User(),
+                    lastTimeInt = (System.currentTimeMillis() / 1000).toInt()
+                )
+            ),
+            onClick = {},
+            onAgree = {},
+            modifier = Modifier.background(ExtendedTheme.colors.card)
+        )
+    }
 }

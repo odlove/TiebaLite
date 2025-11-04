@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.common.theme.compose
+package com.huanchengfly.tieba.core.ui.theme.runtime.compose
 
 import androidx.compose.ui.graphics.Color
 
@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
  * - Secondary (S)
  * - Tertiary (T)
  */
-internal class TonalPalette(
+class TonalPalette(
     // The neutral tonal range from the generated dynamic color palette.
     // Ordered from the lightest shade [neutral100] to the darkest shade [neutral0].
     val neutral100: Color,

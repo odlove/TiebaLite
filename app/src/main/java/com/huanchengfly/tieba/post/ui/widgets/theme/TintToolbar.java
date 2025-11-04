@@ -15,7 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.huanchengfly.tieba.post.R;
 import com.huanchengfly.tieba.core.ui.theme.Tintable;
 import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver;
-import com.huanchengfly.tieba.post.ui.common.theme.ThemeDrawableUtils;
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeDrawableUtils;
 
 public class TintToolbar extends Toolbar implements Tintable {
     public static final String TAG = "TintToolbar";

@@ -34,7 +34,7 @@ import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.rememberPreferenceAsState
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowHeightSizeClass
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
@@ -45,7 +45,7 @@ import com.huanchengfly.tieba.post.ui.page.main.user.UserPage
 import com.huanchengfly.tieba.post.ui.utils.DevicePosture
 import com.huanchengfly.tieba.post.ui.utils.MainNavigationContentPosition
 import com.huanchengfly.tieba.post.ui.utils.MainNavigationType
-import com.huanchengfly.tieba.post.ui.common.theme.compose.THEME_DIAGNOSTICS_TAG
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
 import com.huanchengfly.tieba.core.ui.compose.LazyLoadHorizontalPager
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState

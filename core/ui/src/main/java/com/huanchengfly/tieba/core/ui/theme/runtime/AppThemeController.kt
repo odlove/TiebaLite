@@ -1,12 +1,13 @@
-package com.huanchengfly.tieba.post.ui.common.theme
+package com.huanchengfly.tieba.core.ui.theme.runtime
 
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import android.util.Log
-import androidx.core.content.ContextCompat
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import com.huanchengfly.tieba.core.runtime.di.ApplicationScope
+import com.huanchengfly.tieba.core.common.ext.getColorCompat
+import com.huanchengfly.tieba.core.ui.R
 import com.huanchengfly.tieba.core.ui.theme.CustomThemeConfig
 import com.huanchengfly.tieba.core.ui.theme.ThemeCatalog
 import com.huanchengfly.tieba.core.ui.theme.ThemeController
@@ -16,7 +17,7 @@ import com.huanchengfly.tieba.core.ui.theme.ThemeState
 import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.core.ui.theme.ThemeType
 import com.huanchengfly.tieba.core.ui.theme.TranslucentThemeConfig
-import com.huanchengfly.tieba.post.data.theme.ThemeRepository
+import com.huanchengfly.tieba.core.ui.theme.data.ThemeRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -96,7 +97,9 @@ private val themeStateFlow: StateFlow<ThemeState> = state
     }
 
     private fun createSnapshot(themeKey: String?, useDynamic: Boolean): ThemeSnapshot {
-        val rawKey = themeKey?.takeUnless { it.isBlank() || it.endsWith("_dynamic") }?.removeSuffix("_dynamic")
+        val rawKey = themeKey
+            ?.takeUnless { it.isBlank() }
+            ?.removeSuffix("_dynamic")
             ?: ThemeTokens.THEME_DEFAULT
         val spec = ThemeCatalog.get(rawKey)
         val custom = loadCustomConfig()
@@ -158,8 +161,8 @@ private val themeStateFlow: StateFlow<ThemeState> = state
         val primary = themeRepository.customPrimaryColor?.let { colorHex ->
             runCatching { Color.parseColor(colorHex) }.getOrNull()
         }
-        val fallbackPrimary = ThemeDefaults.resolveAttr(com.huanchengfly.tieba.post.R.attr.colorPrimary)
-        val resolvedPrimary = primary ?: ContextCompat.getColor(context, fallbackPrimary)
+        val fallbackPrimary = ThemeDefaults.resolveAttr(R.attr.colorPrimary)
+        val resolvedPrimary = primary ?: context.getColorCompat(fallbackPrimary)
         return CustomThemeConfig(
             primaryColor = resolvedPrimary,
             toolbarPrimary = themeRepository.toolbarPrimaryColor,

@@ -80,7 +80,7 @@ import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.goToActivity
 import com.huanchengfly.tieba.post.models.database.Block
 import com.huanchengfly.tieba.post.toastShort
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.user.edit.EditProfileActivity

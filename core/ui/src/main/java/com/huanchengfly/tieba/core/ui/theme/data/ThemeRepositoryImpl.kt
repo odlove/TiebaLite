@@ -1,19 +1,17 @@
-package com.huanchengfly.tieba.post.data.theme
+package com.huanchengfly.tieba.core.ui.theme.data
 
-import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
+import com.huanchengfly.tieba.core.ui.theme.preferences.ThemePreferencesDataSource
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Singleton
 class ThemeRepositoryImpl @Inject constructor(
-    private val preferences: AppPreferencesUtils
+    private val preferences: ThemePreferencesDataSource
 ) : ThemeRepository {
 
-    override val themeFlow: Flow<String> = preferences.themeFlow.distinctUntilChanged()
+    override val themeFlow = preferences.themeFlow
 
-    override val dynamicThemeFlow: Flow<Boolean> = preferences.dynamicThemeFlow.distinctUntilChanged()
+    override val dynamicThemeFlow = preferences.dynamicThemeFlow
 
     override var theme: String?
         get() = preferences.theme

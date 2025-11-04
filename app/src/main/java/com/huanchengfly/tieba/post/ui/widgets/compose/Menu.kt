@@ -12,8 +12,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.post.ui.common.theme.compose.menuBackground
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.menuBackground
 
 typealias MenuScope = com.huanchengfly.tieba.core.ui.compose.MenuScope
 typealias MenuState = com.huanchengfly.tieba.core.ui.compose.MenuState

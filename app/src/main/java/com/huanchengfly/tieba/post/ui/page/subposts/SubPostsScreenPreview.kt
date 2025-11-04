@@ -5,7 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.tooling.preview.Preview
 import com.huanchengfly.tieba.post.models.database.Account
-import com.huanchengfly.tieba.post.ui.common.theme.compose.TiebaLiteTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import kotlinx.collections.immutable.persistentListOf
 
@@ -86,7 +87,7 @@ private fun createMockSubPostsCallbacks() =
 @Preview(name = "有账号 - 空状态", showBackground = true)
 @Composable
 private fun SubPostsScreenPreview_EmptyWithAccount() {
-    TiebaLiteTheme {
+    PreviewTheme {
         CompositionLocalProvider(
             LocalAccount provides
                 Account(
@@ -119,7 +120,7 @@ private fun SubPostsScreenPreview_EmptyWithAccount() {
 @Preview(name = "无账号 - 空状态", showBackground = true)
 @Composable
 private fun SubPostsScreenPreview_EmptyWithoutAccount() {
-    TiebaLiteTheme {
+    PreviewTheme {
         CompositionLocalProvider(
             LocalAccount provides null,
         ) {
@@ -145,7 +146,7 @@ private fun SubPostsScreenPreview_EmptyWithoutAccount() {
 @Preview(name = "加载中", showBackground = true)
 @Composable
 private fun SubPostsScreenPreview_Loading() {
-    TiebaLiteTheme {
+    PreviewTheme {
         CompositionLocalProvider(
             LocalAccount provides
                 Account(
@@ -178,7 +179,7 @@ private fun SubPostsScreenPreview_Loading() {
 @Preview(name = "底部弹窗模式", showBackground = true)
 @Composable
 private fun SubPostsScreenPreview_Sheet() {
-    TiebaLiteTheme {
+    PreviewTheme {
         CompositionLocalProvider(
             LocalAccount provides
                 Account(

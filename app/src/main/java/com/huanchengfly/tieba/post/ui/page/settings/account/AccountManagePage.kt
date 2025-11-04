@@ -36,7 +36,7 @@ import com.huanchengfly.tieba.post.ui.common.prefs.PrefsScreen
 import com.huanchengfly.tieba.post.ui.common.prefs.widgets.DropDownPref
 import com.huanchengfly.tieba.post.ui.common.prefs.widgets.EditTextPref
 import com.huanchengfly.tieba.post.ui.common.prefs.widgets.TextPref
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.page.destinations.LoginPageDestination
 import com.huanchengfly.tieba.post.ui.page.settings.LeadingIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.AvatarIcon

@@ -72,9 +72,10 @@ import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.models.database.SearchHistory
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
-import com.huanchengfly.tieba.post.ui.common.theme.compose.TiebaLiteTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.SearchPageDestination
 import com.huanchengfly.tieba.post.ui.page.search.forum.SearchForumPage
@@ -376,7 +377,7 @@ private fun SearchSuggestionList(
 @Preview("SearchSuggestionList", backgroundColor = 0xFFFFFFFF)
 @Composable
 private fun SearchSuggestionListPreview() {
-    TiebaLiteTheme {
+    PreviewTheme {
         Box(
             modifier = Modifier.background(ExtendedTheme.colors.topBar)
         ) {
@@ -631,7 +632,7 @@ fun PreviewSearchBox() {
 @Preview("SearchHistoryList")
 @Composable
 fun PreviewSearchHistoryList() {
-    TiebaLiteTheme {
+    PreviewTheme {
         var expanded by remember { mutableStateOf(false) }
         Box(modifier = Modifier.background(ExtendedTheme.colors.background)) {
             SearchHistoryList(

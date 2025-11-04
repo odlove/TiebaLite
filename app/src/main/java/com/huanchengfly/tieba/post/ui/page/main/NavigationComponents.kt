@@ -51,9 +51,9 @@ import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedColors
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.post.ui.common.theme.compose.White
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedColors
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.White
 import com.huanchengfly.tieba.post.ui.utils.MainNavigationContentPosition
 import com.huanchengfly.tieba.post.ui.widgets.compose.AccountNavIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar

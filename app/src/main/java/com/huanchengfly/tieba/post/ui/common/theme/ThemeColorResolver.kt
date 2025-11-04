@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorRes
 import com.huanchengfly.tieba.core.ui.theme.ThemeState
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeBridge
 import com.huanchengfly.tieba.post.di.entrypoints.ThemeControllerEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 

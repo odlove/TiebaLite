@@ -56,7 +56,7 @@ import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.SearchThreadBean
 import com.huanchengfly.tieba.post.ui.common.PbContentText
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.post.utils.DateTimeUtils

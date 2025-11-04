@@ -104,7 +104,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import com.huanchengfly.tieba.post.utils.ImageUtil
 import com.huanchengfly.tieba.post.utils.TiebaUtil
-import com.huanchengfly.tieba.post.utils.appPreferences
+import com.huanchengfly.tieba.post.preferences.appPreferences
 import kotlinx.collections.immutable.persistentListOf
 
 private fun getGridCells(context: Context, listSingle: Boolean = context.appPreferences.listSingle): GridCells {

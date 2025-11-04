@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.core.ui.theme.preferences
+package com.huanchengfly.tieba.core.common.preferences
 
 import kotlinx.coroutines.flow.Flow
 

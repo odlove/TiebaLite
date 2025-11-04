@@ -25,6 +25,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.gyf.immersionbar.ImmersionBar
+import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
 import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsManager
 import com.huanchengfly.tieba.core.ui.theme.ExtraRefreshable
 import com.huanchengfly.tieba.core.ui.theme.ThemeController
@@ -39,10 +40,9 @@ import com.huanchengfly.tieba.post.di.entrypoints.ScreenMetricsEntryPoint
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeUiDelegate
 import com.huanchengfly.tieba.post.ui.widgets.VoicePlayerView
 import com.huanchengfly.tieba.core.ui.widgets.theme.TintToolbar
-import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
 import com.huanchengfly.tieba.post.utils.DialogUtil
 import com.huanchengfly.tieba.post.utils.HandleBackUtil
-import com.huanchengfly.tieba.post.utils.appPreferences
+import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.utils.calcStatusBarColorInt
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
@@ -65,7 +65,7 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     private var customStatusColor = -1
     private var statusBarTinted = false
 
-    val appPreferences: AppPreferencesUtils by lazy { applicationContext.appPreferences }
+    val appPreferences: AppPreferencesDataSource by lazy { applicationContext.appPreferences }
 
     private val themeRuntimeEntryPoint: ThemeRuntimeEntryPoint by lazy {
         EntryPointAccessors.fromApplication(

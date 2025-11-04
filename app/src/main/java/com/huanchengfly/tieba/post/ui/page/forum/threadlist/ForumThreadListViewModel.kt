@@ -15,6 +15,7 @@ import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
+import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
@@ -22,7 +23,6 @@ import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.ui.models.ThreadItemData
 import com.huanchengfly.tieba.post.ui.models.distinctById
-import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -76,7 +76,7 @@ class LatestThreadListViewModel @Inject constructor(
     private val userInteractionRepository: UserInteractionRepository,
     pbPageRepository: PbPageRepository,
     dispatcherProvider: DispatcherProvider,
-    private val appPreferences: AppPreferencesUtils
+    private val appPreferences: AppPreferencesDataSource
 ) : ForumThreadListViewModel(pbPageRepository, dispatcherProvider) {
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> =
         ForumThreadListPartialChangeProducer(
@@ -95,7 +95,7 @@ class GoodThreadListViewModel @Inject constructor(
     private val userInteractionRepository: UserInteractionRepository,
     pbPageRepository: PbPageRepository,
     dispatcherProvider: DispatcherProvider,
-    private val appPreferences: AppPreferencesUtils
+    private val appPreferences: AppPreferencesDataSource
 ) : ForumThreadListViewModel(pbPageRepository, dispatcherProvider) {
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> =
         ForumThreadListPartialChangeProducer(
@@ -112,7 +112,7 @@ private class ForumThreadListPartialChangeProducer(
     private val userInteractionRepository: UserInteractionRepository,
     private val pbPageRepository: PbPageRepository,
     val type: ForumThreadListType,
-    private val appPreferences: AppPreferencesUtils
+    private val appPreferences: AppPreferencesDataSource
 ) :
     PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> {
     @OptIn(ExperimentalCoroutinesApi::class)

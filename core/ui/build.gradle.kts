@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.appcompat)
     implementation(libs.google.material)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.sketch.core)
     implementation(libs.sketch.compose)
     implementation(libs.sketch.ext.compose)

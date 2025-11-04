@@ -1,13 +1,13 @@
 package com.huanchengfly.tieba.post.theme.preferences
 
-import com.huanchengfly.tieba.core.ui.theme.preferences.ThemePreferencesDataSource
-import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
+import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
+import com.huanchengfly.tieba.core.common.preferences.ThemePreferencesDataSource
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ThemePreferencesDataSourceImpl @Inject constructor(
-    private val appPreferences: AppPreferencesUtils
+    private val appPreferences: AppPreferencesDataSource
 ) : ThemePreferencesDataSource {
 
     override val themeFlow = appPreferences.themeFlow

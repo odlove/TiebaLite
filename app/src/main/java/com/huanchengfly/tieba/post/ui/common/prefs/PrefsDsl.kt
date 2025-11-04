@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.booleanPreferencesKey
-import com.huanchengfly.tieba.post.collectPreferenceAsState
+import com.huanchengfly.tieba.core.ui.preferences.collectPreferenceAsState
 
 /**
  * Receiver scope which is used by [PrefsScreen].

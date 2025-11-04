@@ -34,6 +34,7 @@ import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.core.ui.theme.ColorStateListUtils
 import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
+import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.WebViewPageDestination
 import com.huanchengfly.tieba.post.utils.Util.createSnackbar

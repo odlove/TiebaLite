@@ -33,6 +33,7 @@ dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.google.gson)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.kotlinx.collections.immutable)
 
     // DI
     implementation(libs.hilt.android)

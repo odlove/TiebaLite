@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.di
 
-import com.huanchengfly.tieba.core.ui.theme.preferences.ThemePreferencesDataSource
+import com.huanchengfly.tieba.core.common.preferences.ThemePreferencesDataSource
 import com.huanchengfly.tieba.post.theme.preferences.ThemePreferencesDataSourceImpl
 import dagger.Binds
 import dagger.Module

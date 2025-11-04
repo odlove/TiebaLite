@@ -11,9 +11,9 @@ import com.huanchengfly.tieba.core.network.http.multipart.buildMultipartBody
 import com.huanchengfly.tieba.core.network.exception.TiebaException
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
 import com.huanchengfly.tieba.post.utils.ImageUtil
 import com.huanchengfly.tieba.post.utils.MD5Util
-import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -32,7 +32,7 @@ import java.io.RandomAccessFile
 
 class ImageUploader(
     private val forumName: String,
-    private val appPreferences: AppPreferencesUtils,
+    private val appPreferences: AppPreferencesDataSource,
     private val chunkSize: Int = DEFAULT_CHUNK_SIZE
 ) {
     companion object {

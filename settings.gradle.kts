@@ -43,5 +43,6 @@ include(
     ":core:runtime",
     ":core:ui",
     ":data:remote",
-    ":data:repository"
+    ":data:repository",
+    ":data:local"
 )

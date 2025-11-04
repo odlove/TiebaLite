@@ -1,11 +1,11 @@
 package com.huanchengfly.tieba.post.ui.page.reply
 
+import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
 import com.huanchengfly.tieba.post.TestFixtures
 import com.huanchengfly.tieba.post.repository.AddPostRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
-import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import com.huanchengfly.tieba.core.common.ResourceProvider
-import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
+import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -44,7 +44,7 @@ class ReplyViewModelTest : BaseViewModelTest() {
     private lateinit var mockGlobalEventBus: GlobalEventBus
     private lateinit var mockResourceProvider: ResourceProvider
     private lateinit var mockContext: android.content.Context
-    private lateinit var mockAppPreferences: AppPreferencesUtils
+    private lateinit var mockAppPreferences: AppPreferencesDataSource
 
     @Before
     override fun setup() {

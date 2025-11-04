@@ -106,7 +106,7 @@ import com.huanchengfly.tieba.post.utils.JobServiceUtil
 import com.huanchengfly.tieba.post.utils.PermissionUtils
 import com.huanchengfly.tieba.post.utils.PickMediasRequest
 import com.huanchengfly.tieba.post.utils.TiebaUtil
-import com.huanchengfly.tieba.post.collectPreferenceAsState
+import com.huanchengfly.tieba.core.ui.preferences.collectPreferenceAsState
 import com.huanchengfly.tieba.post.dataStore
 import com.huanchengfly.tieba.core.ui.activityresult.ActivityResultPayload
 import com.huanchengfly.tieba.core.ui.activityresult.LaunchActivityForResult

@@ -11,6 +11,7 @@ import android.provider.MediaStore
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
+import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
 import com.huanchengfly.tieba.core.mvi.MediaSelectorType
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
@@ -18,8 +19,7 @@ import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
 import com.zhihu.matisse.engine.impl.GlideEngine
 import com.zhihu.matisse.ui.MatisseActivity
-import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
-import com.huanchengfly.tieba.post.utils.appPreferences
+import com.huanchengfly.tieba.post.preferences.appPreferences
 
 fun AppCompatActivity.registerPickMediasLauncher(callback: (PickMediasResult) -> Unit): ActivityResultLauncher<PickMediasRequest> {
     return registerForActivityResult(
@@ -39,7 +39,7 @@ fun isPhotoPickerAvailable(): Boolean {
     }
 }
 
-fun shouldUsePhotoPicker(preferences: AppPreferencesUtils): Boolean {
+fun shouldUsePhotoPicker(preferences: AppPreferencesDataSource): Boolean {
     return !preferences.doNotUsePhotoPicker && isPhotoPickerAvailable()
 }
 
@@ -65,7 +65,7 @@ fun Intent.getClipDataUris(): List<Uri> {
 }
 
 @SuppressLint("NewApi")
-private fun getMaxItems(preferences: AppPreferencesUtils): Int =
+private fun getMaxItems(preferences: AppPreferencesDataSource): Int =
     if (shouldUsePhotoPicker(preferences)) {
         MediaStore.getPickImagesMaxLimit()
     } else {

@@ -1,11 +1,11 @@
 package com.huanchengfly.tieba.post.ui.page.forum.threadlist
 
+import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
 import com.huanchengfly.tieba.post.TestFixtures
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
-import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -33,7 +33,7 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
     private lateinit var mockFrsRepo: FrsPageRepository
     private lateinit var mockUserRepo: UserInteractionRepository
     private lateinit var mockPbPageRepo: PbPageRepository
-    private lateinit var mockAppPreferences: AppPreferencesUtils
+    private lateinit var mockAppPreferences: AppPreferencesDataSource
 
     @Before
     override fun setup() {

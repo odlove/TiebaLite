@@ -214,6 +214,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":data:remote"))
     implementation(project(":data:repository"))
+    implementation(project(":data:local"))
 
     //Local Files
 //    implementation fileTree(include: ["*.jar"], dir: "libs")

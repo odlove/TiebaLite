@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.toArgb
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
 import com.huanchengfly.tieba.post.utils.ColorUtils
-import com.huanchengfly.tieba.post.utils.appPreferences
+import com.huanchengfly.tieba.post.preferences.appPreferences
 
 fun Color.darken(i: Float = 0.1F): Color {
     return Color(ColorUtils.getDarkerColor(toArgb(), i))

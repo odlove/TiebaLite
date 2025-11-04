@@ -3,27 +3,8 @@ package com.huanchengfly.tieba.post.utils
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
-import com.huanchengfly.tieba.post.utils.appPreferences
-import kotlinx.collections.immutable.persistentListOf
-
-
-object LauncherIcons {
-    const val NEW_ICON = "com.huanchengfly.tieba.post.MainActivityV2"
-    const val NEW_ICON_THEMED = "com.huanchengfly.tieba.post.MainActivityIconThemed"
-    const val NEW_ICON_INVERT = "com.huanchengfly.tieba.post.MainActivityIconInvert"
-    const val OLD_ICON = "com.huanchengfly.tieba.post.MainActivityIconOld"
-
-    const val DEFAULT_ICON = NEW_ICON
-
-    val ICONS = persistentListOf(NEW_ICON, NEW_ICON_THEMED, NEW_ICON_INVERT, OLD_ICON)
-
-    val SUPPORT_THEMED_ICON = persistentListOf(NEW_ICON)
-    val THEMED_ICON_MAPPING = mapOf(
-        NEW_ICON to NEW_ICON_THEMED,
-    )
-
-    const val OLD_LAUNCHER_ICON = "com.huanchengfly.tieba.post.activities.MainActivity"
-}
+import com.huanchengfly.tieba.core.common.preferences.LauncherIcons
+import com.huanchengfly.tieba.post.preferences.appPreferences
 
 object AppIconUtil {
     const val PREF_KEY_APP_ICON = "app_icon"

@@ -20,11 +20,11 @@ import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.core.mvi.emitGlobalEventSuspend
+import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
 import com.huanchengfly.tieba.post.components.ImageUploader
 import com.huanchengfly.tieba.post.repository.AddPostRepository
-import com.huanchengfly.tieba.post.utils.FileUtil
 import com.huanchengfly.tieba.core.common.ResourceProvider
-import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
+import com.huanchengfly.tieba.post.utils.FileUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -57,7 +57,7 @@ class ReplyViewModel @Inject constructor(
     dispatcherProvider: DispatcherProvider,
     private val resourceProvider: ResourceProvider,
     @ApplicationContext private val context: android.content.Context,
-    private val appPreferences: AppPreferencesUtils
+    private val appPreferences: AppPreferencesDataSource
 ) :
     BaseViewModel<ReplyUiIntent, ReplyPartialChange, ReplyUiState, ReplyUiEvent>(dispatcherProvider) {
     override fun createInitialState() = ReplyUiState()

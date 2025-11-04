@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.core.ui.theme.data
 
-import com.huanchengfly.tieba.core.ui.theme.preferences.ThemePreferencesDataSource
+import com.huanchengfly.tieba.core.common.preferences.ThemePreferencesDataSource
 import javax.inject.Inject
 import javax.inject.Singleton
 

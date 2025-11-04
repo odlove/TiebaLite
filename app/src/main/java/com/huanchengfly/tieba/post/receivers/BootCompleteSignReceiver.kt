@@ -8,7 +8,7 @@ import android.content.Intent
 import com.huanchengfly.tieba.post.pendingIntentFlagMutable
 import com.huanchengfly.tieba.post.utils.TiebaUtil
 import com.huanchengfly.tieba.post.utils.Util
-import com.huanchengfly.tieba.post.utils.appPreferences
+import com.huanchengfly.tieba.post.preferences.appPreferences
 import java.util.Calendar
 
 class BootCompleteSignReceiver : BroadcastReceiver() {

@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">贴吧 Lite</string>
     <string name="title_notifications">消息</string>
@@ -174,7 +175,6 @@
     <string name="title_settings_default_sort_type">吧默认排序方式</string>
     <string name="toast_load_failed">加载失败</string>
     <string name="toast_forum_info_loading">论坛信息加载中，请稍后再试</string>
-    <string name="button_undo">撤销</string>
     <string name="title_settings_follow_system_night">跟随系统夜间模式</string>
     <string name="title_image_load_type_smart_origin">智能省流量</string>
     <string name="title_image_load_type_smart_load">智能无图</string>
@@ -198,7 +198,7 @@
     <string name="title_translucent_theme_blur">模糊度</string>
     <string name="toast_save_pic_success">设置保存成功</string>
     <string name="title_select_color">强调色</string>
-    <string name="tip_translucent_theme"><![CDATA[<strong>注意：透明主题当前为实验性特性，可能会存在部分界面显示异常问题。</strong><br>开启后打开界面背景短暂变黑是由于正在加载背景图片，属于正常现象。]]></string>
+    <string name="tip_translucent_theme">&lt;strong&gt;注意：透明主题当前为实验性特性，可能会存在部分界面显示异常问题。&lt;/strong&gt;&lt;br&gt;开启后打开界面背景短暂变黑是由于正在加载背景图片，属于正常现象。</string>
     <string name="title_custom_color">自定义</string>
     <string name="toast_sign_failed">签到失败 %s</string>
     <string name="toast_like_failed">关注失败 %s</string>
@@ -288,7 +288,6 @@
     <string name="summary_battery_optimization_old_android_version">旧版 Android 无“电池优化”</string>
     <string name="summary_battery_optimization_ignored">“电池优化”已忽略</string>
     <string name="toast_ignore_battery_optimization_already">已忽略电池优化</string>
-    <string name="button_redo">重做</string>
     <string name="common_permission_calendar">日历</string>
     <string name="common_permission_camera">相机</string>
     <string name="common_permission_contacts">通讯录</string>

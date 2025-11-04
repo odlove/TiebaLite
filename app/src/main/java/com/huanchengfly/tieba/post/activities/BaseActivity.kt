@@ -32,10 +32,11 @@ import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.App.Companion.INSTANCE
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.di.entrypoints.ThemeControllerEntryPoint
+import com.huanchengfly.tieba.core.ui.theme.runtime.entrypoints.ThemeRuntimeEntryPoint
+import com.huanchengfly.tieba.post.di.entrypoints.ThemeUiDelegateEntryPoint
 import com.huanchengfly.tieba.post.ui.common.theme.ThemeUiDelegate
 import com.huanchengfly.tieba.post.ui.widgets.VoicePlayerView
-import com.huanchengfly.tieba.post.ui.widgets.theme.TintToolbar
+import com.huanchengfly.tieba.core.ui.widgets.theme.TintToolbar
 import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
 import com.huanchengfly.tieba.post.utils.DialogUtil
 import com.huanchengfly.tieba.post.utils.HandleBackUtil
@@ -64,16 +65,23 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
 
     val appPreferences: AppPreferencesUtils by lazy { applicationContext.appPreferences }
 
-    private val themeEntryPoint: ThemeControllerEntryPoint by lazy {
+    private val themeRuntimeEntryPoint: ThemeRuntimeEntryPoint by lazy {
         EntryPointAccessors.fromApplication(
             applicationContext,
-            ThemeControllerEntryPoint::class.java
+            ThemeRuntimeEntryPoint::class.java
         )
     }
 
-    protected val themeController: ThemeController by lazy { themeEntryPoint.themeController() }
+    private val themeUiEntryPoint: ThemeUiDelegateEntryPoint by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            ThemeUiDelegateEntryPoint::class.java
+        )
+    }
 
-    protected val themeUiDelegate: ThemeUiDelegate by lazy { themeEntryPoint.themeUiDelegate() }
+    protected val themeController: ThemeController by lazy { themeRuntimeEntryPoint.themeController() }
+
+    protected val themeUiDelegate: ThemeUiDelegate by lazy { themeUiEntryPoint.themeUiDelegate() }
 
     override fun onPause() {
         super.onPause()

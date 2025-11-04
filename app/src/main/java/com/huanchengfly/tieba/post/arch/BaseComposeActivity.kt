@@ -24,7 +24,7 @@ import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.ui.windowsizeclass.calculateWindowSizeClass
 import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ApplySystemBars
-import com.huanchengfly.tieba.post.ui.common.theme.compose.ProvideThemeController
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ProvideThemeController
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccountProvider

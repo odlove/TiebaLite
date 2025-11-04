@@ -108,7 +108,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.DialogState
 import com.huanchengfly.tieba.core.ui.compose.MyBackHandler
 import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
-import com.huanchengfly.tieba.post.ui.widgets.edittext.widget.UndoableEditText
+import com.huanchengfly.tieba.core.ui.widgets.theme.TintUndoableEditText
 import com.huanchengfly.tieba.post.api.AccountTokens
 import com.huanchengfly.tieba.post.emoticon.Emoticon
 import com.huanchengfly.tieba.post.utils.EmoticonManager
@@ -236,7 +236,7 @@ internal fun ReplyPageContent(
     val keyboardController = LocalSoftwareKeyboardController.current
     var initialText by remember { mutableStateOf("") }
     var waitEditTextToSet by remember { mutableStateOf(false) }
-    var editTextView by remember { mutableStateOf<UndoableEditText?>(null) }
+    var editTextView by remember { mutableStateOf<TintUndoableEditText?>(null) }
     fun getText(): String {
         return editTextView?.text?.toString().orEmpty()
     }
@@ -472,7 +472,7 @@ internal fun ReplyPageContent(
                             ctx,
                             R.layout.layout_reply_edit_text,
                             null
-                        ) as UndoableEditText).apply {
+                        ) as TintUndoableEditText).apply {
                             editTextView = this
                             if (subPostId != null && subPostId != 0L && replyUserName != null) {
                                 hint = ctx.getString(R.string.hint_reply, replyUserName)

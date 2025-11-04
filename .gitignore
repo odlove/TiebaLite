@@ -18,6 +18,7 @@ output.json
 # Gradle files
 .gradle/
 **/build/
+.gradle-cache/
 
 # Kotlin compiler cache
 .kotlin/

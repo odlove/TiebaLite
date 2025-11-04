@@ -13,7 +13,7 @@
         android:layout_centerVertical="true"
         android:layout_marginEnd="8dp">
 
-        <com.huanchengfly.tieba.post.ui.widgets.theme.TintImageView
+        <com.huanchengfly.tieba.core.ui.widgets.theme.TintImageView
             android:id="@+id/audio_play_icon"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -22,7 +22,7 @@
             app:srcCompat="@drawable/ic_round_play_circle_filled_18dp"
             app:tint="@color/default_color_accent" />
 
-        <com.huanchengfly.tieba.post.ui.widgets.theme.TintProgressBar
+        <com.huanchengfly.tieba.core.ui.widgets.theme.TintProgressBar
             android:id="@+id/audio_play_progress"
             style="?android:attr/progressBarStyleSmallInverse"
             android:layout_width="match_parent"
@@ -44,7 +44,7 @@
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/lottie_audio_wave" />
 
-    <com.huanchengfly.tieba.post.ui.widgets.theme.TintTextView
+    <com.huanchengfly.tieba.core.ui.widgets.theme.TintTextView
         android:id="@+id/audio_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

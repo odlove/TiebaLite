@@ -12,7 +12,7 @@ import androidx.appcompat.widget.MenuPopupWindow;
 import androidx.appcompat.widget.PopupMenu;
 
 import com.huanchengfly.tieba.post.R;
-import com.huanchengfly.tieba.post.di.entrypoints.ThemeControllerEntryPoint;
+import com.huanchengfly.tieba.core.ui.theme.runtime.entrypoints.ThemeRuntimeEntryPoint;
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeBridge;
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeDrawableUtils;
 
@@ -30,7 +30,7 @@ public class PopupUtil {
             Field contextField = ListPopupWindow.class.getDeclaredField("mContext");
             contextField.setAccessible(true);
             Context context = (Context) contextField.get(listPopupWindow);
-            ThemeBridge bridge = EntryPointAccessors.fromApplication(context.getApplicationContext(), ThemeControllerEntryPoint.class).themeBridge();
+            ThemeBridge bridge = EntryPointAccessors.fromApplication(context.getApplicationContext(), ThemeRuntimeEntryPoint.class).themeBridge();
             int backgroundColor = bridge.colorByAttr(context, R.attr.colorCard);
             listPopupWindow.setBackgroundDrawable(
                     ThemeDrawableUtils.tint(AppCompatResources.getDrawable(context, R.drawable.bg_popup), backgroundColor)
@@ -52,7 +52,7 @@ public class PopupUtil {
             Field popupField = obj.getClass().getDeclaredField("mPopup");
             popupField.setAccessible(true);
             MenuPopupWindow menuPopupWindow = (MenuPopupWindow) popupField.get(obj);
-            ThemeBridge bridge = EntryPointAccessors.fromApplication(context.getApplicationContext(), ThemeControllerEntryPoint.class).themeBridge();
+            ThemeBridge bridge = EntryPointAccessors.fromApplication(context.getApplicationContext(), ThemeRuntimeEntryPoint.class).themeBridge();
             int backgroundColor = bridge.colorByAttr(context, R.attr.colorCard);
             menuPopupWindow.setBackgroundDrawable(
                     ThemeDrawableUtils.tint(context.getDrawable(R.drawable.bg_popup), backgroundColor)

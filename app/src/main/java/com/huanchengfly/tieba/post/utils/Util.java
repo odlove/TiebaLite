@@ -31,8 +31,8 @@ import androidx.appcompat.widget.AppCompatDrawableManager;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.huanchengfly.tieba.post.R;
-import com.huanchengfly.tieba.post.di.entrypoints.ThemeControllerEntryPoint;
-import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver;
+import com.huanchengfly.tieba.post.di.entrypoints.ThemeUiDelegateEntryPoint;
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver;
 import com.huanchengfly.tieba.post.ui.common.theme.ThemeUiDelegate;
 import dagger.hilt.android.EntryPointAccessors;
 
@@ -46,7 +46,7 @@ public class Util {
         Snackbar snackbar = Snackbar.make(view, text, duration);
         ThemeUiDelegate themeUiDelegate = EntryPointAccessors.fromApplication(
                 view.getContext().getApplicationContext(),
-                ThemeControllerEntryPoint.class
+                ThemeUiDelegateEntryPoint.class
         ).themeUiDelegate();
         themeUiDelegate.applySnackbar(snackbar);
         View mView = snackbar.getView();

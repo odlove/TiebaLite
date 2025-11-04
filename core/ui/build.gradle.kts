@@ -59,4 +59,8 @@ dependencies {
     implementation(libs.androidx.window)
     implementation(libs.compose.destinations.core)
     implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.core)
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.google.material)
 }

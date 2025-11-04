@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 import com.huanchengfly.tieba.core.ui.theme.ThemeController;
 import com.huanchengfly.tieba.core.ui.theme.ThemeTokens;
-import com.huanchengfly.tieba.post.di.entrypoints.ThemeControllerEntryPoint;
+import com.huanchengfly.tieba.core.ui.theme.runtime.entrypoints.ThemeRuntimeEntryPoint;
 
 import java.util.Locale;
 
@@ -43,7 +43,7 @@ public class TiebaLiteJavaScript {
     public String getTheme() {
         ThemeController controller = EntryPointAccessors.fromApplication(
                 context.getApplicationContext(),
-                ThemeControllerEntryPoint.class
+                ThemeRuntimeEntryPoint.class
         ).themeController();
         String rawTheme = controller.getThemeState().getValue().getRawTheme();
         if (rawTheme == null || rawTheme.isEmpty()) {

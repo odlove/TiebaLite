@@ -15,8 +15,8 @@ import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.di.entrypoints.ThemeControllerEntryPoint
-import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver
+import com.huanchengfly.tieba.post.di.entrypoints.ThemeUiDelegateEntryPoint
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
 import com.huanchengfly.tieba.post.ui.common.theme.ThemeUiDelegate
 import com.huanchengfly.tieba.post.utils.appPreferences
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
@@ -37,7 +37,7 @@ class CustomThemeDialog(context: Context) : AlertDialog(context),
     private val themeUiDelegate: ThemeUiDelegate by lazy {
         EntryPointAccessors.fromApplication(
             context.applicationContext,
-            ThemeControllerEntryPoint::class.java
+            ThemeUiDelegateEntryPoint::class.java
         ).themeUiDelegate()
     }
 

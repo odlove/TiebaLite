@@ -6,15 +6,15 @@ import android.os.Parcelable
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
-import com.stoyanvuchev.systemuibarstweaker.SystemBarStyle
 import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
 import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.runtime.remember
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
@@ -23,10 +23,13 @@ import com.huanchengfly.tieba.core.ui.CommonUiEventHandler
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.ui.windowsizeclass.calculateWindowSizeClass
 import com.huanchengfly.tieba.post.activities.BaseActivity
+import com.huanchengfly.tieba.post.ui.common.theme.compose.ApplySystemBars
+import com.huanchengfly.tieba.post.ui.common.theme.compose.ProvideThemeController
 import com.huanchengfly.tieba.post.ui.common.theme.compose.TiebaLiteTheme
+import com.huanchengfly.tieba.post.ui.common.theme.compose.THEME_DIAGNOSTICS_TAG
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccountProvider
-import com.huanchengfly.tieba.post.utils.ThemeUtil
 import javax.inject.Inject
+import java.util.concurrent.atomic.AtomicInteger
 
 abstract class BaseComposeActivityWithParcelable<DATA : Parcelable> : BaseComposeActivityWithData<DATA>() {
     abstract val dataExtraKey: String
@@ -79,36 +82,43 @@ abstract class BaseComposeActivity : BaseActivity(), CommonUiEventHandler {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            TiebaLiteTheme {
-                val systemUIBarsTweaker = rememberSystemUIBarsTweaker()
-                SideEffect {
-                    val statusBarDarkIcons = ThemeUtil.isStatusBarFontDark()
-                    val navigationBarDarkIcons = ThemeUtil.isNavigationBarFontDark()
-
-                    systemUIBarsTweaker.tweakStatusBarStyle(
-                        SystemBarStyle(
-                            color = Color.Transparent,
-                            darkIcons = statusBarDarkIcons
+            ProvideThemeController {
+                TiebaLiteTheme {
+                    val recomposeCounter = remember { AtomicInteger(0) }
+                    SideEffect {
+                        val count = recomposeCounter.incrementAndGet()
+                        Log.i(
+                            THEME_DIAGNOSTICS_TAG,
+                            "BaseComposeActivity root recomposed count=$count activity=${this::class.java.simpleName}"
                         )
-                    )
-                    systemUIBarsTweaker.tweakNavigationBarStyle(
-                        SystemBarStyle(
-                            color = Color.Transparent,
-                            darkIcons = navigationBarDarkIcons
+                    }
+                    DisposableEffect(Unit) {
+                        Log.i(
+                            THEME_DIAGNOSTICS_TAG,
+                            "BaseComposeActivity composition entered activity=${this::class.java.simpleName}"
                         )
-                    )
-                }
+                        onDispose {
+                            Log.i(
+                                THEME_DIAGNOSTICS_TAG,
+                                "BaseComposeActivity composition disposed activity=${this::class.java.simpleName}"
+                            )
+                        }
+                    }
 
-                LaunchedEffect(key1 = "onCreateContent") {
-                    onCreateContent(systemUIBarsTweaker)
-                }
+                    val systemUIBarsTweaker = rememberSystemUIBarsTweaker()
+                    ApplySystemBars(systemUIBarsTweaker)
 
-                LocalAccountProvider {
-                    CompositionLocalProvider(
-                        LocalWindowSizeClass provides calculateWindowSizeClass(activity = this),
-                        LocalGlobalEventBus provides globalEventBus
-                    ) {
-                        Content()
+                    LaunchedEffect(key1 = "onCreateContent") {
+                        onCreateContent(systemUIBarsTweaker)
+                    }
+
+                    LocalAccountProvider {
+                        CompositionLocalProvider(
+                            LocalWindowSizeClass provides calculateWindowSizeClass(activity = this),
+                            LocalGlobalEventBus provides globalEventBus
+                        ) {
+                            Content()
+                        }
                     }
                 }
             }

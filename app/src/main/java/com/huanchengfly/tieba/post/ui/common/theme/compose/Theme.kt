@@ -1,34 +1,29 @@
 package com.huanchengfly.tieba.post.ui.common.theme.compose
 
-import android.annotation.SuppressLint
-import android.os.Build
+import android.util.Log
 import androidx.compose.material.Colors
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.rememberPreferenceAsState
-import com.huanchengfly.tieba.post.utils.ThemeUtil
-import com.huanchengfly.tieba.post.utils.appPreferences
+import com.huanchengfly.tieba.core.ui.theme.ThemeState
+import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.post.utils.compose.darken
-import com.huanchengfly.tieba.post.ui.common.theme.DefaultThemeDelegate
+
+internal const val THEME_DIAGNOSTICS_TAG = "ThemeDiagnostics"
 
 @Stable
 data class ExtendedColors(
     val theme: String,
     val isNightMode: Boolean,
+    val isTranslucent: Boolean,
+    val useDynamicColor: Boolean,
     val primary: Color = Color.Unspecified,
     val onPrimary: Color = Color.Unspecified,
     val accent: Color = Color.Unspecified,
@@ -60,13 +55,13 @@ data class ExtendedColors(
 
 val LocalExtendedColors = staticCompositionLocalOf {
     ExtendedColors(
-        ThemeUtil.THEME_DEFAULT,
-        false,
+        ThemeTokens.THEME_DEFAULT,
+        isNightMode = false,
+        isTranslucent = false,
+        useDynamicColor = false,
     )
 }
 
-
-@SuppressLint("ConflictingOnColor")
 fun getColorPalette(
     darkTheme: Boolean,
     extendedColors: ExtendedColors
@@ -98,380 +93,61 @@ fun getColorPalette(
     }
 }
 
-@Composable
-private fun getDynamicColor(
-    theme: String,
-    tonalPalette: TonalPalette,
-): ExtendedColors {
-    val isDarkColorPalette = ThemeUtil.isNightMode(theme)
-    return if (isDarkColorPalette) {
-        if (theme == ThemeUtil.THEME_AMOLED_DARK) {
-            getBlackDarkDynamicColor(tonalPalette)
-        } else {
-            getDarkDynamicColor(tonalPalette)
-        }
-    } else {
-        getLightDynamicColor(tonalPalette)
-    }
-}
-
-@Composable
-private fun getDynamicTopBarColor(
-    tonalPalette: TonalPalette,
-    isNightMode: Boolean = false,
-): Color {
-    val topBarUsePrimaryColor =
-        LocalContext.current.appPreferences.toolbarPrimaryColor
-    val primaryColor = tonalPalette.primary40
-    val backgroundColor = tonalPalette.neutralVariant99
-    return if (topBarUsePrimaryColor) {
-        primaryColor
-    } else {
-        backgroundColor
-    }
-}
-
-@Composable
-private fun getDynamicOnTopBarColor(
-    tonalPalette: TonalPalette,
-): Color {
-    val topBarUsePrimaryColor =
-        LocalContext.current.appPreferences.toolbarPrimaryColor
-    val onPrimaryColor = tonalPalette.primary100
-    val onBackgroundColor = tonalPalette.neutralVariant10
-    return if (topBarUsePrimaryColor) {
-        onPrimaryColor
-    } else {
-        onBackgroundColor
-    }
-}
-
-@Composable
-private fun getDynamicOnTopBarSecondaryColor(
-    tonalPalette: TonalPalette,
-    isNightMode: Boolean = false,
-): Color {
-    val topBarUsePrimaryColor =
-        LocalContext.current.appPreferences.toolbarPrimaryColor
-    val primaryColor = tonalPalette.primary80
-    val backgroundColor = tonalPalette.neutralVariant40
-    return if (topBarUsePrimaryColor) {
-        primaryColor
-    } else {
-        backgroundColor
-    }
-}
-
-@Composable
-private fun getDynamicOnTopBarActiveColor(
-    tonalPalette: TonalPalette,
-): Color {
-    val topBarUsePrimaryColor =
-        LocalContext.current.appPreferences.toolbarPrimaryColor
-    val primaryColor = tonalPalette.primary100
-    val backgroundColor = tonalPalette.neutralVariant0
-    return if (topBarUsePrimaryColor) {
-        primaryColor
-    } else {
-        backgroundColor
-    }
-}
-
-@Composable
-private fun getDynamicTopBarSurfaceColor(
-    tonalPalette: TonalPalette,
-): Color {
-    val topBarUsePrimaryColor =
-        LocalContext.current.appPreferences.toolbarPrimaryColor
-    val primaryColor = tonalPalette.primary90
-    val backgroundColor = tonalPalette.neutralVariant95
-    return if (topBarUsePrimaryColor) {
-        primaryColor
-    } else {
-        backgroundColor
-    }
-}
-
-@Composable
-private fun getDynamicOnTopBarSurfaceColor(
-    tonalPalette: TonalPalette,
-): Color {
-    val topBarUsePrimaryColor =
-        LocalContext.current.appPreferences.toolbarPrimaryColor
-    val primaryColor = tonalPalette.primary10
-    val backgroundColor = tonalPalette.neutralVariant30
-    return if (topBarUsePrimaryColor) {
-        primaryColor
-    } else {
-        backgroundColor
-    }
-}
-
-@Composable
-private fun getLightDynamicColor(tonalPalette: TonalPalette): ExtendedColors {
+private fun ThemeState.toExtendedColors(): ExtendedColors {
+    val palette = palette
     return ExtendedColors(
-        theme = "dynamic",
-        isNightMode = false,
-        primary = tonalPalette.primary40,
-        onPrimary = tonalPalette.primary100,
-        accent = tonalPalette.secondary40,
-        onAccent = tonalPalette.secondary100,
-        topBar = getDynamicTopBarColor(tonalPalette),
-        onTopBar = getDynamicOnTopBarColor(tonalPalette),
-        onTopBarSecondary = getDynamicOnTopBarSecondaryColor(tonalPalette),
-        onTopBarActive = getDynamicOnTopBarActiveColor(tonalPalette),
-        topBarSurface = getDynamicTopBarSurfaceColor(tonalPalette),
-        onTopBarSurface = getDynamicOnTopBarSurfaceColor(tonalPalette),
-        bottomBar = tonalPalette.neutralVariant99,
-        bottomBarSurface = tonalPalette.neutralVariant95,
-        onBottomBarSurface = tonalPalette.neutralVariant30,
-        text = tonalPalette.neutralVariant10,
-        textSecondary = tonalPalette.neutralVariant40,
-        textDisabled = tonalPalette.neutralVariant70,
-        background = tonalPalette.neutralVariant99,
-        chip = tonalPalette.neutralVariant95,
-        onChip = tonalPalette.neutralVariant40,
-        unselected = tonalPalette.neutralVariant60,
-        card = tonalPalette.neutralVariant99,
-        floorCard = tonalPalette.neutralVariant95,
-        divider = tonalPalette.neutralVariant95,
-        shadow = tonalPalette.neutralVariant90,
-        indicator = tonalPalette.neutralVariant95,
-        windowBackground = tonalPalette.neutralVariant99,
-        placeholder = tonalPalette.neutralVariant100,
+        theme = resolvedTheme,
+        isNightMode = isNightMode,
+        isTranslucent = isTranslucent,
+        useDynamicColor = useDynamicColor,
+        primary = palette.primaryAlt.toColor(),
+        onPrimary = palette.textOnPrimary.toColor(),
+        accent = palette.accent.toColor(),
+        onAccent = palette.onAccent.toColor(),
+        topBar = palette.toolbar.toColor(),
+        onTopBar = palette.toolbarItem.toColor(),
+        onTopBarSecondary = palette.toolbarItemSecondary.toColor(),
+        onTopBarActive = palette.toolbarItemActive.toColor(),
+        topBarSurface = palette.toolbarSurface.toColor(),
+        onTopBarSurface = palette.onToolbarSurface.toColor(),
+        bottomBar = palette.navBar.toColor(),
+        bottomBarSurface = palette.navBarSurface.toColor(),
+        onBottomBarSurface = palette.onNavBarSurface.toColor(),
+        text = palette.textPrimary.toColor(),
+        textSecondary = palette.textSecondary.toColor(),
+        textDisabled = palette.textDisabled.toColor(),
+        background = palette.background.toColor(),
+        chip = palette.chip.toColor(),
+        onChip = palette.onChip.toColor(),
+        unselected = palette.unselected.toColor(),
+        card = palette.card.toColor(),
+        floorCard = palette.floorCard.toColor(),
+        divider = palette.divider.toColor(),
+        shadow = palette.shadow.toColor(),
+        indicator = palette.indicator.toColor(),
+        windowBackground = palette.windowBackground.toColor(),
+        placeholder = palette.placeholder.toColor(),
     )
 }
 
-@Composable
-private fun getDarkDynamicColor(tonalPalette: TonalPalette): ExtendedColors {
-    return ExtendedColors(
-        theme = "dynamic",
-        isNightMode = true,
-        primary = tonalPalette.primary80,
-        onPrimary = tonalPalette.primary10,
-        accent = tonalPalette.secondary80,
-        onAccent = tonalPalette.secondary20,
-        topBar = tonalPalette.neutralVariant10,
-        onTopBar = tonalPalette.neutralVariant90,
-        onTopBarSecondary = tonalPalette.neutralVariant70,
-        onTopBarActive = tonalPalette.neutralVariant100,
-        topBarSurface = tonalPalette.neutralVariant20,
-        onTopBarSurface = tonalPalette.neutralVariant70,
-        bottomBar = tonalPalette.neutralVariant10,
-        bottomBarSurface = tonalPalette.neutralVariant20,
-        onBottomBarSurface = tonalPalette.neutralVariant70,
-        text = tonalPalette.neutralVariant90,
-        textSecondary = tonalPalette.neutralVariant70,
-        textDisabled = tonalPalette.neutralVariant50,
-        background = tonalPalette.neutralVariant10,
-        chip = tonalPalette.neutralVariant20,
-        onChip = tonalPalette.neutralVariant60,
-        unselected = tonalPalette.neutralVariant40,
-        card = tonalPalette.neutralVariant20,
-        floorCard = tonalPalette.neutralVariant20,
-        divider = tonalPalette.neutralVariant20,
-        shadow = tonalPalette.neutralVariant20,
-        indicator = tonalPalette.neutralVariant10,
-        windowBackground = tonalPalette.neutralVariant10,
-        placeholder = tonalPalette.neutralVariant50,
-    )
-}
-
-@Composable
-private fun getBlackDarkDynamicColor(tonalPalette: TonalPalette): ExtendedColors {
-    return ExtendedColors(
-        theme = "dynamic",
-        isNightMode = true,
-        primary = tonalPalette.primary80,
-        onPrimary = tonalPalette.primary10,
-        accent = tonalPalette.secondary80,
-        onAccent = tonalPalette.secondary20,
-        topBar = tonalPalette.neutralVariant0,
-        onTopBar = tonalPalette.neutralVariant90,
-        onTopBarSecondary = tonalPalette.neutralVariant70,
-        onTopBarActive = tonalPalette.neutralVariant100,
-        topBarSurface = tonalPalette.neutralVariant10,
-        onTopBarSurface = tonalPalette.neutralVariant70,
-        bottomBar = tonalPalette.neutralVariant0,
-        bottomBarSurface = tonalPalette.neutralVariant10,
-        onBottomBarSurface = tonalPalette.neutralVariant70,
-        text = tonalPalette.neutralVariant90,
-        textSecondary = tonalPalette.neutralVariant70,
-        textDisabled = tonalPalette.neutralVariant50,
-        background = tonalPalette.neutralVariant0,
-        chip = tonalPalette.neutralVariant10,
-        onChip = tonalPalette.neutralVariant50,
-        unselected = tonalPalette.neutralVariant40,
-        card = tonalPalette.neutralVariant10,
-        floorCard = tonalPalette.neutralVariant10,
-        divider = tonalPalette.neutralVariant10,
-        shadow = tonalPalette.neutralVariant10,
-        indicator = tonalPalette.neutralVariant10,
-        windowBackground = tonalPalette.neutralVariant0,
-        placeholder = tonalPalette.neutralVariant50,
-    )
-}
-
-@Composable
-private fun getThemeColorForTheme(theme: String): ExtendedColors {
-    val context = LocalContext.current
-    val nowTheme = ThemeUtil.getCurrentTheme(theme)
-    val textColor =
-        Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorText, nowTheme))
-    val bottomBarColor =
-        Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorNavBar, nowTheme))
-    return ExtendedColors(
-        theme = nowTheme,
-        isNightMode = ThemeUtil.isNightMode(nowTheme),
-        primary = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorNewPrimary,
-                nowTheme
-            )
-        ),
-        onPrimary = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorOnAccent,
-                nowTheme
-            )
-        ),
-        accent = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorAccent, nowTheme)),
-        onAccent = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorOnAccent, nowTheme)),
-        topBar = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorToolbar, nowTheme)),
-        onTopBar = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorToolbarItem,
-                nowTheme
-            )
-        ),
-        onTopBarSecondary = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorToolbarItemSecondary,
-                nowTheme
-            )
-        ),
-        onTopBarActive = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorToolbarItemActive,
-                nowTheme
-            )
-        ),
-        topBarSurface = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorToolbarSurface,
-                nowTheme
-            )
-        ),
-        onTopBarSurface = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorOnToolbarSurface,
-                nowTheme
-            )
-        ),
-        bottomBar = bottomBarColor,
-        bottomBarSurface = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorNavBarSurface,
-                nowTheme
-            )
-        ),
-        onBottomBarSurface = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorOnNavBarSurface,
-                nowTheme
-            )
-        ),
-        text = textColor.copy(alpha = ContentAlpha.high),
-        textSecondary = textColor.copy(alpha = ContentAlpha.medium),
-        textDisabled = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.color_text_disabled,
-                nowTheme
-            )
-        ),
-        background = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorBackground,
-                nowTheme
-            )
-        ),
-        chip = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorChip, nowTheme)),
-        onChip = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorOnChip, nowTheme)),
-        unselected = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorUnselected,
-                nowTheme
-            )
-        ),
-        card = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorCard, nowTheme)),
-        floorCard = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorFloorCard,
-                nowTheme
-            )
-        ),
-        divider = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.colorDivider, nowTheme)),
-        shadow = Color(DefaultThemeDelegate.getColorByAttr(context, R.attr.shadow_color, nowTheme)),
-        indicator = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorIndicator,
-                nowTheme
-            )
-        ),
-        windowBackground = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorWindowBackground,
-                nowTheme
-            )
-        ),
-        placeholder = Color(
-            DefaultThemeDelegate.getColorByAttr(
-                context,
-                R.attr.colorPlaceholder,
-                nowTheme
-            )
-        ),
-    )
-}
+private fun Int.toColor(): Color = Color(this)
 
 @Composable
 fun TiebaLiteTheme(
     content: @Composable () -> Unit
 ) {
-    val context = LocalContext.current
-    val theme by remember { ThemeUtil.themeState }
-    val isDynamicTheme by rememberPreferenceAsState(
-        key = booleanPreferencesKey("useDynamicColorTheme"),
-        defaultValue = false
-    )
-    val isDarkColorPalette by remember {
-        derivedStateOf {
-            ThemeUtil.isNightMode(theme)
-                    || (ThemeUtil.isTranslucentTheme(theme) && theme.contains("light"))
-        }
-    }
+    val themeState = LocalThemeState.current
+    val extendedColors = remember(themeState) { themeState.toExtendedColors() }
+    val isDarkColorPalette = themeState.isNightMode ||
+        (themeState.isTranslucent && themeState.effectiveTheme.contains("light", ignoreCase = true))
 
-    val useDynamicTheme = isDynamicTheme && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-
-    val extendedColors = if (!useDynamicTheme || ThemeUtil.isTranslucentTheme(theme)) {
-        getThemeColorForTheme(theme)
-    } else {
-        getDynamicColor(theme, dynamicTonalPalette(context))
+    SideEffect {
+        Log.i(
+            THEME_DIAGNOSTICS_TAG,
+            "TiebaLiteTheme composited raw=${themeState.rawTheme} " +
+                "effective=${themeState.effectiveTheme} resolved=${themeState.resolvedTheme} " +
+                "translucent=${themeState.isTranslucent} dynamic=${themeState.useDynamicColor}"
+        )
     }
 
     val colors = getColorPalette(isDarkColorPalette, extendedColors)

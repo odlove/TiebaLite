@@ -17,7 +17,7 @@ import com.huanchengfly.tieba.post.ui.common.PicContentRender
 import com.huanchengfly.tieba.post.ui.common.TextContentRender.Companion.appendText
 import com.huanchengfly.tieba.post.ui.common.VideoContentRender
 import com.huanchengfly.tieba.post.ui.common.VoiceContentRender
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver
 import com.huanchengfly.tieba.post.ui.page.thread.SubPostItemData
 import com.huanchengfly.tieba.post.ui.utils.getPhotoViewData
 import com.huanchengfly.tieba.post.utils.EmoticonManager
@@ -212,7 +212,7 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
                             withStyle(
                                 SpanStyle(
                                     color = Color(
-                                        ThemeUtils.getColorByAttr(
+                                        ThemeColorResolver.colorByAttr(
                                             App.INSTANCE,
                                             R.attr.colorNewPrimary
                                         )
@@ -254,16 +254,16 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
                 4 -> {
                     val text = buildAnnotatedString {
                         withAnnotation(tag = "user", annotation = "${it.uid}") {
-                            withStyle(
-                                SpanStyle(
-                                    color = Color(
-                                        ThemeUtils.getColorByAttr(
-                                            App.INSTANCE,
-                                            R.attr.colorNewPrimary
+                                withStyle(
+                                    SpanStyle(
+                                        color = Color(
+                                            ThemeColorResolver.colorByAttr(
+                                                App.INSTANCE,
+                                                R.attr.colorNewPrimary
+                                            )
                                         )
                                     )
-                                )
-                            ) {
+                                ) {
                                 append(it.text)
                             }
                         }
@@ -291,7 +291,7 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
                                 withStyle(
                                     SpanStyle(
                                         color = Color(
-                                            ThemeUtils.getColorByAttr(
+                                            ThemeColorResolver.colorByAttr(
                                                 App.INSTANCE,
                                                 R.attr.colorNewPrimary
                                             )
@@ -373,7 +373,7 @@ val Post.subPosts: ImmutableList<SubPostItemData>
 @OptIn(ExperimentalTextApi::class)
 fun SubPostList.getContentText(threadAuthorId: Long? = null): AnnotatedString {
     val context = App.INSTANCE
-    val accentColor = Color(ThemeUtils.getColorByAttr(context, R.attr.colorNewPrimary))
+val accentColor = Color(ThemeColorResolver.colorByAttr(context, R.attr.colorNewPrimary))
 
     val userNameString = buildAnnotatedString {
         withAnnotation("user", "${author?.id}") {

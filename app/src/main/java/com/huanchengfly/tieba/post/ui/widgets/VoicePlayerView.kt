@@ -35,8 +35,7 @@ import com.airbnb.lottie.SimpleColorFilter
 import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.ui.theme.ColorStateListUtils
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver
 import com.huanchengfly.tieba.post.utils.DisplayUtil
 import com.huanchengfly.tieba.post.utils.FileUtil
 import com.huanchengfly.tieba.post.utils.PopupUtil
@@ -108,7 +107,7 @@ class VoicePlayerView @JvmOverloads constructor(
 
     private fun initView() {
         backgroundTintList = ColorStateList.valueOf(
-            ThemeUtils.getColorByAttr(
+            ThemeColorResolver.colorByAttr(
                 context,
                 R.attr.colorAccent
             )
@@ -123,9 +122,8 @@ class VoicePlayerView @JvmOverloads constructor(
         time = findViewById(R.id.audio_text)
         icon = findViewById(R.id.audio_play_icon)
         animationView = findViewById<LottieAnimationView>(R.id.audio_wave_anim).apply {
-            val colorRes: Int = R.color.default_color_primary
-            val csl = ColorStateListUtils.createColorStateList(context, colorRes)
-            val filter = SimpleColorFilter(csl.defaultColor)
+            val accentColor = ThemeColorResolver.colorByAttr(context, R.attr.colorAccent)
+            val filter = SimpleColorFilter(accentColor)
             val keyPath = KeyPath("**")
             val callback = LottieValueCallback<ColorFilter>(filter)
             addValueCallback(keyPath, LottieProperty.COLOR_FILTER, callback)

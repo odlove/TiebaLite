@@ -9,13 +9,13 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.post.dataStore
 import com.huanchengfly.tieba.post.getBoolean
 import com.huanchengfly.tieba.post.getFloat
 import com.huanchengfly.tieba.post.getInt
 import com.huanchengfly.tieba.post.getLong
 import com.huanchengfly.tieba.post.getString
-import com.huanchengfly.tieba.post.utils.ThemeUtil.TRANSLUCENT_THEME_LIGHT
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -24,6 +24,7 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -110,7 +111,10 @@ class AppPreferencesUtils @Inject constructor(
 
     var doNotUsePhotoPicker by DataStoreDelegates.boolean(defaultValue = false)
 
-    var useDynamicColorTheme by DataStoreDelegates.boolean(defaultValue = false)
+    var useDynamicColorTheme by DataStoreDelegates.boolean(
+        defaultValue = false,
+        key = ThemeTokens.KEY_USE_DYNAMIC_THEME
+    )
 
     var followSystemNight by DataStoreDelegates.boolean(
         defaultValue = true,
@@ -203,7 +207,7 @@ class AppPreferencesUtils @Inject constructor(
         key = "status_bar_darker"
     )
 
-    var theme by DataStoreDelegates.string(defaultValue = ThemeUtil.THEME_DEFAULT)
+    var theme by DataStoreDelegates.string(defaultValue = ThemeTokens.THEME_DEFAULT)
 
     var translucentBackgroundAlpha by DataStoreDelegates.int(
         defaultValue = 255,
@@ -213,7 +217,7 @@ class AppPreferencesUtils @Inject constructor(
     var translucentBackgroundBlur by DataStoreDelegates.int(key = "translucent_background_blur")
 
     var translucentBackgroundTheme by DataStoreDelegates.int(
-        defaultValue = TRANSLUCENT_THEME_LIGHT,
+        defaultValue = ThemeTokens.TRANSLUCENT_THEME_LIGHT,
         key = "translucent_background_theme"
     )
 
@@ -227,6 +231,17 @@ class AppPreferencesUtils @Inject constructor(
     )
 
     var useWebView by DataStoreDelegates.boolean(defaultValue = true, key = "use_webview")
+
+    // Theme Flow properties for reactive theme changes
+    val themeFlow: kotlinx.coroutines.flow.Flow<String>
+        get() = preferencesDataStore.data
+            .map { it[stringPreferencesKey("theme")] ?: ThemeTokens.THEME_DEFAULT }
+            .distinctUntilChanged()
+
+    val dynamicThemeFlow: kotlinx.coroutines.flow.Flow<Boolean>
+        get() = preferencesDataStore.data
+            .map { it[booleanPreferencesKey(ThemeTokens.KEY_USE_DYNAMIC_THEME)] ?: false }
+            .distinctUntilChanged()
 
     private object DataStoreDelegates {
         fun int(

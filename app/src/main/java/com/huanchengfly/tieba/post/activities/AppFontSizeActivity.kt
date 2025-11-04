@@ -8,7 +8,6 @@ import com.huanchengfly.tieba.post.*
 import com.huanchengfly.tieba.post.adapters.ChatBubbleStyleAdapter
 import com.huanchengfly.tieba.post.components.MyLinearLayoutManager
 import com.huanchengfly.tieba.post.databinding.ActivityAppFontSizeBinding
-import com.huanchengfly.tieba.post.utils.ThemeUtil
 
 
 class AppFontSizeActivity : BaseActivity() {
@@ -35,7 +34,7 @@ class AppFontSizeActivity : BaseActivity() {
         binding = ActivityAppFontSizeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        ThemeUtil.setTranslucentThemeBackground(this, binding.background)
+        themeUiDelegate.setTranslucentThemeBackground(this, binding.background)
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)

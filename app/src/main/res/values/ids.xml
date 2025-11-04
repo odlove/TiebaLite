@@ -4,4 +4,5 @@
     <item name="image_load_tag" type="id" />
     <item name="no_data" type="id" />
     <item name="portrait" type="id" />
+    <item name="tag_translucent_background_path" type="id" />
 </resources>

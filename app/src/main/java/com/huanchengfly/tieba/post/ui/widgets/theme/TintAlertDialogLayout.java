@@ -10,8 +10,8 @@ import androidx.appcompat.widget.AlertDialogLayout;
 
 import com.huanchengfly.tieba.post.R;
 import com.huanchengfly.tieba.core.ui.theme.Tintable;
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils;
-import com.huanchengfly.tieba.post.utils.ThemeUtil;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeDrawableUtils;
 
 @SuppressLint("RestrictedApi")
 public class TintAlertDialogLayout extends AlertDialogLayout implements Tintable {
@@ -44,10 +44,13 @@ public class TintAlertDialogLayout extends AlertDialogLayout implements Tintable
 
     private void applyTintColor() {
         if (getBackground() == null) {
-            setBackgroundColor(ThemeUtils.getColorById(getContext(), mBackgroundTintResId));
+            setBackgroundColor(ThemeColorResolver.colorById(getContext(), mBackgroundTintResId));
         } else {
-            setBackground(ThemeUtils.tintDrawable(getBackground(), ThemeUtils.getColorById(getContext(), mBackgroundTintResId)));
+            setBackground(ThemeDrawableUtils.tint(getBackground(), ThemeColorResolver.colorById(getContext(), mBackgroundTintResId)));
         }
-        ThemeUtil.setTranslucentDialogBackground(this);
+        if (ThemeColorResolver.state(getContext()).isTranslucent()) {
+            setBackgroundTintList(null);
+            setBackgroundColor(ThemeColorResolver.colorById(getContext(), R.color.theme_color_card_grey_dark));
+        }
     }
 }

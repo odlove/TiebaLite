@@ -32,7 +32,8 @@ import com.huanchengfly.tieba.post.dpToPxFloat
 import com.huanchengfly.tieba.post.getBoolean
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.core.ui.theme.ColorStateListUtils
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils
+import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.WebViewPageDestination
 import com.huanchengfly.tieba.post.utils.Util.createSnackbar
@@ -209,7 +210,7 @@ fun launchUrl(
                     .setDefaultColorSchemeParams(
                         CustomTabColorSchemeParams.Builder()
                             .setToolbarColor(
-                                ThemeUtils.getColorByAttr(
+                                ThemeColorResolver.colorByAttr(
                                     context,
                                     R.attr.colorToolbar
                                 )
@@ -252,8 +253,9 @@ fun showErrorSnackBar(view: View, throwable: Throwable) {
 fun calcStatusBarColorInt(context: Context, @ColorInt originColor: Int): Int {
     var darkerStatusBar = true
     val isToolbarPrimaryColor =
-        context.dataStore.getBoolean(ThemeUtil.KEY_CUSTOM_TOOLBAR_PRIMARY_COLOR, false)
-    if (!ThemeUtil.isTranslucentTheme() && !ThemeUtil.isNightMode() && !isToolbarPrimaryColor) {
+        context.dataStore.getBoolean(ThemeTokens.KEY_CUSTOM_TOOLBAR_PRIMARY_COLOR, false)
+    val themeState = ThemeColorResolver.state(context)
+    if (!themeState.isTranslucent && !themeState.isNightMode && !isToolbarPrimaryColor) {
         darkerStatusBar = false
     } else if (!context.dataStore.getBoolean("status_bar_darker", true)) {
         darkerStatusBar = false

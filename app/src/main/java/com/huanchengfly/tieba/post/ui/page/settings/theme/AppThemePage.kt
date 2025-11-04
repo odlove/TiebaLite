@@ -67,15 +67,15 @@ import com.github.panpf.sketch.fetch.newResourceUri
 import com.godaddy.android.colorpicker.HsvColor
 import com.godaddy.android.colorpicker.harmony.ColorHarmonyMode
 import com.godaddy.android.colorpicker.harmony.HarmonyColorPicker
-import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.activities.TranslucentThemeActivity
 import com.huanchengfly.tieba.post.components.dialogs.CustomThemeDialog
 import com.huanchengfly.tieba.post.goToActivity
 import com.huanchengfly.tieba.post.rememberPreferenceAsMutableState
-import com.huanchengfly.tieba.post.rememberPreferenceAsState
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.post.ui.common.theme.DefaultThemeDelegate
+import com.huanchengfly.tieba.post.ui.common.theme.compose.LocalThemeController
+import com.huanchengfly.tieba.post.ui.common.theme.compose.LocalThemeState
+import com.huanchengfly.tieba.post.ui.common.theme.compose.rememberThemePalette
 import com.huanchengfly.tieba.post.ui.common.theme.compose.dynamicTonalPalette
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.Dialog
@@ -86,11 +86,12 @@ import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.compose.ProvideContentColor
 import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
-import com.huanchengfly.tieba.post.utils.ThemeUtil
 import com.huanchengfly.tieba.post.utils.appPreferences
 import com.huanchengfly.tieba.post.utils.extension.toHexString
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.huanchengfly.tieba.core.ui.theme.ThemeCatalog
+import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 
 @Destination
 @Composable
@@ -100,34 +101,25 @@ fun AppThemePage(
     val context = LocalContext.current
     val themeValues = stringArrayResource(id = R.array.theme_values)
     val themeNames = stringArrayResource(id = R.array.themeNames)
-    val currentTheme by remember { ThemeUtil.themeState }
-    val isDynamicTheme by rememberPreferenceAsState(
-        key = booleanPreferencesKey("useDynamicColorTheme"),
-        defaultValue = false
-    )
+    val themeController = LocalThemeController.current
+    val themeState = LocalThemeState.current
+    val currentTheme = themeState.rawTheme
+    val isDynamicTheme = themeState.useDynamicColor
     val customPrimaryColorDialogState = rememberDialogState()
-    var customPrimaryColor by remember {
-        mutableStateOf(
-            Color(
-                com.huanchengfly.tieba.post.ui.common.theme.DefaultThemeDelegate.getColorByAttr(
-                    context,
-                    R.attr.colorPrimary,
-                    ThemeUtil.THEME_CUSTOM
-                )
-            )
-        )
+    var customPrimaryColor by remember(themeState.customConfig?.primaryColor) {
+        mutableStateOf(Color(themeState.customConfig?.primaryColor ?: themeState.palette.primary))
     }
     var customToolbarPrimaryColor by rememberPreferenceAsMutableState(
         key = booleanPreferencesKey(
-            ThemeUtil.KEY_CUSTOM_TOOLBAR_PRIMARY_COLOR
+            ThemeTokens.KEY_CUSTOM_TOOLBAR_PRIMARY_COLOR
         ),
-        defaultValue = false
+        defaultValue = themeState.customConfig?.toolbarPrimary ?: false
     )
     var customStatusBarFontDark by rememberPreferenceAsMutableState(
         key = booleanPreferencesKey(
-            ThemeUtil.KEY_CUSTOM_STATUS_BAR_FONT_DARK
+            ThemeTokens.KEY_CUSTOM_STATUS_BAR_FONT_DARK
         ),
-        defaultValue = false
+        defaultValue = themeState.customConfig?.statusBarDark ?: false
     )
 
     Dialog(
@@ -142,20 +134,14 @@ fun AppThemePage(
                         CustomThemeDialog.toString(customPrimaryColor.toArgb())
                     context.appPreferences.toolbarPrimaryColor = customToolbarPrimaryColor
                     context.appPreferences.customStatusBarFontDark = customStatusBarFontDark
-                    ThemeUtil.setUseDynamicTheme(false)
-                    ThemeUtil.switchTheme(ThemeUtil.THEME_CUSTOM)
+                    themeController.setUseDynamicTheme(false)
+                    themeController.switchTheme(ThemeTokens.THEME_CUSTOM)
                 }
             )
             DialogNegativeButton(
                 text = stringResource(id = R.string.button_cancel),
                 onClick = {
-                    customPrimaryColor = Color(
-                        com.huanchengfly.tieba.post.ui.common.theme.DefaultThemeDelegate.getColorByAttr(
-                            context,
-                            R.attr.colorPrimary,
-                            ThemeUtil.THEME_CUSTOM
-                        )
-                    )
+                    customPrimaryColor = Color(themeState.customConfig?.primaryColor ?: themeState.palette.primary)
                 }
             )
         }
@@ -347,7 +333,7 @@ fun AppThemePage(
                                     )
                                 )
                                 .clickable {
-                                    ThemeUtil.setUseDynamicTheme(true)
+                                    themeController.setUseDynamicTheme(true)
                                 }
                                 .padding(all = 16.dp)
                         ) {
@@ -402,7 +388,7 @@ fun AppThemePage(
                                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                                 ) {
                                     Icon(
-                                        imageVector = if (!isDynamicTheme && currentTheme == ThemeUtil.THEME_CUSTOM) {
+                                    imageVector = if (!isDynamicTheme && currentTheme == ThemeTokens.THEME_CUSTOM) {
                                             Icons.Rounded.Check
                                         } else {
                                             Icons.Rounded.ColorLens
@@ -445,7 +431,7 @@ fun AppThemePage(
                                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                                     ) {
                                         Icon(
-                                            imageVector = if (ThemeUtil.isTranslucentTheme(
+                                            imageVector = if (themeController.isTranslucentTheme(
                                                     currentTheme
                                                 )
                                             ) {
@@ -470,81 +456,41 @@ fun AppThemePage(
                     key = { _, item -> item }
                 ) { index, item ->
                     val name = themeNames[index]
-                    val backgroundColor = remember {
-                        Color(
-                            com.huanchengfly.tieba.post.ui.common.theme.DefaultThemeDelegate.getColorByAttr(
-                                context,
-                                R.attr.colorBackground,
-                                item
-                            )
-                        )
-                    }
-                    val primaryColor = remember {
-                        Color(
-                            com.huanchengfly.tieba.post.ui.common.theme.DefaultThemeDelegate.getColorByAttr(
-                                context,
-                                R.attr.colorNewPrimary,
-                                item
-                            )
-                        )
-                    }
-                    val accentColor = remember {
-                        Color(
-                            com.huanchengfly.tieba.post.ui.common.theme.DefaultThemeDelegate.getColorByAttr(
-                                context,
-                                R.attr.colorAccent,
-                                item
-                            )
-                        )
-                    }
-                    val onAccentColor = remember {
-                        Color(
-                            com.huanchengfly.tieba.post.ui.common.theme.DefaultThemeDelegate.getColorByAttr(
-                                context,
-                                R.attr.colorOnAccent,
-                                item
-                            )
-                        )
-                    }
-                    val onBackgroundColor = remember {
-                        Color(
-                            com.huanchengfly.tieba.post.ui.common.theme.DefaultThemeDelegate.getColorByAttr(
-                                context,
-                                R.attr.colorText,
-                                item
-                            )
-                        )
-                    }
+                    val spec = remember(item) { ThemeCatalog.get(item) }
+                    val palette = rememberThemePalette(
+                        spec = spec,
+                        useDynamicColor = false,
+                        toolbarPrimary = themeState.toolbarPrimary,
+                        customConfig = themeState.customConfig,
+                        translucentConfig = themeState.translucentConfig
+                    )
+                    val backgroundColor = remember(palette) { Color(palette.background) }
+                    val primaryColor = remember(palette) { Color(palette.primaryAlt) }
+                    val accentColor = remember(palette) { Color(palette.accent) }
+                    val onAccentColor = remember(palette) { Color(palette.onAccent) }
+                    val onBackgroundColor = remember(palette) { Color(palette.textPrimary) }
                     if (index == 0) {
                         Spacer(modifier = Modifier.size(16.dp))
                     }
-                    if (ThemeUtil.isNightMode(item)) {
-                        ThemeItem(
-                            themeName = name,
-                            themeValue = item,
-                            primaryColor = backgroundColor,
-                            accentColor = backgroundColor,
-                            contentColor = onBackgroundColor,
-                            selected = !isDynamicTheme && currentTheme == item,
-                            onClick = {
-                                ThemeUtil.switchTheme(item)
-                                ThemeUtil.setUseDynamicTheme(false)
-                            }
-                        )
-                    } else {
-                        ThemeItem(
-                            themeName = name,
-                            themeValue = item,
-                            primaryColor = primaryColor,
-                            accentColor = accentColor,
-                            contentColor = onAccentColor,
-                            selected = !isDynamicTheme && currentTheme == item,
-                            onClick = {
-                                ThemeUtil.switchTheme(item)
-                                ThemeUtil.setUseDynamicTheme(false)
-                            }
-                        )
+                    val (previewPrimary, previewAccent, previewContent) = remember(palette, spec) {
+                        if (spec.isNight) {
+                            Triple(backgroundColor, backgroundColor, onBackgroundColor)
+                        } else {
+                            Triple(primaryColor, accentColor, onAccentColor)
+                        }
                     }
+                    ThemeItem(
+                        themeName = name,
+                        isNightTheme = spec.isNight,
+                        primaryColor = previewPrimary,
+                        accentColor = previewAccent,
+                        contentColor = previewContent,
+                        selected = !isDynamicTheme && currentTheme == item,
+                        onClick = {
+                            themeController.switchTheme(item)
+                            themeController.setUseDynamicTheme(false)
+                        }
+                    )
                 }
             }
         }
@@ -554,7 +500,7 @@ fun AppThemePage(
 @Composable
 private fun ThemeItem(
     themeName: String,
-    themeValue: String,
+    isNightTheme: Boolean,
     primaryColor: Color,
     accentColor: Color,
     contentColor: Color,
@@ -587,7 +533,7 @@ private fun ThemeItem(
                 )
                 .padding(9.dp),
         ) {
-            if (ThemeUtil.isNightMode(themeValue)) {
+            if (isNightTheme) {
                 Icon(
                     imageVector = Icons.Rounded.NightsStay,
                     contentDescription = stringResource(id = R.string.desc_night_theme),

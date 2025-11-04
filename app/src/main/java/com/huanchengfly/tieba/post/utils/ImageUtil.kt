@@ -36,9 +36,9 @@ import com.github.panpf.sketch.transform.RoundedCornersTransformation
 import com.huanchengfly.tieba.post.App.Companion.INSTANCE
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.dpToPxFloat
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver
 import com.huanchengfly.tieba.post.utils.PermissionUtils.PermissionData
 import com.huanchengfly.tieba.post.utils.PermissionUtils.askPermission
-import com.huanchengfly.tieba.post.utils.ThemeUtil.isNightMode
 import com.zhihu.matisse.MimeType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -454,7 +454,7 @@ object ImageUtil {
     fun getPlaceHolder(context: Context, radius: Int): Drawable {
         val drawable = GradientDrawable()
         val colorResId =
-            if (isNightMode()) R.color.color_place_holder_night else R.color.color_place_holder
+            if (isNightTheme()) R.color.color_place_holder_night else R.color.color_place_holder
         val color = ContextCompat.getColor(context, colorResId)
         drawable.setColor(color)
         drawable.cornerRadius =
@@ -465,7 +465,7 @@ object ImageUtil {
     fun getPlaceHolder(context: Context, radius: Float): Drawable {
         val drawable = GradientDrawable()
         val colorResId =
-            if (isNightMode()) R.color.color_place_holder_night else R.color.color_place_holder
+            if (isNightTheme()) R.color.color_place_holder_night else R.color.color_place_holder
         val color = ContextCompat.getColor(context, colorResId)
         drawable.setColor(color)
         drawable.cornerRadius = radius.dpToPxFloat()
@@ -483,7 +483,7 @@ object ImageUtil {
         if (!Util.canLoadGlide(imageView.context)) {
             return
         }
-        if (isNightMode()) {
+        if (isNightTheme()) {
             changeBrightness(imageView, -35)
         } else {
             imageView.clearColorFilter()
@@ -570,6 +570,8 @@ object ImageUtil {
     @get:ImageLoadSettings
     private val imageLoadSettings: Int
         get() = INSTANCE.appPreferences.imageLoadType?.toInt() ?: SETTINGS_SMART_ORIGIN
+
+    private fun isNightTheme(): Boolean = ThemeColorResolver.state(INSTANCE).isNightMode
 
     fun imageToBase64(inputStream: InputStream?): String? {
         if (inputStream == null) {

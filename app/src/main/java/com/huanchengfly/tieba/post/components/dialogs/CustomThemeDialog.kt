@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.components.dialogs
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.res.ColorStateList
@@ -9,16 +10,19 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.CompoundButton
 import android.widget.LinearLayout
+import android.content.ContextWrapper
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
-import com.huanchengfly.tieba.post.ui.common.theme.DefaultThemeDelegate.getColorByAttr
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils
-import com.huanchengfly.tieba.post.utils.ThemeUtil
+import com.huanchengfly.tieba.post.di.entrypoints.ThemeControllerEntryPoint
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeUiDelegate
 import com.huanchengfly.tieba.post.utils.appPreferences
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
+import dagger.hilt.android.EntryPointAccessors
+import com.huanchengfly.tieba.post.activities.BaseActivity
 
 class CustomThemeDialog(context: Context) : AlertDialog(context),
     View.OnClickListener, DialogInterface.OnClickListener, CompoundButton.OnCheckedChangeListener,
@@ -30,6 +34,13 @@ class CustomThemeDialog(context: Context) : AlertDialog(context),
     private var primaryColor = 0
     private var statusBarFontDark = false
     private var toolbarPrimary = false
+    private val themeUiDelegate: ThemeUiDelegate by lazy {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            ThemeControllerEntryPoint::class.java
+        ).themeUiDelegate()
+    }
+
     private fun initListener() {
         if (primaryColorLayout == null || statusBarFont == null || toolbarPrimaryColor == null) {
             dismiss()
@@ -47,7 +58,7 @@ class CustomThemeDialog(context: Context) : AlertDialog(context),
         statusBarFont = contentView.findViewById(R.id.custom_theme_status_bar_font)
         toolbarPrimaryColor = contentView.findViewById(R.id.custom_theme_toolbar_primary_color)
         setView(contentView)
-        primaryColor = getColorByAttr(context, R.attr.colorPrimary, ThemeUtil.THEME_CUSTOM)
+        primaryColor = ThemeColorResolver.colorByAttr(context, R.attr.colorPrimary)
         statusBarFontDark = context.appPreferences.customStatusBarFontDark
         toolbarPrimary = context.appPreferences.toolbarPrimaryColor
         refreshView()
@@ -58,7 +69,11 @@ class CustomThemeDialog(context: Context) : AlertDialog(context),
         statusBarFont?.isChecked = statusBarFontDark
         toolbarPrimaryColor?.isChecked = toolbarPrimary
         statusBarFont?.visibility = if (toolbarPrimary) View.VISIBLE else View.GONE
-        ThemeUtils.refreshUI(context)
+        ThemeUtilsWrapper.getActivity(context)?.let { activity ->
+            if (activity is BaseActivity) {
+                themeUiDelegate.invalidateDecorView(activity)
+            }
+        }
     }
 
     override fun onClick(v: View) {
@@ -72,7 +87,7 @@ class CustomThemeDialog(context: Context) : AlertDialog(context),
                 .setColor(primaryColor)
                 .create()
             primaryColorPicker.setColorPickerDialogListener(this)
-            val activity = ThemeUtils.getWrapperActivity(context)
+            val activity = ThemeUtilsWrapper.getActivity(context)
             if (activity is FragmentActivity) {
                 primaryColorPicker.show(
                     activity.supportFragmentManager,
@@ -152,5 +167,16 @@ class CustomThemeDialog(context: Context) : AlertDialog(context),
         setTitle(R.string.title_custom_theme)
         initView()
         initListener()
+    }
+}
+
+private object ThemeUtilsWrapper {
+    fun getActivity(context: Context): Activity? {
+        var current = context
+        while (current is ContextWrapper) {
+            if (current is Activity) return current
+            current = current.baseContext
+        }
+        return null
     }
 }

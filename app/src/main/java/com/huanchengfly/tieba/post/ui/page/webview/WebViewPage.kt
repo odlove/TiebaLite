@@ -59,7 +59,7 @@ import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.post.components.dialogs.PermissionDialog
 import com.huanchengfly.tieba.post.models.PermissionBean
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.widgets.compose.AccompanistWebChromeClient
@@ -352,19 +352,19 @@ open class MyWebViewClient(
                                 .setDefaultColorSchemeParams(
                                     CustomTabColorSchemeParams.Builder()
                                         .setToolbarColor(
-                                            ThemeUtils.getColorByAttr(
+                                            ThemeColorResolver.colorByAttr(
                                                 context,
                                                 R.attr.colorToolbar
                                             )
                                         )
                                         .setNavigationBarColor(
-                                            ThemeUtils.getColorByAttr(
+                                            ThemeColorResolver.colorByAttr(
                                                 context,
                                                 R.attr.colorNavBar
                                             )
                                         )
                                         .setNavigationBarDividerColor(
-                                            ThemeUtils.getColorByAttr(
+                                            ThemeColorResolver.colorByAttr(
                                                 context,
                                                 R.attr.colorDivider
                                             )

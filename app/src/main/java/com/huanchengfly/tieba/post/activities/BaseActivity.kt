@@ -26,24 +26,28 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.gyf.immersionbar.ImmersionBar
 import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsRegistry
+import com.huanchengfly.tieba.core.ui.theme.ExtraRefreshable
+import com.huanchengfly.tieba.core.ui.theme.ThemeController
+import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.App.Companion.INSTANCE
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.ui.theme.ExtraRefreshable
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils
+import com.huanchengfly.tieba.post.di.entrypoints.ThemeControllerEntryPoint
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeUiDelegate
 import com.huanchengfly.tieba.post.ui.widgets.VoicePlayerView
 import com.huanchengfly.tieba.post.ui.widgets.theme.TintToolbar
 import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
-import com.huanchengfly.tieba.post.utils.appPreferences
 import com.huanchengfly.tieba.post.utils.DialogUtil
 import com.huanchengfly.tieba.post.utils.HandleBackUtil
-import com.huanchengfly.tieba.post.utils.ThemeUtil
+import com.huanchengfly.tieba.post.utils.appPreferences
 import com.huanchengfly.tieba.post.utils.calcStatusBarColorInt
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 
 abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineScope {
@@ -59,6 +63,17 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     private var statusBarTinted = false
 
     val appPreferences: AppPreferencesUtils by lazy { applicationContext.appPreferences }
+
+    private val themeEntryPoint: ThemeControllerEntryPoint by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            ThemeControllerEntryPoint::class.java
+        )
+    }
+
+    protected val themeController: ThemeController by lazy { themeEntryPoint.themeController() }
+
+    protected val themeUiDelegate: ThemeUiDelegate by lazy { themeEntryPoint.themeUiDelegate() }
 
     override fun onPause() {
         super.onPause()
@@ -118,13 +133,14 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
         if (isNeedFixBg) fixBackground()
         getDeviceDensity()
         INSTANCE.addActivity(this)
-        if (isNeedSetTheme) ThemeUtil.setTheme(this)
-        oldTheme = ThemeUtil.getRawTheme()
+        if (isNeedSetTheme) themeUiDelegate.applyTheme(this)
+        oldTheme = currentRawTheme()
         if (isNeedImmersionBar) {
             refreshStatusBarColor()
         }
         if (getLayoutId() != -1) {
             setContentView(getLayoutId())
+            applyTranslucentBackgroundIfNeeded()
         }
 
         // 使用新的 OnBackPressedDispatcher API 支持预测性返回
@@ -149,32 +165,39 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     }
 
     private fun fixBackground() {
+        if (themeController.themeState.value.isTranslucent) {
+            return
+        }
         val decor = window.decorView as ViewGroup
         val decorChild = decor.getChildAt(0) as ViewGroup
         decorChild.setBackgroundColor(Color.BLACK)
     }
 
     fun refreshUIIfNeed() {
-        if (TextUtils.equals(oldTheme, ThemeUtil.getRawTheme()) &&
-            ThemeUtil.THEME_CUSTOM != ThemeUtil.getRawTheme() &&
-            !ThemeUtil.isTranslucentTheme()
+        val currentTheme = currentRawTheme()
+        val currentState = themeController.themeState.value
+        if (TextUtils.equals(oldTheme, currentTheme) &&
+            ThemeTokens.THEME_CUSTOM != currentTheme &&
+            !currentState.isTranslucent
         ) {
             return
         }
         if (recreateIfNeed()) {
             return
         }
-        ThemeUtils.refreshUI(this, this)
+        themeUiDelegate.reapplyTheme(this)
+        applyTranslucentBackgroundIfNeeded()
     }
 
     override fun onResume() {
         super.onResume()
         isActivityRunning = true
         if (appPreferences.followSystemNight) {
-            if (App.isSystemNight && !ThemeUtil.isNightMode()) {
-                ThemeUtil.switchToNightMode(this, false)
-            } else if (!App.isSystemNight && ThemeUtil.isNightMode()) {
-                ThemeUtil.switchFromNightMode(this, false)
+            val themeState = themeController.themeState.value
+            if (App.isSystemNight && !themeState.isNightMode) {
+                themeController.toggleNightMode()
+            } else if (!App.isSystemNight && themeState.isNightMode) {
+                themeController.toggleNightMode()
             }
         }
         refreshUIIfNeed()
@@ -244,7 +267,7 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     }
 
     fun setCustomStatusColor(customStatusColor: Int) {
-        if (ThemeUtil.isTranslucentTheme()) {
+        if (themeUiDelegate.currentState.isTranslucent) {
             return
         }
         this.customStatusColor = customStatusColor
@@ -252,7 +275,7 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     }
 
     open fun refreshStatusBarColor() {
-        if (ThemeUtil.isTranslucentTheme()) {
+        if (themeUiDelegate.currentState.isTranslucent) {
             ImmersionBar.with(this)
                 .transparentBar()
                 .init()
@@ -265,22 +288,19 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
                     statusBarColorInt(
                         calcStatusBarColorInt(
                             this@BaseActivity,
-                            ThemeUtils.getColorByAttr(this@BaseActivity, R.attr.colorToolbar)
+                            themeUiDelegate.themeColor(this@BaseActivity, R.attr.colorToolbar)
                         )
                     )
-                    statusBarDarkFont(ThemeUtil.isStatusBarFontDark())
+                    statusBarDarkFont(themeUiDelegate.shouldUseDarkStatusBarIcons())
                 }
                 fitsSystemWindowsInt(
                     true,
-                    ThemeUtils.getColorByAttr(this@BaseActivity, R.attr.colorBackground)
+                    themeUiDelegate.themeColor(this@BaseActivity, R.attr.colorBackground)
                 )
                 navigationBarColorInt(
-                    ThemeUtils.getColorByAttr(
-                        this@BaseActivity,
-                        R.attr.colorNavBar
-                    )
+                    themeUiDelegate.themeColor(this@BaseActivity, R.attr.colorNavBar)
                 )
-                navigationBarDarkIcon(ThemeUtil.isNavigationBarFontDark())
+                navigationBarDarkIcon(themeUiDelegate.shouldUseDarkNavigationBarIcons())
             }.init()
         }
         if (!statusBarTinted) {
@@ -293,20 +313,20 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
         if (isNeedImmersionBar) {
             refreshStatusBarColor()
         }
-        oldTheme = ThemeUtil.getRawTheme()
+        oldTheme = currentRawTheme()
     }
 
     private fun recreateIfNeed(): Boolean {
-        if (ThemeUtil.isNightMode() && !ThemeUtil.isNightMode(oldTheme) ||
-            !ThemeUtil.isNightMode() && ThemeUtil.isNightMode(oldTheme)
-        ) {
+        val currentState = themeController.themeState.value
+        val currentIsNight = currentState.isNightMode
+        val oldIsNight = themeController.isNightTheme(oldTheme)
+        if ((currentIsNight && !oldIsNight) || (!currentIsNight && oldIsNight)) {
             recreate()
             return true
         }
-        if (oldTheme.contains(ThemeUtil.THEME_TRANSLUCENT) &&
-            !ThemeUtil.isTranslucentTheme() || ThemeUtil.isTranslucentTheme() &&
-            !oldTheme.contains(ThemeUtil.THEME_TRANSLUCENT)
-        ) {
+        val oldWasTranslucent = oldTheme.contains(ThemeTokens.THEME_TRANSLUCENT)
+        val isTranslucent = currentState.isTranslucent
+        if ((oldWasTranslucent && !isTranslucent) || (isTranslucent && !oldWasTranslucent)) {
             recreate()
             return true
         }
@@ -342,4 +362,15 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     ): Job {
         return launch(Dispatchers.IO + job, start, block)
     }
+
+    private fun currentRawTheme(): String =
+        themeController.themeState.value.effectiveTheme.lowercase(Locale.getDefault())
+
+    private fun applyTranslucentBackgroundIfNeeded() {
+        val target = translucentBackgroundTargetView() ?: return
+        themeUiDelegate.setTranslucentThemeBackground(this, target)
+    }
+
+    protected open fun translucentBackgroundTargetView(): View? =
+        window?.decorView?.findViewById(android.R.id.content)
 }

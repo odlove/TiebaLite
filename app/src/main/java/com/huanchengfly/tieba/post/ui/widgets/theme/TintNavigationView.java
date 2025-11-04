@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 import com.google.android.material.navigation.NavigationView;
 import com.huanchengfly.tieba.post.R;
 import com.huanchengfly.tieba.core.ui.theme.Tintable;
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver;
 
 public class TintNavigationView extends NavigationView implements Tintable {
     private int mBackgroundTintResId;
@@ -45,17 +45,17 @@ public class TintNavigationView extends NavigationView implements Tintable {
 
     private void applyTintColor() {
         if (getBackground() == null) {
-            setBackgroundColor(ThemeUtils.getColorById(getContext(), mBackgroundTintResId));
+            setBackgroundColor(ThemeColorResolver.colorById(getContext(), mBackgroundTintResId));
         } else {
-            setBackgroundTintList(ColorStateList.valueOf(ThemeUtils.getColorById(getContext(), mBackgroundTintResId)));
+            setBackgroundTintList(ColorStateList.valueOf(ThemeColorResolver.colorById(getContext(), mBackgroundTintResId)));
         }
         if (mItemIconTintResId != 0) {
-            setItemIconTintList(ColorStateList.valueOf(ThemeUtils.getColorById(getContext(), mItemIconTintResId)));
+            setItemIconTintList(ColorStateList.valueOf(ThemeColorResolver.colorById(getContext(), mItemIconTintResId)));
         } else {
             setItemIconTintList(null);
         }
         if (mItemTextTintResId != 0) {
-            setItemTextColor(ColorStateList.valueOf(ThemeUtils.getColorById(getContext(), mItemTextTintResId)));
+            setItemTextColor(ColorStateList.valueOf(ThemeColorResolver.colorById(getContext(), mItemTextTintResId)));
         } else {
             setItemTextColor(null);
         }

@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import com.google.android.material.appbar.AppBarLayout;
 import com.huanchengfly.tieba.post.R;
 import com.huanchengfly.tieba.core.ui.theme.Tintable;
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver;
 
 @SuppressLint("CustomViewStyleable")
 public class TintAppBarLayout extends AppBarLayout implements Tintable {
@@ -49,9 +49,9 @@ public class TintAppBarLayout extends AppBarLayout implements Tintable {
 
     private void applyTintColor() {
         if (getBackground() == null) {
-            setBackgroundColor(ThemeUtils.getColorById(getContext(), mBackgroundTintResId));
+            setBackgroundColor(ThemeColorResolver.colorById(getContext(), mBackgroundTintResId));
         } else {
-            setBackgroundTintList(ColorStateList.valueOf(ThemeUtils.getColorById(getContext(), mBackgroundTintResId)));
+            setBackgroundTintList(ColorStateList.valueOf(ThemeColorResolver.colorById(getContext(), mBackgroundTintResId)));
         }
     }
 }

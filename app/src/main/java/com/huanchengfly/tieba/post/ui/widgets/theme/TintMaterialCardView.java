@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 import com.google.android.material.card.MaterialCardView;
 import com.huanchengfly.tieba.post.R;
 import com.huanchengfly.tieba.core.ui.theme.Tintable;
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver;
 
 @SuppressLint("CustomViewStyleable")
 public class TintMaterialCardView extends MaterialCardView implements Tintable {
@@ -55,13 +55,13 @@ public class TintMaterialCardView extends MaterialCardView implements Tintable {
 
     private void applyTintColor() {
         //int bg = ThemeUtils.getColorById(getContext(), mBackgroundTintResId);
-        int bg = ThemeUtils.getColorById(getContext(), R.color.default_color_card);
+        int bg = ThemeColorResolver.colorById(getContext(), R.color.default_color_card);
         setCardBackgroundColor(bg);
-        setStrokeColor(ThemeUtils.getColorById(getContext(), R.color.default_color_divider));
+        setStrokeColor(ThemeColorResolver.colorById(getContext(), R.color.default_color_divider));
         /*
-        setCardBackgroundColor(ThemeUtils.getColorById(getContext(), mBackgroundTintResId));
+        setCardBackgroundColor(ThemeColorResolver.colorById(getContext(), mBackgroundTintResId));
         if (mStrokeColorResId != 0) {
-            setStrokeColor(ThemeUtils.getColorById(getContext(), mStrokeColorResId));
+            setStrokeColor(ThemeColorResolver.colorById(getContext(), mStrokeColorResId));
         }
         */
     }

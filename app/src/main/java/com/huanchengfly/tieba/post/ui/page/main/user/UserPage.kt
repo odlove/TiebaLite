@@ -49,6 +49,8 @@ import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.models.database.Account
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.post.ui.common.theme.compose.LocalThemeController
+import com.huanchengfly.tieba.post.ui.common.theme.compose.LocalThemeState
 import com.huanchengfly.tieba.post.ui.common.theme.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.AboutPageDestination
@@ -68,7 +70,6 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.utils.CuidUtils
 import com.huanchengfly.tieba.post.utils.StringUtil
-import com.huanchengfly.tieba.post.utils.ThemeUtil
 import com.huanchengfly.tieba.post.utils.appPreferences
 
 @Composable
@@ -247,6 +248,8 @@ fun UserPage(
         prop1 = UserUiState::account,
         initial = null
     )
+    val themeController = LocalThemeController.current
+    val themeState = LocalThemeState.current
 
     val switchToNightDialogState = rememberDialogState()
     ConfirmDialog(
@@ -254,7 +257,7 @@ fun UserPage(
         onConfirm = {},
         onCancel = {
             context.appPreferences.followSystemNight = false
-            ThemeUtil.switchNightMode()
+            themeController.toggleNightMode()
         },
         confirmText = stringResource(id = R.string.btn_keep_following),
         cancelText = stringResource(id = R.string.btn_close_following)
@@ -354,12 +357,12 @@ fun UserPage(
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Switch(
-                        checked = ThemeUtil.isNightMode(ThemeUtil.themeState.value),
+                        checked = themeState.isNightMode,
                         onCheckedChange = {
                             if (context.appPreferences.followSystemNight) {
                                 switchToNightDialogState.show()
                             } else {
-                                ThemeUtil.switchNightMode()
+                                themeController.toggleNightMode()
                             }
                         }
                     )

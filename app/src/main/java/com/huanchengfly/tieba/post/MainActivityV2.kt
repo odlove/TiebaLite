@@ -38,6 +38,7 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -49,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -82,6 +84,7 @@ import com.huanchengfly.tieba.post.components.ClipBoardLinkDetector
 import com.huanchengfly.tieba.post.components.ClipBoardThreadLink
 import com.huanchengfly.tieba.post.services.NotifyJobService
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.post.ui.common.theme.compose.THEME_DIAGNOSTICS_TAG
 import com.huanchengfly.tieba.post.ui.page.NavGraphs
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
@@ -102,8 +105,9 @@ import com.huanchengfly.tieba.post.utils.JobServiceUtil
 import com.huanchengfly.tieba.post.utils.PermissionUtils
 import com.huanchengfly.tieba.post.utils.PickMediasRequest
 import com.huanchengfly.tieba.post.utils.QuickPreviewUtil
-import com.huanchengfly.tieba.post.utils.ThemeUtil
 import com.huanchengfly.tieba.post.utils.TiebaUtil
+import com.huanchengfly.tieba.post.collectPreferenceAsState
+import com.huanchengfly.tieba.post.dataStore
 import com.huanchengfly.tieba.core.ui.activityresult.ActivityResultPayload
 import com.huanchengfly.tieba.core.ui.activityresult.LaunchActivityForResult
 import com.huanchengfly.tieba.core.ui.activityresult.LaunchActivityRequest
@@ -119,6 +123,7 @@ import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.utils.currentDestinationAsState
+import java.util.concurrent.atomic.AtomicInteger
 import com.ramcosta.composedestinations.utils.currentDestinationFlow
 import com.huanchengfly.tieba.core.ui.navigation.LocalDestination
 import dagger.hilt.android.AndroidEntryPoint
@@ -132,6 +137,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -200,6 +206,12 @@ class MainActivityV2 : BaseComposeActivity() {
 
                     else -> DevicePosture.NormalPosture
                 }
+            }
+            .onEach {
+                Log.i(
+                    THEME_DIAGNOSTICS_TAG,
+                    "devicePostureFlow emit posture=${it::class.java.simpleName} value=$it"
+                )
             }
             .stateIn(
                 scope = lifecycleScope,
@@ -449,6 +461,28 @@ class MainActivityV2 : BaseComposeActivity() {
         val okSignAlertDialogState = rememberDialogState()
         ClipBoardDetectDialog()
 
+        val contentRecomposeCounter = remember { AtomicInteger(0) }
+        val currentThemeKey = ExtendedTheme.colors.theme
+        SideEffect {
+            val count = contentRecomposeCounter.incrementAndGet()
+            Log.i(
+                THEME_DIAGNOSTICS_TAG,
+                "MainActivityV2.Content recomposed count=$count theme=$currentThemeKey"
+            )
+        }
+        DisposableEffect(Unit) {
+            Log.i(
+                THEME_DIAGNOSTICS_TAG,
+                "MainActivityV2.Content entered"
+            )
+            onDispose {
+                Log.i(
+                    THEME_DIAGNOSTICS_TAG,
+                    "MainActivityV2.Content disposed"
+                )
+            }
+        }
+
         // 监听账号初始化完成后刷新账号信息
         val currentAccount = AccountUtil.LocalAccount.current
         LaunchedEffect(currentAccount) {
@@ -540,12 +574,25 @@ class MainActivityV2 : BaseComposeActivity() {
                     LocalNavController provides navController,
                     LocalDestination provides currentDestination,
                 ) {
+                    SideEffect {
+                        Log.i(
+                            THEME_DIAGNOSTICS_TAG,
+                            "MainActivityV2.NavHost composition currentDestination=${currentDestination?.route}"
+                        )
+                    }
+
                     ModalBottomSheetLayout(
                         bottomSheetNavigator = navigator,
                         sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
                         sheetBackgroundColor = ExtendedTheme.colors.windowBackground,
                         scrimColor = Color.Black.copy(alpha = 0.32f),
                     ) {
+                        SideEffect {
+                            Log.i(
+                                THEME_DIAGNOSTICS_TAG,
+                                "MainActivityV2.ModalBottomSheetLayout recomposed"
+                            )
+                        }
                         DestinationsNavHost(
                             navController = navController,
                             navGraph = NavGraphs.root,
@@ -555,6 +602,10 @@ class MainActivityV2 : BaseComposeActivity() {
                 }
 
                 SideEffect {
+                    Log.i(
+                        THEME_DIAGNOSTICS_TAG,
+                        "MainActivityV2 rememberNavController SideEffect current=${navController.currentDestination?.route}"
+                    )
                     myNavController = navController
                 }
             }
@@ -566,16 +617,56 @@ class MainActivityV2 : BaseComposeActivity() {
         modifier: Modifier = Modifier,
         content: @Composable () -> Unit,
     ) {
+        val extendedColors = ExtendedTheme.colors
+        val isTranslucent = extendedColors.isTranslucent
+
+        SideEffect {
+            Log.i(
+                THEME_DIAGNOSTICS_TAG,
+                "TranslucentThemeBackground recomposed theme=${extendedColors.theme} " +
+                    "translucent=$isTranslucent background=${extendedColors.background} " +
+                    "window=${extendedColors.windowBackground}"
+            )
+        }
+
+        DisposableEffect(Unit) {
+            Log.i(
+                THEME_DIAGNOSTICS_TAG,
+                "TranslucentThemeBackground entered"
+            )
+            onDispose {
+                Log.i(
+                    THEME_DIAGNOSTICS_TAG,
+                    "TranslucentThemeBackground disposed"
+                )
+            }
+        }
+
         Surface(
-            color = ExtendedTheme.colors.background,
+            color = extendedColors.background,
             modifier = modifier
         ) {
-            if (ThemeUtil.isTranslucentTheme(ExtendedTheme.colors.theme)) {
-                val backgroundPath by rememberPreferenceAsMutableState(
+            if (isTranslucent) {
+                val context = LocalContext.current
+                val backgroundPath by context.dataStore.collectPreferenceAsState(
                     key = stringPreferencesKey("translucent_theme_background_path"),
                     defaultValue = ""
                 )
-                val backgroundUri by remember { derivedStateOf { newFileUri(backgroundPath) } }
+                val backgroundUri = remember(backgroundPath) { newFileUri(backgroundPath) }
+
+                SideEffect {
+                    Log.i(
+                        THEME_DIAGNOSTICS_TAG,
+                        "TranslucentThemeBackground image layer path=$backgroundPath uri=$backgroundUri"
+                    )
+                }
+
+                LaunchedEffect(backgroundPath) {
+                    Log.i(
+                        THEME_DIAGNOSTICS_TAG,
+                        "TranslucentThemeBackground backgroundPath changed -> $backgroundPath"
+                    )
+                }
                 AsyncImage(
                     imageUri = backgroundUri,
                     contentDescription = null,
@@ -589,10 +680,45 @@ class MainActivityV2 : BaseComposeActivity() {
 
     @Composable
     fun TiebaLiteLocalProvider(content: @Composable () -> Unit) {
+        val recomposeCounter = remember { AtomicInteger(0) }
+        SideEffect {
+            val count = recomposeCounter.incrementAndGet()
+            Log.i(
+                THEME_DIAGNOSTICS_TAG,
+                "TiebaLiteLocalProvider recomposed count=$count"
+            )
+        }
+        val devicePostureState = devicePostureFlow.collectAsState()
+
+        LaunchedEffect(devicePostureState.value) {
+            Log.i(
+                THEME_DIAGNOSTICS_TAG,
+                "TiebaLiteLocalProvider devicePosture=${devicePostureState.value}"
+            )
+        }
+
         CompositionLocalProvider(
             LocalNotificationCountFlow provides notificationCountFlow,
-            LocalDevicePosture provides devicePostureFlow.collectAsState(),
+            LocalDevicePosture provides devicePostureState,
         ) {
+            SideEffect {
+                Log.i(
+                    THEME_DIAGNOSTICS_TAG,
+                    "TiebaLiteLocalProvider locals provided notificationReplay=${notificationCountFlow.replayCache}"
+                )
+            }
+            DisposableEffect(Unit) {
+                Log.i(
+                    THEME_DIAGNOSTICS_TAG,
+                    "TiebaLiteLocalProvider entered"
+                )
+                onDispose {
+                    Log.i(
+                        THEME_DIAGNOSTICS_TAG,
+                        "TiebaLiteLocalProvider disposed"
+                    )
+                }
+            }
             content()
         }
     }
@@ -605,6 +731,10 @@ class MainActivityV2 : BaseComposeActivity() {
                 val count = intent.getIntExtra("count", 0)
                 if (channel != null && channel == NotifyJobService.CHANNEL_TOTAL) {
                     lifecycleScope.launch {
+                        Log.i(
+                            THEME_DIAGNOSTICS_TAG,
+                            "notificationCountFlow emit channel=$channel count=$count"
+                        )
                         notificationCountFlow.emit(count)
                     }
                 }

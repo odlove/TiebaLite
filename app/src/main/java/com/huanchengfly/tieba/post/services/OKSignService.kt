@@ -15,7 +15,7 @@ import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.SignResultBean
 import com.huanchengfly.tieba.post.models.SignDataBean
 import com.huanchengfly.tieba.post.pendingIntentFlagImmutable
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import com.huanchengfly.tieba.post.utils.ProgressListener
 import com.huanchengfly.tieba.post.utils.SingleAccountSigner
@@ -109,7 +109,7 @@ class OKSignService : IntentService(TAG), CoroutineScope, ProgressListener {
             .setSmallIcon(R.drawable.ic_oksign)
             .setAutoCancel(true)
             .setStyle(NotificationCompat.BigTextStyle())
-            .setColor(ThemeUtils.getColorByAttr(this, R.attr.colorPrimary))
+            .setColor(ThemeColorResolver.colorByAttr(this, R.attr.colorPrimary))
     }
 
     private fun updateNotification(title: String, text: String, intent: Intent?) {

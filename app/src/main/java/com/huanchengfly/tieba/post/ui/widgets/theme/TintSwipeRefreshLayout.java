@@ -9,7 +9,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.huanchengfly.tieba.post.R;
 import com.huanchengfly.tieba.core.ui.theme.Tintable;
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver;
 
 public class TintSwipeRefreshLayout extends SwipeRefreshLayout implements Tintable {
     public TintSwipeRefreshLayout(@NonNull Context context) {
@@ -25,8 +25,8 @@ public class TintSwipeRefreshLayout extends SwipeRefreshLayout implements Tintab
     }
 
     private void applyTintColor() {
-        setColorSchemeColors(ThemeUtils.getColorByAttr(getContext(), R.attr.colorAccent));
-        setProgressBackgroundColorSchemeColor(ThemeUtils.getColorByAttr(getContext(), R.attr.colorIndicator));
+        setColorSchemeColors(ThemeColorResolver.colorByAttr(getContext(), R.attr.colorAccent));
+        setProgressBackgroundColorSchemeColor(ThemeColorResolver.colorByAttr(getContext(), R.attr.colorIndicator));
     }
 
     @Override

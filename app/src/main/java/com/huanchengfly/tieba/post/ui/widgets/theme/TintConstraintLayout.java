@@ -13,7 +13,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.huanchengfly.tieba.post.R;
 import com.huanchengfly.tieba.post.interfaces.BackgroundTintable;
 import com.huanchengfly.tieba.core.ui.theme.Tintable;
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver;
 
 @SuppressLint("CustomViewStyleable")
 public class TintConstraintLayout extends ConstraintLayout implements Tintable, BackgroundTintable {
@@ -51,9 +51,9 @@ public class TintConstraintLayout extends ConstraintLayout implements Tintable, 
     private void applyTintColor() {
         if (mBackgroundTintResId != 0) {
             if (getBackground() == null) {
-                setBackgroundColor(ThemeUtils.getColorById(getContext(), mBackgroundTintResId));
+                setBackgroundColor(ThemeColorResolver.colorById(getContext(), mBackgroundTintResId));
             } else {
-                setBackgroundTintList(ColorStateList.valueOf(ThemeUtils.getColorById(getContext(), mBackgroundTintResId)));
+                setBackgroundTintList(ColorStateList.valueOf(ThemeColorResolver.colorById(getContext(), mBackgroundTintResId)));
             }
         }
     }

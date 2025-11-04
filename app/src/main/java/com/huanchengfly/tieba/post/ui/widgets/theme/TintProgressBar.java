@@ -12,7 +12,7 @@ import androidx.core.widget.ContentLoadingProgressBar;
 
 import com.huanchengfly.tieba.post.R;
 import com.huanchengfly.tieba.core.ui.theme.Tintable;
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver;
 
 @SuppressLint("CustomViewStyleable")
 public class TintProgressBar extends ContentLoadingProgressBar implements Tintable {
@@ -52,15 +52,15 @@ public class TintProgressBar extends ContentLoadingProgressBar implements Tintab
     private void applyTintColor() {
         if (mBackgroundTintResId != 0) {
             if (getBackground() == null) {
-                setBackgroundColor(ThemeUtils.getColorById(getContext(), mBackgroundTintResId));
+                setBackgroundColor(ThemeColorResolver.colorById(getContext(), mBackgroundTintResId));
             } else {
-                setBackgroundTintList(ColorStateList.valueOf(ThemeUtils.getColorById(getContext(), mBackgroundTintResId)));
+                setBackgroundTintList(ColorStateList.valueOf(ThemeColorResolver.colorById(getContext(), mBackgroundTintResId)));
             }
         }
-        setProgressTintList(ColorStateList.valueOf(ThemeUtils.getColorById(getContext(), mProgressTintResId)));
-        setIndeterminateTintList(ColorStateList.valueOf(ThemeUtils.getColorById(getContext(), mProgressTintResId)));
+        setProgressTintList(ColorStateList.valueOf(ThemeColorResolver.colorById(getContext(), mProgressTintResId)));
+        setIndeterminateTintList(ColorStateList.valueOf(ThemeColorResolver.colorById(getContext(), mProgressTintResId)));
         if (mProgressBackgroundTintResId != 0) {
-            setProgressBackgroundTintList(ColorStateList.valueOf(ThemeUtils.getColorById(getContext(), mProgressBackgroundTintResId)));
+            setProgressBackgroundTintList(ColorStateList.valueOf(ThemeColorResolver.colorById(getContext(), mProgressBackgroundTintResId)));
         }
     }
 

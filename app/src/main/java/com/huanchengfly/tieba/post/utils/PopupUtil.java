@@ -12,7 +12,11 @@ import androidx.appcompat.widget.MenuPopupWindow;
 import androidx.appcompat.widget.PopupMenu;
 
 import com.huanchengfly.tieba.post.R;
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils;
+import com.huanchengfly.tieba.post.di.entrypoints.ThemeControllerEntryPoint;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeBridge;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeDrawableUtils;
+
+import dagger.hilt.android.EntryPointAccessors;
 
 import java.lang.reflect.Field;
 
@@ -26,28 +30,11 @@ public class PopupUtil {
             Field contextField = ListPopupWindow.class.getDeclaredField("mContext");
             contextField.setAccessible(true);
             Context context = (Context) contextField.get(listPopupWindow);
-            if (ThemeUtil.INSTANCE.getCurrentTheme().equals(ThemeUtil.THEME_TRANSLUCENT_LIGHT)) {
-                listPopupWindow.setBackgroundDrawable(
-                        ThemeUtils.tintDrawable(
-                                AppCompatResources.getDrawable(context, R.drawable.bg_popup),
-                                context.getResources().getColor(R.color.theme_color_background_light)
-                        )
-                );
-            } else if (ThemeUtil.INSTANCE.getCurrentTheme().equals(ThemeUtil.THEME_TRANSLUCENT_DARK)) {
-                listPopupWindow.setBackgroundDrawable(
-                        ThemeUtils.tintDrawable(
-                                AppCompatResources.getDrawable(context, R.drawable.bg_popup),
-                                context.getResources().getColor(R.color.theme_color_background_dark)
-                        )
-                );
-            } else {
-                listPopupWindow.setBackgroundDrawable(
-                        ThemeUtils.tintDrawable(
-                                AppCompatResources.getDrawable(context, R.drawable.bg_popup),
-                                ThemeUtils.getColorByAttr(context, R.attr.colorCard)
-                        )
-                );
-            }
+            ThemeBridge bridge = EntryPointAccessors.fromApplication(context.getApplicationContext(), ThemeControllerEntryPoint.class).themeBridge();
+            int backgroundColor = bridge.colorByAttr(context, R.attr.colorCard);
+            listPopupWindow.setBackgroundDrawable(
+                    ThemeDrawableUtils.tint(AppCompatResources.getDrawable(context, R.drawable.bg_popup), backgroundColor)
+            );
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -65,23 +52,11 @@ public class PopupUtil {
             Field popupField = obj.getClass().getDeclaredField("mPopup");
             popupField.setAccessible(true);
             MenuPopupWindow menuPopupWindow = (MenuPopupWindow) popupField.get(obj);
-            Log.i("Theme", ThemeUtil.INSTANCE.getCurrentTheme());
-            if (ThemeUtil.INSTANCE.getCurrentTheme().equals(ThemeUtil.THEME_TRANSLUCENT_LIGHT)) {
-                menuPopupWindow.setBackgroundDrawable(
-                        ThemeUtils.tintDrawable(context.getDrawable(R.drawable.bg_popup),
-                                context.getResources().getColor(R.color.theme_color_background_light))
-                );
-            } else if (ThemeUtil.INSTANCE.getCurrentTheme().equals(ThemeUtil.THEME_TRANSLUCENT_DARK)) {
-                menuPopupWindow.setBackgroundDrawable(
-                        ThemeUtils.tintDrawable(context.getDrawable(R.drawable.bg_popup),
-                                context.getResources().getColor(R.color.theme_color_background_dark))
-                );
-            } else {
-                menuPopupWindow.setBackgroundDrawable(
-                        ThemeUtils.tintDrawable(context.getDrawable(R.drawable.bg_popup),
-                                ThemeUtils.getColorByAttr(context, R.attr.colorCard))
-                );
-            }
+            ThemeBridge bridge = EntryPointAccessors.fromApplication(context.getApplicationContext(), ThemeControllerEntryPoint.class).themeBridge();
+            int backgroundColor = bridge.colorByAttr(context, R.attr.colorCard);
+            menuPopupWindow.setBackgroundDrawable(
+                    ThemeDrawableUtils.tint(context.getDrawable(R.drawable.bg_popup), backgroundColor)
+            );
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }

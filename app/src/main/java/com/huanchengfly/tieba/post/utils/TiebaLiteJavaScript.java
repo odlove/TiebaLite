@@ -7,6 +7,14 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import com.huanchengfly.tieba.core.ui.theme.ThemeController;
+import com.huanchengfly.tieba.core.ui.theme.ThemeTokens;
+import com.huanchengfly.tieba.post.di.entrypoints.ThemeControllerEntryPoint;
+
+import java.util.Locale;
+
+import dagger.hilt.android.EntryPointAccessors;
+
 public class TiebaLiteJavaScript {
     public static final String TAG = "JsBridge";
 
@@ -33,7 +41,15 @@ public class TiebaLiteJavaScript {
 
     @JavascriptInterface
     public String getTheme() {
-        return ThemeUtil.getRawTheme();
+        ThemeController controller = EntryPointAccessors.fromApplication(
+                context.getApplicationContext(),
+                ThemeControllerEntryPoint.class
+        ).themeController();
+        String rawTheme = controller.getThemeState().getValue().getRawTheme();
+        if (rawTheme == null || rawTheme.isEmpty()) {
+            return ThemeTokens.THEME_DEFAULT;
+        }
+        return rawTheme.toLowerCase(Locale.getDefault());
     }
 
     @JavascriptInterface

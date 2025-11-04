@@ -14,7 +14,8 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.huanchengfly.tieba.post.R;
 import com.huanchengfly.tieba.core.ui.theme.Tintable;
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeDrawableUtils;
 
 public class TintToolbar extends Toolbar implements Tintable {
     public static final String TAG = "TintToolbar";
@@ -69,8 +70,8 @@ public class TintToolbar extends Toolbar implements Tintable {
         tintOverflowIcon();
         //tintOverflowMenu();
         tintMenuIcon();
-        setTitleTextColor(ThemeUtils.getColorById(getContext(), mItemTintResId));
-        setSubtitleTextColor(ThemeUtils.getColorById(getContext(), mSecondaryItemTintResId));
+        setTitleTextColor(ThemeColorResolver.colorById(getContext(), mItemTintResId));
+        setSubtitleTextColor(ThemeColorResolver.colorById(getContext(), mSecondaryItemTintResId));
     }
 
     private void fixColor() {
@@ -88,9 +89,9 @@ public class TintToolbar extends Toolbar implements Tintable {
     private void tintBackground() {
         if (mBackgroundTintResId != 0) {
             if (getBackground() == null) {
-                setBackgroundColor(ThemeUtils.getColorById(getContext(), mBackgroundTintResId));
+                setBackgroundColor(ThemeColorResolver.colorById(getContext(), mBackgroundTintResId));
             } else {
-                setBackgroundTintList(ColorStateList.valueOf(ThemeUtils.getColorById(getContext(), mBackgroundTintResId)));
+                setBackgroundTintList(ColorStateList.valueOf(ThemeColorResolver.colorById(getContext(), mBackgroundTintResId)));
             }
         }
     }
@@ -112,9 +113,9 @@ public class TintToolbar extends Toolbar implements Tintable {
             states[0] = new int[]{android.R.attr.state_checked};
             states[1] = new int[]{android.R.attr.state_enabled};
             states[2] = new int[]{};
-            ColorStateList colorStateList = new ColorStateList(states, new int[]{ThemeUtils.getColorById(getContext(), mActiveItemTintResId),
-                    ThemeUtils.getColorById(getContext(), mItemTintResId),
-                    ThemeUtils.getColorById(getContext(), mSecondaryItemTintResId),
+            ColorStateList colorStateList = new ColorStateList(states, new int[]{ThemeColorResolver.colorById(getContext(), mActiveItemTintResId),
+                    ThemeColorResolver.colorById(getContext(), mItemTintResId),
+                    ThemeColorResolver.colorById(getContext(), mSecondaryItemTintResId),
             });
             drawable.setTintList(colorStateList);
             drawable.invalidateSelf();
@@ -128,7 +129,7 @@ public class TintToolbar extends Toolbar implements Tintable {
         if (drawable == null) {
             return;
         }
-        setNavigationIcon(ThemeUtils.tintDrawable(drawable, ThemeUtils.getColorById(getContext(), mItemTintResId)));
+        setNavigationIcon(ThemeDrawableUtils.tint(drawable, ThemeColorResolver.colorById(getContext(), mItemTintResId)));
     }
 
     private void tintOverflowIcon() {
@@ -136,7 +137,7 @@ public class TintToolbar extends Toolbar implements Tintable {
         if (drawable == null) {
             return;
         }
-        setOverflowIcon(ThemeUtils.tintDrawable(drawable, ThemeUtils.getColorById(getContext(), mItemTintResId)));
+        setOverflowIcon(ThemeDrawableUtils.tint(drawable, ThemeColorResolver.colorById(getContext(), mItemTintResId)));
     }
 
     @Override

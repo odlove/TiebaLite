@@ -5,7 +5,6 @@ import static com.huanchengfly.tieba.post.utils.ColorUtils.greifyColor;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -32,7 +31,10 @@ import androidx.appcompat.widget.AppCompatDrawableManager;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.huanchengfly.tieba.post.R;
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils;
+import com.huanchengfly.tieba.post.di.entrypoints.ThemeControllerEntryPoint;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeUiDelegate;
+import dagger.hilt.android.EntryPointAccessors;
 
 import java.lang.reflect.Field;
 import java.util.Calendar;
@@ -42,19 +44,20 @@ public class Util {
 
     public static Snackbar createSnackbar(@NonNull View view, @NonNull CharSequence text, @Snackbar.Duration int duration) {
         Snackbar snackbar = Snackbar.make(view, text, duration);
-        snackbar.setActionTextColor(ThemeUtils.getColorByAttr(view.getContext(), R.attr.colorAccent));
+        ThemeUiDelegate themeUiDelegate = EntryPointAccessors.fromApplication(
+                view.getContext().getApplicationContext(),
+                ThemeControllerEntryPoint.class
+        ).themeUiDelegate();
+        themeUiDelegate.applySnackbar(snackbar);
         View mView = snackbar.getView();
         Button mButton = mView.findViewById(R.id.snackbar_action);
         TextView mTextView = mView.findViewById(R.id.snackbar_text);
-        mButton.setTextAppearance(view.getContext(), R.style.TextAppearance_Bold);
-        if (ThemeUtil.THEME_TRANSLUCENT.equals(ThemeUtil.getRawTheme())) {
-            mView.setBackgroundTintList(ColorStateList.valueOf(view.getResources().getColor(R.color.white)));
-            mTextView.setTextColor(view.getResources().getColor(R.color.color_text));
-        } else {
-            mView.setBackgroundTintList(ColorStateList.valueOf(ThemeUtils.getColorByAttr(view.getContext(), R.attr.colorCard)));
-            mTextView.setTextColor(ThemeUtils.getColorByAttr(view.getContext(), R.attr.colorText));
+        if (mButton != null) {
+            mButton.setTextAppearance(view.getContext(), R.style.TextAppearance_Bold);
         }
-        mTextView.setTextAppearance(view.getContext(), R.style.TextAppearance_Bold);
+        if (mTextView != null) {
+            mTextView.setTextAppearance(view.getContext(), R.style.TextAppearance_Bold);
+        }
         return snackbar;
     }
 
@@ -151,6 +154,7 @@ public class Util {
         return greifyColor(color, 0.2f);
     }
 
+    @Deprecated
     public static @ColorInt
     int getColorByAttr(Context context, @AttrRes int attr, @ColorRes int defaultColor) {
         int[] attrs = new int[]{attr};

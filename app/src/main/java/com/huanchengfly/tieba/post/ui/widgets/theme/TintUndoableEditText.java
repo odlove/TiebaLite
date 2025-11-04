@@ -9,7 +9,7 @@ import android.util.AttributeSet;
 import com.huanchengfly.tieba.post.R;
 import com.huanchengfly.tieba.core.ui.theme.Tintable;
 import com.huanchengfly.tieba.core.ui.theme.ColorStateListUtils;
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils;
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeDrawableUtils;
 import com.huanchengfly.tieba.post.ui.widgets.edittext.widget.UndoableEditText;
 
 public class TintUndoableEditText extends UndoableEditText implements Tintable {
@@ -66,7 +66,7 @@ public class TintUndoableEditText extends UndoableEditText implements Tintable {
                 if (drawable == null) {
                     return;
                 }
-                setTextCursorDrawable(ThemeUtils.tintDrawable(drawable, ColorStateListUtils.createColorStateList(getContext(), mCursorColorResId)));
+                setTextCursorDrawable(ThemeDrawableUtils.tint(drawable, ColorStateListUtils.createColorStateList(getContext(), mCursorColorResId)));
             }
         }
     }

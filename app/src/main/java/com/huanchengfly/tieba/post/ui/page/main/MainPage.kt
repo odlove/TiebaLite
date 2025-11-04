@@ -1,5 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.main
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
@@ -44,6 +45,7 @@ import com.huanchengfly.tieba.post.ui.page.main.user.UserPage
 import com.huanchengfly.tieba.post.ui.utils.DevicePosture
 import com.huanchengfly.tieba.post.ui.utils.MainNavigationContentPosition
 import com.huanchengfly.tieba.post.ui.utils.MainNavigationType
+import com.huanchengfly.tieba.post.ui.common.theme.compose.THEME_DIAGNOSTICS_TAG
 import com.huanchengfly.tieba.core.ui.compose.LazyLoadHorizontalPager
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
@@ -111,9 +113,20 @@ fun MainPage(
         initial = 0
     )
 
+    LaunchedEffect(messageCount) {
+        Log.i(
+            THEME_DIAGNOSTICS_TAG,
+            "MainPage messageCount updated value=$messageCount"
+        )
+    }
+
     val notificationCountFlow = LocalNotificationCountFlow.current
     LaunchedEffect(null) {
         notificationCountFlow.collect {
+            Log.i(
+                THEME_DIAGNOSTICS_TAG,
+                "MainPage notificationCountFlow received count=$it"
+            )
             viewModel.send(MainUiIntent.NewMessage.Receive(it))
         }
     }

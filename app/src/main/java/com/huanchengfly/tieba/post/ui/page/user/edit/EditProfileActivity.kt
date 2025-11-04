@@ -37,7 +37,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -68,16 +67,17 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.github.panpf.sketch.compose.AsyncImage
 import com.eygraber.compose.placeholder.material.placeholder
-import com.stoyanvuchev.systemuibarstweaker.SystemBarStyle
 import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.core.common.collectIn
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.post.toastShort
+import com.huanchengfly.tieba.post.ui.common.theme.compose.ApplySystemBars
 import com.huanchengfly.tieba.post.ui.common.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.post.ui.common.theme.compose.ProvideThemeController
 import com.huanchengfly.tieba.post.ui.common.theme.compose.TiebaLiteTheme
-import com.huanchengfly.tieba.core.ui.theme.ThemeUtils
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver
 import com.huanchengfly.tieba.post.ui.widgets.compose.ActionItem
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.BaseTextField
@@ -87,12 +87,13 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.DialogNegativeButton
 import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.picker.ListSinglePicker
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
+import com.huanchengfly.tieba.core.ui.windowsizeclass.calculateWindowSizeClass
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import com.huanchengfly.tieba.post.utils.ColorUtils
 import com.huanchengfly.tieba.post.utils.PermissionUtils
 import com.huanchengfly.tieba.post.utils.PickMediasRequest
 import com.huanchengfly.tieba.post.utils.StringUtil
-import com.huanchengfly.tieba.post.utils.ThemeUtil
 import com.huanchengfly.tieba.post.utils.registerPickMediasLauncher
 import com.huanchengfly.tieba.post.utils.requestPermission
 import com.huanchengfly.tieba.post.utils.shouldUsePhotoPicker
@@ -141,25 +142,25 @@ class EditProfileActivity : BaseActivity() {
                                     setShowCropFrame(true)
                                     setShowCropGrid(true)
                                     setToolbarColor(
-                                        ThemeUtils.getColorByAttr(
+                                        ThemeColorResolver.colorByAttr(
                                             this@EditProfileActivity,
                                             R.attr.colorPrimary
                                         )
                                     )
                                     setToolbarWidgetColor(
-                                        ThemeUtils.getColorByAttr(
+                                        ThemeColorResolver.colorByAttr(
                                             this@EditProfileActivity,
                                             R.attr.colorTextOnPrimary
                                         )
                                     )
                                     setActiveControlsWidgetColor(
-                                        ThemeUtils.getColorByAttr(
+                                        ThemeColorResolver.colorByAttr(
                                             this@EditProfileActivity,
                                             R.attr.colorAccent
                                         )
                                     )
                                     setLogoColor(
-                                        ThemeUtils.getColorByAttr(
+                                        ThemeColorResolver.colorByAttr(
                                             this@EditProfileActivity,
                                             R.attr.colorPrimary
                                         )
@@ -192,27 +193,16 @@ class EditProfileActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
-            CompositionLocalProvider(LocalGlobalEventBus provides globalEventBus) {
-                TiebaLiteTheme {
-                    val systemUIBarsTweaker = rememberSystemUIBarsTweaker()
-                SideEffect {
-                    val statusBarDarkIcons = ThemeUtil.isStatusBarFontDark()
-                    val navigationBarDarkIcons = ThemeUtil.isNavigationBarFontDark()
-
-                    systemUIBarsTweaker.tweakStatusBarStyle(
-                        SystemBarStyle(
-                            color = Color.Transparent,
-                            darkIcons = statusBarDarkIcons
-                        )
-                    )
-                    systemUIBarsTweaker.tweakNavigationBarStyle(
-                        SystemBarStyle(
-                            color = Color.Transparent,
-                            darkIcons = navigationBarDarkIcons
-                        )
-                    )
-                }
-                    PageEditProfile(viewModel, onBackPressed = { onBackPressedDispatcher.onBackPressed() })
+            ProvideThemeController {
+                CompositionLocalProvider(
+                    LocalGlobalEventBus provides globalEventBus,
+                    LocalWindowSizeClass provides calculateWindowSizeClass(activity = this)
+                ) {
+                    TiebaLiteTheme {
+                        val systemUIBarsTweaker = rememberSystemUIBarsTweaker()
+                        ApplySystemBars(systemUIBarsTweaker)
+                        PageEditProfile(viewModel, onBackPressed = { onBackPressedDispatcher.onBackPressed() })
+                    }
                 }
             }
         }

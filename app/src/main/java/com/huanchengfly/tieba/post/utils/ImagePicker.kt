@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
 import com.huanchengfly.tieba.core.mvi.MediaSelectorType
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.post.ui.common.theme.ThemeColorResolver
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
 import com.zhihu.matisse.engine.impl.GlideEngine
@@ -130,7 +131,13 @@ object PickMediasContract : ActivityResultContract<PickMediasRequest, PickMedias
         }
         Matisse.from(context as Activity)
             .choose(mimeType)
-            .theme(if (ThemeUtil.isNightMode()) R.style.Matisse_Dracula else R.style.Matisse_Zhihu)
+            .theme(
+                if (ThemeColorResolver.state(context).isNightMode) {
+                    R.style.Matisse_Dracula
+                } else {
+                    R.style.Matisse_Zhihu
+                }
+            )
             .countable(input.maxItems > 1)
             .maxSelectable(minOf(input.maxItems, getMaxItems(preferences)))
             .imageEngine(GlideEngine())

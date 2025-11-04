@@ -78,11 +78,12 @@ import com.huanchengfly.tieba.core.mvi.GlobalEvent
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
-import com.huanchengfly.tieba.post.components.ClipBoardForumLink
-import com.huanchengfly.tieba.post.components.ClipBoardLink
+import com.huanchengfly.tieba.core.runtime.preview.ClipBoardLink
+import com.huanchengfly.tieba.core.runtime.preview.ForumLink
+import com.huanchengfly.tieba.core.runtime.preview.ThreadLink
 import com.huanchengfly.tieba.post.components.ClipBoardLinkDetector
-import com.huanchengfly.tieba.post.components.ClipBoardThreadLink
 import com.huanchengfly.tieba.post.services.NotifyJobService
+import com.huanchengfly.tieba.post.services.notification.NotificationConstants
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
 import com.huanchengfly.tieba.post.ui.page.NavGraphs
@@ -104,7 +105,6 @@ import com.huanchengfly.tieba.core.runtime.client.ClientUtils
 import com.huanchengfly.tieba.post.utils.JobServiceUtil
 import com.huanchengfly.tieba.post.utils.PermissionUtils
 import com.huanchengfly.tieba.post.utils.PickMediasRequest
-import com.huanchengfly.tieba.post.utils.QuickPreviewUtil
 import com.huanchengfly.tieba.post.utils.TiebaUtil
 import com.huanchengfly.tieba.post.collectPreferenceAsState
 import com.huanchengfly.tieba.post.dataStore
@@ -171,6 +171,7 @@ class MainActivityV2 : BaseComposeActivity() {
     lateinit var clipBoardLinkDetector: ClipBoardLinkDetector
     private val handler = Handler(Looper.getMainLooper())
     private val newMessageReceiver: BroadcastReceiver = NewMessageReceiver()
+    private var isNewMessageReceiverRegistered = false
 
     private val notificationCountFlow: MutableSharedFlow<Int> =
         MutableSharedFlow(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -329,13 +330,18 @@ class MainActivityV2 : BaseComposeActivity() {
 
     override fun onStart() {
         super.onStart()
+        if (!isNewMessageReceiverRegistered) {
+            runCatching {
+                ContextCompat.registerReceiver(
+                    this,
+                    newMessageReceiver,
+                    newIntentFilter(NotificationConstants.ACTION_NEW_MESSAGE),
+                    ContextCompat.RECEIVER_NOT_EXPORTED
+                )
+                isNewMessageReceiverRegistered = true
+            }
+        }
         runCatching {
-            ContextCompat.registerReceiver(
-                this,
-                newMessageReceiver,
-                newIntentFilter(NotifyJobService.ACTION_NEW_MESSAGE),
-                ContextCompat.RECEIVER_NOT_EXPORTED
-            )
             startService(Intent(this, NotifyJobService::class.java))
             val builder = JobInfo.Builder(
                 JobServiceUtil.getJobId(this),
@@ -347,6 +353,16 @@ class MainActivityV2 : BaseComposeActivity() {
             val jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
             jobScheduler.schedule(builder.build())
         }
+    }
+
+    override fun onStop() {
+        if (isNewMessageReceiverRegistered) {
+            runCatching {
+                unregisterReceiver(newMessageReceiver)
+            }
+            isNewMessageReceiverRegistered = false
+        }
+        super.onStop()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -369,11 +385,11 @@ class MainActivityV2 : BaseComposeActivity() {
 
     private fun openClipBoardLink(link: ClipBoardLink) {
         when (link) {
-            is ClipBoardThreadLink -> {
+            is ThreadLink -> {
                 myNavController?.navigate(Uri.parse("tblite://thread/${link.threadId}"))
             }
 
-            is ClipBoardForumLink -> {
+            is ForumLink -> {
                 myNavController?.navigate(Uri.parse("tblite://forum/${link.forumName}"))
             }
 
@@ -423,16 +439,21 @@ class MainActivityV2 : BaseComposeActivity() {
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        it.icon?.let { icon ->
-                            if (icon.type == QuickPreviewUtil.Icon.TYPE_DRAWABLE_RES) {
+                        val icon = it.icon
+                        val iconResId = icon.resId
+                        val iconUrl = icon.url
+                        when {
+                            iconResId != null -> {
                                 AvatarIcon(
-                                    resId = icon.res,
+                                    resId = iconResId,
                                     size = Sizes.Medium,
                                     contentDescription = null
                                 )
-                            } else {
+                            }
+
+                            iconUrl != null -> {
                                 Avatar(
-                                    data = icon.url,
+                                    data = iconUrl,
                                     size = Sizes.Medium,
                                     contentDescription = null
                                 )
@@ -442,12 +463,8 @@ class MainActivityV2 : BaseComposeActivity() {
                             modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            it.title?.let { title ->
-                                Text(text = title, style = MaterialTheme.typography.subtitle1)
-                            }
-                            it.subtitle?.let { subtitle ->
-                                Text(text = subtitle, style = MaterialTheme.typography.body2)
-                            }
+                            Text(text = it.title, style = MaterialTheme.typography.subtitle1)
+                            Text(text = it.subtitle, style = MaterialTheme.typography.body2)
                         }
                     }
                 }
@@ -726,10 +743,10 @@ class MainActivityV2 : BaseComposeActivity() {
     private inner class NewMessageReceiver : BroadcastReceiver() {
         @SuppressLint("RestrictedApi")
         override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == NotifyJobService.ACTION_NEW_MESSAGE) {
+            if (intent.action == NotificationConstants.ACTION_NEW_MESSAGE) {
                 val channel = intent.getStringExtra("channel")
                 val count = intent.getIntExtra("count", 0)
-                if (channel != null && channel == NotifyJobService.CHANNEL_TOTAL) {
+                if (channel != null && channel == NotificationConstants.CHANNEL_TOTAL_ID) {
                     lifecycleScope.launch {
                         Log.i(
                             THEME_DIAGNOSTICS_TAG,

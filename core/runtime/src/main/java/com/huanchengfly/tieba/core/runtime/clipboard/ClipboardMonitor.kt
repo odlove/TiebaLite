@@ -12,6 +12,7 @@ import javax.inject.Singleton
 @Singleton
 class ClipboardMonitor @Inject constructor(
     private val clipboardReader: ClipboardReader,
+    private val contentParser: ClipboardContentParser,
     private val previewHandler: ClipboardPreviewHandler
 ) : Application.ActivityLifecycleCallbacks {
 
@@ -33,8 +34,9 @@ class ClipboardMonitor @Inject constructor(
     private fun evaluateClipboard(activity: Activity) {
         val text = clipboardReader.readText()
         val timestamp = clipboardReader.readTimestamp()
+        val content = text?.takeIf { it.isNotBlank() }?.let(contentParser::parse)
 
-        if (text.isNullOrBlank()) {
+        if (content == null) {
             if (lastClipboardSignature != null) {
                 lastClipboardSignature = null
                 pendingSignature = null
@@ -43,12 +45,12 @@ class ClipboardMonitor @Inject constructor(
             return
         }
 
-        val signature = computeSignature(timestamp, text)
+        val signature = computeSignature(timestamp, content)
         if (signature == lastClipboardSignature && signature != pendingSignature) {
             return
         }
 
-        val handled = previewHandler.onClipboardContent(activity, text)
+        val handled = previewHandler.onClipboardContent(activity, content)
         if (handled) {
             pendingSignature = null
             lastClipboardSignature = signature
@@ -58,10 +60,13 @@ class ClipboardMonitor @Inject constructor(
         }
     }
 
-    private fun computeSignature(timestamp: Long, text: String): String =
-        if (timestamp != 0L) {
-            "$timestamp:${text.hashCode()}"
+    private fun computeSignature(timestamp: Long, content: ClipboardContent): String {
+        val payload = content.link.url.ifBlank { content.rawText }
+        val hash = payload.hashCode()
+        return if (timestamp != 0L) {
+            "$timestamp:$hash"
         } else {
-            "0:${text.hashCode()}"
+            "0:$hash"
         }
+    }
 }

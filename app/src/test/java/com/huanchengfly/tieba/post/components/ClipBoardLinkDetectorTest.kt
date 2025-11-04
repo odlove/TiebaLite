@@ -1,87 +1,57 @@
 package com.huanchengfly.tieba.post.components
 
+import com.huanchengfly.tieba.core.runtime.preview.ForumLink
+import com.huanchengfly.tieba.core.runtime.preview.QuickPreviewService
+import com.huanchengfly.tieba.core.runtime.preview.SimpleLink
+import com.huanchengfly.tieba.core.runtime.preview.ThreadLink
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
-/**
- * Smoke tests for ClipBoardLinkDetector
- *
- * Tests verify (4 tests):
- * - ClipBoardLink data class structure (3 tests)
- * - PreviewInfoStateFlow accessibility (1 test)
- *
- * Testing Strategy:
- * - Only test public API and data structures
- * - No lifecycle/Activity integration tests (would require Robolectric)
- * - Validates basic class structure after refactoring
- *
- * Limitations:
- * - parseLink() is private and cannot be tested directly
- * - Full clipboard detection flow requires Activity context
- * - EntryPoint injection logic requires Robolectric or instrumentation tests
- *
- * Future Enhancements:
- * - Add Robolectric dependency for full integration testing
- * - Test clipboard detection workflow with mocked Activity
- * - Test QuickPreviewUtil integration via EntryPoint
- * - Test lifecycle callbacks (onActivityStarted, etc.)
- */
 class ClipBoardLinkDetectorTest {
 
-    // ========== ClipBoardLink Data Class Tests ==========
-
     @Test
-    fun `ClipBoardLink should store URL correctly`() {
-        // Given: A URL
+    fun `SimpleLink stores url`() {
         val url = "https://tieba.baidu.com/p/123456"
-
-        // When: Create ClipBoardLink
-        val link = ClipBoardLink(url)
-
-        // Then: URL should be stored
+        val link = SimpleLink(url)
         assertEquals(url, link.url)
     }
 
     @Test
-    fun `ClipBoardForumLink should contain forum name and URL`() {
-        // Given: A forum URL and name
+    fun `ForumLink stores forum name`() {
         val url = "https://tieba.baidu.com/f?kw=test"
         val forumName = "test"
-
-        // When: Create ClipBoardForumLink
-        val link = ClipBoardForumLink(url, forumName)
-
-        // Then: URL and forum name should be stored
+        val link = ForumLink(url, forumName)
         assertEquals(url, link.url)
         assertEquals(forumName, link.forumName)
-        // Verify it's a subclass of ClipBoardLink
-        assert(link is ClipBoardLink)
     }
 
     @Test
-    fun `ClipBoardThreadLink should contain thread ID and URL`() {
-        // Given: A thread URL and ID
+    fun `ThreadLink stores thread id`() {
         val url = "https://tieba.baidu.com/p/123456"
-        val threadId = "123456"
-
-        // When: Create ClipBoardThreadLink
-        val link = ClipBoardThreadLink(url, threadId)
-
-        // Then: URL and thread ID should be stored
+        val threadId = 123456L
+        val link = ThreadLink(url, threadId)
         assertEquals(url, link.url)
         assertEquals(threadId, link.threadId)
-        // Verify it's a subclass of ClipBoardLink
-        assert(link is ClipBoardLink)
     }
 
-    // ========== ClipBoardLinkDetector Public API Tests ==========
+    @Test
+    fun `Preview state flow starts null`() {
+        val detector = ClipBoardLinkDetector(FakeQuickPreviewService())
+        assertNull(detector.previewInfoStateFlow.value)
+    }
 
-    // Note: Additional tests would require Robolectric setup:
-    // - Test parseLink() logic with various URL patterns (private method)
-    // - Test checkClipBoard() workflow with mocked Activity
-    // - Test lifecycle callbacks (onActivityStarted, etc.)
-    // - Test EntryPoint integration with QuickPreviewUtil
-    //
-    // These tests are deferred until Robolectric is added to test dependencies.
-    // The current tests validate the basic structure and public API after refactoring.
+    private class FakeQuickPreviewService : QuickPreviewService {
+        override fun getPreviewFlow(context: android.content.Context, link: com.huanchengfly.tieba.core.runtime.preview.ClipBoardLink, lifecycle: androidx.lifecycle.Lifecycle?): Flow<com.huanchengfly.tieba.core.runtime.preview.PreviewInfo?> = emptyFlow()
+
+        override fun fetchPreview(
+            context: android.content.Context,
+            link: com.huanchengfly.tieba.core.runtime.preview.ClipBoardLink,
+            callback: (Result<com.huanchengfly.tieba.core.runtime.preview.PreviewInfo>) -> Unit
+        ) {
+            callback(Result.failure(UnsupportedOperationException("Not used")))
+        }
+    }
 }

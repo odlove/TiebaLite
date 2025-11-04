@@ -25,16 +25,18 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.gyf.immersionbar.ImmersionBar
-import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsRegistry
+import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsManager
 import com.huanchengfly.tieba.core.ui.theme.ExtraRefreshable
 import com.huanchengfly.tieba.core.ui.theme.ThemeController
 import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.App.Companion.INSTANCE
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeActivityHost
 import com.huanchengfly.tieba.core.ui.theme.runtime.entrypoints.ThemeRuntimeEntryPoint
 import com.huanchengfly.tieba.post.di.entrypoints.ThemeUiDelegateEntryPoint
-import com.huanchengfly.tieba.post.ui.common.theme.ThemeUiDelegate
+import com.huanchengfly.tieba.post.di.entrypoints.ScreenMetricsEntryPoint
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeUiDelegate
 import com.huanchengfly.tieba.post.ui.widgets.VoicePlayerView
 import com.huanchengfly.tieba.core.ui.widgets.theme.TintToolbar
 import com.huanchengfly.tieba.post.utils.AppPreferencesUtils
@@ -51,7 +53,7 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.coroutines.CoroutineContext
 
-abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineScope {
+abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineScope, ThemeActivityHost {
     val job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
@@ -79,9 +81,26 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
         )
     }
 
+    private val screenMetricsEntryPoint: ScreenMetricsEntryPoint by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            ScreenMetricsEntryPoint::class.java
+        )
+    }
+
     protected val themeController: ThemeController by lazy { themeRuntimeEntryPoint.themeController() }
 
     protected val themeUiDelegate: ThemeUiDelegate by lazy { themeUiEntryPoint.themeUiDelegate() }
+
+    protected val screenMetricsManager: ScreenMetricsManager by lazy { screenMetricsEntryPoint.screenMetricsManager() }
+
+    protected val translucentBackgroundStore by lazy { themeRuntimeEntryPoint.translucentBackgroundStore() }
+
+    override val activity: AppCompatActivity
+        get() = this
+
+    override val coroutineScope: CoroutineScope
+        get() = this
 
     override fun onPause() {
         super.onPause()
@@ -255,7 +274,7 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     private fun getDeviceDensity() {
         val metrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(metrics)
-        ScreenMetricsRegistry.update(metrics)
+        screenMetricsManager.update(metrics)
     }
 
     protected fun colorAnim(view: ImageView, vararg value: Int): ValueAnimator {

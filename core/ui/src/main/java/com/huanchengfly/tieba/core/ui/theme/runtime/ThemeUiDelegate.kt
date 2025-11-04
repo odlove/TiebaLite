@@ -1,10 +1,8 @@
-package com.huanchengfly.tieba.post.ui.common.theme
+package com.huanchengfly.tieba.core.ui.theme.runtime
 
 import android.app.Activity
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.AttrRes
@@ -13,35 +11,33 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.WindowCompat
-import com.google.android.material.snackbar.Snackbar
-import android.widget.Button
-import android.widget.TextView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.github.panpf.sketch.fetch.newFileUri
 import com.github.panpf.sketch.request.DisplayRequest
 import com.github.panpf.sketch.request.DisplayResult
 import com.github.panpf.sketch.request.execute
-import com.github.panpf.sketch.resize.Scale
+import com.google.android.material.snackbar.Snackbar
+import com.huanchengfly.tieba.core.ui.R
 import com.huanchengfly.tieba.core.ui.theme.ExtraRefreshable
 import com.huanchengfly.tieba.core.ui.theme.ThemeState
-import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.core.ui.theme.Tintable
-import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeBridge
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeDrawableUtils
-import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.core.ui.widgets.theme.BackgroundTintable
 import com.huanchengfly.tieba.core.ui.widgets.theme.TintSwipeRefreshLayout
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.util.Log
 
+@Singleton
 class ThemeUiDelegate @Inject constructor(
-    private val themeBridge: ThemeBridge
+    private val themeBridge: ThemeBridge,
+    private val translucentBackgroundStore: TranslucentBackgroundStore,
+    private val themeStyleProvider: ThemeStyleProvider
 ) {
+
     companion object {
         private const val TAG = "ThemeUiDelegate"
     }
@@ -55,7 +51,7 @@ class ThemeUiDelegate @Inject constructor(
 
     fun applyTheme(activity: Activity) {
         val themeKey = themeBridge.currentState.effectiveTheme
-        activity.setTheme(resolveThemeRes(themeKey))
+        activity.setTheme(themeStyleProvider.resolveThemeStyle(themeKey))
     }
 
     fun themeColor(activity: Activity, @AttrRes attr: Int): Int =
@@ -72,12 +68,12 @@ class ThemeUiDelegate @Inject constructor(
         toolbar.setBackgroundColor(background)
         toolbar.setTitleTextColor(titleColor)
         toolbar.setSubtitleTextColor(subtitleColor)
-        toolbar.navigationIcon = tintDrawable(toolbar.navigationIcon, titleColor)
-        toolbar.overflowIcon = tintDrawable(toolbar.overflowIcon, titleColor)
+        toolbar.navigationIcon = ThemeDrawableUtils.tint(toolbar.navigationIcon, titleColor)
+        toolbar.overflowIcon = ThemeDrawableUtils.tint(toolbar.overflowIcon, titleColor)
         val menu = toolbar.menu
         for (i in 0 until menu.size()) {
             val item = menu.getItem(i)
-            item.icon = tintDrawable(item.icon, titleColor)
+            item.icon = ThemeDrawableUtils.tint(item.icon, titleColor)
         }
     }
 
@@ -89,14 +85,19 @@ class ThemeUiDelegate @Inject constructor(
         snackbar.setActionTextColor(accentColor)
         val view = snackbar.view
         view.setBackgroundColor(cardColor)
-        view.findViewById<TextView?>(com.google.android.material.R.id.snackbar_text)?.setTextColor(textColor)
-        view.findViewById<Button?>(com.google.android.material.R.id.snackbar_action)?.setTextColor(accentColor)
+        view.findViewById<View?>(com.google.android.material.R.id.snackbar_text)?.let {
+            if (it is android.widget.TextView) {
+                it.setTextColor(textColor)
+            }
+        }
+        view.findViewById<View?>(com.google.android.material.R.id.snackbar_action)?.let {
+            if (it is android.widget.Button) {
+                it.setTextColor(accentColor)
+            }
+        }
     }
 
-    private fun tintDrawable(drawable: Drawable?, color: Int): Drawable? =
-        ThemeDrawableUtils.tint(drawable, color)
-
-    fun applySwipeRefreshColors(layout: SwipeRefreshLayout) {
+    fun applySwipeRefreshColors(layout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout) {
         if (layout is TintSwipeRefreshLayout) {
             layout.tint()
             return
@@ -122,12 +123,13 @@ class ThemeUiDelegate @Inject constructor(
     }
 
     fun setTranslucentThemeBackground(
-        activity: BaseActivity,
+        host: ThemeActivityHost,
         view: View?,
         setFitsSystemWindow: Boolean = true,
         useCache: Boolean = true
     ) {
         if (view == null) return
+        val activity = host.activity
         val currentState = themeBridge.currentState
         Log.i(
             THEME_DIAGNOSTICS_TAG,
@@ -190,8 +192,8 @@ class ThemeUiDelegate @Inject constructor(
         }
 
         val existingPath = view.getTag(R.id.tag_translucent_background_path) as? String
-        activity.launch {
-            val inMemory = App.translucentBackground
+        host.coroutineScope.launch {
+            val inMemory = translucentBackgroundStore.drawable
             if (useCache && inMemory != null && (inMemory !is BitmapDrawable || !inMemory.bitmap.isRecycled)) {
                 withContext(Dispatchers.Main) {
                     if (existingPath != backgroundPath || view.background !== inMemory) {
@@ -216,13 +218,11 @@ class ThemeUiDelegate @Inject constructor(
                 return@launch
             }
 
-            val result = DisplayRequest(activity, newFileUri(backgroundPath)) {
-                resizeScale(Scale.CENTER_CROP)
-            }.execute()
+            val result = DisplayRequest(activity, newFileUri(backgroundPath)).execute()
             withContext(Dispatchers.Main) {
                 if (result is DisplayResult.Success) {
                     if (useCache) {
-                        App.translucentBackground = result.drawable
+                        translucentBackgroundStore.drawable = result.drawable
                     }
                     view.background = result.drawable
                     view.setTag(R.id.tag_translucent_background_path, backgroundPath)
@@ -255,33 +255,33 @@ class ThemeUiDelegate @Inject constructor(
         activity?.window?.decorView?.postInvalidateOnAnimation()
     }
 
-    fun reapplyTheme(activity: BaseActivity, applyStatusBar: Boolean = true) {
-        applyTheme(activity)
+    fun reapplyTheme(host: ThemeActivityHost, applyStatusBar: Boolean = true) {
+        applyTheme(host.activity)
         if (applyStatusBar) {
-            refreshStatusBar(activity)
+            refreshStatusBar(host.activity)
         }
-        refreshTintTargets(activity)
-        activity.refreshGlobal(activity)
-        invalidateDecorView(activity)
+        refreshTintTargets(host)
+        host.refreshGlobal(host.activity)
+        invalidateDecorView(host.activity)
     }
 
-    private fun refreshTintTargets(activity: BaseActivity) {
-        val root = activity.window?.decorView ?: return
-        refreshViewTree(activity, root)
+    private fun refreshTintTargets(host: ThemeActivityHost) {
+        val root = host.activity.window?.decorView ?: return
+        refreshViewTree(host, root)
     }
 
-    private fun refreshViewTree(activity: BaseActivity, view: View) {
+    private fun refreshViewTree(host: ThemeActivityHost, view: View) {
         if (view is Tintable) {
             view.tint()
         }
         if (view is ExtraRefreshable) {
             view.refreshSpecificView(view)
         }
-        activity.refreshSpecificView(view)
+        host.refreshSpecificView(view)
         if (view is ViewGroup) {
             for (index in 0 until view.childCount) {
                 val child = view.getChildAt(index) ?: continue
-                refreshViewTree(activity, child)
+                refreshViewTree(host, child)
             }
         }
     }
@@ -300,22 +300,4 @@ class ThemeUiDelegate @Inject constructor(
         }
     }
 
-    private fun resolveThemeRes(themeName: String): Int {
-        val normalized = themeName.removeSuffix("_dynamic").lowercase()
-        return when (normalized) {
-            ThemeTokens.THEME_TRANSLUCENT,
-            ThemeTokens.THEME_TRANSLUCENT_LIGHT -> R.style.TiebaLite_Translucent_Light
-            ThemeTokens.THEME_TRANSLUCENT_DARK -> R.style.TiebaLite_Translucent_Dark
-            ThemeTokens.THEME_DEFAULT -> R.style.TiebaLite_Tieba
-            ThemeTokens.THEME_BLACK -> R.style.TiebaLite_Black
-            ThemeTokens.THEME_PURPLE -> R.style.TiebaLite_Purple
-            ThemeTokens.THEME_PINK -> R.style.TiebaLite_Pink
-            ThemeTokens.THEME_RED -> R.style.TiebaLite_Red
-            ThemeTokens.THEME_BLUE_DARK -> R.style.TiebaLite_Dark_Blue
-            ThemeTokens.THEME_GREY_DARK -> R.style.TiebaLite_Dark_Grey
-            ThemeTokens.THEME_AMOLED_DARK -> R.style.TiebaLite_Dark_Amoled
-            ThemeTokens.THEME_CUSTOM -> R.style.TiebaLite_Custom
-            else -> R.style.TiebaLite_Tieba
-        }
-    }
 }

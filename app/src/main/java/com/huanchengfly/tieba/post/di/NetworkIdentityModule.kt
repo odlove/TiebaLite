@@ -3,7 +3,7 @@ package com.huanchengfly.tieba.post.di
 import com.huanchengfly.tieba.core.network.account.AccountCredentialsSource
 import com.huanchengfly.tieba.core.network.error.ErrorMessageProvider
 import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsProvider
-import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsRegistry
+import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsManager
 import com.huanchengfly.tieba.core.network.runtime.KzModeProvider
 import com.huanchengfly.tieba.post.account.AppAccountCredentialsSource
 import com.huanchengfly.tieba.post.error.AppErrorMessageProvider
@@ -33,7 +33,5 @@ abstract class NetworkIdentityModule {
 object NetworkIdentityProviderModule {
     @Provides
     @Singleton
-    fun provideScreenMetricsProvider(): ScreenMetricsProvider {
-        return ScreenMetricsRegistry.current
-    }
+    fun provideScreenMetricsProvider(manager: ScreenMetricsManager): ScreenMetricsProvider = manager.provider
 }

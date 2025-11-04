@@ -33,7 +33,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.huanchengfly.tieba.post.R;
 import com.huanchengfly.tieba.post.di.entrypoints.ThemeUiDelegateEntryPoint;
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver;
-import com.huanchengfly.tieba.post.ui.common.theme.ThemeUiDelegate;
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeUiDelegate;
 import dagger.hilt.android.EntryPointAccessors;
 
 import java.lang.reflect.Field;

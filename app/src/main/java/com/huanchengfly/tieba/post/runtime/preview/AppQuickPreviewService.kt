@@ -19,6 +19,7 @@ import com.huanchengfly.tieba.post.preview.QuickPreviewRepository
 import com.huanchengfly.tieba.post.preview.ThreadPreviewData
 import com.huanchengfly.tieba.post.preview.ForumPreviewData
 import com.huanchengfly.tieba.post.ui.page.forum.getSortType
+import com.huanchengfly.tieba.post.utils.StringUtil
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -104,7 +105,7 @@ class AppQuickPreviewService @Inject constructor(
                 forumName ?: "",
                 (replyNum ?: 0L).toString()
             ),
-            icon = authorPortrait?.let { Icon(url = it) } ?: Icon(resId = R.drawable.ic_link)
+            icon = authorPortrait?.let { Icon(url = StringUtil.getAvatarUrl(it)) } ?: Icon(resId = R.drawable.ic_link)
         )
 
     private fun defaultPreview(link: ClipBoardLink): PreviewInfo =

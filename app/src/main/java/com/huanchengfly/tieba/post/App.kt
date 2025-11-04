@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.Application
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.annotation.Keep
 import com.github.panpf.sketch.Sketch
@@ -17,9 +16,6 @@ import com.github.panpf.sketch.http.OkHttpStack
 import com.github.panpf.sketch.request.PauseLoadWhenScrollingDrawableDecodeInterceptor
 import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.core.runtime.RuntimeInitializer
-import com.huanchengfly.tieba.core.runtime.device.DeviceConfig
-import com.huanchengfly.tieba.core.runtime.device.DeviceConfigHolder
-import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsRegistry
 import com.microsoft.appcenter.distribute.Distribute
 import com.microsoft.appcenter.distribute.DistributeListener
 import com.microsoft.appcenter.distribute.ReleaseDetails
@@ -38,13 +34,9 @@ class App : Application(), SketchFactory {
     @Inject
     lateinit var runtimeInitializer: RuntimeInitializer
 
-    @Inject
-    lateinit var deviceConfigHolder: DeviceConfigHolder
-
     override fun onCreate() {
         INSTANCE = this
         super.onCreate()
-        Config.bind(deviceConfigHolder)
         runtimeInitializer.initialize(this)
     }
 
@@ -97,73 +89,6 @@ class App : Application(), SketchFactory {
         }
     }
 
-    object Config {
-        private val defaultConfig = DeviceConfig(
-            isOaidSupported = false,
-            oaid = "",
-            encodedOaid = "",
-            statusCode = -200,
-            isTrackLimited = false,
-            userAgent = null,
-            appFirstInstallTime = 0L,
-            appLastUpdateTime = 0L,
-        )
-
-        private var holder: DeviceConfigHolder? = null
-
-        fun bind(deviceConfigHolder: DeviceConfigHolder) {
-            holder = deviceConfigHolder
-        }
-
-        private val config: DeviceConfig
-            get() = holder?.config ?: defaultConfig
-
-        val isOAIDSupported: Boolean
-            get() = config.isOaidSupported
-
-        val statusCode: Int
-            get() = config.statusCode
-
-        val oaid: String
-            get() = config.oaid
-
-        val encodedOAID: String
-            get() = config.encodedOaid
-
-        val isTrackLimited: Boolean
-            get() = config.isTrackLimited
-
-        val userAgent: String?
-            get() = config.userAgent
-
-        val appFirstInstallTime: Long
-            get() = config.appFirstInstallTime
-
-        val appLastUpdateTime: Long
-            get() = config.appLastUpdateTime
-    }
-
-    object ScreenInfo {
-        val EXACT_SCREEN_HEIGHT: Int
-            get() = ScreenMetricsRegistry.current.exactScreenHeightPx
-
-        val EXACT_SCREEN_WIDTH: Int
-            get() = ScreenMetricsRegistry.current.exactScreenWidthPx
-
-        val SCREEN_HEIGHT: Int
-            get() = ScreenMetricsRegistry.current.screenHeightDp
-
-        val SCREEN_WIDTH: Int
-            get() = ScreenMetricsRegistry.current.screenWidthDp
-
-        val DENSITY: Float
-            get() = ScreenMetricsRegistry.current.density
-
-        fun update(density: Float, widthPx: Int, heightPx: Int) {
-            ScreenMetricsRegistry.update(density, widthPx, heightPx)
-        }
-    }
-
     class MyDistributeListener : DistributeListener {
         override fun onReleaseAvailable(
             activity: Activity,
@@ -200,9 +125,6 @@ class App : Application(), SketchFactory {
 
     companion object {
         const val TAG = "App"
-
-        @JvmStatic
-        var translucentBackground: Drawable? = null
 
         private val packageName: String
             get() = INSTANCE.packageName

@@ -4,6 +4,7 @@ import com.huanchengfly.tieba.core.runtime.ApplicationInitializer
 import com.huanchengfly.tieba.core.runtime.initializers.ActivityCallbacksInitializer
 import com.huanchengfly.tieba.core.runtime.initializers.DeviceConfigInitializer
 import com.huanchengfly.tieba.core.runtime.initializers.OaidSupportInitializer
+import com.huanchengfly.tieba.core.runtime.initializers.ScreenMetricsInitializer
 import com.huanchengfly.tieba.core.runtime.initializers.WebViewDataDirectoryInitializer
 import dagger.Binds
 import dagger.Module
@@ -29,4 +30,8 @@ abstract class RuntimeInitializersModule {
     @Binds
     @IntoSet
     abstract fun bindOaidSupportInitializer(initializer: OaidSupportInitializer): ApplicationInitializer
+
+    @Binds
+    @IntoSet
+    abstract fun bindScreenMetricsInitializer(initializer: ScreenMetricsInitializer): ApplicationInitializer
 }

@@ -15,6 +15,7 @@ import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.pendingIntentFlagMutable
 import com.huanchengfly.tieba.post.receivers.AutoSignAlarm
 import com.huanchengfly.tieba.post.services.OKSignService
+import com.huanchengfly.tieba.post.services.sign.SignServiceConstants
 import com.huanchengfly.tieba.post.toastShort
 import java.util.Calendar
 
@@ -79,7 +80,7 @@ object TiebaUtil {
         ContextCompat.startForegroundService(
             context,
             Intent(context, OKSignService::class.java)
-                .setAction(OKSignService.ACTION_START_SIGN)
+                .setAction(SignServiceConstants.ACTION_START_SIGN)
         )
     }
 

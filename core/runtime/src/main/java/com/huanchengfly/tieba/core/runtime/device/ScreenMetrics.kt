@@ -10,11 +10,21 @@ interface ScreenMetricsProvider {
     val screenHeightDp: Int
 }
 
+data class ScreenMetricsSnapshot(
+    val density: Float,
+    val exactScreenWidthPx: Int,
+    val exactScreenHeightPx: Int,
+    val screenWidthDp: Int,
+    val screenHeightDp: Int
+)
+
 object ScreenMetricsRegistry {
     private val mutableMetrics = MutableScreenMetrics()
 
     val current: ScreenMetricsProvider
         get() = mutableMetrics
+
+    fun snapshot(): ScreenMetricsSnapshot = mutableMetrics.toSnapshot()
 
     fun update(density: Float, widthPx: Int, heightPx: Int) {
         mutableMetrics.update(density, widthPx, heightPx)
@@ -58,5 +68,13 @@ object ScreenMetricsRegistry {
                 heightDpInternal = (heightPx / density).toInt()
             }
         }
+
+        fun toSnapshot(): ScreenMetricsSnapshot = ScreenMetricsSnapshot(
+            density = densityInternal,
+            exactScreenWidthPx = widthPxInternal,
+            exactScreenHeightPx = heightPxInternal,
+            screenWidthDp = widthDpInternal,
+            screenHeightDp = heightDpInternal
+        )
     }
 }

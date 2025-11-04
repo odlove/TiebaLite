@@ -63,4 +63,10 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.appcompat)
     implementation(libs.google.material)
+    implementation(libs.sketch.core)
+    implementation(libs.sketch.compose)
+    implementation(libs.sketch.ext.compose)
+    implementation(libs.sketch.gif)
+    implementation(libs.sketch.okhttp)
+    implementation("io.github.panpf.sketch3:sketch-extensions-core:${libs.versions.sketch.get()}")
 }

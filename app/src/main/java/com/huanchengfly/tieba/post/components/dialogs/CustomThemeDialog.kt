@@ -17,7 +17,7 @@ import androidx.fragment.app.FragmentActivity
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.di.entrypoints.ThemeUiDelegateEntryPoint
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
-import com.huanchengfly.tieba.post.ui.common.theme.ThemeUiDelegate
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeUiDelegate
 import com.huanchengfly.tieba.post.utils.appPreferences
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener

@@ -5,14 +5,14 @@ import android.app.Application
 import android.content.Context
 import android.os.Bundle
 import com.huanchengfly.tieba.core.common.util.Base32
-import com.huanchengfly.tieba.core.runtime.device.DeviceConfigHolder
+import com.huanchengfly.tieba.core.runtime.device.DeviceConfigRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class OaidLifecycleCallbacks @Inject constructor(
     private val resolver: OaidResolver,
-    private val deviceConfigHolder: DeviceConfigHolder
+    private val deviceConfigRepository: DeviceConfigRepository
 ) : Application.ActivityLifecycleCallbacks {
 
     private var inFlight = false
@@ -29,16 +29,18 @@ class OaidLifecycleCallbacks @Inject constructor(
     }
 
     fun ensureOaid(context: Context) {
-        val current = deviceConfigHolder.config
+        val current = deviceConfigRepository.config
         if (!resolver.isSupported(context)) {
             if (current.isOaidSupported || current.statusCode != STATUS_UNSUPPORTED) {
-                deviceConfigHolder.config = current.copy(
-                    isOaidSupported = false,
-                    oaid = "",
-                    encodedOaid = "",
-                    statusCode = STATUS_UNSUPPORTED,
-                    isTrackLimited = false
-                )
+                deviceConfigRepository.update {
+                    it.copy(
+                        isOaidSupported = false,
+                        oaid = "",
+                        encodedOaid = "",
+                        statusCode = STATUS_UNSUPPORTED,
+                        isTrackLimited = false
+                    )
+                }
             }
             return
         }
@@ -46,11 +48,13 @@ class OaidLifecycleCallbacks @Inject constructor(
         val needsRefresh = !current.isOaidSupported || current.encodedOaid.isEmpty() || current.statusCode != STATUS_OK
 
         if (needsRefresh) {
-            deviceConfigHolder.config = current.copy(
-                isOaidSupported = true,
-                statusCode = STATUS_PENDING,
-                isTrackLimited = false
-            )
+            deviceConfigRepository.update {
+                it.copy(
+                    isOaidSupported = true,
+                    statusCode = STATUS_PENDING,
+                    isTrackLimited = false
+                )
+            }
         }
 
         if (!needsRefresh || inFlight) return
@@ -58,24 +62,28 @@ class OaidLifecycleCallbacks @Inject constructor(
         inFlight = true
         resolver.requestOaid(context.applicationContext, object : OaidResolver.Listener {
             override fun onOaidAvailable(oaid: String, isTrackLimited: Boolean) {
-                deviceConfigHolder.config = deviceConfigHolder.config.copy(
-                    isOaidSupported = true,
-                    oaid = oaid,
-                    encodedOaid = Base32.encode(oaid.encodeToByteArray()),
-                    statusCode = STATUS_OK,
-                    isTrackLimited = isTrackLimited
-                )
+                deviceConfigRepository.update {
+                    it.copy(
+                        isOaidSupported = true,
+                        oaid = oaid,
+                        encodedOaid = Base32.encode(oaid.encodeToByteArray()),
+                        statusCode = STATUS_OK,
+                        isTrackLimited = isTrackLimited
+                    )
+                }
                 inFlight = false
             }
 
             override fun onOaidError(error: Throwable?) {
-                deviceConfigHolder.config = deviceConfigHolder.config.copy(
-                    isOaidSupported = true,
-                    oaid = "",
-                    encodedOaid = "",
-                    statusCode = STATUS_ERROR,
-                    isTrackLimited = true
-                )
+                deviceConfigRepository.update {
+                    it.copy(
+                        isOaidSupported = true,
+                        oaid = "",
+                        encodedOaid = "",
+                        statusCode = STATUS_ERROR,
+                        isTrackLimited = true
+                    )
+                }
                 inFlight = false
             }
         })

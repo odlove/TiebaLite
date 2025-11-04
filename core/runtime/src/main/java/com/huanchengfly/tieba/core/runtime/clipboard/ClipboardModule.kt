@@ -11,6 +11,12 @@ import dagger.multibindings.IntoSet
 @InstallIn(SingletonComponent::class)
 abstract class ClipboardModule {
     @Binds
+    abstract fun bindClipboardReader(reader: DefaultClipboardReader): ClipboardReader
+
+    @Binds
+    abstract fun bindClipboardContentParser(parser: DefaultClipboardContentParser): ClipboardContentParser
+
+    @Binds
     @IntoSet
     abstract fun bindClipboardMonitor(monitor: ClipboardMonitor): Application.ActivityLifecycleCallbacks
 }

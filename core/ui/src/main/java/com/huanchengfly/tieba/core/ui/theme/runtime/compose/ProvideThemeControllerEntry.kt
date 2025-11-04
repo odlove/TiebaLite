@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.huanchengfly.tieba.core.ui.theme.ThemeState
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeBridge
 import com.huanchengfly.tieba.core.ui.theme.runtime.entrypoints.ThemeRuntimeEntryPoint
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ThemeCompositionLocalsKt.ProvideThemeController as BaseProvideThemeController
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ProvideThemeController as BaseProvideThemeController
 import dagger.hilt.android.EntryPointAccessors
 
 @Composable

@@ -31,8 +31,8 @@ import com.github.panpf.sketch.resize.Scale
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.gyf.immersionbar.ImmersionBar
 import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
+import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsRegistry
 import com.huanchengfly.tieba.post.*
-import com.huanchengfly.tieba.post.App.Companion.translucentBackground
 import com.huanchengfly.tieba.post.adapters.TranslucentThemeColorAdapter
 import com.huanchengfly.tieba.post.adapters.WallpaperAdapter
 import com.huanchengfly.tieba.post.api.LiteApi
@@ -43,7 +43,7 @@ import com.huanchengfly.tieba.post.components.transformations.SketchBlurTransfor
 import com.huanchengfly.tieba.post.databinding.ActivityTranslucentThemeBinding
 import com.huanchengfly.tieba.post.interfaces.OnItemClickListener
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
-import com.huanchengfly.tieba.post.ui.common.theme.ThemeUiDelegate
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeUiDelegate
 import com.huanchengfly.tieba.core.ui.widgets.theme.TintMaterialButton
 import com.huanchengfly.tieba.post.utils.*
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
@@ -92,8 +92,9 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
                     ImageUtil.bitmapToFile(result.bitmap, File(cacheDir, "origin_background.jpg"))
                 val sourceFileUri = Uri.fromFile(file)
                 val destUri = Uri.fromFile(File(filesDir, "cropped_background.jpg"))
-                val height = App.ScreenInfo.EXACT_SCREEN_HEIGHT.toFloat()
-                val width = App.ScreenInfo.EXACT_SCREEN_WIDTH.toFloat()
+                val metrics = ScreenMetricsRegistry.current
+                val height = metrics.exactScreenHeightPx.toFloat()
+                val width = metrics.exactScreenWidthPx.toFloat()
                 UCrop.of(sourceFileUri, destUri)
                     .withAspectRatio(width / height, 1f)
                     .withOptions(UCrop.Options().apply {
@@ -420,7 +421,7 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
                     override fun onSuccess(t: File) {
                         themeController.switchTheme(ThemeTokens.THEME_TRANSLUCENT, false)
                         toastShort(R.string.toast_save_pic_success)
-                        translucentBackground = null
+                        translucentBackgroundStore.drawable = null
                         binding.progress.visibility = View.GONE
                         finish()
                     }

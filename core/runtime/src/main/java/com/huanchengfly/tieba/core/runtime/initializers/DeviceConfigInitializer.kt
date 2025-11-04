@@ -5,7 +5,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.webkit.WebSettings
 import com.huanchengfly.tieba.core.runtime.ApplicationInitializer
+import com.huanchengfly.tieba.core.runtime.device.DeviceConfigRepository
 import com.huanchengfly.tieba.core.runtime.device.DeviceConfigHolder
+import com.huanchengfly.tieba.core.runtime.device.DefaultDeviceConfigRepository
 import com.huanchengfly.tieba.core.runtime.device.MutableDeviceConfigHolder
 import dagger.Module
 import dagger.Provides
@@ -15,7 +17,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 class DeviceConfigInitializer @Inject constructor(
-    private val holder: DeviceConfigHolder
+    private val repository: DeviceConfigRepository
 ) : ApplicationInitializer {
     override fun initialize(application: Application) {
         val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -28,11 +30,13 @@ class DeviceConfigInitializer @Inject constructor(
             application.packageManager.getPackageInfo(application.packageName, 0)
         }
 
-        holder.config = holder.config.copy(
-            userAgent = WebSettings.getDefaultUserAgent(application),
-            appFirstInstallTime = packageInfo.firstInstallTime,
-            appLastUpdateTime = packageInfo.lastUpdateTime,
-        )
+        repository.update { current ->
+            current.copy(
+                userAgent = WebSettings.getDefaultUserAgent(application),
+                appFirstInstallTime = packageInfo.firstInstallTime,
+                appLastUpdateTime = packageInfo.lastUpdateTime,
+            )
+        }
     }
 }
 
@@ -42,4 +46,9 @@ object DeviceConfigModule {
     @Provides
     @Singleton
     fun provideDeviceConfigHolder(): DeviceConfigHolder = MutableDeviceConfigHolder()
+
+    @Provides
+    @Singleton
+    fun provideDeviceConfigRepository(holder: DeviceConfigHolder): DeviceConfigRepository =
+        DefaultDeviceConfigRepository(holder)
 }

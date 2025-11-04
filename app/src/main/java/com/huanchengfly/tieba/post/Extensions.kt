@@ -17,6 +17,7 @@ import androidx.annotation.ColorRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsRegistry
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlin.math.roundToInt
@@ -28,7 +29,7 @@ fun Float.dpToPx(): Int =
     dpToPxFloat().roundToInt()
 
 fun Float.dpToPxFloat(): Float =
-    this * App.ScreenInfo.DENSITY + 0.5f
+    this * ScreenMetricsRegistry.current.density + 0.5f
 
 fun Float.spToPx(context: Context = App.INSTANCE): Int =
     (this * context.scaledDensity + 0.5f).roundToInt()
@@ -37,10 +38,10 @@ fun Float.spToPxFloat(context: Context = App.INSTANCE): Float =
     this * context.scaledDensity + 0.5f
 
 fun Float.pxToDp(): Int =
-    (this / App.ScreenInfo.DENSITY + 0.5f).roundToInt()
+    (this / ScreenMetricsRegistry.current.density + 0.5f).roundToInt()
 
 fun Float.pxToDpFloat(): Float =
-    this / App.ScreenInfo.DENSITY + 0.5f
+    this / ScreenMetricsRegistry.current.density + 0.5f
 
 fun Float.pxToSp(context: Context = App.INSTANCE): Int =
     (this / context.scaledDensity + 0.5f).roundToInt()

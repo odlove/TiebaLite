@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.widgets.compose
+package com.huanchengfly.tieba.core.ui.widgets.compose
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,17 +24,16 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.network.error.defaultErrorMessage
 import com.huanchengfly.tieba.core.network.exception.NoConnectivityException
 import com.huanchengfly.tieba.core.network.exception.TiebaApiException
-import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaNotLoggedInException
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
-import com.huanchengfly.tieba.core.ui.widgets.compose.Button
-import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
+import com.huanchengfly.tieba.core.network.exception.TiebaException
+import com.huanchengfly.tieba.core.ui.R
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.widgets.compose.Button
+import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreenScope
+import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
-import com.huanchengfly.tieba.post.ui.widgets.compose.states.StateScreenScope
 
 @Composable
 fun TipScreen(
@@ -123,14 +122,14 @@ fun ErrorTipScreen(
     modifier: Modifier = Modifier,
     actions: @Composable (ColumnScope.() -> Unit) = {},
 ) {
-    val errorType = when (error) {
-        is NoConnectivityException -> ErrorType.NETWORK
-        is TiebaApiException -> ErrorType.SERVER
-        is TiebaNotLoggedInException -> ErrorType.NOT_LOGGED_IN
+    val errorType = when {
+        error is NoConnectivityException -> ErrorType.NETWORK
+        error is TiebaApiException -> ErrorType.SERVER
+        error.isNotLoggedIn() -> ErrorType.NOT_LOGGED_IN
         else -> ErrorType.UNKNOWN
     }
-    val errorMessage = error.getErrorMessage()
-    val errorCode = error.getErrorCode()
+    val errorMessage = error.defaultErrorMessage()
+    val errorCode = (error as? TiebaException)?.code
     ErrorTipScreen(
         errorType = errorType,
         errorMessage = errorMessage,
@@ -247,4 +246,13 @@ fun ErrorTipScreen(
         },
         actions = actions
     )
+}
+
+private const val ERROR_CODE_NOT_LOGGED_IN = 11
+
+private fun Throwable.isNotLoggedIn(): Boolean {
+    if (this is TiebaException && code == ERROR_CODE_NOT_LOGGED_IN) {
+        return true
+    }
+    return this::class.qualifiedName == "com.huanchengfly.tieba.post.api.retrofit.exception.TiebaNotLoggedInException"
 }

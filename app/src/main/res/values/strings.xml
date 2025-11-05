@@ -106,7 +106,6 @@
     <string name="my_info_service_center">服务中心</string>
     <string name="toast_success">成功</string>
     <string name="title_report">举报</string>
-    <string name="tip_empty">这里什么都没有</string>
     <string name="title_auto_sign">自动签到</string>
     <string name="summary_auto_sign">开启后，将每天定时运行一键签到</string>
     <string name="summary_auto_sign_on">自动签到已开启</string>
@@ -251,7 +250,6 @@
     <string name="title_forum_info">关于本吧</string>
     <string name="settings_forum_fab_function">吧页面悬浮按钮功能</string>
     <string name="btn_post">发贴</string>
-    <string name="btn_refresh">刷新</string>
     <string name="btn_back_to_top">回到顶部</string>
     <string name="message_dialog_follow_system_night">您已开启跟随系统夜间模式，手动切换日夜模式需要关闭跟随系统，确定要取消跟随吗？</string>
     <string name="btn_keep_following">保持跟随</string>
@@ -388,7 +386,6 @@
     <string name="delete_store_failure">取消收藏失败 %s</string>
     <string name="delete_history_failure">删除历史记录失败 %s</string>
     <string name="delete_history_success">删除历史记录成功</string>
-    <string name="error_tip">出错了</string>
     <string name="insert_emotions">插入表情</string>
     <string name="send_reply">发送回复</string>
     <string name="insert_photo">插入图片</string>
@@ -399,21 +396,12 @@
     <string name="button_dont_remind_again">不再提示</string>
     <string name="link">链接</string>
     <string name="user">用户</string>
-    <string name="title_empty">这里什么都没有</string>
     <string name="home_empty_login">请登录之后查看你的关注。\n或者你也可以先去逛逛发现？</string>
     <string name="button_login">去登录</string>
     <string name="button_go_to_explore">随便看看</string>
     <string name="title_empty_login">你还未登录</string>
     <string name="no_internet_connectivity">无互联网连接</string>
     <string name="connectivity_timeout">连接超时</string>
-    <string name="title_no_internet_connectivity">网络找不到了</string>
-    <string name="title_api_error">啊哦，出错了</string>
-    <string name="title_unknown_error">发生了一个奇怪的错误…</string>
-    <string name="message_no_internet_connectivity">%s。请检查你的网络连接是否正常</string>
-    <string name="message_unknown_error">哦我的老伙计，我向你保证这真的是一个奇怪的错误……</string>
-    <string name="btn_reload">重新加载</string>
-    <string name="title_not_logged_in">你尚未登录</string>
-    <string name="message_not_logged_in">请登录后继续访问</string>
     <string name="text_all">全部</string>
     <string name="tip_reply_thread">评论一番</string>
     <string name="btn_load_previous">查看上一页</string>

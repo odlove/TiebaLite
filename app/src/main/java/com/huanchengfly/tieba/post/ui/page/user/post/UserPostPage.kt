@@ -38,6 +38,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.api.models.protos.PostInfoList
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
@@ -54,15 +55,15 @@ import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestinati
 import com.huanchengfly.tieba.core.ui.widgets.compose.Button
 import com.huanchengfly.tieba.post.ui.widgets.compose.Card
 import com.huanchengfly.tieba.core.ui.compose.Container
-import com.huanchengfly.tieba.post.ui.widgets.compose.ErrorScreen
+import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
 import com.huanchengfly.tieba.post.ui.widgets.compose.FeedCard
 import com.huanchengfly.tieba.post.ui.widgets.compose.FeedCardPlaceholder
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.post.ui.widgets.compose.LoadMoreLayout
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
-import com.huanchengfly.tieba.post.ui.widgets.compose.TipScreen
+import com.huanchengfly.tieba.core.ui.widgets.compose.TipScreen
 import com.huanchengfly.tieba.post.ui.widgets.compose.UserHeader
-import com.huanchengfly.tieba.post.ui.widgets.compose.states.StateScreen
+import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.utils.DateTimeUtils
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -176,11 +177,11 @@ fun UserPostPage(
                     )
                 } else {
                     TipScreen(
-                        title = { Text(text = stringResource(id = R.string.title_empty)) },
+                        title = { Text(text = stringResource(id = CoreUiR.string.title_empty)) },
                         image = {
                             val composition by rememberLottieComposition(
                                 LottieCompositionSpec.RawRes(
-                                    R.raw.lottie_empty_box
+                                    CoreUiR.raw.lottie_empty_box
                                 )
                             )
                             LottieAnimation(
@@ -194,7 +195,7 @@ fun UserPostPage(
                         actions = {
                             if (canReload) {
                                 Button(onClick = { reload() }) {
-                                    Text(text = stringResource(id = R.string.btn_refresh))
+                                    Text(text = stringResource(id = CoreUiR.string.btn_refresh))
                                 }
                             }
                         },

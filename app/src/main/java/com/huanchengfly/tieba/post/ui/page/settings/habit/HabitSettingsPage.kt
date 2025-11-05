@@ -29,6 +29,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.dataStore
 import com.huanchengfly.tieba.post.ui.common.prefs.PrefsScreen
 import com.huanchengfly.tieba.post.ui.common.prefs.widgets.ListPref
@@ -174,7 +175,7 @@ fun HabitSettingsPage(
                     useSelectedAsSummary = true,
                     entries = mapOf(
                         "post" to stringResource(id = R.string.btn_post),
-                        "refresh" to stringResource(id = R.string.btn_refresh),
+                        "refresh" to stringResource(id = CoreUiR.string.btn_refresh),
                         "back_to_top" to stringResource(id = R.string.btn_back_to_top),
                         "hide" to stringResource(id = R.string.btn_hide)
                     )

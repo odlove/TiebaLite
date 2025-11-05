@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
@@ -561,7 +562,7 @@ private fun SearchHistoryList(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = stringResource(id = R.string.tip_empty),
+                    text = stringResource(id = CoreUiR.string.tip_empty),
                     color = ExtendedTheme.colors.textDisabled,
                     fontSize = 16.sp
                 )

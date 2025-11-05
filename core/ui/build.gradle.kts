@@ -33,6 +33,7 @@ dependencies {
     implementation(project(":core:mvi"))
     implementation(project(":core:common"))
     implementation(project(":core:runtime"))
+    implementation(project(":core:network"))
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
@@ -70,4 +71,5 @@ dependencies {
     implementation(libs.sketch.gif)
     implementation(libs.sketch.okhttp)
     implementation("io.github.panpf.sketch3:sketch-extensions-core:${libs.versions.sketch.get()}")
+    implementation(libs.airbnb.lottie.compose)
 }

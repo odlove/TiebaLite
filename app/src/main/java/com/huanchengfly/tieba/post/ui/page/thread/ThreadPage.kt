@@ -96,6 +96,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.api.booleanToString
 import com.huanchengfly.tieba.post.api.models.protos.Post
 import com.huanchengfly.tieba.core.network.retrofit.doIfFailure
@@ -144,7 +145,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.Card
 import com.huanchengfly.tieba.core.ui.widgets.compose.Chip
 import com.huanchengfly.tieba.post.ui.widgets.compose.ConfirmDialog
 import com.huanchengfly.tieba.core.ui.compose.Container
-import com.huanchengfly.tieba.post.ui.widgets.compose.ErrorScreen
+import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
 import com.huanchengfly.tieba.core.ui.widgets.compose.HorizontalDivider
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.widgets.compose.ListMenuItem
@@ -159,7 +160,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.PromptDialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.post.ui.widgets.compose.TextWithMinWidth
 import com.huanchengfly.tieba.post.repository.ThreadPageFrom
-import com.huanchengfly.tieba.post.ui.widgets.compose.TipScreen
+import com.huanchengfly.tieba.core.ui.widgets.compose.TipScreen
 import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.UserHeader
 import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
@@ -169,7 +170,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButtonVariant
 import com.huanchengfly.tieba.post.ui.widgets.compose.buildChipInlineContent
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
-import com.huanchengfly.tieba.post.ui.widgets.compose.states.StateScreen
+import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.utils.DateTimeUtils.getRelativeTimeString
 import com.huanchengfly.tieba.post.utils.HistoryUtil
 import com.huanchengfly.tieba.post.utils.StringUtil
@@ -1586,10 +1587,10 @@ fun ThreadPage(
                                     item(key = "EmptyTip") {
                                         Container {
                                             TipScreen(
-                                                title = { Text(text = stringResource(id = R.string.title_empty)) },
+                                                title = { Text(text = stringResource(id = CoreUiR.string.title_empty)) },
                                                 image = {
                                                     val composition by rememberLottieComposition(
-                                                        LottieCompositionSpec.RawRes(R.raw.lottie_empty_box)
+                                                        LottieCompositionSpec.RawRes(CoreUiR.raw.lottie_empty_box)
                                                     )
                                                     LottieAnimation(
                                                         composition = composition,
@@ -1602,7 +1603,7 @@ fun ThreadPage(
                                                 actions = {
                                                     if (canReload) {
                                                         Button(onClick = { reload() }) {
-                                                            Text(text = stringResource(id = R.string.btn_refresh))
+                                                            Text(text = stringResource(id = CoreUiR.string.btn_refresh))
                                                         }
                                                     }
                                                 },

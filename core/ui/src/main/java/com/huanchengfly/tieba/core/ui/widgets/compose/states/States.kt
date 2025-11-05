@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.widgets.compose.states
+package com.huanchengfly.tieba.core.ui.widgets.compose.states
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -18,10 +18,10 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.widgets.compose.Button
-import com.huanchengfly.tieba.post.ui.widgets.compose.TipScreen
+import com.huanchengfly.tieba.core.ui.widgets.compose.TipScreen
 
 val DefaultLoadingScreen: @Composable StateScreenScope.() -> Unit = {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.lottie_loading_paperplane))

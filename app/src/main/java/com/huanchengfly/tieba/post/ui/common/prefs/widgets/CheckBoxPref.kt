@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import com.huanchengfly.tieba.post.ui.common.prefs.LocalPrefsDataStore
+import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import kotlinx.coroutines.launch
 
 /**
@@ -43,7 +43,7 @@ fun CheckBoxPref(
     val selectionKey = booleanPreferencesKey(key)
     val scope = rememberCoroutineScope()
 
-    val datastore = LocalPrefsDataStore.current
+    val datastore = LocalPreferencesDataStore.current
     val prefs by remember { datastore.data }.collectAsState(initial = null)
 
     var checked = defaultChecked

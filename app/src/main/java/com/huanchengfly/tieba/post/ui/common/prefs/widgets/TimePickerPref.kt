@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.toSize
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.huanchengfly.tieba.post.getString
-import com.huanchengfly.tieba.post.ui.common.prefs.LocalPrefsDataStore
+import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import com.huanchengfly.tieba.post.ui.widgets.compose.TimePickerDialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import kotlinx.coroutines.flow.collectLatest
@@ -63,7 +63,7 @@ fun TimePickerPerf(
     val selectionKey = stringPreferencesKey(key)
     val scope = rememberCoroutineScope()
 
-    val datastore = LocalPrefsDataStore.current
+    val datastore = LocalPreferencesDataStore.current
     val prefs by remember { datastore.data }.collectAsState(initial = null)
 
     //value should only change when save button is clicked

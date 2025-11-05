@@ -18,7 +18,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,7 +50,8 @@ import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.post.ui.widgets.compose.dialogs.AnyPopDialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.dialogs.AnyPopDialogProperties
 import com.huanchengfly.tieba.post.ui.widgets.compose.dialogs.DirectionState
-import com.huanchengfly.tieba.post.ui.widgets.compose.picker.TimePicker
+import com.huanchengfly.tieba.core.ui.widgets.compose.TextButton
+import com.huanchengfly.tieba.core.ui.widgets.compose.picker.TimePicker
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

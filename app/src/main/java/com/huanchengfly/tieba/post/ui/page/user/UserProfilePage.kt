@@ -88,9 +88,9 @@ import com.huanchengfly.tieba.post.ui.page.user.likeforum.UserLikeForumPage
 import com.huanchengfly.tieba.post.ui.page.user.post.UserPostPage
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
-import com.huanchengfly.tieba.post.ui.widgets.compose.Button
-import com.huanchengfly.tieba.post.ui.widgets.compose.Chip
-import com.huanchengfly.tieba.post.ui.widgets.compose.ClickMenu
+import com.huanchengfly.tieba.core.ui.widgets.compose.Button
+import com.huanchengfly.tieba.core.ui.widgets.compose.Chip
+import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
 import com.huanchengfly.tieba.post.ui.widgets.compose.ErrorScreen
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.compose.LazyLoadHorizontalPager

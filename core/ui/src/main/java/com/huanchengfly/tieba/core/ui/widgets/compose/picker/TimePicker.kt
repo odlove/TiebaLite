@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.widgets.compose.picker
+package com.huanchengfly.tieba.core.ui.widgets.compose.picker
 
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement

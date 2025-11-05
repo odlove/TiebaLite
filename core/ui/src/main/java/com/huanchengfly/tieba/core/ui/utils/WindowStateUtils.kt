@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.utils
+package com.huanchengfly.tieba.core.ui.utils
 
 import android.graphics.Rect
 import androidx.window.layout.FoldingFeature

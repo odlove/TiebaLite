@@ -106,7 +106,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.DialogNegativeButton
 import com.huanchengfly.tieba.post.ui.widgets.compose.DialogPositiveButton
 import com.huanchengfly.tieba.post.ui.widgets.compose.DialogState
 import com.huanchengfly.tieba.core.ui.compose.MyBackHandler
-import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
+import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.core.ui.widgets.theme.TintUndoableEditText
 import com.huanchengfly.tieba.post.api.AccountTokens

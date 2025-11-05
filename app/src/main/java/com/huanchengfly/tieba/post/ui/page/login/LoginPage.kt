@@ -46,14 +46,14 @@ import com.huanchengfly.tieba.post.ui.page.webview.MyWebChromeClient
 import com.huanchengfly.tieba.post.ui.page.webview.MyWebViewClient
 import com.huanchengfly.tieba.post.ui.page.webview.isInternalHost
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
-import com.huanchengfly.tieba.post.ui.widgets.compose.ClickMenu
+import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.post.ui.widgets.compose.LoadingState
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.WebView
-import com.huanchengfly.tieba.post.ui.widgets.compose.rememberMenuState
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberSaveableWebViewState
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberWebViewNavigator
 import com.huanchengfly.tieba.post.utils.AccountUtil

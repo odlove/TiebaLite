@@ -32,7 +32,7 @@ import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
-import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
+import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.utils.StringUtil
 

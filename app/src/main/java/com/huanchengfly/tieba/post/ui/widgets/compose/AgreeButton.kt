@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.huanchengfly.tieba.core.ui.compose.ProvideContentColor
+import com.huanchengfly.tieba.core.ui.widgets.compose.Button
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.utils.StringUtil.getShortNumString
@@ -250,7 +251,6 @@ private fun AgreeButtonBottomBar(
         modifier = modifier
     ) {
         Row(
-            modifier = Modifier.align(Alignment.CenterVertically),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(

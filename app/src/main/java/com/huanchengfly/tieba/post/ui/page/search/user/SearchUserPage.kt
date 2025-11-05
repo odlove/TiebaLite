@@ -38,7 +38,7 @@ import com.huanchengfly.tieba.post.ui.page.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
 import com.huanchengfly.tieba.post.ui.page.search.SearchUiEvent
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.post.ui.widgets.compose.Chip
+import com.huanchengfly.tieba.core.ui.widgets.compose.Chip
 import com.huanchengfly.tieba.post.ui.widgets.compose.ErrorScreen
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.compose.LocalShouldLoad

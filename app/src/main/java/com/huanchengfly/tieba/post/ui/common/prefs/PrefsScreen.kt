@@ -7,16 +7,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.huanchengfly.tieba.core.ui.compose.Container
-
-lateinit var LocalPrefsDataStore: ProvidableCompositionLocal<DataStore<Preferences>>
+import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 
 /**
  * Main preference screen which holds [PrefsListItem]s
@@ -33,11 +30,10 @@ fun PrefsScreen(
     dividerIndent: Dp = 0.dp, // indents on both sides
     content: PrefsScope.() -> Unit
 ) {
-    LocalPrefsDataStore = staticCompositionLocalOf { dataStore }
     val prefsScope = PrefsScopeImpl().apply(content)
 
-    // Now the dataStore can be accessed by calling LocalPrefsDataStore.current from any child Pref
-    CompositionLocalProvider(LocalPrefsDataStore provides dataStore) {
+    // Now any子 Pref 都可以通过 LocalPreferencesDataStore.current 访问 dataStore
+    CompositionLocalProvider(LocalPreferencesDataStore provides dataStore) {
         Container {
             Column {
                 Spacer(modifier = Modifier.height(12.dp))

@@ -59,13 +59,13 @@ import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestinati
 import com.huanchengfly.tieba.post.ui.page.forum.getSortType
 import com.huanchengfly.tieba.post.ui.widgets.compose.BlockTip
 import com.huanchengfly.tieba.post.ui.widgets.compose.BlockableContent
-import com.huanchengfly.tieba.post.ui.widgets.compose.Chip
+import com.huanchengfly.tieba.core.ui.widgets.compose.Chip
 import com.huanchengfly.tieba.post.ui.widgets.compose.FeedCard
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.post.ui.widgets.compose.LoadMoreLayout
 import com.huanchengfly.tieba.core.ui.compose.LocalSnackbarState
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
-import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
+import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList

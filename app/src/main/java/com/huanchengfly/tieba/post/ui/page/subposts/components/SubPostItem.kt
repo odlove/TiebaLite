@@ -26,10 +26,10 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.post.ui.widgets.compose.BlockTip
 import com.huanchengfly.tieba.post.ui.widgets.compose.BlockableContent
 import com.huanchengfly.tieba.post.ui.widgets.compose.Card
-import com.huanchengfly.tieba.post.ui.widgets.compose.LongClickMenu
+import com.huanchengfly.tieba.core.ui.widgets.compose.LongClickMenu
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.post.ui.widgets.compose.UserHeader
-import com.huanchengfly.tieba.post.ui.widgets.compose.rememberMenuState
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.post.utils.StringUtil
 import com.huanchengfly.tieba.post.preferences.appPreferences
 

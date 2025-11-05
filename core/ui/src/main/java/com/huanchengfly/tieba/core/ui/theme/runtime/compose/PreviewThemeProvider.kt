@@ -1,8 +1,8 @@
 package com.huanchengfly.tieba.core.ui.theme.runtime.compose
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.huanchengfly.tieba.core.ui.theme.ThemeCatalog
 import com.huanchengfly.tieba.core.ui.theme.ThemeController
@@ -13,6 +13,13 @@ import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.core.ui.theme.ThemeType
 import com.huanchengfly.tieba.core.ui.theme.TranslucentThemeConfig
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemePaletteProvider
+import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import java.io.File
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -27,8 +34,18 @@ fun PreviewTheme(
     }
     val controller = remember(previewState) { PreviewThemeController(previewState) }
     val themeStateState = controller.themeState.collectAsState()
-    ProvideThemeController(controller = controller, themeState = themeStateState) {
-        content()
+    val previewDataStore = remember(context) {
+        val previewFile = File.createTempFile("preview_", ".preferences_pb", context.cacheDir)
+        PreferenceDataStoreFactory.create(
+            scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        ) {
+            previewFile
+        }
+    }
+    CompositionLocalProvider(LocalPreferencesDataStore provides previewDataStore) {
+        ProvideThemeController(controller = controller, themeState = themeStateState) {
+            content()
+        }
     }
 }
 

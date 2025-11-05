@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterialApi::class)
 
-package com.huanchengfly.tieba.post.ui.widgets.compose
+package com.huanchengfly.tieba.core.ui.widgets.compose
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import com.huanchengfly.tieba.post.ui.widgets.compose.SwipeableDefaults.AnimationSpec
-import com.huanchengfly.tieba.post.ui.widgets.compose.SwipeableDefaults.VelocityThreshold
-import com.huanchengfly.tieba.post.ui.widgets.compose.SwipeableDefaults.resistanceConfig
+import com.huanchengfly.tieba.core.ui.widgets.compose.SwipeableDefaults.AnimationSpec
+import com.huanchengfly.tieba.core.ui.widgets.compose.SwipeableDefaults.VelocityThreshold
+import com.huanchengfly.tieba.core.ui.widgets.compose.SwipeableDefaults.resistanceConfig
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter

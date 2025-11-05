@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.widgets.compose.picker
+package com.huanchengfly.tieba.core.ui.widgets.compose.picker
 
 import androidx.compose.material.ContentAlpha
 import androidx.compose.runtime.Composable

@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
-import com.huanchengfly.tieba.post.ui.common.prefs.LocalPrefsDataStore
+import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import kotlinx.coroutines.launch
 
 /**
@@ -57,7 +57,7 @@ fun MultiSelectListPref(
     val selectionKey = stringSetPreferencesKey(key)
     val scope = rememberCoroutineScope()
 
-    val datastore = LocalPrefsDataStore.current
+    val datastore = LocalPreferencesDataStore.current
     val prefs by remember { datastore.data }.collectAsState(initial = null)
 
     var selected = defaultValue

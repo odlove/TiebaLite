@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.widgets.compose.picker
+package com.huanchengfly.tieba.core.ui.widgets.compose.picker
 
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Box
@@ -23,10 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.huanchengfly.tieba.post.pxToDp
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -78,8 +78,11 @@ fun <T> WheelPicker(
 
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         if (items.isNotEmpty()) {
+            val topPadding = with(LocalDensity.current) {
+                (listHeightInPixels / 2f).toDp()
+            }
             LazyColumn(
-                contentPadding = PaddingValues(top = (listHeightInPixels / 2).pxToDp().dp),
+                contentPadding = PaddingValues(top = topPadding),
                 state = listState,
                 modifier = Modifier
                     .fillMaxWidth(1f)

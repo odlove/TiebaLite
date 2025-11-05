@@ -73,10 +73,10 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.FeedCard
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.compose.ProvideContentColor
-import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
-import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalGrid
-import com.huanchengfly.tieba.post.ui.widgets.compose.items
-import com.huanchengfly.tieba.post.ui.widgets.compose.itemsIndexed
+import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
+import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalGrid
+import com.huanchengfly.tieba.core.ui.widgets.compose.items as gridItems
+import com.huanchengfly.tieba.core.ui.widgets.compose.itemsIndexed as gridItemsIndexed
 import com.huanchengfly.tieba.post.utils.StringUtil.getShortNumString
 import com.ramcosta.composedestinations.annotation.Destination
 
@@ -189,7 +189,7 @@ fun HotPage(
                             modifier = Modifier.padding(horizontal = 16.dp),
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            itemsIndexed(
+                            gridItemsIndexed(
                                 items = topicList,
                             ) { index, item ->
                                 Row(
@@ -309,7 +309,7 @@ fun HotPage(
                                         }
                                     )
                                 }
-                                items(tabList) {
+                                gridItems(tabList) {
                                     ThreadListTab(
                                         text = it.get { tabName },
                                         selected = currentTabCode == it.get { tabCode },

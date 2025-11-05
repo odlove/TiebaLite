@@ -51,7 +51,7 @@ import com.huanchengfly.tieba.post.models.database.Block
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.page.main.BottomNavigationDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
-import com.huanchengfly.tieba.post.ui.widgets.compose.LongClickMenu
+import com.huanchengfly.tieba.core.ui.widgets.compose.LongClickMenu
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
 import com.huanchengfly.tieba.post.ui.widgets.compose.PromptDialog

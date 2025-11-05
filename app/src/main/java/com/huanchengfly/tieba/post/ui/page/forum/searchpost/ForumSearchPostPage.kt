@@ -70,10 +70,10 @@ import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.SubPostsPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
-import com.huanchengfly.tieba.post.ui.widgets.compose.Button
-import com.huanchengfly.tieba.post.ui.widgets.compose.ClickMenu
+import com.huanchengfly.tieba.core.ui.widgets.compose.Button
+import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
 import com.huanchengfly.tieba.post.ui.widgets.compose.ErrorScreen
-import com.huanchengfly.tieba.post.ui.widgets.compose.HorizontalDivider
+import com.huanchengfly.tieba.core.ui.widgets.compose.HorizontalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.LoadMoreLayout
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
@@ -81,7 +81,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.SearchBox
 import com.huanchengfly.tieba.post.ui.widgets.compose.SearchThreadList
 import com.huanchengfly.tieba.core.ui.compose.TopAppBarContainer
 import com.huanchengfly.tieba.post.ui.widgets.compose.picker.ListSinglePicker
-import com.huanchengfly.tieba.post.ui.widgets.compose.rememberMenuState
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.post.ui.widgets.compose.states.StateScreen
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator

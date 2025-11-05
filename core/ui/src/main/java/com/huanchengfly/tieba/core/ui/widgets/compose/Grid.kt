@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.widgets.compose
+package com.huanchengfly.tieba.core.ui.widgets.compose
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable

@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.huanchengfly.tieba.post.ui.common.prefs.LocalPrefsDataStore
+import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import com.huanchengfly.tieba.post.ui.common.prefs.ifNotNullThen
 import com.huanchengfly.tieba.post.ui.widgets.compose.PromptDialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
@@ -68,7 +68,7 @@ fun EditTextPref(
     val selectionKey = stringPreferencesKey(key)
     val scope = rememberCoroutineScope()
 
-    val datastore = LocalPrefsDataStore.current
+    val datastore = LocalPreferencesDataStore.current
     val prefs by remember { datastore.data }.collectAsState(initial = null)
 
     //value should only change when save button is clicked

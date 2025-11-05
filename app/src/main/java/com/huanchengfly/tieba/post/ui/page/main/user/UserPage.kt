@@ -62,11 +62,11 @@ import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestinati
 import com.huanchengfly.tieba.post.ui.page.destinations.WebViewPageDestination
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.post.ui.widgets.compose.ConfirmDialog
-import com.huanchengfly.tieba.post.ui.widgets.compose.HorizontalDivider
-import com.huanchengfly.tieba.post.ui.widgets.compose.ListMenuItem
+import com.huanchengfly.tieba.core.ui.widgets.compose.HorizontalDivider
+import com.huanchengfly.tieba.core.ui.widgets.compose.ListMenuItem
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.post.ui.widgets.compose.Switch
-import com.huanchengfly.tieba.post.ui.widgets.compose.VerticalDivider
+import com.huanchengfly.tieba.core.ui.widgets.compose.Switch
+import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.utils.CuidUtils
 import com.huanchengfly.tieba.post.utils.StringUtil

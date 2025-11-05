@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import com.huanchengfly.tieba.core.ui.preferences.collectPreferenceAsState
 
 /**
@@ -112,7 +113,7 @@ internal class PrefsItem(
 
 @Composable
 fun depend(key: String): Boolean {
-    return LocalPrefsDataStore.current.collectPreferenceAsState(
+    return LocalPreferencesDataStore.current.collectPreferenceAsState(
         key = booleanPreferencesKey(key),
         defaultValue = true
     ).value
@@ -120,7 +121,7 @@ fun depend(key: String): Boolean {
 
 @Composable
 fun dependNot(key: String): Boolean {
-    return !LocalPrefsDataStore.current.collectPreferenceAsState(
+    return !LocalPreferencesDataStore.current.collectPreferenceAsState(
         key = booleanPreferencesKey(key),
         defaultValue = false
     ).value

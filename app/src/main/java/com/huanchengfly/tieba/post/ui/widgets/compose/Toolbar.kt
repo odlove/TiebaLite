@@ -46,6 +46,9 @@ import com.huanchengfly.tieba.core.ui.compose.BackNavigationIcon as CoreBackNavi
 import com.huanchengfly.tieba.core.ui.compose.TitleCentredToolbar as CoreTitleCentredToolbar
 import com.huanchengfly.tieba.core.ui.compose.Toolbar as CoreToolbar
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.widgets.compose.LongClickMenu
+import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass.Companion.Compact
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.LoginPageDestination

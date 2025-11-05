@@ -54,7 +54,7 @@ import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedColors
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.White
-import com.huanchengfly.tieba.post.ui.utils.MainNavigationContentPosition
+import com.huanchengfly.tieba.core.ui.utils.MainNavigationContentPosition
 import com.huanchengfly.tieba.post.ui.widgets.compose.AccountNavIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes

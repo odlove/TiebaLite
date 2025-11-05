@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.widgets.compose
+package com.huanchengfly.tieba.core.ui.widgets.compose
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.ColumnScope

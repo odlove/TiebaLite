@@ -83,7 +83,7 @@ import com.huanchengfly.tieba.post.ui.page.search.thread.SearchThreadPage
 import com.huanchengfly.tieba.post.ui.page.search.thread.SearchThreadSortType
 import com.huanchengfly.tieba.post.ui.page.search.thread.SearchThreadUiEvent
 import com.huanchengfly.tieba.post.ui.page.search.user.SearchUserPage
-import com.huanchengfly.tieba.post.ui.widgets.compose.Button
+import com.huanchengfly.tieba.core.ui.widgets.compose.Button
 import com.huanchengfly.tieba.core.ui.compose.Container
 import com.huanchengfly.tieba.core.ui.compose.LazyLoadHorizontalPager
 import com.huanchengfly.tieba.core.ui.compose.MyBackHandler
@@ -91,7 +91,7 @@ import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
 import com.huanchengfly.tieba.post.ui.widgets.compose.SearchBox
-import com.huanchengfly.tieba.post.ui.widgets.compose.TabClickMenu
+import com.huanchengfly.tieba.core.ui.widgets.compose.TabClickMenu
 import com.huanchengfly.tieba.core.ui.compose.TabRow
 import com.huanchengfly.tieba.core.ui.compose.TopAppBarContainer
 import com.huanchengfly.tieba.post.ui.widgets.compose.picker.ListSinglePicker

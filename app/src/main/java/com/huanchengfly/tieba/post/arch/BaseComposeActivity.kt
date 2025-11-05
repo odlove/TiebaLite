@@ -15,6 +15,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
@@ -27,7 +28,9 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ApplySystemBars
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ProvideThemeController
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
+import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccountProvider
+import com.huanchengfly.tieba.post.dataStore
 import javax.inject.Inject
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -113,9 +116,11 @@ abstract class BaseComposeActivity : BaseActivity(), CommonUiEventHandler {
                     }
 
                     LocalAccountProvider {
+                        val context = LocalContext.current
                         CompositionLocalProvider(
                             LocalWindowSizeClass provides calculateWindowSizeClass(activity = this),
-                            LocalGlobalEventBus provides globalEventBus
+                            LocalGlobalEventBus provides globalEventBus,
+                            LocalPreferencesDataStore provides context.dataStore
                         ) {
                             Content()
                         }

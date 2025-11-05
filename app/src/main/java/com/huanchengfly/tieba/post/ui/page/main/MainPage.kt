@@ -42,9 +42,9 @@ import com.huanchengfly.tieba.post.ui.page.main.explore.ExplorePage
 import com.huanchengfly.tieba.post.ui.page.main.home.HomePage
 import com.huanchengfly.tieba.post.ui.page.main.notifications.NotificationsPage
 import com.huanchengfly.tieba.post.ui.page.main.user.UserPage
-import com.huanchengfly.tieba.post.ui.utils.DevicePosture
-import com.huanchengfly.tieba.post.ui.utils.MainNavigationContentPosition
-import com.huanchengfly.tieba.post.ui.utils.MainNavigationType
+import com.huanchengfly.tieba.core.ui.utils.DevicePosture
+import com.huanchengfly.tieba.core.ui.utils.MainNavigationContentPosition
+import com.huanchengfly.tieba.core.ui.utils.MainNavigationType
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
 import com.huanchengfly.tieba.core.ui.compose.LazyLoadHorizontalPager
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold

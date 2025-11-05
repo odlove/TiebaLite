@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
-import com.huanchengfly.tieba.post.ui.common.prefs.LocalPrefsDataStore
+import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import com.huanchengfly.tieba.post.ui.common.prefs.roundToDP
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -55,7 +55,7 @@ fun SliderPref(
     val selectionKey = floatPreferencesKey(key)
     val scope = rememberCoroutineScope()
 
-    val datastore = LocalPrefsDataStore.current
+    val datastore = LocalPreferencesDataStore.current
     val prefs by remember { datastore.data }.collectAsState(initial = null)
 
     var value by remember { mutableStateOf(defaultValue) }

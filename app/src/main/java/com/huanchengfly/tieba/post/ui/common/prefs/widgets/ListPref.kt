@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.ui.common.prefs.LocalPrefsDataStore
+import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import com.huanchengfly.tieba.post.ui.widgets.compose.Dialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.DialogNegativeButton
 import com.huanchengfly.tieba.post.ui.widgets.compose.picker.ListSinglePicker
@@ -60,7 +60,7 @@ fun ListPref(
     val selectionKey = stringPreferencesKey(key)
     val scope = rememberCoroutineScope()
 
-    val datastore = LocalPrefsDataStore.current
+    val datastore = LocalPreferencesDataStore.current
     val prefs by remember { datastore.data }.collectAsState(initial = null)
 
     var selected = defaultValue

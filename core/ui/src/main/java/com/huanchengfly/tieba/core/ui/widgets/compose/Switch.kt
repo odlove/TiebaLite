@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.widgets.compose
+package com.huanchengfly.tieba.core.ui.widgets.compose
 
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.Canvas

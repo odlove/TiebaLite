@@ -73,6 +73,7 @@ import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.core.common.collectIn
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.post.toastShort
+import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ApplySystemBars
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ProvideThemeController
@@ -81,8 +82,8 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
 import com.huanchengfly.tieba.post.ui.widgets.compose.ActionItem
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
-import com.huanchengfly.tieba.post.ui.widgets.compose.BaseTextField
-import com.huanchengfly.tieba.post.ui.widgets.compose.CounterTextField
+import com.huanchengfly.tieba.core.ui.widgets.compose.BaseTextField
+import com.huanchengfly.tieba.core.ui.widgets.compose.CounterTextField
 import com.huanchengfly.tieba.post.ui.widgets.compose.Dialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.DialogNegativeButton
 import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
@@ -98,6 +99,7 @@ import com.huanchengfly.tieba.post.utils.StringUtil
 import com.huanchengfly.tieba.post.utils.registerPickMediasLauncher
 import com.huanchengfly.tieba.post.utils.requestPermission
 import com.huanchengfly.tieba.post.utils.shouldUsePhotoPicker
+import com.huanchengfly.tieba.post.dataStore
 import javax.inject.Inject
 import com.yalantis.ucrop.UCrop
 import dagger.hilt.android.AndroidEntryPoint
@@ -195,9 +197,11 @@ class EditProfileActivity : BaseActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             ProvideThemeController {
+                val context = LocalContext.current
                 CompositionLocalProvider(
                     LocalGlobalEventBus provides globalEventBus,
-                    LocalWindowSizeClass provides calculateWindowSizeClass(activity = this)
+                    LocalWindowSizeClass provides calculateWindowSizeClass(activity = this),
+                    LocalPreferencesDataStore provides context.dataStore
                 ) {
                     TiebaLiteTheme {
                         val systemUIBarsTweaker = rememberSystemUIBarsTweaker()

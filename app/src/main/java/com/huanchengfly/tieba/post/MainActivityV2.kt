@@ -89,9 +89,9 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TA
 import com.huanchengfly.tieba.post.ui.page.NavGraphs
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
-import com.huanchengfly.tieba.post.ui.utils.DevicePosture
-import com.huanchengfly.tieba.post.ui.utils.isBookPosture
-import com.huanchengfly.tieba.post.ui.utils.isSeparating
+import com.huanchengfly.tieba.core.ui.utils.DevicePosture
+import com.huanchengfly.tieba.core.ui.utils.isBookPosture
+import com.huanchengfly.tieba.core.ui.utils.isSeparating
 import com.huanchengfly.tieba.post.ui.widgets.compose.AlertDialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.post.ui.widgets.compose.AvatarIcon
@@ -106,6 +106,7 @@ import com.huanchengfly.tieba.post.utils.JobServiceUtil
 import com.huanchengfly.tieba.post.utils.PermissionUtils
 import com.huanchengfly.tieba.post.utils.PickMediasRequest
 import com.huanchengfly.tieba.post.utils.TiebaUtil
+import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import com.huanchengfly.tieba.core.ui.preferences.collectPreferenceAsState
 import com.huanchengfly.tieba.post.dataStore
 import com.huanchengfly.tieba.core.ui.activityresult.ActivityResultPayload
@@ -714,9 +715,11 @@ class MainActivityV2 : BaseComposeActivity() {
             )
         }
 
+        val context = LocalContext.current
         CompositionLocalProvider(
             LocalNotificationCountFlow provides notificationCountFlow,
             LocalDevicePosture provides devicePostureState,
+            LocalPreferencesDataStore provides context.dataStore,
         ) {
             SideEffect {
                 Log.i(

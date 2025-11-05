@@ -57,7 +57,7 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.ErrorScreen
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.post.ui.widgets.compose.LoadMoreLayout
-import com.huanchengfly.tieba.post.ui.widgets.compose.LongClickMenu
+import com.huanchengfly.tieba.core.ui.widgets.compose.LongClickMenu
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState

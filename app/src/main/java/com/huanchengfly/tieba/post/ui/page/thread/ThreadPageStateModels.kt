@@ -11,17 +11,25 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.huanchengfly.tieba.core.mvi.UiEvent
+import androidx.compose.ui.text.AnnotatedString
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
+import com.huanchengfly.tieba.core.mvi.UiEvent
+import com.huanchengfly.tieba.core.mvi.UiState
+import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.api.models.protos.Anti
 import com.huanchengfly.tieba.post.api.models.protos.Post
 import com.huanchengfly.tieba.post.api.models.protos.SimpleForum
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.post.api.models.protos.contentRenders
+import com.huanchengfly.tieba.post.api.models.protos.subPosts
+import com.huanchengfly.tieba.post.api.models.protos.SubPostList
+import com.huanchengfly.tieba.post.api.models.protos.updateAgreeStatus
+import com.huanchengfly.tieba.post.api.models.protos.updateCollectStatus
 import com.huanchengfly.tieba.post.models.PostEntity
 import com.huanchengfly.tieba.post.models.ThreadMeta
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
+import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
 import com.huanchengfly.tieba.post.ui.widgets.compose.DialogState
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.AddFavorite
@@ -444,4 +452,68 @@ sealed interface ThreadPageEffect : UiEvent {
         val navigateUpAfter: Boolean = false
     ) : ThreadPageEffect
     data object NavigateUp : ThreadPageEffect
+}
+
+data class ThreadUiState(
+    val isRefreshing: Boolean = false,
+    val isLoadingMore: Boolean = false,
+    val isLoadingLatestReply: Boolean = false,
+    val isError: Boolean = false,
+    val error: ImmutableHolder<Throwable>? = null,
+
+    val hasMore: Boolean = true,
+    val nextPagePostId: Long = 0,
+    val hasPrevious: Boolean = false,
+    val currentPageMin: Int = 0,
+    val currentPageMax: Int = 0,
+    val totalPage: Int = 0,
+
+    val seeLz: Boolean = false,
+    val sortType: Int = ThreadSortType.SORT_TYPE_DEFAULT,
+    val postId: Long = 0,
+    val threadId: Long = 0,
+
+    val title: String = "",
+    val author: ImmutableHolder<User>? = null,
+    val user: ImmutableHolder<User> = wrapImmutable(User()),
+    val threadInfo: ImmutableHolder<ThreadInfo>? = null,
+    val firstPost: ImmutableHolder<Post>? = null,
+    val forum: ImmutableHolder<SimpleForum>? = null,
+    val anti: ImmutableHolder<Anti>? = null,
+
+    val firstPostContentRenders: ImmutableList<PbContentRender> = persistentListOf(),
+    val data: ImmutableList<PostItemData> = persistentListOf(),
+    val latestPosts: ImmutableList<PostItemData> = persistentListOf(),
+    val postIds: ImmutableList<Long> = persistentListOf(),
+
+    val initMeta: ThreadMeta? = null,
+    val isImmersiveMode: Boolean = false,
+) : UiState
+
+object ThreadSortType {
+    const val SORT_TYPE_ASC = 0
+    const val SORT_TYPE_DESC = 1
+    const val SORT_TYPE_HOT = 2
+    const val SORT_TYPE_DEFAULT = SORT_TYPE_ASC
+}
+
+@Immutable
+data class PostItemData(
+    val post: ImmutableHolder<Post>,
+    val blocked: Boolean = post.get { shouldBlock() },
+    val contentRenders: ImmutableList<PbContentRender> = post.get { this.contentRenders },
+    val subPosts: ImmutableList<SubPostItemData> = post.get { this.subPosts },
+)
+
+@Immutable
+data class SubPostItemData(
+    val subPost: ImmutableHolder<SubPostList>,
+    val subPostContent: AnnotatedString,
+    val blocked: Boolean = subPost.get { shouldBlock() },
+) {
+    val id: Long
+        get() = subPost.get { id }
+
+    val author: ImmutableHolder<User>?
+        get() = subPost.get { author }?.wrapImmutable()
 }

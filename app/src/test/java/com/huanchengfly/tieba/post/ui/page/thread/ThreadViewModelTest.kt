@@ -1,24 +1,25 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
+import com.huanchengfly.tieba.core.common.ResourceProvider
 import com.huanchengfly.tieba.post.TestFixtures
+import com.huanchengfly.tieba.post.models.PostMeta
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
-import com.huanchengfly.tieba.core.common.ResourceProvider
 import io.mockk.clearMocks
-import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import javax.inject.Provider
 
 /**
  * Unit tests for ThreadViewModel
@@ -48,7 +49,6 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class ThreadViewModelTest : BaseViewModelTest() {
 
-    private lateinit var mockThreadStore: com.huanchengfly.tieba.post.store.ThreadStore
     private lateinit var mockPbPageRepo: PbPageRepository
     private lateinit var mockUserInteractionRepo: UserInteractionRepository
     private lateinit var mockThreadOperationRepo: ThreadOperationRepository
@@ -58,30 +58,58 @@ class ThreadViewModelTest : BaseViewModelTest() {
     @Before
     override fun setup() {
         super.setup()
-        mockThreadStore = mockk(relaxed = true)
         mockPbPageRepo = mockk(relaxed = true)
         mockUserInteractionRepo = mockk(relaxed = true)
         mockThreadOperationRepo = mockk(relaxed = true)
         mockContentModerationRepo = mockk(relaxed = true)
         mockResourceProvider = mockk(relaxed = true)
+        every { mockResourceProvider.getString(any(), *anyVararg()) } returns ""
+        every { mockPbPageRepo.updateThreadMeta(any(), any()) } answers { }
+        every { mockPbPageRepo.updatePostMeta(any(), any(), any()) } answers { }
     }
 
     @After
     override fun tearDown() {
         super.tearDown()
-        clearMocks(mockThreadStore, mockPbPageRepo, mockUserInteractionRepo, mockThreadOperationRepo)
+        clearMocks(mockPbPageRepo, mockUserInteractionRepo, mockThreadOperationRepo)
     }
 
     private fun createViewModel(): ThreadViewModel {
+        val effectMapper = ThreadEffectMapper(mockResourceProvider)
+        val registry = createUseCaseRegistry()
         return ThreadViewModel(
             mockPbPageRepo,
-            mockUserInteractionRepo,
-            mockThreadOperationRepo,
             mockContentModerationRepo,
-            mockThreadStore,
             testDispatcherProvider,
-            mockResourceProvider
+            effectMapper,
+            registry
         )
+    }
+
+    private fun createUseCaseRegistry(): ThreadUseCaseRegistry {
+        val useCases = mutableMapOf<Class<out ThreadUiIntent>, Provider<ThreadIntentUseCase<out ThreadUiIntent>>>()
+
+        fun <I : ThreadUiIntent> register(clazz: Class<I>, useCase: ThreadIntentUseCase<I>) {
+            useCases[clazz] = Provider { useCase }
+        }
+
+        register(ThreadUiIntent.Init::class.java, ThreadInitUseCase())
+        register(ThreadUiIntent.Load::class.java, LoadThreadUseCase(mockPbPageRepo))
+        register(ThreadUiIntent.LoadFirstPage::class.java, LoadFirstPageUseCase(mockPbPageRepo))
+        register(ThreadUiIntent.LoadMore::class.java, LoadMoreUseCase(mockPbPageRepo))
+        register(ThreadUiIntent.LoadPrevious::class.java, LoadPreviousUseCase(mockPbPageRepo))
+        register(ThreadUiIntent.LoadLatestPosts::class.java, LoadLatestPostsUseCase(mockPbPageRepo))
+        register(ThreadUiIntent.LoadMyLatestReply::class.java, LoadMyLatestReplyUseCase(mockPbPageRepo))
+        register(ThreadUiIntent.ToggleImmersiveMode::class.java, ToggleImmersiveModeUseCase())
+        register(ThreadUiIntent.AddFavorite::class.java, AddFavoriteUseCase(mockThreadOperationRepo, mockPbPageRepo))
+        register(ThreadUiIntent.RemoveFavorite::class.java, RemoveFavoriteUseCase(mockThreadOperationRepo, mockPbPageRepo))
+        register(ThreadUiIntent.UpdateFavoriteMark::class.java, UpdateFavoriteMarkUseCase(mockThreadOperationRepo, mockPbPageRepo))
+        register(ThreadUiIntent.AgreeThread::class.java, AgreeThreadUseCase(mockUserInteractionRepo, mockPbPageRepo))
+        register(ThreadUiIntent.AgreePost::class.java, AgreePostUseCase(mockUserInteractionRepo, mockPbPageRepo))
+        register(ThreadUiIntent.DeletePost::class.java, DeletePostUseCase(mockThreadOperationRepo))
+        register(ThreadUiIntent.DeleteThread::class.java, DeleteThreadUseCase(mockThreadOperationRepo))
+
+        return ThreadUseCaseRegistry(useCases)
     }
 
     // ========== AddFavorite Tests ==========
@@ -138,6 +166,10 @@ class ThreadViewModelTest : BaseViewModelTest() {
                 objType = 1     // objType=1 for post
             )
         } returns flowOf(agreeBean)
+        val fakePostEntity = mockk<com.huanchengfly.tieba.post.models.PostEntity>(relaxed = true) {
+            every { meta } returns PostMeta(hasAgree = 0, agreeNum = 0)
+        }
+        every { mockPbPageRepo.postFlow(123L, 789L) } returns MutableStateFlow(fakePostEntity)
 
         // When: Create ViewModel and send AgreePost intent
         val viewModel = createViewModel()

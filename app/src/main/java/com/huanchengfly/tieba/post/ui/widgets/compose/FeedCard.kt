@@ -5,7 +5,9 @@ import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +41,8 @@ import androidx.compose.material.icons.rounded.PhotoSizeSelectActual
 import androidx.compose.material.icons.rounded.SwapCalls
 import androidx.compose.runtime.Composable
 import com.huanchengfly.tieba.core.ui.compose.ProvideContentColor
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
@@ -50,6 +54,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.input.pointer.consumeDownChange
+import androidx.compose.ui.input.pointer.consumePositionChange
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
@@ -86,11 +93,12 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.post.ui.page.photoview.PhotoViewActivity
-import com.huanchengfly.tieba.post.ui.utils.getPhotoViewData
-import com.huanchengfly.tieba.post.ui.widgets.compose.video.DefaultVideoPlayerController
-import com.huanchengfly.tieba.post.ui.widgets.compose.video.OnFullScreenModeChangedListener
-import com.huanchengfly.tieba.post.ui.widgets.compose.video.VideoPlayerSource
-import com.huanchengfly.tieba.post.ui.widgets.compose.video.rememberVideoPlayerController
+import com.huanchengfly.tieba.core.ui.photoview.getPhotoViewData
+import com.huanchengfly.tieba.core.network.http.Header
+import com.huanchengfly.tieba.core.ui.widgets.video.OnFullScreenModeChangedListener
+import com.huanchengfly.tieba.core.ui.widgets.video.VideoPlayer
+import com.huanchengfly.tieba.core.ui.widgets.video.VideoPlayerSource
+import com.huanchengfly.tieba.core.ui.widgets.video.rememberVideoPlayerController
 import com.huanchengfly.tieba.post.utils.DateTimeUtils
 import com.huanchengfly.tieba.post.utils.EmoticonUtil.emoticonString
 import com.huanchengfly.tieba.post.utils.ImageUtil
@@ -111,98 +119,6 @@ private val ImmutableHolder<Media>.url: String
         get { dynamicPic },
         get { srcPic }
     )
-
-@Composable
-private fun UserHeader(
-    userProvider: () -> ImmutableHolder<User>,
-    timeProvider: () -> Int,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable RowScope.() -> Unit,
-) {
-    val context = LocalContext.current
-    val user = remember(userProvider) { userProvider() }
-    val time = remember(timeProvider) { timeProvider() }
-    UserHeader(
-        avatar = {
-            Avatar(
-                data = user.get { StringUtil.getAvatarUrl(portrait) },
-                size = Sizes.Small,
-                contentDescription = null
-            )
-        },
-        name = {
-            Text(
-                text = StringUtil.getUsernameAnnotatedString(
-                    context = LocalContext.current,
-                    username = user.get { name },
-                    nickname = user.get { nameShow },
-                    color = LocalContentColor.current
-                ),
-                color = ExtendedTheme.colors.text
-            )
-        },
-        onClick = onClick,
-        desc = {
-            Text(
-                text = DateTimeUtils.getRelativeTimeString(
-                    context,
-                    time.toString()
-                )
-            )
-        },
-        content = content,
-        modifier = modifier
-    )
-}
-
-@Composable
-fun UserHeader(
-    nameProvider: () -> String,
-    nameShowProvider: () -> String,
-    portraitProvider: () -> String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    timeProvider: (() -> Int)? = null,
-    content: @Composable RowScope.() -> Unit = {},
-) {
-    val context = LocalContext.current
-    val name = remember(nameProvider) { nameProvider() }
-    val nameShow = remember(nameShowProvider) { nameShowProvider() }
-    val portrait = remember(portraitProvider) { portraitProvider() }
-    val time = remember(timeProvider) { timeProvider?.invoke() }
-    UserHeader(
-        avatar = {
-            Avatar(
-                data = StringUtil.getAvatarUrl(portrait),
-                size = Sizes.Small,
-                contentDescription = null
-            )
-        },
-        name = {
-            Text(
-                text = StringUtil.getUsernameAnnotatedString(
-                    context = LocalContext.current,
-                    username = name,
-                    nickname = nameShow,
-                    color = LocalContentColor.current
-                ),
-                color = ExtendedTheme.colors.text
-            )
-        },
-        onClick = onClick,
-        desc = (@Composable {
-            Text(
-                text = DateTimeUtils.getRelativeTimeString(
-                    context,
-                    time.toString()
-                )
-            )
-        }).takeIf { time != null },
-        content = content,
-        modifier = modifier
-    )
-}
 
 
 @Composable
@@ -486,13 +402,7 @@ private fun ThreadMedia(
                             16f / 9
                         )
                     }
-                    Box(
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                            onClick = {}
-                        )
-                    ) {
+                    Box {
                         VideoPlayer(
                             videoUrl = videoInfo.get { videoUrl },
                             thumbnailUrl = videoInfo.get { thumbnailUrl },
@@ -973,12 +883,14 @@ fun VideoPlayer(
     thumbnailUrl: String,
     modifier: Modifier = Modifier,
     title: String = "",
+    headers: Map<String, String> = mapOf(Header.REFERER to "https://tieba.baidu.com/")
 ) {
     val context = LocalContext.current
     val systemUIBarsTweaker = rememberSystemUIBarsTweaker()
     val videoPlayerController = rememberVideoPlayerController(
-        source = VideoPlayerSource.Network(videoUrl),
+        source = VideoPlayerSource.Network(videoUrl, headers),
         thumbnailUrl = thumbnailUrl,
+        playWhenReady = false,
         fullScreenModeChangedListener = object : OnFullScreenModeChangedListener {
             override fun onFullScreenModeChanged(isFullScreen: Boolean) {
                 Log.i("VideoPlayer", "onFullScreenModeChanged $isFullScreen")
@@ -995,15 +907,45 @@ fun VideoPlayer(
         }
     )
 
-    val fullScreen by (videoPlayerController as DefaultVideoPlayerController).collect { isFullScreen }
-    val videoPlayerContent =
+    LaunchedEffect(videoUrl) {
+        Log.d("FeedVideoPlayer", "Init controller url=$videoUrl headers=$headers")
+    }
+
+    val videoPlayerState by videoPlayerController.state.collectAsState()
+
+    LaunchedEffect(videoPlayerState.startedPlay, videoPlayerState.isPlaying) {
+        Log.d(
+            "FeedVideoPlayer",
+            "State update started=${videoPlayerState.startedPlay} playing=${videoPlayerState.isPlaying} buffering=${videoPlayerState.playbackState}"
+        )
+    }
+    val fullScreen = videoPlayerState.isFullScreen
+    val playerModifier = if (videoPlayerState.startedPlay) {
+        modifier
+    } else {
+        modifier.pointerInput(Unit) {
+            awaitEachGesture {
+                val down = awaitFirstDown()
+                down.consumeDownChange()
+                val up = waitForUpOrCancellation()
+                if (up != null && !videoPlayerController.state.value.startedPlay) {
+                    up.consumeDownChange()
+                    up.consumePositionChange()
+                    Log.d("FeedVideoPlayer", "Manual tap received -> play()")
+                    videoPlayerController.play()
+                }
+            }
+        }
+    }
+    val videoPlayerContent = remember(videoPlayerController) {
         movableContentOf { isFullScreen: Boolean, playerModifier: Modifier ->
-            com.huanchengfly.tieba.post.ui.widgets.compose.video.VideoPlayer(
+            VideoPlayer(
                 videoPlayerController = videoPlayerController,
                 modifier = playerModifier,
                 backgroundColor = if (isFullScreen) Color.Black else Color.Transparent
             )
         }
+    }
 
     if (fullScreen) {
         Spacer(
@@ -1018,7 +960,7 @@ fun VideoPlayer(
     } else {
         videoPlayerContent(
             false,
-            modifier
+            playerModifier
         )
     }
 }

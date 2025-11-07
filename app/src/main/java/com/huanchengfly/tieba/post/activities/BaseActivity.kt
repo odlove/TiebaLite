@@ -38,7 +38,7 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.entrypoints.ThemeRuntimeEntr
 import com.huanchengfly.tieba.post.di.entrypoints.ThemeUiDelegateEntryPoint
 import com.huanchengfly.tieba.post.di.entrypoints.ScreenMetricsEntryPoint
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeUiDelegate
-import com.huanchengfly.tieba.post.ui.widgets.VoicePlayerView
+import com.huanchengfly.tieba.core.ui.widgets.voice.VoicePlayerManager
 import com.huanchengfly.tieba.core.ui.widgets.theme.TintToolbar
 import com.huanchengfly.tieba.post.utils.DialogUtil
 import com.huanchengfly.tieba.post.utils.HandleBackUtil
@@ -137,10 +137,6 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
         return dialog
     }
 
-    override fun onStop() {
-        super.onStop()
-        VoicePlayerView.Manager.release()
-    }
 
     open val isNeedImmersionBar: Boolean = true
     open val isNeedFixBg: Boolean = true
@@ -154,6 +150,11 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
      * Compose 页面应该使用自己的 BackHandler 系统。
      */
     protected open val shouldRegisterBaseBackCallback: Boolean = true
+
+    override fun onStop() {
+        super.onStop()
+        VoicePlayerManager.release()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

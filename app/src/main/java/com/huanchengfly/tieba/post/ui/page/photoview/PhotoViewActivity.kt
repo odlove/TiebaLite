@@ -46,7 +46,7 @@ import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
 import dagger.hilt.android.AndroidEntryPoint
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.arch.BaseComposeActivityWithParcelable
-import com.huanchengfly.tieba.post.models.PhotoViewData
+import com.huanchengfly.tieba.core.ui.photoview.PhotoViewData
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad

@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
@@ -65,6 +66,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.google.material)
     implementation(libs.androidx.datastore.preferences)
+    implementation(project(":data:remote"))
     implementation(libs.sketch.core)
     implementation(libs.sketch.compose)
     implementation(libs.sketch.ext.compose)
@@ -72,4 +74,8 @@ dependencies {
     implementation(libs.sketch.okhttp)
     implementation("io.github.panpf.sketch3:sketch-extensions-core:${libs.versions.sketch.get()}")
     implementation(libs.airbnb.lottie.compose)
+    implementation(libs.eygraber.placeholder.material)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.kotlinx.collections.immutable)
 }

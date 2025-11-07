@@ -1,5 +1,6 @@
 package com.huanchengfly.tieba.post.ui.common
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -15,6 +16,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,8 +40,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.panpf.sketch.compose.AsyncImage
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.post.BuildConfig
+import com.huanchengfly.tieba.core.network.http.Header
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
-import com.huanchengfly.tieba.post.models.PhotoViewData
+import com.huanchengfly.tieba.core.ui.photoview.PhotoViewData
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
@@ -166,7 +170,7 @@ data class VoiceContentRender(
     }
 
     override fun toString(): String {
-        return "[视频]"
+        return "[语音]"
     }
 }
 
@@ -184,6 +188,10 @@ data class VideoContentRender(
             if (LocalWindowSizeClass.current.widthSizeClass == WindowWidthSizeClass.Compact) 1f else 0.5f
         val context = LocalContext.current
         val navigator = LocalNavigator.current
+        val videoHeaders = remember(webUrl) {
+            val referer = webUrl.takeIf { it.isNotBlank() } ?: "https://tieba.baidu.com/"
+            mapOf(Header.REFERER to referer)
+        }
 
         if (picUrl.isNotBlank()) {
             val picModifier = Modifier
@@ -192,20 +200,23 @@ data class VideoContentRender(
                 .aspectRatio(width * 1f / height)
 
             if (videoUrl.isNotBlank()) {
-                Box(
-                    modifier = Modifier.clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = {}
-                    )
-                ) {
-                    com.huanchengfly.tieba.post.ui.widgets.compose.VideoPlayer(
-                        videoUrl = videoUrl,
-                        thumbnailUrl = picUrl,
-                        modifier = picModifier
-                    )
+                if (BuildConfig.DEBUG) {
+                    Log.d("ThreadVideo", "Render video content: url=" + videoUrl + ", thumb=" + picUrl)
+                }
+                key(videoUrl, picUrl) {
+                    Box {
+                        com.huanchengfly.tieba.post.ui.widgets.compose.VideoPlayer(
+                            videoUrl = videoUrl,
+                            thumbnailUrl = picUrl,
+                            modifier = picModifier,
+                            headers = videoHeaders
+                        )
+                    }
                 }
             } else {
+                if (BuildConfig.DEBUG) {
+                    Log.d("ThreadVideo", "Render thumbnail only, missing video url, webUrl=" + webUrl)
+                }
                 AsyncImage(
                     imageUri = picUrl,
                     contentDescription = stringResource(id = R.string.desc_video),
@@ -222,7 +233,7 @@ data class VideoContentRender(
     }
 
     override fun toString(): String {
-        return "[语音]"
+        return "[视频]"
     }
 }
 

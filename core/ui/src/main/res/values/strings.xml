@@ -14,4 +14,6 @@
     <string name="btn_refresh">刷新</string>
     <string name="title_empty">这里什么都没有</string>
     <string name="error_tip">出错了</string>
+    <string name="btn_play">播放</string>
+    <string name="btn_full_screen">全屏</string>
 </resources>

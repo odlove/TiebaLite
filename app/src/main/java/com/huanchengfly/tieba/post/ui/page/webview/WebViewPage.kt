@@ -10,6 +10,7 @@ import android.webkit.CookieManager
 import android.webkit.GeolocationPermissions
 import android.webkit.JsResult
 import android.webkit.ValueCallback
+import android.webkit.WebChromeClient.FileChooserParams
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import androidx.browser.customtabs.CustomTabColorSchemeParams
@@ -62,19 +63,19 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
-import com.huanchengfly.tieba.post.ui.widgets.compose.AccompanistWebChromeClient
-import com.huanchengfly.tieba.post.ui.widgets.compose.AccompanistWebViewClient
+import com.huanchengfly.tieba.core.ui.widgets.compose.AccompanistWebChromeClient
+import com.huanchengfly.tieba.core.ui.widgets.compose.AccompanistWebViewClient
 import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
-import com.huanchengfly.tieba.post.ui.widgets.compose.LoadingState
+import com.huanchengfly.tieba.core.ui.widgets.compose.LoadingState
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
-import com.huanchengfly.tieba.post.ui.widgets.compose.WebView
+import com.huanchengfly.tieba.core.ui.widgets.compose.WebView
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
-import com.huanchengfly.tieba.post.ui.widgets.compose.rememberSaveableWebViewState
-import com.huanchengfly.tieba.post.ui.widgets.compose.rememberWebViewNavigator
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberSaveableWebViewState
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberWebViewNavigator
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import com.huanchengfly.tieba.post.utils.DialogUtil
 import com.huanchengfly.tieba.post.utils.PermissionUtils
@@ -199,7 +200,7 @@ fun WebViewPage(
                         menuContent = {
                             DropdownMenuItem(
                                 onClick = {
-                                    val url = webViewState.webView?.url ?: initialUrl
+                                    val url = webViewState.currentWebView?.url ?: initialUrl
                                     TiebaUtil.copyText(context, url)
                                     dismiss()
                                 }
@@ -208,7 +209,7 @@ fun WebViewPage(
                             }
                             DropdownMenuItem(
                                 onClick = {
-                                    val uri = (webViewState.webView?.url ?: initialUrl).toUri()
+                                    val uri = (webViewState.currentWebView?.url ?: initialUrl).toUri()
                                     context.startActivity(
                                         Intent(
                                             Intent.ACTION_VIEW,
@@ -295,7 +296,7 @@ open class MyWebViewClient(
     protected val nativeNavigator: DestinationsNavigator? = null,
 ) : AccompanistWebViewClient() {
     val context: Context
-        get() = state.webView?.context ?: App.INSTANCE
+        get() = state.currentWebView?.context ?: App.INSTANCE
 
     private fun interceptWebViewRequest(
         webView: WebView,
@@ -480,7 +481,7 @@ class MyWebChromeClient(
     private val contextWeakReference = WeakReference(context)
 
     val context: Context
-        get() = state.webView?.context ?: contextWeakReference.get() ?: App.INSTANCE
+        get() = state.currentWebView?.context ?: contextWeakReference.get() ?: App.INSTANCE
 
     private var uploadMessage: ValueCallback<Array<Uri>>? = null
 

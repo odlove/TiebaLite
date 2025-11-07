@@ -22,7 +22,6 @@ import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
-import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.PartialChange
@@ -82,7 +81,7 @@ class ThreadViewModel @Inject constructor(
     private val contentModerationRepository: ContentModerationRepository,
     dispatcherProvider: DispatcherProvider,
     private val resourceProvider: ResourceProvider
-) : BaseViewModel<ThreadUiIntent, ThreadPartialChange, ThreadUiState, ThreadUiEvent>(dispatcherProvider) {
+) : BaseViewModel<ThreadUiIntent, ThreadPartialChange, ThreadUiState, ThreadPageEffect>(dispatcherProvider) {
     override fun createInitialState(): ThreadUiState = ThreadUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<ThreadUiIntent, ThreadPartialChange, ThreadUiState> =
@@ -90,35 +89,46 @@ class ThreadViewModel @Inject constructor(
 
     override fun dispatchEvent(partialChange: ThreadPartialChange): UiEvent? {
         return when (partialChange) {
-            is ThreadPartialChange.Init.Success -> if (partialChange.postId != 0L) ThreadUiEvent.ScrollToFirstReply else null
-            ThreadPartialChange.LoadPrevious.Start -> ThreadUiEvent.ScrollToFirstReply
-            is ThreadPartialChange.AddFavorite.Success -> ThreadUiEvent.AddFavoriteSuccess(
-                partialChange.floor
+            is ThreadPartialChange.Init.Success -> if (partialChange.postId != 0L) ThreadPageEffect.ScrollToFirstReply else null
+            ThreadPartialChange.LoadPrevious.Start -> ThreadPageEffect.ScrollToFirstReply
+            is ThreadPartialChange.AddFavorite.Success -> ThreadPageEffect.ShowSnackbar(
+                resourceProvider.getString(R.string.message_add_favorite_success, partialChange.floor)
             )
 
-            ThreadPartialChange.RemoveFavorite.Success -> ThreadUiEvent.RemoveFavoriteSuccess
-            is ThreadPartialChange.Load.Success -> ThreadUiEvent.LoadSuccess(partialChange.currentPage)
+            ThreadPartialChange.RemoveFavorite.Success -> ThreadPageEffect.ShowSnackbar(
+                resourceProvider.getString(R.string.message_remove_favorite_success)
+            )
 
-            is ThreadPartialChange.LoadMyLatestReply.Success -> ThreadUiEvent.ScrollToLatestReply.takeIf {
+            is ThreadPartialChange.Load.Success -> ThreadPageEffect.LoadSuccess(partialChange.currentPage)
+
+            is ThreadPartialChange.LoadMyLatestReply.Success -> ThreadPageEffect.ScrollToLatestReply.takeIf {
                 partialChange.hasNewPost
             }
 
-            is ThreadPartialChange.DeletePost.Success -> CommonUiEvent.Toast(
+            is ThreadPartialChange.DeletePost.Success -> ThreadPageEffect.ShowToast(
                 resourceProvider.getString(R.string.toast_delete_success)
             )
 
-            is ThreadPartialChange.DeletePost.Failure -> CommonUiEvent.Toast(
+            is ThreadPartialChange.DeletePost.Failure -> ThreadPageEffect.ShowToast(
                 resourceProvider.getString(R.string.toast_delete_failure, partialChange.errorMessage)
             )
 
-            is ThreadPartialChange.DeleteThread.Success -> CommonUiEvent.NavigateUp
-            is ThreadPartialChange.DeleteThread.Failure -> CommonUiEvent.Toast(
+            is ThreadPartialChange.DeleteThread.Success -> ThreadPageEffect.NavigateUp
+            is ThreadPartialChange.DeleteThread.Failure -> ThreadPageEffect.ShowToast(
                 resourceProvider.getString(R.string.toast_delete_failure, partialChange.errorMessage)
             )
 
-            is ThreadPartialChange.UpdateFavoriteMark.Success -> ThreadUiEvent.UpdateFavoriteMarkSuccess
-            is ThreadPartialChange.UpdateFavoriteMark.Failure -> ThreadUiEvent.UpdateFavoriteMarkFailure(
-                partialChange.errorMessage
+            is ThreadPartialChange.UpdateFavoriteMark.Success -> ThreadPageEffect.ShowToast(
+                resourceProvider.getString(R.string.message_update_collect_mark_success),
+                navigateUpAfter = true
+            )
+
+            is ThreadPartialChange.UpdateFavoriteMark.Failure -> ThreadPageEffect.ShowToast(
+                resourceProvider.getString(
+                    R.string.message_update_collect_mark_failed,
+                    partialChange.errorMessage
+                ),
+                navigateUpAfter = true
             )
 
             else -> null
@@ -1424,26 +1434,6 @@ data class ThreadUiState(
     val initMeta: com.huanchengfly.tieba.post.models.ThreadMeta? = null,
     val isImmersiveMode: Boolean = false,
 ) : UiState
-
-sealed interface ThreadUiEvent : UiEvent {
-    data object ScrollToFirstReply : ThreadUiEvent
-
-    data object ScrollToLatestReply : ThreadUiEvent
-
-    data class LoadSuccess(
-        val page: Int
-    ) : ThreadUiEvent
-
-    data class AddFavoriteSuccess(val floor: Int) : ThreadUiEvent
-
-    data object RemoveFavoriteSuccess : ThreadUiEvent
-
-    data object UpdateFavoriteMarkSuccess : ThreadUiEvent
-
-    data class UpdateFavoriteMarkFailure(
-        val errorMessage: String
-    ) : ThreadUiEvent
-}
 
 object ThreadSortType {
     const val SORT_TYPE_ASC = 0

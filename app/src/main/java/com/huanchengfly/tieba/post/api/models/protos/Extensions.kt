@@ -1,5 +1,6 @@
 package com.huanchengfly.tieba.post.api.models.protos
 
+import android.util.Log
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -10,6 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import com.huanchengfly.tieba.post.App
+import com.huanchengfly.tieba.post.BuildConfig
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
@@ -19,7 +21,7 @@ import com.huanchengfly.tieba.post.ui.common.VideoContentRender
 import com.huanchengfly.tieba.post.ui.common.VoiceContentRender
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
 import com.huanchengfly.tieba.post.ui.page.thread.SubPostItemData
-import com.huanchengfly.tieba.post.ui.utils.getPhotoViewData
+import com.huanchengfly.tieba.core.ui.photoview.getPhotoViewData
 import com.huanchengfly.tieba.post.utils.EmoticonManager
 import com.huanchengfly.tieba.post.utils.EmoticonUtil.emoticonString
 import com.huanchengfly.tieba.post.utils.ImageUtil
@@ -191,6 +193,47 @@ private val PbContent.picUrl: String
             src
         )
 
+private fun PbContent.parseMediaSize(): Pair<Int, Int> {
+    val parts = bsize.split(",")
+    val parsedWidth = parts.getOrNull(0)?.toIntOrNull()
+    val parsedHeight = parts.getOrNull(1)?.toIntOrNull()
+    val widthValue = parsedWidth ?: width.takeIf { it > 0 } ?: DEFAULT_VIDEO_WIDTH
+    val heightValue = parsedHeight ?: height.takeIf { it > 0 } ?: DEFAULT_VIDEO_HEIGHT
+    return widthValue.coerceAtLeast(1) to heightValue.coerceAtLeast(1)
+}
+
+private fun String?.isHttpUrl(): Boolean {
+    if (this.isNullOrBlank()) return false
+    return startsWith("http://", ignoreCase = true) || startsWith("https://", ignoreCase = true)
+}
+
+private fun String?.isLikelyVideoStreamUrl(): Boolean {
+    if (this.isNullOrBlank()) return false
+    val normalizedFull = lowercase()
+    val normalized = normalizedFull.substringBefore('?')
+    return VIDEO_STREAM_HINTS.any { normalized.contains(it) } ||
+        VIDEO_STREAM_HINTS.any { normalizedFull.contains(it) } ||
+        normalized.contains("videoplay") || normalized.contains("videoplayback")
+}
+
+private fun String?.isLikelyVideoUrl(): Boolean {
+    if (this.isNullOrBlank()) return false
+    if (isLikelyVideoStreamUrl()) return true
+    return isHttpUrl()
+}
+
+private fun String?.isLikelyImageUrl(): Boolean {
+    if (this.isNullOrBlank()) return false
+    val normalized = substringBefore('?').lowercase()
+    return IMAGE_HINTS.any { normalized.contains(it) }
+}
+
+private const val DEFAULT_VIDEO_WIDTH = 16
+private const val DEFAULT_VIDEO_HEIGHT = 9
+
+private val VIDEO_STREAM_HINTS = listOf(".mp4", ".m3u8", ".mpd", ".flv", ".mov")
+private val IMAGE_HINTS = listOf(".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp")
+
 val List<PbContent>.plainText: String
     get() = renders.joinToString("\n") { it.toString() }
 
@@ -272,13 +315,47 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
                 }
 
                 5 -> {
-                    if (it.src.isNotBlank()) {
-                        val width = it.bsize.split(",")[0].toInt()
-                        val height = it.bsize.split(",")[1].toInt()
+                    val candidateVideoUrls = sequenceOf(
+                        it.link,
+                        it.dynamic_,
+                        it.originSrc,
+                        it.cdnSrcActive,
+                        it.cdnSrc,
+                        it.src
+                    )
+
+                    val videoUrl = candidateVideoUrls.firstOrNull { url -> url.isLikelyVideoStreamUrl() }
+                        ?: candidateVideoUrls.firstOrNull { url -> url.isLikelyVideoUrl() }
+
+                    if (BuildConfig.DEBUG) {
+                        Log.d(
+                            "ThreadVideo",
+                            "Parsed video candidate -> url=" + (videoUrl ?: "null") + ", link=" + it.link + ", src=" + it.src + ", dynamic=" + it.dynamic_ + ", origin=" + it.originSrc
+                        )
+                    }
+
+                    val (width, height) = it.parseMediaSize()
+
+                    val thumbnailUrl = listOfNotNull(
+                        it.picUrl.takeIf { url -> url.isHttpUrl() && !url.isLikelyVideoStreamUrl() },
+                        it.originSrc.takeIf { url -> url.isHttpUrl() && !url.isLikelyVideoStreamUrl() },
+                        it.cdnSrc.takeIf { url -> url.isHttpUrl() && !url.isLikelyVideoStreamUrl() },
+                        it.cdnSrcActive.takeIf { url -> url.isHttpUrl() && !url.isLikelyVideoStreamUrl() },
+                        it.src.takeIf { url -> url.isHttpUrl() && url.isLikelyImageUrl() }
+                    ).firstOrNull().orEmpty()
+
+                    if (BuildConfig.DEBUG) {
+                        Log.d(
+                            "ThreadVideo",
+                            "Parsed thumbnail -> thumb=" + thumbnailUrl + ", bsize=" + it.bsize + ", width=" + width + ", height=" + height
+                        )
+                    }
+
+                    if (!videoUrl.isNullOrBlank() || thumbnailUrl.isNotBlank()) {
                         renders.add(
                             VideoContentRender(
-                                videoUrl = it.link,
-                                picUrl = it.src,
+                                videoUrl = videoUrl.orEmpty(),
+                                picUrl = thumbnailUrl,
                                 webUrl = it.text,
                                 width = width,
                                 height = height

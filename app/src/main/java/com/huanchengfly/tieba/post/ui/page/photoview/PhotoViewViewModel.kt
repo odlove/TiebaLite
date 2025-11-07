@@ -8,8 +8,8 @@ import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
 import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
-import com.huanchengfly.tieba.post.models.LoadPicPageData
-import com.huanchengfly.tieba.post.models.PhotoViewData
+import com.huanchengfly.tieba.core.ui.photoview.LoadPicPageData
+import com.huanchengfly.tieba.core.ui.photoview.PhotoViewData
 import com.huanchengfly.tieba.post.repository.PhotoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -113,7 +113,8 @@ class PhotoViewViewModel @Inject constructor(
                 }
 
         private fun PhotoViewUiIntent.Init.producePartialChange(): Flow<PhotoViewPartialChange.Init> {
-            val flow = if (data.data == null) {
+            val loadData = data.data
+            val flow = if (loadData == null) {
                 flowOf(
                     PhotoViewPartialChange.Init.Success(
                         items = data.picItems.mapIndexed { index, item ->
@@ -135,13 +136,13 @@ class PhotoViewViewModel @Inject constructor(
             } else {
                 photoRepository
                     .picPage(
-                        forumId = data.data.forumId.toString(),
-                        forumName = data.data.forumName,
-                        threadId = data.data.threadId.toString(),
-                        seeLz = data.data.seeLz,
-                        picId = data.data.picId,
-                        picIndex = data.data.picIndex.toString(),
-                        objType = data.data.objType,
+                        forumId = loadData.forumId.toString(),
+                        forumName = loadData.forumName,
+                        threadId = loadData.threadId.toString(),
+                        seeLz = loadData.seeLz,
+                        picId = loadData.picId,
+                        picIndex = loadData.picIndex.toString(),
+                        objType = loadData.objType,
                         prev = false
                     )
                     .map<PicPageBean, PhotoViewPartialChange.Init> { picPageBean ->
@@ -149,15 +150,15 @@ class PhotoViewViewModel @Inject constructor(
                         val fetchedItems = picPageBean.picList.toPhotoViewItems()
                         val firstItemIndex = fetchedItems.first().overallIndex
                         val localItems =
-                            if (data.data.picIndex == 1) emptyList() else data.picItems.subList(
+                            if (loadData.picIndex == 1) emptyList() else data.picItems.subList(
                                 0,
-                                data.data.picIndex - 1
+                                loadData.picIndex - 1
                             ).mapIndexed { index, item ->
                                 PhotoViewItem(
                                     picId = item.picId,
                                     originUrl = item.originUrl,
                                     url = if (item.showOriginBtn) item.url else null,
-                                    overallIndex = firstItemIndex - (data.data.picIndex - 1 - index),
+                                    overallIndex = firstItemIndex - (loadData.picIndex - 1 - index),
                                     postId = item.postId
                                 )
                             }
@@ -165,15 +166,15 @@ class PhotoViewViewModel @Inject constructor(
                         val hasNext = items.last().overallIndex < picAmount
                         val hasPrev = items.first().overallIndex > 1
                         val initialIndex =
-                            items.indexOfFirst { it.picId == data.data.picId }.takeIf { it != -1 }
-                                ?: (data.data.picIndex - 1)
+                            items.indexOfFirst { it.picId == loadData.picId }.takeIf { it != -1 }
+                                ?: (loadData.picIndex - 1)
                         PhotoViewPartialChange.Init.Success(
                             hasPrev = hasPrev,
                             hasNext = hasNext,
                             totalAmount = picAmount,
                             items = items,
                             initialIndex = initialIndex,
-                            loadPicPageData = data.data
+                            loadPicPageData = loadData
                         )
                     }
                     .catch {

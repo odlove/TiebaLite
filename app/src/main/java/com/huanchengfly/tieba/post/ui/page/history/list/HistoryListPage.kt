@@ -40,7 +40,7 @@ import com.huanchengfly.tieba.core.ui.compose.LocalSnackbarState
 import com.huanchengfly.tieba.core.ui.widgets.compose.LongClickMenu
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.post.ui.widgets.compose.UserHeader
+import com.huanchengfly.tieba.core.ui.widgets.compose.UserHeader
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.post.utils.DateTimeUtils
 import com.huanchengfly.tieba.post.utils.HistoryUtil

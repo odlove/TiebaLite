@@ -10,7 +10,7 @@ import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.post.models.database.History
-import com.huanchengfly.tieba.post.utils.DateTimeUtils
+import com.huanchengfly.tieba.core.common.utils.DateTimeUtils
 import com.huanchengfly.tieba.post.utils.HistoryUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

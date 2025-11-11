@@ -11,6 +11,7 @@ import com.huanchengfly.tieba.core.runtime.service.sign.SignForegroundStopMode
 import com.huanchengfly.tieba.core.runtime.service.sign.SignNotificationUpdate
 import com.huanchengfly.tieba.core.runtime.service.sign.SignTaskRunner
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.models.SignDataBean
 import com.huanchengfly.tieba.post.api.models.SignResultBean
@@ -98,7 +99,7 @@ class AppSignTaskRunner @Inject constructor(
                                 total
                             )
                             val message = resourceProvider.getString(
-                                R.string.title_forum_name,
+                                CoreUiR.string.title_forum_name,
                                 signDataBean.forumName
                             )
                             emit(

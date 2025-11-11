@@ -48,7 +48,8 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.invertChipContent
 import com.huanchengfly.tieba.core.ui.widgets.compose.ListMenuItem
 import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalGrid
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.ui.widgets.compose.TextWithMinWidth
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
+import com.huanchengfly.tieba.core.ui.text.TextWithMinWidth
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -226,7 +227,7 @@ fun ThreadMenu(
             )
             ListMenuItem(
                 icon = Icons.Rounded.Share,
-                text = stringResource(id = R.string.title_share),
+                text = stringResource(id = CoreUiR.string.title_share),
                 iconColor = ExtendedTheme.colors.text,
                 onClick = onShareClick,
                 modifier = Modifier.fillMaxWidth(),

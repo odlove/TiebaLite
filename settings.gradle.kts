@@ -46,3 +46,4 @@ include(
     ":data:repository",
     ":data:local"
 )
+include(":feature:home")

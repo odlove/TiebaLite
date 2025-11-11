@@ -10,9 +10,9 @@ import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.Post
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageActions
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageState
-import com.huanchengfly.tieba.post.ui.widgets.compose.ConfirmDialog
-import com.huanchengfly.tieba.post.ui.widgets.compose.DialogState
-import com.huanchengfly.tieba.post.ui.widgets.compose.PromptDialog
+import com.huanchengfly.tieba.core.ui.widgets.compose.ConfirmDialog
+import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
+import com.huanchengfly.tieba.core.ui.widgets.compose.PromptDialog
 import com.huanchengfly.tieba.post.toastShort
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 

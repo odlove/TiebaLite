@@ -11,12 +11,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
-import com.huanchengfly.tieba.post.ui.widgets.compose.Dialog
-import com.huanchengfly.tieba.post.ui.widgets.compose.DialogNegativeButton
-import com.huanchengfly.tieba.post.ui.widgets.compose.picker.ListSinglePicker
-import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
+import com.huanchengfly.tieba.core.ui.widgets.compose.Dialog
+import com.huanchengfly.tieba.core.ui.widgets.compose.DialogNegativeButton
+import com.huanchengfly.tieba.core.ui.widgets.compose.picker.ListSinglePicker
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.launch
@@ -101,7 +101,7 @@ fun ListPref(
         dialogState = dialogState,
         title = { Text(text = title) },
         buttons = {
-            DialogNegativeButton(text = stringResource(id = R.string.button_cancel))
+            DialogNegativeButton(text = stringResource(id = CoreUiR.string.button_cancel))
         }
     ) {
         ListSinglePicker(

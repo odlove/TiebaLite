@@ -1,6 +1,9 @@
 package com.huanchengfly.tieba.post.ui.page.main
 
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
+import com.huanchengfly.tieba.post.ui.page.main.usecase.ClearMessageUseCase
+import com.huanchengfly.tieba.post.ui.page.main.usecase.ReceiveMessageUseCase
+import javax.inject.Provider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.test.runTest
@@ -24,41 +27,52 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest : BaseViewModelTest() {
 
+    private fun createViewModel(): MainViewModel {
+        val providers = mapOf<Class<out MainUiIntent>, Provider<MainIntentUseCase<out MainUiIntent>>>(
+            MainUiIntent.NewMessage.Receive::class.java to Provider { ReceiveMessageUseCase() },
+            MainUiIntent.NewMessage.Clear::class.java to Provider { ClearMessageUseCase() }
+        )
+        val registry = MainUseCaseRegistry(providers)
+        return MainViewModel(
+            dispatcherProvider = testDispatcherProvider,
+            effectMapper = MainEffectMapper(),
+            useCaseRegistry = registry
+        )
+    }
+
     // ========== NewMessage.Receive Tests ==========
 
     @Test
-    fun `NewMessage Receive should process intent without error`() =
+    fun `NewMessage Receive should update messageCount`() =
         runTest(testDispatcher) {
-            // Given: Create ViewModel
-            val viewModel = MainViewModel(testDispatcherProvider)
+            val viewModel = createViewModel()
 
-            // When: Send NewMessage.Receive intent with messageCount = 5
             val job = collectUiState(viewModel)
-            testDispatcher.scheduler.advanceUntilIdle() // Let initialization complete
+            testDispatcher.scheduler.advanceUntilIdle()
             viewModel.send(MainUiIntent.NewMessage.Receive(messageCount = 5))
-            testDispatcher.scheduler.advanceUntilIdle() // Let state update
+            testDispatcher.scheduler.advanceUntilIdle()
 
-            // Then: No exception thrown (intent processed successfully)
+            assert(viewModel.uiState.value.messageCount == 5)
+
             job.cancelAndJoin()
         }
 
     // ========== NewMessage.Clear Tests ==========
 
     @Test
-    fun `NewMessage Clear should process intent without error`() =
+    fun `NewMessage Clear should reset messageCount`() =
         runTest(testDispatcher) {
-            // Given: Create ViewModel with messageCount = 5
-            val viewModel = MainViewModel(testDispatcherProvider)
+            val viewModel = createViewModel()
             val job = collectUiState(viewModel)
             testDispatcher.scheduler.advanceUntilIdle()
             viewModel.send(MainUiIntent.NewMessage.Receive(messageCount = 5))
             testDispatcher.scheduler.advanceUntilIdle()
 
-            // When: Send NewMessage.Clear intent
             viewModel.send(MainUiIntent.NewMessage.Clear)
             testDispatcher.scheduler.advanceUntilIdle()
 
-            // Then: No exception thrown (intent processed successfully)
+            assert(viewModel.uiState.value.messageCount == 0)
+
             job.cancelAndJoin()
         }
 }

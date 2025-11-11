@@ -114,12 +114,6 @@ val Configuration.isTablet: Boolean
 val Context.isTablet: Boolean
     get() = resources.configuration.isTablet
 
-fun Context.findActivity(): Activity? = when (this) {
-    is Activity -> this
-    is ContextWrapper -> baseContext.findActivity()
-    else -> null
-}
-
 fun pendingIntentFlagMutable(): Int {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         PendingIntent.FLAG_MUTABLE

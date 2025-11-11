@@ -22,8 +22,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.huanchengfly.tieba.post.getString
 import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
-import com.huanchengfly.tieba.post.ui.widgets.compose.TimePickerDialog
-import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.core.ui.widgets.compose.TimePickerDialog
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

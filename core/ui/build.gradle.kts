@@ -35,17 +35,21 @@ dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:runtime"))
     implementation(project(":core:network"))
+    implementation(project(":data:repository"))
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation(libs.javax.inject)
     implementation(libs.systemuibars.tweaker)
+    implementation(libs.org.litepal.android.kotlin)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.runtime)
     implementation(libs.compose.material)
     implementation(libs.compose.material.icons.core)
     implementation(libs.compose.material.icons.extended)
+    implementation(libs.compose.animation)
+    implementation(libs.compose.animation.graphics)
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
 

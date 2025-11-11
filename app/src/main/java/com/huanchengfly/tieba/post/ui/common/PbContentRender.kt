@@ -1,5 +1,6 @@
 package com.huanchengfly.tieba.post.ui.common
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -18,6 +19,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -40,19 +42,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.panpf.sketch.compose.AsyncImage
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.BuildConfig
 import com.huanchengfly.tieba.core.network.http.Header
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.ui.photoview.PhotoViewData
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
-import com.huanchengfly.tieba.post.ui.page.LocalNavigator
+import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.WebViewPageDestination
-import com.huanchengfly.tieba.post.ui.widgets.compose.EmoticonText
-import com.huanchengfly.tieba.post.ui.widgets.compose.NetworkImage
-import com.huanchengfly.tieba.post.ui.widgets.compose.VoicePlayer
+import com.huanchengfly.tieba.core.ui.text.EmoticonText
+import com.huanchengfly.tieba.core.ui.widgets.compose.NetworkImage
+import com.huanchengfly.tieba.core.ui.widgets.compose.VideoPlayer
+import com.huanchengfly.tieba.core.ui.widgets.voice.VoicePlayer
 import com.huanchengfly.tieba.post.utils.EmoticonUtil.emoticonString
 import com.huanchengfly.tieba.post.preferences.appPreferences
+import com.huanchengfly.tieba.post.toastShort
+import com.huanchengfly.tieba.post.utils.FileUtil
 import com.huanchengfly.tieba.post.utils.launchUrl
 
 @Stable
@@ -166,7 +172,29 @@ data class VoiceContentRender(
         val voiceUrl = remember(voiceMd5) {
             "https://tiebac.baidu.com/c/p/voice?voice_md5=$voiceMd5&play_from=pb_voice_play"
         }
-        VoicePlayer(url = voiceUrl, duration = duration)
+        val context = LocalContext.current
+        val downloadLabel = stringResource(id = R.string.menu_save_audio)
+        val currentContext = rememberUpdatedState(context)
+        val currentDownloadLabel = rememberUpdatedState(downloadLabel)
+        val onDownload = remember(voiceUrl) {
+            {
+                val uri = Uri.parse(voiceUrl)
+                val fileName = uri.getQueryParameter("voice_md5")
+                    ?: System.currentTimeMillis().toString()
+                FileUtil.downloadBySystem(
+                    currentContext.value,
+                    FileUtil.FILE_TYPE_AUDIO,
+                    voiceUrl,
+                    "$fileName.mp3"
+                )
+                currentContext.value.toastShort(currentDownloadLabel.value)
+            }
+        }
+        VoicePlayer(
+            url = voiceUrl,
+            durationMillis = duration.toLong(),
+            onDownload = onDownload
+        )
     }
 
     override fun toString(): String {
@@ -205,7 +233,7 @@ data class VideoContentRender(
                 }
                 key(videoUrl, picUrl) {
                     Box {
-                        com.huanchengfly.tieba.post.ui.widgets.compose.VideoPlayer(
+                        VideoPlayer(
                             videoUrl = videoUrl,
                             thumbnailUrl = picUrl,
                             modifier = picModifier,
@@ -219,7 +247,7 @@ data class VideoContentRender(
                 }
                 AsyncImage(
                     imageUri = picUrl,
-                    contentDescription = stringResource(id = R.string.desc_video),
+                    contentDescription = stringResource(id = CoreUiR.string.desc_video),
                     modifier = picModifier
                         .clickable {
                             navigator.navigate(

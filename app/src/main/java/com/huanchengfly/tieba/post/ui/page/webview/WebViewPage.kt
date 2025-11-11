@@ -52,6 +52,7 @@ import androidx.core.net.toUri
 import android.Manifest
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
@@ -65,13 +66,13 @@ import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.core.ui.widgets.compose.AccompanistWebChromeClient
 import com.huanchengfly.tieba.core.ui.widgets.compose.AccompanistWebViewClient
-import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.widgets.compose.LoadingState
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
-import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
+import com.huanchengfly.tieba.core.ui.widgets.compose.Toolbar
 import com.huanchengfly.tieba.core.ui.widgets.compose.WebView
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberSaveableWebViewState
@@ -572,7 +573,7 @@ class MyWebChromeClient(
     ): Boolean {
         DialogUtil.build(view?.context ?: context)
             .setMessage(message)
-            .setPositiveButton(R.string.button_sure_default) { _, _ ->
+            .setPositiveButton(CoreUiR.string.button_sure_default) { _, _ ->
                 result?.confirm()
             }
             .setCancelable(false)

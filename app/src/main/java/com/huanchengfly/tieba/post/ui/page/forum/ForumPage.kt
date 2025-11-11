@@ -82,6 +82,7 @@ import com.eygraber.compose.placeholder.PlaceholderHighlight
 import com.eygraber.compose.placeholder.material.fade
 import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.ForumInfo
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
@@ -96,36 +97,36 @@ import com.huanchengfly.tieba.post.models.ForumHistoryExtra
 import com.huanchengfly.tieba.post.models.database.History
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.post.ui.page.LocalNavigator
-import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
+import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
+import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumDetailPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumSearchPostPageDestination
 import com.huanchengfly.tieba.post.ui.page.forum.threadlist.ForumThreadListPage
 import com.huanchengfly.tieba.post.ui.page.forum.threadlist.ForumThreadListUiEvent
-import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.post.ui.widgets.compose.AvatarPlaceholder
-import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
+import com.huanchengfly.tieba.core.ui.widgets.compose.AvatarPlaceholder
+import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.Button
 import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
-import com.huanchengfly.tieba.post.ui.widgets.compose.ConfirmDialog
-import com.huanchengfly.tieba.post.ui.widgets.compose.FeedCardPlaceholder
+import com.huanchengfly.tieba.core.ui.widgets.compose.ConfirmDialog
+import com.huanchengfly.tieba.core.ui.widgets.compose.FeedCardPlaceholder
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.widgets.compose.MenuScope
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
-import com.huanchengfly.tieba.post.ui.widgets.compose.PullToRefreshLayout
+import com.huanchengfly.tieba.core.ui.widgets.compose.PullToRefreshLayout
 import com.huanchengfly.tieba.core.ui.compose.ScrollableTabRow
-import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
+import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.core.ui.widgets.compose.TabClickMenu
-import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
-import com.huanchengfly.tieba.post.ui.widgets.compose.picker.ListSinglePicker
-import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.core.ui.widgets.compose.Toolbar
+import com.huanchengfly.tieba.core.ui.widgets.compose.picker.ListSinglePicker
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import com.huanchengfly.tieba.post.utils.HistoryUtil
-import com.huanchengfly.tieba.post.utils.StringUtil.getShortNumString
+import com.huanchengfly.tieba.core.common.utils.getShortNumString
 import com.huanchengfly.tieba.post.utils.TiebaUtil
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.utils.requestPinShortcut
@@ -503,7 +504,7 @@ fun ForumPage(
             title = {
                 Text(
                     text = stringResource(
-                        id = R.string.title_dialog_unfollow_forum,
+                        id = CoreUiR.string.title_dialog_unfollow_forum,
                         forumName
                     )
                 )
@@ -544,7 +545,7 @@ fun ForumPage(
                                     dismiss()
                                 }
                             ) {
-                                Text(text = stringResource(id = R.string.title_share))
+                                Text(text = stringResource(id = CoreUiR.string.title_share))
                             }
                             DropdownMenuItem(
                                 onClick = {
@@ -918,7 +919,7 @@ fun LoadingPlaceholder(
                             dismiss()
                         }
                     ) {
-                        Text(text = stringResource(id = R.string.title_share))
+                        Text(text = stringResource(id = CoreUiR.string.title_share))
                     }
                 }
             )

@@ -30,8 +30,8 @@ import com.huanchengfly.tieba.post.models.PostEntity
 import com.huanchengfly.tieba.post.models.ThreadMeta
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
-import com.huanchengfly.tieba.post.ui.widgets.compose.DialogState
-import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.AddFavorite
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.AgreePost
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.AgreeThread

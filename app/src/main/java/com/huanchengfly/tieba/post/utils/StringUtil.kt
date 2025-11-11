@@ -18,6 +18,7 @@ import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
 import com.huanchengfly.tieba.post.components.spans.EmoticonSpanV2
 import com.huanchengfly.tieba.post.preferences.appPreferences
@@ -77,22 +78,7 @@ object StringUtil {
     @JvmStatic
     fun getUsernameString(context: Context, username: String, nickname: String?): CharSequence {
         val showBoth = context.appPreferences.showBothUsernameAndNickname
-        if (TextUtils.isEmpty(nickname)) {
-            return if (TextUtils.isEmpty(username)) "" else username
-        } else if (showBoth && !TextUtils.isEmpty(username) && !TextUtils.equals(
-                username,
-                nickname
-            )
-        ) {
-            val builder = SpannableStringBuilder(nickname)
-            builder.append(
-                "($username)",
-                ForegroundColorSpan(ThemeColorResolver.colorByAttr(context, R.attr.color_text_disabled)),
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
-            return builder
-        }
-        return nickname ?: ""
+        return StringFormatUtils.formatUsernameString(context, showBoth, username, nickname)
     }
 
     @Stable
@@ -103,16 +89,7 @@ object StringUtil {
         color: Color = Color.Unspecified
     ): AnnotatedString {
         val showBoth = App.isInitialized && context.appPreferences.showBothUsernameAndNickname
-        return buildAnnotatedString {
-            if (showBoth && !nickname.isNullOrBlank() && username != nickname && username.isNotBlank()) {
-                append(nickname)
-                withStyle(SpanStyle(color = color)) {
-                    append("(${username})")
-                }
-            } else {
-                append(nickname ?: username)
-            }
-        }
+        return StringFormatUtils.formatUsernameAnnotated(showBoth, username, nickname, color)
     }
 
     @OptIn(ExperimentalTextApi::class)
@@ -124,70 +101,20 @@ object StringUtil {
         content: String,
         context: Context = App.INSTANCE,
     ): AnnotatedString {
-        return buildAnnotatedString {
-            withAnnotation(tag = "user", annotation = userId) {
-                withStyle(
-                    SpanStyle(
-                        color = Color(ThemeColorResolver.colorByAttr(context, R.attr.colorNewPrimary))
-                    )
-                ) {
-                    append("@")
-                    append(
-                        getUsernameAnnotatedString(
-                            context,
-                            username,
-                            nickname,
-                        )
-                    )
-                }
-            }
-            append(": ")
-            append(content)
-        }
+        val color = Color(ThemeColorResolver.colorByAttr(context, R.attr.colorNewPrimary))
+        val showBoth = App.isInitialized && context.appPreferences.showBothUsernameAndNickname
+        return StringFormatUtils.buildAnnotatedStringWithUser(showBoth, color, userId, username, nickname, content)
     }
 
     @JvmStatic
     @Stable
     fun getAvatarUrl(portrait: String?): String {
-        if (portrait.isNullOrEmpty()) {
-            return ""
-        }
-        return if (portrait.startsWith("http://") || portrait.startsWith("https://")) {
-            portrait
-        } else "http://tb.himg.baidu.com/sys/portrait/item/$portrait"
+        return StringFormatUtils.getAvatarUrl(portrait)
     }
 
     @JvmStatic
     fun getBigAvatarUrl(portrait: String?): String {
-        if (portrait.isNullOrEmpty()) {
-            return ""
-        }
-        return if (portrait.startsWith("http://") || portrait.startsWith("https://")) {
-            portrait
-        } else "http://tb.himg.baidu.com/sys/portraith/item/$portrait"
+        return StringFormatUtils.getBigAvatarUrl(portrait)
     }
 
-    fun String.getShortNumString(): String {
-        val long = toLongOrNull() ?: return ""
-        return long.getShortNumString()
-    }
-
-    fun Int.getShortNumString(): String {
-        return toLong().getShortNumString()
-    }
-
-    fun Long.getShortNumString(): String {
-        val long = this
-        return if (long > 9999) {
-            val longW = long * 10 / 10000L / 10F
-            if (longW > 999) {
-                val longKW = longW.toLong() * 10 / 1000L / 10F
-                "${longKW}KW"
-            } else {
-                "${longW}W"
-            }
-        } else {
-            "$this"
-        }
-    }
 }

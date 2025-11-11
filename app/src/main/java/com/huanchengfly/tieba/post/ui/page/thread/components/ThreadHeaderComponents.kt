@@ -27,12 +27,14 @@ import androidx.compose.ui.res.stringResource
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.ui.compose.Container
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
+import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.HorizontalDivider
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.SimpleForum
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageState
-import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
-import com.huanchengfly.tieba.post.utils.StringUtil.getShortNumString
+import com.huanchengfly.tieba.core.ui.widgets.compose.TitleCentredToolbar
+import com.huanchengfly.tieba.core.common.utils.getShortNumString
 
 @Composable
 fun ThreadInfoHeader(
@@ -122,7 +124,7 @@ fun ThreadPageTopBar(
                             .padding(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        com.huanchengfly.tieba.post.ui.widgets.compose.Avatar(
+                        Avatar(
                             data = it.get { avatar },
                             contentDescription = forumName,
                             modifier = Modifier
@@ -143,7 +145,7 @@ fun ThreadPageTopBar(
             }
         },
         navigationIcon = {
-            com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon(onBack)
+            BackNavigationIcon(onBack)
         },
         modifier = modifier
     )

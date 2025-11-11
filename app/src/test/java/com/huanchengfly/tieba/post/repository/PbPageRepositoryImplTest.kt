@@ -1,17 +1,20 @@
 package com.huanchengfly.tieba.post.repository
 
+import android.os.SystemClock
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.pbPage.PbPageResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
-import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageFrom
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -30,16 +33,21 @@ class PbPageRepositoryImplTest {
 
     private lateinit var repository: PbPageRepositoryImpl
     private lateinit var mockApi: ITiebaApi
+    private lateinit var testScope: TestScope
 
     @Before
     fun setup() {
         mockApi = mockk()
-        repository = PbPageRepositoryImpl(mockApi)
+        testScope = TestScope()
+        repository = PbPageRepositoryImpl(mockApi, testScope)
+        mockkStatic(SystemClock::class)
+        every { SystemClock.elapsedRealtime() } returns 0L
     }
 
     @After
     fun tearDown() {
         unmockkAll()
+        testScope.cancel()
     }
 
     // ========== Helper Functions ==========

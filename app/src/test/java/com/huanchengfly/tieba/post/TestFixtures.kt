@@ -6,7 +6,12 @@ import com.huanchengfly.tieba.post.api.models.LikeForumResultBean
 import com.huanchengfly.tieba.post.api.models.MessageListBean
 import com.huanchengfly.tieba.post.api.models.SearchThreadBean
 import com.huanchengfly.tieba.post.api.models.SignResultBean
+import com.huanchengfly.tieba.post.api.models.protos.Abstract
+import com.huanchengfly.tieba.post.api.models.protos.Media
+import com.huanchengfly.tieba.post.api.models.protos.PbContent
+import com.huanchengfly.tieba.post.api.models.protos.Post
 import com.huanchengfly.tieba.post.api.models.protos.SubPostList
+import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.post.api.models.protos.addPost.AddPostResponse
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse
@@ -18,6 +23,10 @@ import com.huanchengfly.tieba.post.api.models.protos.topicList.TopicListResponse
 import com.huanchengfly.tieba.post.api.models.protos.userLike.UserLikeResponse
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
 import com.huanchengfly.tieba.post.repository.ForumOperationRepository
+import com.huanchengfly.tieba.post.models.PostEntity
+import com.huanchengfly.tieba.post.models.PostMeta
+import com.huanchengfly.tieba.post.models.ThreadEntity
+import com.huanchengfly.tieba.post.models.ThreadMeta
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -428,7 +437,7 @@ object TestFixtures {
         collectStatus: Int = 0,
         collectMarkPid: Long = 0,
         timestamp: Long = 1000L
-    ): com.huanchengfly.tieba.post.store.models.ThreadEntity {
+    ): ThreadEntity {
         val proto = fakeThreadInfo(
             id = threadId,
             threadId = threadId,
@@ -451,7 +460,7 @@ object TestFixtures {
             collectMarkPid = collectMarkPid.toString()
         )
 
-        return com.huanchengfly.tieba.post.store.models.ThreadEntity(
+        return ThreadEntity(
             threadId = threadId,
             firstPostId = firstPostId,
             title = title,
@@ -466,10 +475,10 @@ object TestFixtures {
             authorId = authorId,
             forumId = forumId,
             forumName = forumName,
-            abstract = emptyList(),
-            media = emptyList(),
+            abstract = emptyList<Abstract>(),
+            media = emptyList<Media>(),
             videoInfo = null,
-            meta = com.huanchengfly.tieba.post.store.models.ThreadMeta(
+            meta = ThreadMeta(
                 hasAgree = hasAgree,
                 agreeNum = agreeNum,
                 collectStatus = collectStatus,
@@ -501,7 +510,7 @@ object TestFixtures {
         agreeNum: Int = 10,
         subPostNumber: Int = 0,
         timestamp: Long = 1000L
-    ): com.huanchengfly.tieba.post.store.models.PostEntity {
+    ): PostEntity {
         val proto = fakePost(
             id = id,
             threadId = threadId,
@@ -514,16 +523,16 @@ object TestFixtures {
             subPostNumber = subPostNumber
         )
 
-        return com.huanchengfly.tieba.post.store.models.PostEntity(
+        return PostEntity(
             id = id,
             threadId = threadId,
             floor = floor,
             time = time,
             author = author,
             authorId = authorId,
-            content = emptyList(),
+            content = emptyList<PbContent>(),
             subPostNumber = subPostNumber,
-            meta = com.huanchengfly.tieba.post.store.models.PostMeta(
+            meta = PostMeta(
                 hasAgree = hasAgree,
                 agreeNum = agreeNum
             ),

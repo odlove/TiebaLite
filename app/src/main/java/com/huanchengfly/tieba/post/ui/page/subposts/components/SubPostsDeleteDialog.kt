@@ -6,8 +6,8 @@ import androidx.compose.ui.res.stringResource
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.SubPostList
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
-import com.huanchengfly.tieba.post.ui.widgets.compose.ConfirmDialog
-import com.huanchengfly.tieba.post.ui.widgets.compose.DialogState
+import com.huanchengfly.tieba.core.ui.widgets.compose.ConfirmDialog
+import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
 
 /**
  * 删除确认对话框

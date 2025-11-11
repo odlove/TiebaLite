@@ -77,7 +77,7 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
-import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
+import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.SearchPageDestination
 import com.huanchengfly.tieba.post.ui.page.search.forum.SearchForumPage
 import com.huanchengfly.tieba.post.ui.page.search.thread.SearchThreadPage
@@ -91,11 +91,11 @@ import com.huanchengfly.tieba.core.ui.compose.MyBackHandler
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
-import com.huanchengfly.tieba.post.ui.widgets.compose.SearchBox
+import com.huanchengfly.tieba.core.ui.widgets.compose.SearchBox
 import com.huanchengfly.tieba.core.ui.widgets.compose.TabClickMenu
 import com.huanchengfly.tieba.core.ui.compose.TabRow
 import com.huanchengfly.tieba.core.ui.compose.TopAppBarContainer
-import com.huanchengfly.tieba.post.ui.widgets.compose.picker.ListSinglePicker
+import com.huanchengfly.tieba.core.ui.widgets.compose.picker.ListSinglePicker
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -585,7 +585,7 @@ private fun SearchTopBar(
         onKeywordSubmit = onKeywordSubmit,
         placeholder = {
             Text(
-                text = stringResource(id = R.string.hint_search),
+                text = stringResource(id = CoreUiR.string.hint_search),
                 color = ExtendedTheme.colors.onTopBarSurface.copy(alpha = ContentAlpha.medium)
             )
         },

@@ -13,6 +13,7 @@ import com.huanchengfly.tieba.core.runtime.service.sign.SignNotificationControll
 import com.huanchengfly.tieba.core.runtime.service.sign.SignNotificationUpdate
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.services.sign.SignServiceConstants.NOTIFICATION_CHANNEL_ID
 import com.huanchengfly.tieba.post.services.sign.SignServiceConstants.NOTIFICATION_ID
 import javax.inject.Inject
@@ -76,8 +77,8 @@ class AppSignNotificationController @Inject constructor() : SignNotificationCont
         val builder = NotificationCompat.Builder(service, NOTIFICATION_CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(text)
-            .setSubText(service.getString(R.string.title_oksign))
-            .setSmallIcon(R.drawable.ic_oksign)
+            .setSubText(service.getString(CoreUiR.string.title_oksign))
+            .setSmallIcon(CoreUiR.drawable.ic_oksign)
             .setAutoCancel(!ongoing)
             .setStyle(NotificationCompat.BigTextStyle())
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
@@ -97,7 +98,7 @@ class AppSignNotificationController @Inject constructor() : SignNotificationCont
             NOTIFICATION_CHANNEL_ID,
             NotificationManagerCompat.IMPORTANCE_LOW
         )
-            .setName(service.getString(R.string.title_oksign))
+            .setName(service.getString(CoreUiR.string.title_oksign))
             .setLightsEnabled(false)
             .setShowBadge(false)
             .build()

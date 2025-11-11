@@ -40,18 +40,18 @@ import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.repository.PbPageRepository
-import com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButton
-import com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButtonVariant
-import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
+import com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButton
+import com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButtonVariant
+import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
+import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.post.utils.StringUtil
 
 @Deprecated(
     "Use AgreeButton with AgreeButtonVariant.PostDetail instead",
     ReplaceWith(
         "AgreeButton(hasAgreed, agreeNum, onClick, modifier, AgreeButtonVariant.PostDetail)",
-        "com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButton",
-        "com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButtonVariant"
+        "com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButton",
+        "com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButtonVariant"
     )
 )
 @Composable
@@ -76,8 +76,8 @@ fun PostAgreeBtn(
     "Use AgreeButton with AgreeButtonVariant.BottomBar instead",
     ReplaceWith(
         "AgreeButton(hasAgreed, agreeNum, onClick, modifier, AgreeButtonVariant.BottomBar)",
-        "com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButton",
-        "com.huanchengfly.tieba.post.ui.widgets.compose.AgreeButtonVariant"
+        "com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButton",
+        "com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButtonVariant"
     )
 )
 @Composable

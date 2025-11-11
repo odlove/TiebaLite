@@ -88,27 +88,47 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
 import com.huanchengfly.tieba.post.ui.page.NavGraphs
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
+import com.huanchengfly.tieba.post.ui.page.destinations.LoginPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
+import com.huanchengfly.tieba.post.ui.page.photoview.PhotoViewActivity
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.ui.utils.DevicePosture
 import com.huanchengfly.tieba.core.ui.utils.isBookPosture
 import com.huanchengfly.tieba.core.ui.utils.isSeparating
-import com.huanchengfly.tieba.post.ui.widgets.compose.AlertDialog
-import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.post.ui.widgets.compose.AvatarIcon
-import com.huanchengfly.tieba.post.ui.widgets.compose.Dialog
-import com.huanchengfly.tieba.post.ui.widgets.compose.DialogNegativeButton
-import com.huanchengfly.tieba.post.ui.widgets.compose.DialogPositiveButton
-import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.core.ui.widgets.compose.AlertDialog
+import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
+import com.huanchengfly.tieba.core.ui.widgets.compose.AvatarIcon
+import com.huanchengfly.tieba.core.ui.widgets.compose.Dialog
+import com.huanchengfly.tieba.core.ui.widgets.compose.DialogNegativeButton
+import com.huanchengfly.tieba.core.ui.widgets.compose.DialogPositiveButton
+import com.huanchengfly.tieba.core.ui.widgets.compose.ProvideAccountActions
+import com.huanchengfly.tieba.post.ui.page.main.ProvideHomeNavigationActions
+import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.post.ui.widgets.compose.AppOriginThreadRenderer
 import com.huanchengfly.tieba.post.utils.AccountUtil
+import com.huanchengfly.tieba.core.ui.image.ImageLoadStrategy
+import com.huanchengfly.tieba.core.ui.image.LocalImageLoadStrategy
+import com.huanchengfly.tieba.core.ui.image.ImageUrlResolver
+import com.huanchengfly.tieba.core.ui.image.LocalImageUrlResolver
+import com.huanchengfly.tieba.core.ui.photoview.LocalPhotoViewer
+import com.huanchengfly.tieba.core.ui.locals.LocalDevicePosture
+import com.huanchengfly.tieba.core.ui.locals.LocalNotificationCountFlow
+import com.huanchengfly.tieba.core.ui.locals.LocalOriginThreadRenderer
 import com.huanchengfly.tieba.core.runtime.client.ClientUtils
+import com.huanchengfly.tieba.post.goToActivity
+import com.huanchengfly.tieba.post.utils.ImageUtil
 import com.huanchengfly.tieba.post.utils.JobServiceUtil
 import com.huanchengfly.tieba.post.utils.PermissionUtils
 import com.huanchengfly.tieba.post.utils.PickMediasRequest
 import com.huanchengfly.tieba.post.utils.TiebaUtil
 import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
+import com.huanchengfly.tieba.core.ui.preferences.ProvideAppPreferences
 import com.huanchengfly.tieba.core.ui.preferences.collectPreferenceAsState
 import com.huanchengfly.tieba.post.dataStore
+import com.huanchengfly.tieba.core.common.image.ImageLoadSettings
+import com.huanchengfly.tieba.post.preferences.appPreferences
+import com.huanchengfly.tieba.post.utils.NetworkUtil
 import com.huanchengfly.tieba.core.ui.activityresult.ActivityResultPayload
 import com.huanchengfly.tieba.core.ui.activityresult.LaunchActivityForResult
 import com.huanchengfly.tieba.core.ui.activityresult.LaunchActivityRequest
@@ -145,10 +165,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import java.util.concurrent.atomic.AtomicBoolean
 
-val LocalNotificationCountFlow =
-    staticCompositionLocalOf<Flow<Int>> { throw IllegalStateException("not allowed here!") }
-val LocalDevicePosture =
-    staticCompositionLocalOf<State<DevicePosture>> { throw IllegalStateException("not allowed here!") }
 val LocalNavController =
     staticCompositionLocalOf<NavHostController> { throw IllegalStateException("not allowed here!") }
 
@@ -156,7 +172,7 @@ val LocalNavController =
 @Composable
 fun rememberBottomSheetNavigator(
     animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
-    skipHalfExpanded: Boolean = false
+    skipHalfExpanded: Boolean = true
 ): BottomSheetNavigator {
     val sheetState = rememberModalBottomSheetState(
         ModalBottomSheetValue.Hidden,
@@ -220,6 +236,17 @@ class MainActivityV2 : BaseComposeActivity() {
                 started = SharingStarted.Eagerly,
                 initialValue = DevicePosture.NormalPosture
             )
+    }
+
+    private val imageUrlResolver = object : ImageUrlResolver {
+        override fun getUrl(
+            context: Context,
+            preferSmall: Boolean,
+            originUrl: String,
+            smallUrls: List<String?>
+        ): String {
+            return ImageUtil.getUrl(context, preferSmall, originUrl, *smallUrls.toTypedArray())
+        }
     }
 
     private var direction: Direction? = null
@@ -531,7 +558,7 @@ class MainActivityV2 : BaseComposeActivity() {
                     }
                 )
                 DialogNegativeButton(
-                    text = stringResource(id = R.string.button_cancel)
+                    text = stringResource(id = CoreUiR.string.button_cancel)
                 )
                 DialogNegativeButton(
                     text = stringResource(id = R.string.button_dont_remind_again),
@@ -567,64 +594,74 @@ class MainActivityV2 : BaseComposeActivity() {
                 )
             )
         }
-        TiebaLiteLocalProvider {
-            TranslucentThemeBackground {
-                val navController = rememberNavController()
-                val engine = TiebaNavHostDefaults.rememberNavHostEngine()
-                val navigator = TiebaNavHostDefaults.rememberBottomSheetNavigator()
-                val currentDestination by navController.currentDestinationAsState()
+        ProvideAppPreferences(appPreferences = appPreferences) {
+            TiebaLiteLocalProvider {
+                TranslucentThemeBackground {
+                    val navController = rememberNavController()
+                    val engine = TiebaNavHostDefaults.rememberNavHostEngine()
+                    val navigator = TiebaNavHostDefaults.rememberBottomSheetNavigator()
+                    val currentDestination by navController.currentDestinationAsState()
 
-                navController.navigatorProvider += navigator
+                    navController.navigatorProvider += navigator
 
-                LaunchedEffect(currentDestination) {
-                    val curDest = currentDestination
-                    if (curDest != null) {
-                        Analytics.trackEvent(
-                            "PageChanged",
-                            mapOf(
-                                "page" to curDest.route,
+                    LaunchedEffect(currentDestination) {
+                        val curDest = currentDestination
+                        if (curDest != null) {
+                            Analytics.trackEvent(
+                                "PageChanged",
+                                mapOf(
+                                    "page" to curDest.route,
+                                )
                             )
-                        )
-                    }
-                }
-
-                CompositionLocalProvider(
-                    LocalNavController provides navController,
-                    LocalDestination provides currentDestination,
-                ) {
-                    SideEffect {
-                        Log.i(
-                            THEME_DIAGNOSTICS_TAG,
-                            "MainActivityV2.NavHost composition currentDestination=${currentDestination?.route}"
-                        )
+                        }
                     }
 
-                    ModalBottomSheetLayout(
-                        bottomSheetNavigator = navigator,
-                        sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-                        sheetBackgroundColor = ExtendedTheme.colors.windowBackground,
-                        scrimColor = Color.Black.copy(alpha = 0.32f),
+                    CompositionLocalProvider(
+                        LocalNavController provides navController,
+                        LocalDestination provides currentDestination,
                     ) {
                         SideEffect {
                             Log.i(
                                 THEME_DIAGNOSTICS_TAG,
-                                "MainActivityV2.ModalBottomSheetLayout recomposed"
+                                "MainActivityV2.NavHost composition currentDestination=${currentDestination?.route}"
                             )
                         }
-                        DestinationsNavHost(
-                            navController = navController,
-                            navGraph = NavGraphs.root,
-                            engine = engine,
-                        )
-                    }
-                }
 
-                SideEffect {
-                    Log.i(
-                        THEME_DIAGNOSTICS_TAG,
-                        "MainActivityV2 rememberNavController SideEffect current=${navController.currentDestination?.route}"
-                    )
-                    myNavController = navController
+                        ModalBottomSheetLayout(
+                            bottomSheetNavigator = navigator,
+                            sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+                            sheetBackgroundColor = ExtendedTheme.colors.windowBackground,
+                            scrimColor = Color.Black.copy(alpha = 0.32f),
+                        ) {
+                            SideEffect {
+                                Log.i(
+                                    THEME_DIAGNOSTICS_TAG,
+                                    "MainActivityV2.ModalBottomSheetLayout recomposed"
+                                )
+                            }
+                            ProvideAccountActions(
+                                onAddAccount = {
+                                    navController.navigate(LoginPageDestination.route)
+                                }
+                            ) {
+                                ProvideHomeNavigationActions(navController = navController) {
+                                    DestinationsNavHost(
+                                        navController = navController,
+                                        navGraph = NavGraphs.root,
+                                        engine = engine,
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    SideEffect {
+                        Log.i(
+                            THEME_DIAGNOSTICS_TAG,
+                            "MainActivityV2 rememberNavController SideEffect current=${navController.currentDestination?.route}"
+                        )
+                        myNavController = navController
+                    }
                 }
             }
         }
@@ -719,7 +756,15 @@ class MainActivityV2 : BaseComposeActivity() {
         CompositionLocalProvider(
             LocalNotificationCountFlow provides notificationCountFlow,
             LocalDevicePosture provides devicePostureState,
+            LocalPhotoViewer provides { photoViewData ->
+                context.goToActivity<PhotoViewActivity> {
+                    putExtra(PhotoViewActivity.EXTRA_PHOTO_VIEW_DATA, photoViewData)
+                }
+            },
+            LocalImageLoadStrategy provides AppImageLoadStrategy,
+            LocalImageUrlResolver provides imageUrlResolver,
             LocalPreferencesDataStore provides context.dataStore,
+            LocalOriginThreadRenderer provides AppOriginThreadRenderer,
         ) {
             SideEffect {
                 Log.i(
@@ -804,11 +849,20 @@ private object TiebaNavHostDefaults {
             },
         ),
     )
-
-    @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun rememberBottomSheetNavigator(): BottomSheetNavigator = rememberBottomSheetNavigator(
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-        skipHalfExpanded = true
-    )
+    fun rememberBottomSheetNavigator(): BottomSheetNavigator =
+        com.huanchengfly.tieba.post.rememberBottomSheetNavigator()
+}
+
+private val AppImageLoadStrategy: ImageLoadStrategy = strategy@{ context, skipNetworkCheck ->
+    if (skipNetworkCheck) return@strategy true
+    val preferences = context.appPreferences
+    val loadType = preferences.imageLoadType?.toIntOrNull() ?: ImageLoadSettings.SMART_ORIGIN
+    when (loadType) {
+        ImageLoadSettings.SMART_ORIGIN,
+        ImageLoadSettings.ALL_ORIGIN -> true
+        ImageLoadSettings.SMART_LOAD -> NetworkUtil.isWifiConnected(context)
+        ImageLoadSettings.ALL_NO -> false
+        else -> true
+    }
 }

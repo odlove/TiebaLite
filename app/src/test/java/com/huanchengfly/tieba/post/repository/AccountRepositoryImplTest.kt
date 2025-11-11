@@ -2,8 +2,10 @@ package com.huanchengfly.tieba.post.repository
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import com.huanchengfly.tieba.post.data.account.AccountConstants
 import com.huanchengfly.tieba.post.models.database.Account
+import com.huanchengfly.tieba.post.repository.ZidProvider
 import io.mockk.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,6 +38,8 @@ class AccountRepositoryImplTest {
     private lateinit var mockSharedPreferences: SharedPreferences
     private lateinit var mockEditor: SharedPreferences.Editor
     private lateinit var mockApi: com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
+    private lateinit var mockGlobalEventBus: GlobalEventBus
+    private lateinit var mockZidProvider: ZidProvider
     private val testDispatcher = UnconfinedTestDispatcher()
     private val testScope = CoroutineScope(testDispatcher)
 
@@ -52,6 +56,8 @@ class AccountRepositoryImplTest {
         mockSharedPreferences = mockk(relaxed = true)
         mockEditor = mockk(relaxed = true)
         mockApi = mockk(relaxed = true)
+        mockGlobalEventBus = mockk(relaxed = true)
+        mockZidProvider = mockk(relaxed = true)
 
         // 配置 SharedPreferences mock
         every { mockContext.getSharedPreferences(AccountConstants.PREF_NAME, Context.MODE_PRIVATE) } returns mockSharedPreferences
@@ -71,7 +77,13 @@ class AccountRepositoryImplTest {
         every { findAll(Account::class.java) } returns emptyList()
 
         // 创建 Repository 实例
-        repository = AccountRepositoryImpl(mockContext, testScope, mockApi)
+        repository = AccountRepositoryImpl(
+            mockContext,
+            testScope,
+            mockApi,
+            mockGlobalEventBus,
+            mockZidProvider
+        )
     }
 
     @After

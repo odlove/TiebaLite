@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.subposts.components
 
 import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.utils.DateTimeUtils
+import com.huanchengfly.tieba.core.common.utils.DateTimeUtils
 
 /**
  * 获取楼中楼的描述文本（时间）

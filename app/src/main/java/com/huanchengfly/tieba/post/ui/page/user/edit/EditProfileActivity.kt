@@ -69,6 +69,7 @@ import com.github.panpf.sketch.compose.AsyncImage
 import com.eygraber.compose.placeholder.material.placeholder
 import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.core.common.collectIn
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
@@ -80,15 +81,15 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ProvideThemeControll
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
-import com.huanchengfly.tieba.post.ui.widgets.compose.ActionItem
-import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.core.ui.widgets.compose.ActionItem
+import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.BaseTextField
 import com.huanchengfly.tieba.core.ui.widgets.compose.CounterTextField
-import com.huanchengfly.tieba.post.ui.widgets.compose.Dialog
-import com.huanchengfly.tieba.post.ui.widgets.compose.DialogNegativeButton
-import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
-import com.huanchengfly.tieba.post.ui.widgets.compose.picker.ListSinglePicker
-import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.core.ui.widgets.compose.Dialog
+import com.huanchengfly.tieba.core.ui.widgets.compose.DialogNegativeButton
+import com.huanchengfly.tieba.core.ui.widgets.compose.Toolbar
+import com.huanchengfly.tieba.core.ui.widgets.compose.picker.ListSinglePicker
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.ui.windowsizeclass.calculateWindowSizeClass
 import com.huanchengfly.tieba.post.utils.AccountUtil
@@ -532,7 +533,7 @@ fun PageEditProfile(
                     dialogState = dialogState,
                     title = { Text(text = stringResource(id = R.string.title_modify_sex)) },
                     buttons = {
-                        DialogNegativeButton(text = stringResource(id = R.string.button_cancel))
+                        DialogNegativeButton(text = stringResource(id = CoreUiR.string.button_cancel))
                     }
                 ) {
                     ListSinglePicker(

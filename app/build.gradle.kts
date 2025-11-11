@@ -215,6 +215,7 @@ dependencies {
     implementation(project(":data:remote"))
     implementation(project(":data:repository"))
     implementation(project(":data:local"))
+    implementation(project(":feature:home"))
 
     //Local Files
 //    implementation fileTree(include: ["*.jar"], dir: "libs")

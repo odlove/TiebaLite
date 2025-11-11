@@ -68,6 +68,7 @@ import com.godaddy.android.colorpicker.HsvColor
 import com.godaddy.android.colorpicker.harmony.ColorHarmonyMode
 import com.godaddy.android.colorpicker.harmony.HarmonyColorPicker
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.activities.TranslucentThemeActivity
 import com.huanchengfly.tieba.post.components.dialogs.CustomThemeDialog
 import com.huanchengfly.tieba.post.goToActivity
@@ -77,15 +78,15 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.LocalThemeController
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.LocalThemeState
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.rememberThemePalette
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dynamicTonalPalette
-import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
-import com.huanchengfly.tieba.post.ui.widgets.compose.Dialog
-import com.huanchengfly.tieba.post.ui.widgets.compose.DialogNegativeButton
-import com.huanchengfly.tieba.post.ui.widgets.compose.DialogPositiveButton
+import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.core.ui.widgets.compose.Dialog
+import com.huanchengfly.tieba.core.ui.widgets.compose.DialogNegativeButton
+import com.huanchengfly.tieba.core.ui.widgets.compose.DialogPositiveButton
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.compose.ProvideContentColor
-import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
-import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.core.ui.widgets.compose.TitleCentredToolbar
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.utils.extension.toHexString
 import com.ramcosta.composedestinations.annotation.Destination
@@ -139,7 +140,7 @@ fun AppThemePage(
                 }
             )
             DialogNegativeButton(
-                text = stringResource(id = R.string.button_cancel),
+                text = stringResource(id = CoreUiR.string.button_cancel),
                 onClick = {
                     customPrimaryColor = Color(themeState.customConfig?.primaryColor ?: themeState.palette.primary)
                 }
@@ -208,7 +209,7 @@ fun AppThemePage(
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.Check,
-                                contentDescription = stringResource(id = R.string.button_sure_default)
+                                contentDescription = stringResource(id = CoreUiR.string.button_sure_default)
                             )
                         }
                     }

@@ -83,6 +83,7 @@ import androidx.core.widget.addTextChangedListener
 import com.github.panpf.sketch.compose.AsyncImage
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
@@ -100,14 +101,14 @@ import com.huanchengfly.tieba.post.ui.page.reply.ReplyPanelType.EMOJI
 import com.huanchengfly.tieba.post.ui.page.reply.ReplyPanelType.IMAGE
 import com.huanchengfly.tieba.post.ui.page.reply.ReplyPanelType.NONE
 import com.huanchengfly.tieba.post.ui.utils.imeNestedScroll
-import com.huanchengfly.tieba.post.ui.widgets.compose.BaseDialog
-import com.huanchengfly.tieba.post.ui.widgets.compose.Dialog
-import com.huanchengfly.tieba.post.ui.widgets.compose.DialogNegativeButton
-import com.huanchengfly.tieba.post.ui.widgets.compose.DialogPositiveButton
-import com.huanchengfly.tieba.post.ui.widgets.compose.DialogState
+import com.huanchengfly.tieba.core.ui.widgets.compose.BaseDialog
+import com.huanchengfly.tieba.core.ui.widgets.compose.Dialog
+import com.huanchengfly.tieba.core.ui.widgets.compose.DialogNegativeButton
+import com.huanchengfly.tieba.core.ui.widgets.compose.DialogPositiveButton
+import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
 import com.huanchengfly.tieba.core.ui.compose.MyBackHandler
 import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
-import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.core.ui.widgets.theme.TintUndoableEditText
 import com.huanchengfly.tieba.post.api.AccountTokens
 import com.huanchengfly.tieba.post.emoticon.Emoticon
@@ -118,8 +119,8 @@ import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.utils.hideKeyboard
 import com.huanchengfly.tieba.post.utils.showKeyboard
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyleBottomSheet
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.FlowPreview
@@ -442,7 +443,7 @@ internal fun ReplyPageContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(id = R.string.title_reply),
+                text = stringResource(id = CoreUiR.string.title_reply),
                 modifier = Modifier.weight(1f),
                 fontWeight = FontWeight.Bold
             )
@@ -797,7 +798,7 @@ private fun EmoticonPanel(
                         )
                     ),
                     contentDescription = stringResource(
-                        id = R.string.emoticon,
+                        id = CoreUiR.string.emoticon,
                         emoticon.name
                     ),
                     contentScale = ContentScale.Fit,

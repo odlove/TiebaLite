@@ -47,12 +47,12 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.Shapes
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.White
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.Yellow
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
-import com.huanchengfly.tieba.post.ui.widgets.compose.NetworkImage
-import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
-import com.huanchengfly.tieba.post.utils.StringUtil.getShortNumString
+import com.huanchengfly.tieba.core.ui.widgets.compose.NetworkImage
+import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
+import com.huanchengfly.tieba.core.ui.widgets.compose.TitleCentredToolbar
+import com.huanchengfly.tieba.core.common.utils.getShortNumString
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 

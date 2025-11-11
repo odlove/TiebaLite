@@ -40,7 +40,10 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
         super.setup()
         mockFrsRepo = mockk(relaxed = true)
         mockUserRepo = mockk(relaxed = true)
-        mockPbPageRepo = mockk(relaxed = true)
+        mockPbPageRepo = mockk(relaxed = true) {
+            every { threadFlow(any()) } returns kotlinx.coroutines.flow.MutableStateFlow(null)
+            every { upsertThreads(any()) } answers { }
+        }
         mockAppPreferences = mockk(relaxed = true)
     }
 

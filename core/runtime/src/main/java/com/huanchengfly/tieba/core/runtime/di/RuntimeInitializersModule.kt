@@ -2,6 +2,7 @@ package com.huanchengfly.tieba.core.runtime.di
 
 import com.huanchengfly.tieba.core.runtime.ApplicationInitializer
 import com.huanchengfly.tieba.core.runtime.initializers.ActivityCallbacksInitializer
+import com.huanchengfly.tieba.core.runtime.initializers.ApplicationContextInitializer
 import com.huanchengfly.tieba.core.runtime.initializers.DeviceConfigInitializer
 import com.huanchengfly.tieba.core.runtime.initializers.OaidSupportInitializer
 import com.huanchengfly.tieba.core.runtime.initializers.ScreenMetricsInitializer
@@ -34,4 +35,8 @@ abstract class RuntimeInitializersModule {
     @Binds
     @IntoSet
     abstract fun bindScreenMetricsInitializer(initializer: ScreenMetricsInitializer): ApplicationInitializer
+
+    @Binds
+    @IntoSet
+    abstract fun bindApplicationContextInitializer(initializer: ApplicationContextInitializer): ApplicationInitializer
 }

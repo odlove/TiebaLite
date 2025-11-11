@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="relative_date_after">刚刚</string>
+    <string name="relative_date_second">%1$d 秒前</string>
+    <string name="relative_date_minute">%1$d 分钟前</string>
+    <string name="relative_date_today">今天 %1$s</string>
+</resources>

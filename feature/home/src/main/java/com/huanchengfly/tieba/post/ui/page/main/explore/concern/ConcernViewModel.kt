@@ -2,8 +2,12 @@ package com.huanchengfly.tieba.post.ui.page.main.explore.concern
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.models.AgreeBean
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.network.error.defaultErrorMessage
+import com.huanchengfly.tieba.core.common.feed.ConcernMetadata
+import com.huanchengfly.tieba.core.common.feed.ThreadFeedPage
+import com.huanchengfly.tieba.core.common.repository.ThreadCardRepository
+import com.huanchengfly.tieba.core.common.repository.ThreadFeedFacade
+import com.huanchengfly.tieba.core.common.repository.UserInteractionFacade
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
@@ -12,11 +16,6 @@ import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
 import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
-import com.huanchengfly.tieba.post.models.ThreadFeedPage
-import com.huanchengfly.tieba.post.models.ConcernMetadata
-import com.huanchengfly.tieba.post.repository.ThreadFeedRepository
-import com.huanchengfly.tieba.post.repository.PbPageRepository
-import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.PersistentMap
@@ -38,9 +37,9 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class ConcernViewModel @Inject constructor(
-    private val threadFeedRepository: ThreadFeedRepository,
-    private val userInteractionRepository: UserInteractionRepository,
-    val pbPageRepository: PbPageRepository,  // ✅ 公开，供 UI 订阅 Repository 缓存
+    private val threadFeedRepository: ThreadFeedFacade,
+    private val userInteractionRepository: UserInteractionFacade,
+    val threadCardRepository: ThreadCardRepository,  // ✅ 公开，供 UI 订阅 Repository 缓存
     dispatcherProvider: DispatcherProvider
 ) : BaseViewModel<ConcernUiIntent, ConcernPartialChange, ConcernUiState, ConcernUiEvent>(dispatcherProvider) {
     override fun createInitialState(): ConcernUiState = ConcernUiState()
@@ -50,9 +49,9 @@ class ConcernViewModel @Inject constructor(
 
     override fun dispatchEvent(partialChange: ConcernPartialChange): UiEvent? =
         when (partialChange) {
-            is ConcernPartialChange.Refresh.Failure -> CommonUiEvent.Toast(partialChange.error.getErrorMessage())
-            is ConcernPartialChange.LoadMore.Failure -> CommonUiEvent.Toast(partialChange.error.getErrorMessage())
-            is ConcernPartialChange.Agree.Failure -> CommonUiEvent.Toast(partialChange.error.getErrorMessage())
+            is ConcernPartialChange.Refresh.Failure -> CommonUiEvent.Toast(partialChange.error.defaultErrorMessage())
+            is ConcernPartialChange.LoadMore.Failure -> CommonUiEvent.Toast(partialChange.error.defaultErrorMessage())
+            is ConcernPartialChange.Agree.Failure -> CommonUiEvent.Toast(partialChange.error.defaultErrorMessage())
             else -> null
         }
 
@@ -95,46 +94,28 @@ class ConcernViewModel @Inject constructor(
 
         private fun ConcernUiIntent.Agree.producePartialChange(): Flow<ConcernPartialChange.Agree> {
             // ✅ 提前读取当前状态
-            val currentEntity = pbPageRepository.threadFlow(threadId).value
-            val previousHasAgree = currentEntity?.meta?.hasAgree ?: 0
-            val previousAgreeNum = currentEntity?.meta?.agreeNum ?: 0
+            val currentEntity = threadCardRepository.getThreadCard(threadId)
+            val previousHasAgree = currentEntity?.hasAgree ?: 0
+            val previousAgreeNum = currentEntity?.agreeNum ?: 0
 
             return userInteractionRepository.opAgree(
                 threadId.toString(), postId.toString(), hasAgree, objType = 3
             )
-                .map<AgreeBean, ConcernPartialChange.Agree> {
+                .map<Any, ConcernPartialChange.Agree> {
                     ConcernPartialChange.Agree.Success(threadId, hasAgree xor 1)
                 }
                 .catch {
                     // ✅ 失败时恢复原始值
-                    currentEntity?.let { entity ->
-                        pbPageRepository.upsertThreads(
-                            listOf(
-                                entity.copy(
-                                    meta = entity.meta.copy(
-                                        hasAgree = previousHasAgree,
-                                        agreeNum = previousAgreeNum
-                                    )
-                                )
-                            )
-                        )
-                    }
+                    threadCardRepository.updateAgreeStatus(threadId, previousHasAgree, previousAgreeNum)
                     emit(ConcernPartialChange.Agree.Failure(threadId, hasAgree, it))
                 }
                 .onStart {
                     // ✅ 乐观更新
-                    currentEntity?.let { entity ->
-                        pbPageRepository.upsertThreads(
-                            listOf(
-                                entity.copy(
-                                    meta = entity.meta.copy(
-                                        hasAgree = hasAgree xor 1,
-                                        agreeNum = if (hasAgree == 0) entity.meta.agreeNum + 1 else entity.meta.agreeNum - 1
-                                    )
-                                )
-                            )
-                        )
-                    }
+                    threadCardRepository.updateAgreeStatus(
+                        threadId,
+                        hasAgree xor 1,
+                        if (hasAgree == 0) previousAgreeNum + 1 else previousAgreeNum - 1
+                    )
                     emit(ConcernPartialChange.Agree.Start(threadId, hasAgree xor 1))
                 }
         }

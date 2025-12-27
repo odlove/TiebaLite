@@ -37,7 +37,6 @@ dependencies {
     implementation(project(":core:runtime"))
 
     implementation(project(":data:repository"))
-    implementation(project(":data:remote"))
     implementation(libs.kotlinx.serialization.json)
     implementation(project(":core:network"))
 

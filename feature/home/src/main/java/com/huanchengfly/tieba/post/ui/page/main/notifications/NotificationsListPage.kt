@@ -120,7 +120,7 @@ fun NotificationsListPage(
                                     .clickable {
                                         val threadId = info.threadId?.toLongOrNull() ?: return@clickable
                                         val postId = info.postId?.toLongOrNull() ?: return@clickable
-                                        if (info.isFloor == "1") {
+                                        if (info.isFloor) {
                                             homeNavigation.openSubPosts(
                                                 threadId = threadId,
                                                 subPostId = postId,
@@ -168,7 +168,7 @@ fun NotificationsListPage(
                                 }
                                 EmoticonText(text = info.content ?: "")
                                 val quoteText = if (type == NotificationsType.ReplyMe) {
-                                    if ("1" == info.isFloor) {
+                                    if (info.isFloor) {
                                         info.quoteContent
                                     } else {
                                         stringResource(
@@ -188,21 +188,21 @@ fun NotificationsListPage(
                                             .clip(RoundedCornerShape(6.dp))
                                             .clickable {
                                                 val threadId = info.threadId?.toLongOrNull() ?: return@clickable
-                                                if ("1" == info.isFloor && info.quotePid != null) {
-                                                    homeNavigation.openSubPosts(
-                                                        threadId = threadId,
-                                                        postId = 0L,
-                                                        subPostId = info.postId?.toLongOrNull() ?: 0L,
-                                                        loadFromSubPost = true
-                                                    )
-                                                } else {
-                                                    homeNavigation.openThread(
-                                                        threadId = threadId,
-                                                        postId = info.quotePid?.toLongOrNull()
-                                                            ?: info.postId?.toLongOrNull()
-                                                            ?: 0L
-                                                    )
-                                                }
+                                            if (info.isFloor && info.quotePid != null) {
+                                                homeNavigation.openSubPosts(
+                                                    threadId = threadId,
+                                                    postId = 0L,
+                                                    subPostId = info.postId?.toLongOrNull() ?: 0L,
+                                                    loadFromSubPost = true
+                                                )
+                                            } else {
+                                                homeNavigation.openThread(
+                                                    threadId = threadId,
+                                                    postId = info.quotePid?.toLongOrNull()
+                                                        ?: info.postId?.toLongOrNull()
+                                                        ?: 0L
+                                                )
+                                            }
                                             }
                                             .background(
                                                 ExtendedTheme.colors.chip,

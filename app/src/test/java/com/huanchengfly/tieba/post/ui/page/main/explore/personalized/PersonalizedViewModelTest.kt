@@ -1,13 +1,12 @@
 package com.huanchengfly.tieba.post.ui.page.main.explore.personalized
 
-import com.huanchengfly.tieba.post.TestFixtures
-import com.huanchengfly.tieba.core.mvi.wrapImmutable
-import com.huanchengfly.tieba.post.models.DislikeBean
-import com.huanchengfly.tieba.post.models.PersonalizedMetadata
-import com.huanchengfly.tieba.post.models.ThreadFeedPage
-import com.huanchengfly.tieba.post.repository.PbPageRepository
-import com.huanchengfly.tieba.post.repository.ThreadFeedRepository
-import com.huanchengfly.tieba.post.repository.UserInteractionRepository
+import com.huanchengfly.tieba.core.common.feed.DislikeReason
+import com.huanchengfly.tieba.core.common.feed.PersonalizedMetadata
+import com.huanchengfly.tieba.core.common.feed.ThreadFeedPage
+import com.huanchengfly.tieba.core.common.interaction.DislikeRequest
+import com.huanchengfly.tieba.core.common.repository.ThreadCardRepository
+import com.huanchengfly.tieba.core.common.repository.ThreadFeedFacade
+import com.huanchengfly.tieba.core.common.repository.UserInteractionFacade
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
 import io.mockk.clearMocks
 import io.mockk.every
@@ -18,6 +17,7 @@ import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -45,25 +45,24 @@ import kotlin.test.assertFalse
 @OptIn(ExperimentalCoroutinesApi::class)
 class PersonalizedViewModelTest : BaseViewModelTest() {
 
-    private lateinit var mockThreadFeedRepo: ThreadFeedRepository
-    private lateinit var mockUserInteractionRepo: UserInteractionRepository
-    private lateinit var mockPbPageRepo: PbPageRepository
+    private lateinit var mockThreadFeedRepo: ThreadFeedFacade
+    private lateinit var mockUserInteractionRepo: UserInteractionFacade
+    private lateinit var mockThreadCardRepo: ThreadCardRepository
 
     @Before
     override fun setup() {
         super.setup()
         mockThreadFeedRepo = mockk(relaxed = true)
         mockUserInteractionRepo = mockk(relaxed = true)
-        mockPbPageRepo = mockk(relaxed = true) {
-            every { threadFlow(any()) } returns kotlinx.coroutines.flow.MutableStateFlow(null)
-            every { upsertThreads(any()) } answers { }
+        mockThreadCardRepo = mockk(relaxed = true) {
+            every { threadCardFlow(any()) } returns MutableStateFlow(null)
         }
     }
 
     @After
     override fun tearDown() {
         super.tearDown()
-        clearMocks(mockThreadFeedRepo, mockUserInteractionRepo, mockPbPageRepo)
+        clearMocks(mockThreadFeedRepo, mockUserInteractionRepo, mockThreadCardRepo)
     }
 
     // ========== Refresh Tests ==========
@@ -79,7 +78,7 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
             val viewModel = PersonalizedViewModel(
                 mockThreadFeedRepo,
                 mockUserInteractionRepo,
-                mockPbPageRepo,
+                mockThreadCardRepo,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)
@@ -107,7 +106,7 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
             val viewModel = PersonalizedViewModel(
                 mockThreadFeedRepo,
                 mockUserInteractionRepo,
-                mockPbPageRepo,
+                mockThreadCardRepo,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)
@@ -128,16 +127,15 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
     fun `Agree should call userInteractionRepository opAgree with correct parameters`() =
         runTest(testDispatcher) {
             // Given: Mock repository returns success
-            val agreeBean = TestFixtures.fakeAgreeBean()
             every {
                 mockUserInteractionRepo.opAgree("123", "456", 0, objType = 3)
-            } returns flowOf(agreeBean)
+            } returns flowOf(Unit)
 
             // When: Create ViewModel and send Agree intent
             val viewModel = PersonalizedViewModel(
                 mockThreadFeedRepo,
                 mockUserInteractionRepo,
-                mockPbPageRepo,
+                mockThreadCardRepo,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)
@@ -158,34 +156,33 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
     fun `Dislike should call userInteractionRepository submitDislike with correct parameters`() =
         runTest(testDispatcher) {
             // Given: Mock repository returns success
-            val response = TestFixtures.fakeCommonResponse()
-            val dislikeBean = DislikeBean("123", "1,2", "789", 1000L, "extra1,extra2")
-            every { mockUserInteractionRepo.submitDislike(dislikeBean) } returns flowOf(response)
+            val dislikeRequest = DislikeRequest(
+                threadId = "123",
+                dislikeIds = "1,2",
+                forumId = "789",
+                clickTime = 1000L,
+                extra = "extra1,extra2"
+            )
+            every { mockUserInteractionRepo.submitDislike(dislikeRequest) } returns flowOf(Unit)
 
             // When: Create ViewModel and send Dislike intent
             val viewModel = PersonalizedViewModel(
                 mockThreadFeedRepo,
                 mockUserInteractionRepo,
-                mockPbPageRepo,
+                mockThreadCardRepo,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)
             testDispatcher.scheduler.advanceUntilIdle() // Let initialization complete
 
-            val mockReason1 = mockk<com.huanchengfly.tieba.post.api.models.protos.personalized.DislikeReason>(relaxed = true) {
-                every { dislikeId } returns 1
-                every { extra } returns "extra1"
-            }
-            val mockReason2 = mockk<com.huanchengfly.tieba.post.api.models.protos.personalized.DislikeReason>(relaxed = true) {
-                every { dislikeId } returns 2
-                every { extra } returns "extra2"
-            }
+            val mockReason1 = DislikeReason(dislikeId = 1, extra = "extra1")
+            val mockReason2 = DislikeReason(dislikeId = 2, extra = "extra2")
 
             viewModel.send(
                 PersonalizedUiIntent.Dislike(
                     forumId = 789L,
                     threadId = 123L,
-                    reasons = listOf(mockReason1.wrapImmutable(), mockReason2.wrapImmutable()),
+                    reasons = listOf(mockReason1, mockReason2),
                     clickTime = 1000L
                 )
             )
@@ -193,7 +190,7 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
 
             // Then: Verify submitDislike() was called
             verify(atLeast = 1) {
-                mockUserInteractionRepo.submitDislike(dislikeBean)
+                mockUserInteractionRepo.submitDislike(dislikeRequest)
             }
             job.cancelAndJoin()
         }
@@ -275,17 +272,13 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
 
     @Test
     fun `Dislike should optimistically hide thread id once`() = runTest(testDispatcher) {
-        val dislikeResponse = TestFixtures.fakeCommonResponse()
-        every { mockUserInteractionRepo.submitDislike(any()) } returns flowOf(dislikeResponse)
+        every { mockUserInteractionRepo.submitDislike(any()) } returns flowOf(Unit)
 
         val viewModel = createViewModel()
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        val reason = mockk<com.huanchengfly.tieba.post.api.models.protos.personalized.DislikeReason>(relaxed = true) {
-            every { dislikeId } returns 1
-            every { extra } returns "extra"
-        }.wrapImmutable()
+        val reason = DislikeReason(dislikeId = 1, extra = "extra")
 
         viewModel.send(
             PersonalizedUiIntent.Dislike(
@@ -306,7 +299,7 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
         PersonalizedViewModel(
             mockThreadFeedRepo,
             mockUserInteractionRepo,
-            mockPbPageRepo,
+            mockThreadCardRepo,
             testDispatcherProvider
         )
 }

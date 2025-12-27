@@ -49,12 +49,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eygraber.compose.placeholder.material.placeholder
-import com.huanchengfly.tieba.post.api.models.protos.hasAgree
+import com.huanchengfly.tieba.core.common.feed.ThreadCard
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
-import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import kotlinx.collections.immutable.toImmutableList
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.OrangeA700
@@ -65,6 +64,7 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.compose.Container
 import com.huanchengfly.tieba.core.ui.widgets.compose.FeedCard
+import com.huanchengfly.tieba.core.common.thread.toThreadPreview
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.compose.ProvideContentColor
@@ -122,39 +122,22 @@ fun HotPage(
         initial = emptyList()
     )
 
-    // ✅ 订阅 Repository 的 threadsFlow，获取最新的 ThreadEntity 列表
-    val threadEntities by viewModel.pbPageRepository.threadsFlow(threadIds)
+    // ✅ 订阅 Repository 的 threadsFlow，获取最新的 ThreadCard 列表
+    val threadCards by viewModel.threadCardRepository.threadCardsFlow(threadIds)
         .collectAsState(initial = emptyList())
 
-    // ✅ O(n) 查找优化：先构建 entityMap
-    val entityMap by remember(threadEntities) {
+    // ✅ O(n) 查找优化：先构建 cardMap
+    val cardMap by remember(threadCards) {
         derivedStateOf {
-            threadEntities.associateBy { it.threadId }
+            threadCards.associateBy { it.threadId }
         }
     }
 
-    // ✅ 从 Store 构建显示数据（仅包含 Meta 更新，无额外元数据）
-    val displayThreadList by remember(threadIds, entityMap) {
+    // ✅ 从 Store 构建显示数据
+    val displayThreadList by remember(threadIds, cardMap) {
         derivedStateOf {
             threadIds.mapNotNull { threadId ->
-                val entity = entityMap[threadId] ?: return@mapNotNull null  // Store 中不存在（已被 TTL 清理）
-
-                // 🔍 调试日志：打印关键信息
-                Log.d("HotPage_DisplayData", "threadId=$threadId, entity.threadId=${entity.threadId}, proto.id=${entity.proto.id}")
-                Log.d("HotPage_DisplayData", "  abstract=${entity.proto._abstract.size}, media=${entity.proto.media.size}")
-                Log.d("HotPage_DisplayData", "  title='${entity.proto.title}', agreeNum=${entity.meta.agreeNum}")
-
-                // 从 Store Entity 构建 ThreadInfo，用 Meta 覆盖 Proto
-                entity.proto.copy(
-                    agreeNum = entity.meta.agreeNum,
-                    agree = entity.proto.agree?.copy(
-                        hasAgree = entity.meta.hasAgree,
-                        agreeNum = entity.meta.agreeNum.toLong()
-                    ),
-                    // ✅ 新增：同步收藏状态，防止详情页显示旧值
-                    collectStatus = entity.meta.collectStatus,
-                    collectMarkPid = entity.meta.collectMarkPid.takeIf { it > 0L }?.toString() ?: "0"
-                ).wrapImmutable()
+                cardMap[threadId]
             }.toImmutableList()
         }
     }
@@ -337,11 +320,11 @@ fun HotPage(
                 }
                 itemsIndexed(
                     items = displayThreadList,  // ✅ 使用 Store 增强的数据
-                    key = { _, item -> "Thread_${item.get { threadId }}" }
+                    key = { _, item -> "Thread_${item.threadId}" }
                 ) { index, item ->
                     Container {
                         // ✅ 订阅是否正在更新中
-                        val isUpdating by viewModel.pbPageRepository.isThreadUpdating(item.get { id })
+                        val isUpdating by viewModel.threadCardRepository.isThreadUpdating(item.threadId)
                             .collectAsState(initial = false)
 
                         FeedCard(
@@ -349,26 +332,29 @@ fun HotPage(
                             onClick = {
                                 homeNavigation.openThread(
                                     threadId = it.threadId,
-                                    threadInfo = it
+                                    forumId = it.forumId,
+                                    threadPreview = it.toThreadPreview(),
                                 )
                             },
                             onClickReply = {
                                 homeNavigation.openThread(
                                     threadId = it.threadId,
+                                    forumId = it.forumId,
+                                    threadPreview = it.toThreadPreview(),
                                     scrollToReply = true
                                 )
                             },
                             onAgree = { threadInfo ->
                                 viewModel.send(
                                     HotUiIntent.Agree(
-                                        threadId = threadInfo.id,
+                                        threadId = threadInfo.threadId,
                                         postId = threadInfo.firstPostId,
                                         hasAgree = threadInfo.hasAgree
                                     )
                                 )
                             },
-                            onClickForum = { homeNavigation.openForum(it.name) },
-                            onClickUser = { homeNavigation.openUserProfile(it.id) },
+                            onClickForum = { homeNavigation.openForum(it) },
+                            onClickUser = { homeNavigation.openUserProfile(it) },
                             agreeEnabled = !isUpdating,  // ✅ 传递 enabled 状态
                         ) {
                             Column(
@@ -392,7 +378,7 @@ fun HotPage(
                                 Text(
                                     text = stringResource(
                                         id = CoreUiR.string.hot_num,
-                                        item.get { hotNum }.getShortNumString()
+                                        item.hotNum.getShortNumString()
                                     ),
                                     style = MaterialTheme.typography.caption,
                                     color = color

@@ -10,9 +10,11 @@ import androidx.compose.runtime.remember
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.pageViewModel
+import com.huanchengfly.tieba.core.common.thread.ThreadPreview
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.Load
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.Init
+import com.huanchengfly.tieba.post.ui.page.thread.mapper.toThreadInfo
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 
@@ -33,6 +35,7 @@ fun ThreadPage(
     from: String = "",
     extra: ThreadPageExtra? = null,
     threadInfo: ThreadInfo? = null,
+    threadPreview: ThreadPreview? = null,
     scrollToReply: Boolean = false,
     viewModel: ThreadViewModel = pageViewModel(),
 ) {
@@ -46,6 +49,7 @@ fun ThreadPage(
         from = from,
         extra = extra,
         threadInfo = threadInfo,
+        threadPreview = threadPreview,
         scrollToReply = scrollToReply,
         viewModel = viewModel
     )
@@ -63,16 +67,18 @@ fun ThreadPageScreen(
     from: String,
     extra: ThreadPageExtra?,
     threadInfo: ThreadInfo?,
+    threadPreview: ThreadPreview?,
     scrollToReply: Boolean,
     viewModel: ThreadViewModel = pageViewModel(),
 ) {
     LazyLoad(loaded = viewModel.initialized) {
+        val previewInfo = threadInfo ?: threadPreview?.toThreadInfo()
         viewModel.send(
             Init(
                 threadId,
                 forumId,
                 postId,
-                threadInfo,
+                previewInfo,
                 seeLz,
                 sortType
             )

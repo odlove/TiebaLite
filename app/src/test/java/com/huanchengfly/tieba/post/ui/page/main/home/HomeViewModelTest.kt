@@ -3,7 +3,7 @@ package com.huanchengfly.tieba.post.ui.page.main.home
 import com.huanchengfly.tieba.post.TestFixtures
 import com.huanchengfly.tieba.core.common.history.HistoryItem
 import com.huanchengfly.tieba.core.common.history.HistoryRepository
-import com.huanchengfly.tieba.post.repository.ContentRecommendRepository
+import com.huanchengfly.tieba.core.common.repository.ForumRecommendRepository
 import com.huanchengfly.tieba.post.repository.ForumOperationRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
 import io.mockk.clearMocks
@@ -39,7 +39,7 @@ import kotlin.test.assertFalse
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelTest : BaseViewModelTest() {
 
-    private lateinit var mockContentRecommendRepo: ContentRecommendRepository
+    private lateinit var mockForumRecommendRepo: ForumRecommendRepository
     private lateinit var mockForumOperationRepo: ForumOperationRepository
     private lateinit var mockHistoryRepository: HistoryRepository
 
@@ -49,7 +49,7 @@ class HomeViewModelTest : BaseViewModelTest() {
         // Mock AccountUtil for tbs
         mockAccountUtil(tbs = "test_tbs")
 
-        mockContentRecommendRepo = mockk(relaxed = true)
+        mockForumRecommendRepo = mockk(relaxed = true)
         mockForumOperationRepo = mockk(relaxed = true)
         mockHistoryRepository = mockk(relaxed = true)
     }
@@ -57,7 +57,7 @@ class HomeViewModelTest : BaseViewModelTest() {
     @After
     override fun tearDown() {
         super.tearDown()
-        clearMocks(mockContentRecommendRepo, mockForumOperationRepo)
+        clearMocks(mockForumRecommendRepo, mockForumOperationRepo)
     }
 
     // ========== Unfollow Tests ==========
@@ -73,7 +73,7 @@ class HomeViewModelTest : BaseViewModelTest() {
 
             // When: Create ViewModel and send Unfollow intent
             val viewModel = HomeViewModel(
-                mockContentRecommendRepo,
+                mockForumRecommendRepo,
                 mockForumOperationRepo,
                 mockHistoryRepository,
                 testDispatcherProvider

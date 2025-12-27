@@ -84,7 +84,11 @@ object BlockManager {
 }
 
 private fun ThreadInfo.blockingAbstractText(): String =
-    richAbstract.joinToString(separator = "") { it.toPlainSegment() }
+    if (richAbstract.isNotEmpty()) {
+        richAbstract.joinToString(separator = "") { it.toPlainSegment() }
+    } else {
+        _abstract.joinToString(separator = "") { it.text.replace(Regex(" {2,}"), " ") }
+    }
 
 private fun List<PbContent>.blockingPlainText(): String =
     joinToString(separator = "") { it.toPlainSegment() }

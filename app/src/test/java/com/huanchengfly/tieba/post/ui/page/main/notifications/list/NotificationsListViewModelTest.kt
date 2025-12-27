@@ -1,9 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.main.notifications.list
 
-import com.huanchengfly.tieba.post.TestFixtures
-import com.huanchengfly.tieba.data.repository.block.BlockedContentChecker
-import com.huanchengfly.tieba.post.api.models.MessageListBean
-import com.huanchengfly.tieba.post.repository.NotificationRepository
+import com.huanchengfly.tieba.core.common.notification.NotificationMessage
+import com.huanchengfly.tieba.core.common.notification.NotificationPage
+import com.huanchengfly.tieba.core.common.repository.NotificationFeedRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
 import io.mockk.clearMocks
 import io.mockk.every
@@ -38,22 +37,18 @@ import kotlin.test.assertFalse
 @OptIn(ExperimentalCoroutinesApi::class)
 class NotificationsListViewModelTest : BaseViewModelTest() {
 
-    private lateinit var mockNotificationRepo: NotificationRepository
-    private lateinit var mockBlockedContentChecker: BlockedContentChecker
+    private lateinit var mockNotificationRepo: NotificationFeedRepository
 
     @Before
     override fun setup() {
         super.setup()
         mockNotificationRepo = mockk(relaxed = true)
-        mockBlockedContentChecker = mockk(relaxed = true) {
-            every { shouldBlock(any()) } returns false
-        }
     }
 
     @After
     override fun tearDown() {
         super.tearDown()
-        clearMocks(mockNotificationRepo, mockBlockedContentChecker)
+        clearMocks(mockNotificationRepo)
     }
 
     // ========== ReplyMeListViewModel Tests ==========
@@ -61,11 +56,11 @@ class NotificationsListViewModelTest : BaseViewModelTest() {
     @Test
     fun `ReplyMe Refresh should call repository replyMe with default page`() = runTest(testDispatcher) {
         // Given: Mock repository returns success
-        val response = TestFixtures.fakeMessageListBean()
+        val response = NotificationPage()
         every { mockNotificationRepo.replyMe(page = 1) } returns flowOf(response)
 
         // When: Create ViewModel and send Refresh intent
-        val viewModel = ReplyMeListViewModel(mockNotificationRepo, mockBlockedContentChecker, testDispatcherProvider)
+        val viewModel = ReplyMeListViewModel(mockNotificationRepo, testDispatcherProvider)
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle() // Let initialization complete
         viewModel.send(NotificationsListUiIntent.Refresh)
@@ -79,11 +74,11 @@ class NotificationsListViewModelTest : BaseViewModelTest() {
     @Test
     fun `ReplyMe LoadMore should call repository replyMe with correct page`() = runTest(testDispatcher) {
         // Given: Mock repository returns success
-        val response = TestFixtures.fakeMessageListBean()
+        val response = NotificationPage()
         every { mockNotificationRepo.replyMe(page = 2) } returns flowOf(response)
 
         // When: Create ViewModel and send LoadMore intent
-        val viewModel = ReplyMeListViewModel(mockNotificationRepo, mockBlockedContentChecker, testDispatcherProvider)
+        val viewModel = ReplyMeListViewModel(mockNotificationRepo, testDispatcherProvider)
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle() // Let initialization complete
         viewModel.send(NotificationsListUiIntent.LoadMore(page = 2))
@@ -99,11 +94,11 @@ class NotificationsListViewModelTest : BaseViewModelTest() {
     @Test
     fun `AtMe Refresh should call repository atMe with default page`() = runTest(testDispatcher) {
         // Given: Mock repository returns success
-        val response = TestFixtures.fakeMessageListBean()
+        val response = NotificationPage()
         every { mockNotificationRepo.atMe(page = 1) } returns flowOf(response)
 
         // When: Create ViewModel and send Refresh intent
-        val viewModel = AtMeListViewModel(mockNotificationRepo, mockBlockedContentChecker, testDispatcherProvider)
+        val viewModel = AtMeListViewModel(mockNotificationRepo, testDispatcherProvider)
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle() // Let initialization complete
         viewModel.send(NotificationsListUiIntent.Refresh)
@@ -117,11 +112,11 @@ class NotificationsListViewModelTest : BaseViewModelTest() {
     @Test
     fun `AtMe LoadMore should call repository atMe with correct page`() = runTest(testDispatcher) {
         // Given: Mock repository returns success
-        val response = TestFixtures.fakeMessageListBean()
+        val response = NotificationPage()
         every { mockNotificationRepo.atMe(page = 3) } returns flowOf(response)
 
         // When: Create ViewModel and send LoadMore intent
-        val viewModel = AtMeListViewModel(mockNotificationRepo, mockBlockedContentChecker, testDispatcherProvider)
+        val viewModel = AtMeListViewModel(mockNotificationRepo, testDispatcherProvider)
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle() // Let initialization complete
         viewModel.send(NotificationsListUiIntent.LoadMore(page = 3))
@@ -134,17 +129,15 @@ class NotificationsListViewModelTest : BaseViewModelTest() {
 
     @Test
     fun `ReplyMe Refresh should honor blocked content flag and update state`() = runTest(testDispatcher) {
-        val message1 = mockk<MessageListBean.MessageInfoBean>(relaxed = true)
-        val message2 = mockk<MessageListBean.MessageInfoBean>(relaxed = true)
-        val response = TestFixtures.fakeMessageListBean().also {
-            every { it.replyList } returns listOf(message1, message2)
-            every { it.page } returns mockk(relaxed = true) { every { hasMore } returns "0" }
-        }
+        val message1 = NotificationMessage(threadId = "1", postId = "11", blocked = false)
+        val message2 = NotificationMessage(threadId = "2", postId = "22", blocked = true)
+        val response = NotificationPage(
+            items = listOf(message1, message2),
+            hasMore = false
+        )
         every { mockNotificationRepo.replyMe(page = 1) } returns flowOf(response)
-        every { mockBlockedContentChecker.shouldBlock(message1) } returns false
-        every { mockBlockedContentChecker.shouldBlock(message2) } returns true
 
-        val viewModel = ReplyMeListViewModel(mockNotificationRepo, mockBlockedContentChecker, testDispatcherProvider)
+        val viewModel = ReplyMeListViewModel(mockNotificationRepo, testDispatcherProvider)
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -167,24 +160,22 @@ class NotificationsListViewModelTest : BaseViewModelTest() {
 
     @Test
     fun `ReplyMe LoadMore should append unique messages and keep hasMore flag`() = runTest(testDispatcher) {
-        val firstResponse = TestFixtures.fakeMessageListBean().also {
-            every { it.replyList } returns listOf(
-                mockk(relaxed = true),
-                mockk(relaxed = true)
-            )
-            every { it.page } returns mockk(relaxed = true) { every { hasMore } returns "1" }
-        }
+        val firstMessage = NotificationMessage(threadId = "1", postId = "11")
+        val duplicate = NotificationMessage(threadId = "2", postId = "22")
+        val firstResponse = NotificationPage(
+            items = listOf(firstMessage, duplicate),
+            hasMore = true
+        )
         every { mockNotificationRepo.replyMe(page = 1) } returns flowOf(firstResponse)
 
-        val duplicate = firstResponse.replyList!![1]
-        val newMessage = mockk<MessageListBean.MessageInfoBean>(relaxed = true)
-        val nextResponse = TestFixtures.fakeMessageListBean().also {
-            every { it.replyList } returns listOf(duplicate, newMessage)
-            every { it.page } returns mockk(relaxed = true) { every { hasMore } returns "0" }
-        }
+        val newMessage = NotificationMessage(threadId = "3", postId = "33")
+        val nextResponse = NotificationPage(
+            items = listOf(duplicate, newMessage),
+            hasMore = false
+        )
         every { mockNotificationRepo.replyMe(page = 2) } returns flowOf(nextResponse)
 
-        val viewModel = ReplyMeListViewModel(mockNotificationRepo, mockBlockedContentChecker, testDispatcherProvider)
+        val viewModel = ReplyMeListViewModel(mockNotificationRepo, testDispatcherProvider)
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()
 

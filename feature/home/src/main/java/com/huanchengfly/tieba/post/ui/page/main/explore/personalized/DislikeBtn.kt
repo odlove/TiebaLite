@@ -33,9 +33,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.huanchengfly.tieba.post.api.models.protos.personalized.DislikeReason
-import com.huanchengfly.tieba.post.api.models.protos.personalized.ThreadPersonalized
-import com.huanchengfly.tieba.core.mvi.ImmutableHolder
+import com.huanchengfly.tieba.core.common.feed.DislikeReason
+import com.huanchengfly.tieba.core.common.feed.PersonalizedInfo
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
 import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalGrid
@@ -47,13 +46,13 @@ import com.huanchengfly.tieba.core.ui.R as CoreUiR
 
 @Composable
 fun Dislike(
-    personalized: ImmutableHolder<ThreadPersonalized>,
-    onDislike: (clickTime: Long, reasons: ImmutableList<ImmutableHolder<DislikeReason>>) -> Unit,
+    personalized: PersonalizedInfo,
+    onDislike: (clickTime: Long, reasons: ImmutableList<DislikeReason>) -> Unit,
 ) {
     var clickTime by remember { mutableStateOf(0L) }
-    val selectedReasons = remember { mutableStateListOf<ImmutableHolder<DislikeReason>>() }
+    val selectedReasons = remember { mutableStateListOf<DislikeReason>() }
     val menuState = rememberMenuState()
-    val dislikeResource = personalized.getImmutableList { dislikeResource }
+    val dislikeResource = personalized.dislikeReasons.toImmutableList()
     ClickMenu(
         menuContent = {
             DisposableEffect(personalized) {
@@ -112,17 +111,17 @@ fun Dislike(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     items(
-                        items = dislikeResource,
-                        span = { if (it.get { dislikeId } == 7) 2 else 1 }
-                    ) {
-                        val backgroundColor by animateColorAsState(
-                            targetValue = if (selectedReasons.contains(it)) ExtendedTheme.colors.primary else ExtendedTheme.colors.chip
-                        )
-                        val contentColor by animateColorAsState(
+                    items = dislikeResource,
+                    span = { if (it.dislikeId == 7) 2 else 1 }
+                ) {
+                    val backgroundColor by animateColorAsState(
+                        targetValue = if (selectedReasons.contains(it)) ExtendedTheme.colors.primary else ExtendedTheme.colors.chip
+                    )
+                    val contentColor by animateColorAsState(
                             targetValue = if (selectedReasons.contains(it)) ExtendedTheme.colors.onAccent else ExtendedTheme.colors.onChip
                         )
                         Text(
-                            text = it.get { dislikeReason },
+                            text = it.dislikeReason,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(6.dp))

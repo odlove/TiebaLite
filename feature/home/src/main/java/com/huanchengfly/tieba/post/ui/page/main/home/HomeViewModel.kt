@@ -3,7 +3,7 @@ package com.huanchengfly.tieba.post.ui.page.main.home
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import com.huanchengfly.tieba.core.network.model.CommonResponse
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.network.error.defaultErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
@@ -15,7 +15,7 @@ import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.core.common.history.HistoryItem
 import com.huanchengfly.tieba.core.common.history.HistoryRepository
 import com.huanchengfly.tieba.post.models.database.TopForum
-import com.huanchengfly.tieba.post.repository.ContentRecommendRepository
+import com.huanchengfly.tieba.core.common.repository.ForumRecommendRepository
 import com.huanchengfly.tieba.post.repository.ForumOperationRepository
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,7 +41,7 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val contentRecommendRepository: ContentRecommendRepository,
+    private val forumRecommendRepository: ForumRecommendRepository,
     private val forumOperationRepository: ForumOperationRepository,
     private val historyRepository: HistoryRepository,
     dispatcherProvider: DispatcherProvider
@@ -82,17 +82,17 @@ class HomeViewModel @Inject constructor(
         private fun produceRefreshPartialChangeFlow(): Flow<HomePartialChange.Refresh> =
             historyRepository.observe(HistoryRepository.TYPE_FORUM, 0)
                 .zip(
-                    contentRecommendRepository.forumRecommend()
+                    forumRecommendRepository.forumRecommend()
                 ) { historyForums, forumRecommend ->
-                    val forums = forumRecommend.data_?.like_forum?.map {
+                    val forums = forumRecommend.forums.map {
                         HomeUiState.Forum(
-                            it.avatar,
-                            it.forum_id.toString(),
-                            it.forum_name,
-                            it.is_sign == 1,
-                            it.level_id.toString()
+                            it.avatar.orEmpty(),
+                            it.forumId,
+                            it.forumName,
+                            it.isSign,
+                            it.levelId
                         )
-                    } ?: emptyList()
+                    }
                     val topForums = mutableListOf<HomeUiState.Forum>()
                     val topForumsDB = LitePal.findAll(TopForum::class.java).map { it.forumId }
                     topForums.addAll(forums.filter { topForumsDB.contains(it.forumId) })
@@ -120,7 +120,7 @@ class HomeViewModel @Inject constructor(
                     emit(HomePartialChange.TopForums.Delete.Failure("forum $forumId is not top!"))
                 }
             }.flowOn(Dispatchers.IO)
-                .catch { emit(HomePartialChange.TopForums.Delete.Failure(it.getErrorMessage())) }
+                .catch { emit(HomePartialChange.TopForums.Delete.Failure(it.defaultErrorMessage())) }
 
         private fun HomeUiIntent.TopForums.Add.toPartialChangeFlow() =
             flow {
@@ -131,14 +131,14 @@ class HomeViewModel @Inject constructor(
                     emit(HomePartialChange.TopForums.Add.Failure("未知错误"))
                 }
             }.flowOn(Dispatchers.IO)
-                .catch { emit(HomePartialChange.TopForums.Add.Failure(it.getErrorMessage())) }
+                .catch { emit(HomePartialChange.TopForums.Add.Failure(it.defaultErrorMessage())) }
 
         private fun HomeUiIntent.Unfollow.toPartialChangeFlow() =
             forumOperationRepository.unlikeForum(forumId, forumName, AccountUtil.requireLoginInfo().tbs)
                 .map<CommonResponse, HomePartialChange.Unfollow> {
                     HomePartialChange.Unfollow.Success(forumId)
                 }
-                .catch { emit(HomePartialChange.Unfollow.Failure(it.getErrorMessage())) }
+                .catch { emit(HomePartialChange.Unfollow.Failure(it.defaultErrorMessage())) }
 
         private fun HomeUiIntent.ToggleHistory.toPartialChangeFlow() =
             flowOf(HomePartialChange.ToggleHistory(!currentExpand))

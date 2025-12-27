@@ -1,6 +1,8 @@
 package com.huanchengfly.tieba.core.ui.photoview
 
 import android.webkit.URLUtil
+import kotlin.jvm.JvmName
+import com.huanchengfly.tieba.core.common.feed.ThreadMediaItem
 import com.huanchengfly.tieba.post.api.models.protos.Media
 import com.huanchengfly.tieba.post.api.models.protos.Post
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
@@ -80,6 +82,42 @@ fun getPhotoViewData(
                 picIndex = mediaIndex + 1,
                 url = mediaItem.bigPic,
                 originUrl = mediaItem.originPic,
+                showOriginBtn = mediaItem.showOriginalBtn == 1,
+                originSize = mediaItem.originSize,
+                postId = mediaItem.postId
+            )
+        }.toImmutableList(),
+        index = index
+    )
+}
+
+@JvmName("getPhotoViewDataFromThreadMedia")
+fun getPhotoViewData(
+    medias: List<ThreadMediaItem>,
+    forumId: Long,
+    forumName: String,
+    threadId: Long,
+    index: Int
+): PhotoViewData {
+    val media = medias[index]
+    return PhotoViewData(
+        data = LoadPicPageData(
+            forumId = forumId,
+            forumName = forumName,
+            threadId = threadId,
+            postId = media.postId,
+            seeLz = false,
+            objType = "index",
+            picId = guessPicId(media.originPic),
+            picIndex = index + 1,
+            originUrl = media.originPic.orEmpty()
+        ),
+        picItems = medias.mapIndexed { mediaIndex, mediaItem ->
+            PicItem(
+                picId = guessPicId(mediaItem.originPic),
+                picIndex = mediaIndex + 1,
+                url = mediaItem.bigPic.orEmpty(),
+                originUrl = mediaItem.originPic.orEmpty(),
                 showOriginBtn = mediaItem.showOriginalBtn == 1,
                 originSize = mediaItem.originSize,
                 postId = mediaItem.postId

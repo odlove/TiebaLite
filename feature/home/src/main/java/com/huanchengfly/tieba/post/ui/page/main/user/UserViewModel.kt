@@ -1,8 +1,9 @@
 package com.huanchengfly.tieba.post.ui.page.main.user
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.models.protos.profile.ProfileResponse
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.network.error.defaultErrorMessage
+import com.huanchengfly.tieba.core.common.repository.UserProfileFacade
+import com.huanchengfly.tieba.core.common.user.UserProfileInfo
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
@@ -12,7 +13,6 @@ import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.core.common.account.AccountInfo
-import com.huanchengfly.tieba.post.repository.UserProfileRepository
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,7 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel @Inject constructor(
     dispatcherProvider: DispatcherProvider,
-    private val userProfileRepository: UserProfileRepository
+    private val userProfileRepository: UserProfileFacade
 ) : BaseViewModel<UserUiIntent, UserPartialChange, UserUiState, UserUiEvent>(dispatcherProvider) {
     override fun createInitialState(): UserUiState =
         UserUiState()
@@ -45,7 +45,7 @@ class UserViewModel @Inject constructor(
         }
 
     class UserPartialChangeProducer(
-        private val userProfileRepository: UserProfileRepository
+        private val userProfileRepository: UserProfileFacade
     ) : PartialChangeProducer<UserUiIntent, UserPartialChange, UserUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<UserUiIntent>): Flow<UserPartialChange> =
@@ -60,24 +60,22 @@ class UserViewModel @Inject constructor(
             } else {
                 userProfileRepository
                     .userProfile(account.uid.toLong())
-                    .map<ProfileResponse, UserPartialChange> { profile ->
-                        val user = checkNotNull(profile.data_?.user)
+                    .map<UserProfileInfo, UserPartialChange> { profile ->
                         account.apply {
-                            nameShow = user.nameShow
-                            portrait = user.portrait
-                            intro = user.intro
-                            sex = user.sex.toString()
-                            fansNum = user.fans_num.toString()
-                            postNum = user.post_num.toString()
-                            threadNum = user.thread_num.toString()
-                            concernNum = user.concern_num.toString()
-                            tbAge = user.tb_age
-                            age = user.birthday_info?.age?.toString()
-                            birthdayShowStatus =
-                                user.birthday_info?.birthday_show_status?.toString()
-                            birthdayTime = user.birthday_info?.birthday_time?.toString()
-                            constellation = user.birthday_info?.constellation
-                            tiebaUid = user.tieba_uid
+                            nameShow = profile.nameShow
+                            portrait = profile.portrait.orEmpty()
+                            intro = profile.intro
+                            sex = profile.sex
+                            fansNum = profile.fansNum
+                            postNum = profile.postNum
+                            threadNum = profile.threadNum
+                            concernNum = profile.concernNum
+                            tbAge = profile.tbAge
+                            age = profile.age
+                            birthdayShowStatus = profile.birthdayShowStatus
+                            birthdayTime = profile.birthdayTime
+                            constellation = profile.constellation
+                            tiebaUid = profile.tiebaUid
                             loadSuccess = true
                             updateAll("uid = ?", uid)
                         }
@@ -96,7 +94,7 @@ class UserViewModel @Inject constructor(
                     }
                     .catch {
                         it.printStackTrace()
-                        emit(UserPartialChange.Refresh.Failure(errorMessage = it.getErrorMessage()))
+                        emit(UserPartialChange.Refresh.Failure(errorMessage = it.defaultErrorMessage()))
                     }
             }
         }

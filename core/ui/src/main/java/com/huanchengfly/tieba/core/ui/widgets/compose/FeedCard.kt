@@ -74,6 +74,8 @@ import com.eygraber.compose.placeholder.material.fade
 import com.eygraber.compose.placeholder.material.placeholder
 import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
+import com.huanchengfly.tieba.core.common.feed.ThreadCard
+import com.huanchengfly.tieba.core.common.feed.ThreadMediaItem
 import com.huanchengfly.tieba.post.api.models.protos.Media
 import com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.PostInfoList
@@ -135,6 +137,23 @@ private fun rememberMediaUrl(media: ImmutableHolder<Media>): String {
     }
 }
 
+@Composable
+private fun rememberMediaUrl(media: ThreadMediaItem): String {
+    val context = LocalContext.current
+    val resolver = LocalImageUrlResolver.current
+    return remember(media, resolver, context) {
+        resolver.getUrl(
+            context = context,
+            preferSmall = true,
+            originUrl = media.originPic.orEmpty(),
+            smallUrls = listOf(
+                media.bigPic,
+                media.dynamicPic,
+                media.srcPic
+            )
+        )
+    }
+}
 
 @Composable
 private fun BaseCard(
@@ -599,6 +618,141 @@ fun ThreadMedia(
 
 @Composable
 fun ThreadMedia(
+    forumId: Long,
+    forumName: String,
+    threadId: Long,
+    modifier: Modifier = Modifier,
+    medias: List<ThreadMediaItem> = emptyList(),
+    videoInfo: com.huanchengfly.tieba.core.common.feed.ThreadVideoInfo? = null,
+) {
+    val context = LocalContext.current
+    val photoViewer = LocalPhotoViewer.current
+
+    val mediaCount = remember(medias) { medias.size }
+    val hasPhoto = remember(mediaCount) { mediaCount > 0 }
+    val isSinglePhoto = remember(mediaCount) { mediaCount == 1 }
+
+    val hideMedia = context.appPreferences.hideMedia
+
+    val windowWidthSizeClass = LocalWindowSizeClass.current.widthSizeClass
+    val singleMediaFraction = remember(windowWidthSizeClass) {
+        if (windowWidthSizeClass == WindowWidthSizeClass.Compact) 1f else 0.5f
+    }
+
+    val hasMedia = remember(hasPhoto, videoInfo) { hasPhoto || videoInfo != null }
+
+    if (hasMedia) {
+        Box(modifier = modifier) {
+            if (videoInfo != null) {
+                if (hideMedia) {
+                    MediaPlaceholder(
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Rounded.OndemandVideo,
+                                contentDescription = stringResource(id = CoreUiR.string.desc_video)
+                            )
+                        },
+                        text = { Text(text = stringResource(id = CoreUiR.string.desc_video)) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                } else {
+                    val aspectRatio = remember(videoInfo) {
+                        max(
+                            videoInfo.thumbnailWidth.toFloat() / videoInfo.thumbnailHeight,
+                            16f / 9
+                        )
+                    }
+                    Box {
+                        VideoPlayer(
+                            videoUrl = videoInfo.videoUrl.orEmpty(),
+                            thumbnailUrl = videoInfo.thumbnailUrl.orEmpty(),
+                            modifier = Modifier
+                                .fillMaxWidth(singleMediaFraction)
+                                .aspectRatio(aspectRatio)
+                                .clip(RoundedCornerShape(8.dp))
+                        )
+                    }
+                }
+            } else if (hasPhoto) {
+                val mediaWidthFraction = remember(isSinglePhoto, singleMediaFraction) {
+                    if (isSinglePhoto) singleMediaFraction else 1f
+                }
+                val mediaAspectRatio = remember(isSinglePhoto) { if (isSinglePhoto) 2f else 3f }
+                if (hideMedia) {
+                    val photoViewData = remember(medias, forumId, forumName, threadId) {
+                        getPhotoViewData(
+                            medias = medias,
+                            forumId = forumId,
+                            forumName = forumName,
+                            threadId = threadId,
+                            index = 0
+                        )
+                    }
+                    MediaPlaceholder(
+                        icon = {
+                            Icon(
+                                imageVector = if (isSinglePhoto) Icons.Rounded.Photo else Icons.Rounded.PhotoLibrary,
+                                contentDescription = stringResource(id = CoreUiR.string.desc_photo)
+                            )
+                        },
+                        text = { Text(text = stringResource(id = CoreUiR.string.btn_open_photos, mediaCount)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { photoViewer(photoViewData) }
+                    )
+                } else {
+                    val showMediaCount = remember(medias) { min(medias.size, 3) }
+                    val hasMoreMedia = remember(medias) { medias.size > 3 }
+                    val showMedias = remember(medias) { medias.subList(0, showMediaCount) }
+                    Box {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(mediaWidthFraction)
+                                .aspectRatio(mediaAspectRatio)
+                                .clip(RoundedCornerShape(8.dp)),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            showMedias.fastForEachIndexed { index, media ->
+                                val photoViewData = remember(
+                                    index, medias, forumId, forumName, threadId
+                                ) {
+                                    getPhotoViewData(
+                                        medias = medias,
+                                        forumId = forumId,
+                                        forumName = forumName,
+                                        threadId = threadId,
+                                        index = index
+                                    )
+                                }
+                                NetworkImage(
+                                    imageUri = rememberMediaUrl(media),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .weight(1f),
+                                    photoViewData = photoViewData,
+                                    contentScale = ContentScale.Crop,
+                                    enablePreview = true
+                                )
+                            }
+                        }
+                        if (hasMoreMedia) {
+                            Badge(
+                                icon = Icons.Rounded.PhotoSizeSelectActual,
+                                text = "${medias.size}",
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(8.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ThreadMedia(
     item: ImmutableHolder<ThreadInfo>,
     modifier: Modifier = Modifier,
 ) {
@@ -608,6 +762,21 @@ fun ThreadMedia(
         threadId = item.get { threadId },
         medias = item.getImmutableList { media },
         videoInfo = item.get { videoInfo }?.wrapImmutable(),
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun ThreadMedia(
+    item: ThreadCard,
+    modifier: Modifier = Modifier,
+) {
+    ThreadMedia(
+        forumId = item.forumId,
+        forumName = item.forumName,
+        threadId = item.threadId,
+        medias = item.medias,
+        videoInfo = item.videoInfo,
         modifier = modifier,
     )
 }
@@ -625,6 +794,20 @@ private fun ThreadForumInfo(
             onClick = { onClick(it.get()) }
         )
     }
+}
+
+@Composable
+private fun ThreadForumInfo(
+    item: ThreadCard,
+    onClick: (String) -> Unit,
+) {
+    val forumName = item.forumInfo?.name ?: item.forumName
+    val forumAvatar = item.forumInfo?.avatar
+    ThreadForumInfo(
+        forumName = forumName,
+        forumAvatar = forumAvatar,
+        onClick = { onClick(forumName) }
+    )
 }
 
 @Composable
@@ -841,6 +1024,87 @@ fun FeedCard(
             }
         },
         onClick = { onClick(item.get()) },
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun FeedCard(
+    item: ThreadCard,
+    onClick: (ThreadCard) -> Unit,
+    onAgree: (ThreadCard) -> Unit,
+    modifier: Modifier = Modifier,
+    onClickReply: (ThreadCard) -> Unit = {},
+    onClickUser: (Long) -> Unit = {},
+    onClickForum: (String) -> Unit = {},
+    onClickOriginThread: () -> Unit = {},
+    agreeEnabled: Boolean = true,
+    dislikeAction: @Composable () -> Unit = {},
+) {
+    PlainCard(
+        header = {
+            item.author?.let { author ->
+                ThreadAuthorHeader(
+                    avatarUrl = AvatarUtils.getAvatarUrl(author.portrait),
+                    displayName = author.nameShow?.ifBlank { author.name } ?: author.name,
+                    timestamp = item.lastTimeInt,
+                    onClick = { onClickUser(author.id) },
+                    action = { dislikeAction() }
+                )
+            }
+        },
+        content = {
+            val threadAbstract = remember(item) { item.abstractSegments.feedAbstractText() }
+            ThreadContent(
+                title = item.title,
+                abstractText = threadAbstract,
+                tabName = item.tabName,
+                showTitle = !item.isNoTitle && item.title.isNotBlank(),
+                showAbstract = threadAbstract.isNotBlank(),
+                isGood = item.isGood,
+            )
+
+            ThreadMedia(item = item)
+
+            val originThreadRenderer = LocalOriginThreadRenderer.current
+            val originThreadPayload = item.originThreadPayload
+            if (item.isShareThread && originThreadPayload is OriginThreadInfo) {
+                val originModifier = Modifier
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(ExtendedTheme.colors.floorCard)
+                    .padding(16.dp)
+                originThreadRenderer(originThreadPayload.wrapImmutable(), originModifier) {
+                    onClickOriginThread()
+                }
+            }
+
+            ThreadForumInfo(item = item, onClick = onClickForum)
+        },
+        action = {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                ThreadShareBtn(
+                    shareNum = item.shareNum.toString(),
+                    onClick = {},
+                    modifier = Modifier.weight(1f)
+                )
+
+                ThreadReplyBtn(
+                    replyNum = item.replyNum.toString(),
+                    onClick = { onClickReply(item) },
+                    modifier = Modifier.weight(1f)
+                )
+
+                AgreeButton(
+                    hasAgreed = item.hasAgree == 1,
+                    agreeNum = item.agreeNum,
+                    onClick = { onAgree(item) },
+                    enabled = agreeEnabled,
+                    variant = AgreeButtonVariant.Action,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        },
+        onClick = { onClick(item) },
         modifier = modifier,
     )
 }

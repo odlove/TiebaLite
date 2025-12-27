@@ -1,11 +1,13 @@
 package com.huanchengfly.tieba.post.ui.page.main.explore.hot
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.models.AgreeBean
-import com.huanchengfly.tieba.post.api.models.protos.FrsTabInfo
-import com.huanchengfly.tieba.post.api.models.protos.RecommendTopicList
-import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.network.error.defaultErrorMessage
+import com.huanchengfly.tieba.core.common.feed.HotTab
+import com.huanchengfly.tieba.core.common.feed.HotTopic
+import com.huanchengfly.tieba.core.common.feed.ThreadFeedPage
+import com.huanchengfly.tieba.core.common.repository.ThreadCardRepository
+import com.huanchengfly.tieba.core.common.repository.ThreadFeedFacade
+import com.huanchengfly.tieba.core.common.repository.UserInteractionFacade
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
@@ -16,10 +18,6 @@ import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
-import com.huanchengfly.tieba.post.models.ThreadFeedPage
-import com.huanchengfly.tieba.post.repository.ThreadFeedRepository
-import com.huanchengfly.tieba.post.repository.PbPageRepository
-import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -38,9 +36,9 @@ import javax.inject.Inject
 @Stable
 @HiltViewModel
 class HotViewModel @Inject constructor(
-    private val threadFeedRepository: ThreadFeedRepository,
-    private val userInteractionRepository: UserInteractionRepository,
-    val pbPageRepository: PbPageRepository,  // ✅ 公开，供 UI 订阅 Repository 缓存
+    private val threadFeedRepository: ThreadFeedFacade,
+    private val userInteractionRepository: UserInteractionFacade,
+    val threadCardRepository: ThreadCardRepository,  // ✅ 公开，供 UI 订阅 Repository 缓存
     dispatcherProvider: DispatcherProvider
 ) : BaseViewModel<HotUiIntent, HotPartialChange, HotUiState, HotUiEvent>(dispatcherProvider) {
     override fun createInitialState(): HotUiState = HotUiState()
@@ -50,7 +48,7 @@ class HotViewModel @Inject constructor(
 
     override fun dispatchEvent(partialChange: HotPartialChange): UiEvent? =
         when (partialChange) {
-            is HotPartialChange.Agree.Failure -> CommonUiEvent.Toast(partialChange.error.getErrorMessage())
+            is HotPartialChange.Agree.Failure -> CommonUiEvent.Toast(partialChange.error.defaultErrorMessage())
             else -> null
         }
 
@@ -92,14 +90,14 @@ class HotViewModel @Inject constructor(
 
         private fun HotUiIntent.Agree.producePartialChange(): Flow<HotPartialChange.Agree> {
             // ✅ 提前读取当前状态
-            val currentEntity = pbPageRepository.threadFlow(threadId).value
-            val previousHasAgree = currentEntity?.meta?.hasAgree ?: 0
-            val previousAgreeNum = currentEntity?.meta?.agreeNum ?: 0
+            val currentEntity = threadCardRepository.getThreadCard(threadId)
+            val previousHasAgree = currentEntity?.hasAgree ?: 0
+            val previousAgreeNum = currentEntity?.agreeNum ?: 0
 
             return userInteractionRepository.opAgree(
                 threadId.toString(), postId.toString(), hasAgree, objType = 3
             )
-                .map<AgreeBean, HotPartialChange.Agree> {
+                .map<Any, HotPartialChange.Agree> {
                     HotPartialChange.Agree.Success(
                         threadId,
                         hasAgree xor 1
@@ -107,34 +105,16 @@ class HotViewModel @Inject constructor(
                 }
                 .catch {
                     // ✅ 失败时恢复原始值
-                    currentEntity?.let { entity ->
-                        pbPageRepository.upsertThreads(
-                            listOf(
-                                entity.copy(
-                                    meta = entity.meta.copy(
-                                        hasAgree = previousHasAgree,
-                                        agreeNum = previousAgreeNum
-                                    )
-                                )
-                            )
-                        )
-                    }
+                    threadCardRepository.updateAgreeStatus(threadId, previousHasAgree, previousAgreeNum)
                     emit(HotPartialChange.Agree.Failure(threadId, hasAgree, it))
                 }
                 .onStart {
                     // ✅ 乐观更新
-                    currentEntity?.let { entity ->
-                        pbPageRepository.upsertThreads(
-                            listOf(
-                                entity.copy(
-                                    meta = entity.meta.copy(
-                                        hasAgree = hasAgree xor 1,
-                                        agreeNum = if (hasAgree == 0) entity.meta.agreeNum + 1 else entity.meta.agreeNum - 1
-                                    )
-                                )
-                            )
-                        )
-                    }
+                    threadCardRepository.updateAgreeStatus(
+                        threadId,
+                        hasAgree xor 1,
+                        if (hasAgree == 0) previousAgreeNum + 1 else previousAgreeNum - 1
+                    )
                     emit(HotPartialChange.Agree.Start(threadId, hasAgree xor 1))
                 }
         }
@@ -172,8 +152,8 @@ sealed interface HotPartialChange : PartialChange<HotUiState> {
         object Start : Load()
 
         data class Success(
-            val topicList: List<RecommendTopicList>,
-            val tabList: List<FrsTabInfo>,
+            val topicList: List<HotTopic>,
+            val tabList: List<HotTab>,
             val threadIds: ImmutableList<Long>,
         ) : Load()
 
@@ -238,8 +218,8 @@ data class HotUiState(
     val isRefreshing: Boolean = true,
     val currentTabCode: String = "all",
     val isLoadingThreadList: Boolean = false,
-    val topicList: ImmutableList<ImmutableHolder<RecommendTopicList>> = persistentListOf(),
-    val tabList: ImmutableList<ImmutableHolder<FrsTabInfo>> = persistentListOf(),
+    val topicList: ImmutableList<ImmutableHolder<HotTopic>> = persistentListOf(),
+    val tabList: ImmutableList<ImmutableHolder<HotTab>> = persistentListOf(),
     val threadIds: ImmutableList<Long> = persistentListOf(),  // ✅ Store 订阅用的 threadId 列表
 ) : UiState
 

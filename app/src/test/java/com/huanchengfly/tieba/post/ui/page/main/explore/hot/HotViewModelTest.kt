@@ -1,12 +1,11 @@
 package com.huanchengfly.tieba.post.ui.page.main.explore.hot
 
-import com.huanchengfly.tieba.post.TestFixtures
-import com.huanchengfly.tieba.post.api.models.protos.FrsTabInfo
-import com.huanchengfly.tieba.post.api.models.protos.RecommendTopicList
-import com.huanchengfly.tieba.post.models.ThreadFeedPage
-import com.huanchengfly.tieba.post.repository.PbPageRepository
-import com.huanchengfly.tieba.post.repository.ThreadFeedRepository
-import com.huanchengfly.tieba.post.repository.UserInteractionRepository
+import com.huanchengfly.tieba.core.common.feed.HotTab
+import com.huanchengfly.tieba.core.common.feed.HotTopic
+import com.huanchengfly.tieba.core.common.feed.ThreadFeedPage
+import com.huanchengfly.tieba.core.common.repository.ThreadCardRepository
+import com.huanchengfly.tieba.core.common.repository.ThreadFeedFacade
+import com.huanchengfly.tieba.core.common.repository.UserInteractionFacade
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
 import io.mockk.clearMocks
 import io.mockk.every
@@ -16,6 +15,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -42,25 +42,24 @@ import kotlin.test.assertFalse
 @OptIn(ExperimentalCoroutinesApi::class)
 class HotViewModelTest : BaseViewModelTest() {
 
-    private lateinit var mockThreadFeedRepo: ThreadFeedRepository
-    private lateinit var mockUserInteractionRepo: UserInteractionRepository
-    private lateinit var mockPbPageRepo: PbPageRepository
+    private lateinit var mockThreadFeedRepo: ThreadFeedFacade
+    private lateinit var mockUserInteractionRepo: UserInteractionFacade
+    private lateinit var mockThreadCardRepo: ThreadCardRepository
 
     @Before
     override fun setup() {
         super.setup()
         mockThreadFeedRepo = mockk(relaxed = true)
         mockUserInteractionRepo = mockk(relaxed = true)
-        mockPbPageRepo = mockk(relaxed = true) {
-            every { threadFlow(any()) } returns kotlinx.coroutines.flow.MutableStateFlow(null)
-            every { upsertThreads(any()) } answers { }
+        mockThreadCardRepo = mockk(relaxed = true) {
+            every { threadCardFlow(any()) } returns MutableStateFlow(null)
         }
     }
 
     @After
     override fun tearDown() {
         super.tearDown()
-        clearMocks(mockThreadFeedRepo, mockUserInteractionRepo, mockPbPageRepo)
+        clearMocks(mockThreadFeedRepo, mockUserInteractionRepo, mockThreadCardRepo)
     }
 
     // ========== Load Tests ==========
@@ -76,7 +75,7 @@ class HotViewModelTest : BaseViewModelTest() {
             val viewModel = HotViewModel(
                 mockThreadFeedRepo,
                 mockUserInteractionRepo,
-                mockPbPageRepo,
+                mockThreadCardRepo,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)
@@ -104,7 +103,7 @@ class HotViewModelTest : BaseViewModelTest() {
             val viewModel = HotViewModel(
                 mockThreadFeedRepo,
                 mockUserInteractionRepo,
-                mockPbPageRepo,
+                mockThreadCardRepo,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)
@@ -125,16 +124,15 @@ class HotViewModelTest : BaseViewModelTest() {
     fun `Agree should call userInteractionRepository opAgree with correct parameters`() =
         runTest(testDispatcher) {
             // Given: Mock repository returns success
-            val agreeBean = TestFixtures.fakeAgreeBean()
             every {
                 mockUserInteractionRepo.opAgree("123", "456", 0, objType = 3)
-            } returns flowOf(agreeBean)
+            } returns flowOf(Unit)
 
             // When: Create ViewModel and send Agree intent
             val viewModel = HotViewModel(
                 mockThreadFeedRepo,
                 mockUserInteractionRepo,
-                mockPbPageRepo,
+                mockThreadCardRepo,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)
@@ -151,10 +149,8 @@ class HotViewModelTest : BaseViewModelTest() {
 
     @Test
     fun `Load success should populate topics tabs and threadIds`() = runTest(testDispatcher) {
-        val topic = mockk<RecommendTopicList>(relaxed = true)
-        val tab = mockk<FrsTabInfo>(relaxed = true) {
-            every { tabCode } returns "video"
-        }
+        val topic = HotTopic(topicId = 1L, topicName = "topic", tag = 1)
+        val tab = HotTab(tabName = "video", tabCode = "video")
         val feedPage = ThreadFeedPage(
             threadIds = persistentListOf(1L, 2L),
             topicList = persistentListOf(topic),
@@ -203,7 +199,7 @@ class HotViewModelTest : BaseViewModelTest() {
         HotViewModel(
             mockThreadFeedRepo,
             mockUserInteractionRepo,
-            mockPbPageRepo,
+            mockThreadCardRepo,
             testDispatcherProvider
         )
 }

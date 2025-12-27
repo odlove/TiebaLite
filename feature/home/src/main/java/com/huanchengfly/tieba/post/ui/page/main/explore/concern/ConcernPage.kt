@@ -21,21 +21,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.huanchengfly.tieba.post.api.models.protos.hasAgree
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
-import com.huanchengfly.tieba.core.mvi.wrapImmutable
+import com.huanchengfly.tieba.core.common.feed.ThreadCard
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.compose.Container
 import com.huanchengfly.tieba.core.ui.widgets.compose.FeedCard
+import com.huanchengfly.tieba.core.common.thread.toThreadPreview
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.core.ui.widgets.compose.HomeLoadMoreLayout
+import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
@@ -72,42 +73,26 @@ fun ConcernPage(
         initial = persistentMapOf()
     )
 
-    // ✅ 订阅 Repository 的 threadsFlow，获取最新的 ThreadEntity 列表
-    val threadEntities by viewModel.pbPageRepository.threadsFlow(threadIds)
+    // ✅ 订阅 Repository 的 threadsFlow，获取最新的 ThreadCard 列表
+    val threadCards by viewModel.threadCardRepository.threadCardsFlow(threadIds)
         .collectAsState(initial = emptyList())
 
-    // ✅ O(n) 查找优化：先构建 entityMap
-    val entityMap by remember(threadEntities) {
+    // ✅ O(n) 查找优化：先构建 cardMap
+    val cardMap by remember(threadCards) {
         derivedStateOf {
-            threadEntities.associateBy { it.threadId }
+            threadCards.associateBy { it.threadId }
         }
     }
 
     // ✅ 从 Store 和 metadata 构建显示数据
-    val displayData by remember(threadIds, metadata, entityMap) {
+    val displayData by remember(threadIds, metadata, cardMap) {
         derivedStateOf {
             threadIds.mapNotNull { threadId ->
-                val meta = metadata[threadId] ?: return@mapNotNull null  // 元数据缺失则跳过
-                val entity = entityMap[threadId] ?: return@mapNotNull null  // Store 中不存在（已被 TTL 清理）
-
-                // 🔍 调试日志：打印关键信息
-                Log.d("ConcernPage_DisplayData", "threadId=$threadId, entity.threadId=${entity.threadId}, proto.id=${entity.proto.id}")
-                Log.d("ConcernPage_DisplayData", "  abstract=${entity.proto._abstract.size}, media=${entity.proto.media.size}")
-                Log.d("ConcernPage_DisplayData", "  title='${entity.proto.title}', agreeNum=${entity.meta.agreeNum}")
-
-                // 从 Store Entity 构建 ConcernData（兼容旧 UI）
-                com.huanchengfly.tieba.post.api.models.protos.userLike.ConcernData(
-                    recommendType = meta.recommendType,  // ✅ 使用 metadata 中的 recommendType
-                    threadList = entity.proto.copy(
-                        agreeNum = entity.meta.agreeNum,
-                        agree = entity.proto.agree?.copy(
-                            hasAgree = entity.meta.hasAgree,
-                            agreeNum = entity.meta.agreeNum.toLong()
-                        ),
-                        // ✅ 新增：同步收藏状态，防止详情页显示旧值
-                        collectStatus = entity.meta.collectStatus,
-                        collectMarkPid = entity.meta.collectMarkPid.takeIf { it > 0L }?.toString() ?: "0"
-                    )
+                val meta = metadata[threadId] ?: return@mapNotNull null
+                val card = cardMap[threadId] ?: return@mapNotNull null
+                ConcernThreadItem(
+                    recommendType = meta.recommendType,
+                    thread = card
                 )
             }.toImmutableList()
         }
@@ -142,46 +127,47 @@ fun ConcernPage(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 itemsIndexed(
-                    items = displayData,  // ✅ 使用 Store 增强的数据
-                    key = { _, item -> "${item.recommendType}_${item.threadList?.id}" },
+                    items = displayData,
+                    key = { _, item -> "${item.recommendType}_${item.thread.threadId}" },
                     contentType = { _, item -> item.recommendType }
                 ) { index, item ->
                     Container {
-                        val threadInfo = item.threadList
-                        if (item.recommendType == 1 && threadInfo != null) {
+                        val threadInfo = item.thread
+                        if (item.recommendType == 1) {
                             Column {
                                 // ✅ 订阅是否正在更新中
-                                val isUpdating by viewModel.pbPageRepository.isThreadUpdating(threadInfo.id)
+                                val isUpdating by viewModel.threadCardRepository.isThreadUpdating(threadInfo.threadId)
                                     .collectAsState(initial = false)
 
-                                    FeedCard(
-                                        item = wrapImmutable(threadInfo),
-                                        onClick = {
-                                            homeNavigation.openThread(
-                                                threadId = it.threadId,
-                                                forumId = it.forumId,
-                                                threadInfo = it
-                                            )
-                                        },
-                                        onClickReply = {
-                                            homeNavigation.openThread(
-                                                threadId = it.threadId,
-                                                forumId = it.forumId,
-                                                scrollToReply = true
-                                            )
-                                        },
-                                    onAgree = { threadInfo ->
+                                FeedCard(
+                                    item = threadInfo,
+                                    onClick = {
+                                        homeNavigation.openThread(
+                                            threadId = it.threadId,
+                                            forumId = it.forumId,
+                                            threadPreview = it.toThreadPreview(),
+                                        )
+                                    },
+                                    onClickReply = {
+                                        homeNavigation.openThread(
+                                            threadId = it.threadId,
+                                            forumId = it.forumId,
+                                            threadPreview = it.toThreadPreview(),
+                                            scrollToReply = true
+                                        )
+                                    },
+                                    onAgree = { threadCard ->
                                         viewModel.send(
                                             ConcernUiIntent.Agree(
-                                                threadInfo.id,
-                                                threadInfo.firstPostId,
-                                                threadInfo.hasAgree
+                                                threadCard.threadId,
+                                                threadCard.firstPostId,
+                                                threadCard.hasAgree
                                             )
                                         )
                                     },
-                                    onClickForum = { homeNavigation.openForum(it.name) },
-                                    onClickUser = { homeNavigation.openUserProfile(it.id) },
-                                    agreeEnabled = !isUpdating,  // ✅ 传递 enabled 状态
+                                    onClickForum = { homeNavigation.openForum(it) },
+                                    onClickUser = { homeNavigation.openUserProfile(it) },
+                                    agreeEnabled = !isUpdating,
                                 )
                                 if (index < displayData.size - 1) {
                                     VerticalDivider(
@@ -207,3 +193,9 @@ fun ConcernPage(
         )
     }
 }
+
+@Immutable
+private data class ConcernThreadItem(
+    val recommendType: Int,
+    val thread: ThreadCard,
+)

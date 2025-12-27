@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.core.ui.navigation
 
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.huanchengfly.tieba.core.common.thread.ThreadPreview
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 
 /**
@@ -24,6 +25,7 @@ interface HomeNavigationActions {
         sortType: Int = 0,
         from: String = "",
         threadInfo: ThreadInfo? = null,
+        threadPreview: ThreadPreview? = null,
         scrollToReply: Boolean = false
     )
     fun openSubPosts(

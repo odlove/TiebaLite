@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
+import com.huanchengfly.tieba.core.common.thread.ThreadPreview
 import com.huanchengfly.tieba.core.ui.navigation.HomeNavigationActions
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
@@ -84,6 +85,7 @@ fun ProvideHomeNavigationActions(
                 sortType: Int,
                 from: String,
                 threadInfo: ThreadInfo?,
+                threadPreview: ThreadPreview?,
                 scrollToReply: Boolean,
             ) {
                 navController.navigateDirection(
@@ -95,6 +97,7 @@ fun ProvideHomeNavigationActions(
                         sortType = sortType,
                         from = from,
                         threadInfo = threadInfo,
+                        threadPreview = threadPreview,
                         scrollToReply = scrollToReply
                     )
                 )

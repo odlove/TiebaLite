@@ -36,6 +36,7 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -51,18 +52,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
-import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
-import com.huanchengfly.tieba.post.api.models.protos.User
-import com.huanchengfly.tieba.post.api.models.protos.personalized.DislikeReason
+import com.huanchengfly.tieba.core.common.feed.DislikeReason
+import com.huanchengfly.tieba.core.common.feed.PersonalizedInfo
+import com.huanchengfly.tieba.core.common.feed.ThreadCard
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
-import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.post.ui.models.ThreadItemData
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.preferences.LocalAppPreferences
 import com.huanchengfly.tieba.core.ui.widgets.compose.BlockTip
@@ -75,6 +74,7 @@ import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.core.ui.widgets.compose.HomeLoadMoreLayout
+import com.huanchengfly.tieba.core.common.thread.toThreadPreview
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
@@ -127,43 +127,30 @@ fun PersonalizedPage(
         initial = persistentListOf()
     )
 
-    // ✅ 订阅 Repository 的 threadsFlow，获取最新的 ThreadEntity 列表
-    val threadEntities by viewModel.pbPageRepository.threadsFlow(threadIds)
+    // ✅ 订阅 Repository 的 threadsFlow，获取最新的 ThreadCard 列表
+    val threadCards by viewModel.threadCardRepository.threadCardsFlow(threadIds)
         .collectAsState(initial = emptyList())
     val appPreferences = LocalAppPreferences.current
 
-    // ✅ O(n) 查找优化：先构建 entityMap
-    val entityMap by remember(threadEntities) {
+    // ✅ O(n) 查找优化：先构建 cardMap
+    val cardMap by remember(threadCards) {
         derivedStateOf {
-            threadEntities.associateBy { it.threadId }
+            threadCards.associateBy { it.threadId }
         }
     }
 
-    // ✅ 构建显示数据：从 Repository Entity 和 metadata 组合
-    val displayData by remember(threadIds, metadata, entityMap) {
-        derivedStateOf<ImmutableList<ThreadItemData>> {
+    // ✅ 构建显示数据：从 ThreadCard 和 metadata 组合
+    val displayData by remember(threadIds, metadata, cardMap, appPreferences.hideBlockedContent) {
+        derivedStateOf<ImmutableList<PersonalizedThreadItem>> {
             threadIds.mapNotNull { threadId ->
-                val entity = entityMap[threadId] ?: return@mapNotNull null  // Repository 中不存在
-                val meta = metadata[threadId] ?: return@mapNotNull null  // 元数据缺失则跳过
-
-                // 🔍 调试日志：打印关键信息
-                Log.d("PersonalizedPage_DisplayData", "threadId=$threadId, entity.threadId=${entity.threadId}, proto.id=${entity.proto.id}")
-                Log.d("PersonalizedPage_DisplayData", "  abstract=${entity.proto._abstract.size}, media=${entity.proto.media.size}")
-                Log.d("PersonalizedPage_DisplayData", "  title='${entity.proto.title}', agreeNum=${entity.meta.agreeNum}")
-
-                // 从 Repository Entity 构建 ThreadItemData
-                ThreadItemData(
-                    thread = entity.proto.copy(
-                        agreeNum = entity.meta.agreeNum,
-                        agree = entity.proto.agree?.copy(
-                            hasAgree = entity.meta.hasAgree,
-                            agreeNum = entity.meta.agreeNum.toLong()
-                        ),
-                        collectStatus = entity.meta.collectStatus,
-                        collectMarkPid = entity.meta.collectMarkPid.takeIf { it > 0L }?.toString() ?: "0"
-                    ).wrapImmutable(),
-                    hideBlockedContent = appPreferences.hideBlockedContent,
-                    personalized = meta.personalized
+                val card = cardMap[threadId] ?: return@mapNotNull null
+                val meta = metadata[threadId] ?: return@mapNotNull null
+                PersonalizedThreadItem(
+                    thread = card,
+                    personalized = (meta as? com.huanchengfly.tieba.core.common.feed.PersonalizedMetadata)?.personalized,
+                    blocked = (meta as? com.huanchengfly.tieba.core.common.feed.PersonalizedMetadata)?.blocked == true,
+                    hidden = (meta as? com.huanchengfly.tieba.core.common.feed.PersonalizedMetadata)?.blocked == true
+                            && appPreferences.hideBlockedContent
                 )
             }.toImmutableList()
         }
@@ -250,29 +237,30 @@ fun PersonalizedPage(
                         homeNavigation.openThread(
                             threadId = it.threadId,
                             forumId = it.forumId,
-                            threadInfo = it
+                            threadPreview = it.toThreadPreview(),
                         )
                     },
                     onItemReplyClick = {
                         homeNavigation.openThread(
                             threadId = it.threadId,
                             forumId = it.forumId,
+                            threadPreview = it.toThreadPreview(),
                             scrollToReply = true
                         )
                     },
                     onAgree = { threadInfo ->
                         viewModel.send(
                             PersonalizedUiIntent.Agree(
-                                threadInfo.id,
+                                threadInfo.threadId,
                                 threadInfo.firstPostId,
-                                threadInfo.agree?.hasAgree ?: 0
+                                threadInfo.hasAgree
                             )
                         )
                     },
                     onDislike = { item, clickTime, reasons ->
                         viewModel.send(
                             PersonalizedUiIntent.Dislike(
-                                item.forumInfo?.id ?: 0,
+                                item.forumId,
                                 item.threadId,
                                 reasons,
                                 clickTime
@@ -281,7 +269,7 @@ fun PersonalizedPage(
                     },
                     onRefresh = { viewModel.send(PersonalizedUiIntent.Refresh) },
                     onOpenForum = { homeNavigation.openForum(it) },
-                    onClickUser = { homeNavigation.openUserProfile(it.id) }
+                    onClickUser = { homeNavigation.openUserProfile(it) }
                 )
             }
 
@@ -325,19 +313,27 @@ private fun BoxScope.RefreshTip(refreshCount: Int) {
     }
 }
 
+@Immutable
+private data class PersonalizedThreadItem(
+    val thread: ThreadCard,
+    val personalized: PersonalizedInfo? = null,
+    val blocked: Boolean = false,
+    val hidden: Boolean = false,
+)
+
 @Composable
 private fun FeedList(
     state: LazyListState,
-    dataProvider: () -> ImmutableList<ThreadItemData>,
+    dataProvider: () -> ImmutableList<PersonalizedThreadItem>,
     refreshPositionProvider: () -> Int,
     hiddenThreadIdsProvider: () -> ImmutableList<Long>,
-    onItemClick: (ThreadInfo) -> Unit,
-    onItemReplyClick: (ThreadInfo) -> Unit,
-    onAgree: (ThreadInfo) -> Unit,
-    onDislike: (ThreadInfo, Long, ImmutableList<ImmutableHolder<DislikeReason>>) -> Unit,
+    onItemClick: (ThreadCard) -> Unit,
+    onItemReplyClick: (ThreadCard) -> Unit,
+    onAgree: (ThreadCard) -> Unit,
+    onDislike: (ThreadCard, Long, ImmutableList<DislikeReason>) -> Unit,
     onRefresh: () -> Unit,
     onOpenForum: (forumName: String) -> Unit = {},
-    onClickUser: (User) -> Unit = {},
+    onClickUser: (Long) -> Unit = {},
 ) {
     val data = dataProvider()
     val refreshPosition = refreshPositionProvider()
@@ -350,13 +346,13 @@ private fun FeedList(
     ) {
         itemsIndexed(
             items = data,
-            key = { _, threadItem -> "${threadItem.thread.get { id }}" },
+            key = { _, threadItem -> "${threadItem.thread.threadId}" },
             contentType = { _, threadItem ->
-                val thread = threadItem.thread.get()
+                val thread = threadItem.thread
                 when {
                     thread.videoInfo != null -> "Video"
-                    thread.media.size == 1 -> "SingleMedia"
-                    thread.media.size > 1 -> "MultiMedia"
+                    thread.medias.size == 1 -> "SingleMedia"
+                    thread.medias.size > 1 -> "MultiMedia"
                     else -> "PlainText"
                 }
             }
@@ -367,7 +363,7 @@ private fun FeedList(
                     hiddenThreadIds,
                     threadHolder,
                     threadItem.hidden
-                ) { hiddenThreadIds.contains(threadHolder.get { threadId }) || threadItem.hidden }
+                ) { hiddenThreadIds.contains(threadHolder.threadId) || threadItem.hidden }
             val isRefreshPosition =
                 remember(index, refreshPosition) { index + 1 == refreshPosition }
             val isNotLast = remember(index, data.size) { index < data.size - 1 }
@@ -399,7 +395,7 @@ private fun FeedList(
                                     onAgree = onAgree,
                                     onClickForum = remember {
                                         {
-                                            onOpenForum(it.name)
+                                            onOpenForum(it)
                                         }
                                     },
                                     onClickUser = onClickUser,
@@ -409,7 +405,7 @@ private fun FeedList(
                                         Dislike(
                                             personalized = personalized,
                                             onDislike = { clickTime, reasons ->
-                                                onDislike(threadHolder.get(), clickTime, reasons)
+                                                onDislike(threadHolder, clickTime, reasons)
                                             }
                                         )
                                     }

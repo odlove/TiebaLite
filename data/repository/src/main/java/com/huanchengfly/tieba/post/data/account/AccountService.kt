@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.data.account
 
-import com.huanchengfly.tieba.post.models.database.Account
-import com.huanchengfly.tieba.post.repository.AccountRepository
+import com.huanchengfly.tieba.core.common.account.AccountInfo
+import com.huanchengfly.tieba.core.common.account.AccountLogoutResult
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
@@ -12,46 +12,46 @@ class AccountService @Inject constructor(
 ) {
     fun initialize() = manager.initialize()
 
-    val currentAccount: Account?
+    val currentAccount: AccountInfo?
         get() = manager.currentAccount
 
-    val currentAccountFlow: Flow<Account?>
+    val currentAccountFlow: Flow<AccountInfo?>
         get() = manager.currentAccountFlow
 
-    val allAccounts: List<Account>
+    val allAccounts: List<AccountInfo>
         get() = manager.allAccounts
 
-    val allAccountsFlow: Flow<List<Account>>
+    val allAccountsFlow: Flow<List<AccountInfo>>
         get() = manager.allAccountsFlow
 
-    fun getLoginInfo(): Account? = manager.getLoginInfo()
+    fun getLoginInfo(): AccountInfo? = manager.getLoginInfo()
 
-    fun <T> getAccountInfo(getter: Account.() -> T): T? = manager.getAccountInfo(getter)
+    fun <T> getAccountInfo(getter: AccountInfo.() -> T): T? = manager.getAccountInfo(getter)
 
-    fun newAccount(uid: String, account: Account, callback: (Boolean) -> Unit) =
+    fun newAccount(uid: String, account: AccountInfo, callback: (Boolean) -> Unit) =
         manager.newAccount(uid, account, callback)
 
-    suspend fun getAccountInfoByUid(uid: String): Account? = manager.getAccountInfoByUid(uid)
+    suspend fun getAccountInfoByUid(uid: String): AccountInfo? = manager.getAccountInfoByUid(uid)
 
-    suspend fun getAccountInfoByBduss(bduss: String): Account? = manager.getAccountInfoByBduss(bduss)
+    suspend fun getAccountInfoByBduss(bduss: String): AccountInfo? = manager.getAccountInfoByBduss(bduss)
 
     fun isLoggedIn(): Boolean = manager.isLoggedIn()
 
     suspend fun switchAccount(accountId: Int): Boolean = manager.switchAccount(accountId)
 
-    fun fetchAccountFlow(): Flow<Account> {
+    fun fetchAccountFlow(): Flow<AccountInfo> {
         val account = getLoginInfo() ?: throw IllegalStateException("Not logged in")
         return manager.fetchAccountFlow(account)
     }
 
-    fun fetchAccountFlow(account: Account): Flow<Account> = manager.fetchAccountFlow(account)
+    fun fetchAccountFlow(account: AccountInfo): Flow<AccountInfo> = manager.fetchAccountFlow(account)
 
-    fun fetchAccountFlow(bduss: String, sToken: String, cookie: String? = null): Flow<Account> =
+    fun fetchAccountFlow(bduss: String, sToken: String, cookie: String? = null): Flow<AccountInfo> =
         manager.fetchAccountFlow(bduss, sToken, cookie)
 
     suspend fun updateLoginInfo(cookie: String): Boolean = manager.updateLoginInfo(cookie)
 
-    suspend fun exit(): AccountRepository.LogoutResult = manager.exit()
+    suspend fun exit(): AccountLogoutResult = manager.exit()
 
     fun getSToken(): String? = manager.getSToken()
 

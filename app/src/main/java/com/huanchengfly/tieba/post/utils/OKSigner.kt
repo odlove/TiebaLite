@@ -9,7 +9,7 @@ import com.huanchengfly.tieba.post.api.models.SignResultBean
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.post.models.SignDataBean
-import com.huanchengfly.tieba.post.models.database.Account
+import com.huanchengfly.tieba.core.common.account.AccountInfo
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -91,7 +91,7 @@ class MultiAccountSigner(
 
 class SingleAccountSigner(
     context: Context,
-    private val account: Account,
+    private val account: AccountInfo,
     api: ITiebaApi
 ) : IOKSigner(context, api) {
     companion object {

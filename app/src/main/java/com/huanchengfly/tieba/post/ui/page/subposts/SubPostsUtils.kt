@@ -10,7 +10,7 @@ import com.huanchengfly.tieba.post.api.models.protos.SubPostList
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
-import com.huanchengfly.tieba.post.models.database.Account
+import com.huanchengfly.tieba.core.common.account.AccountInfo
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.post.ui.page.destinations.CopyTextDialogPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
@@ -154,7 +154,7 @@ fun rememberSubPostsUiProps(
     isLoading: Boolean,
     isRefreshing: Boolean,
     hasMore: Boolean,
-    currentAccount: Account?,
+    currentAccount: AccountInfo?,
 ): SubPostsUiProps {
     val context = LocalContext.current
 

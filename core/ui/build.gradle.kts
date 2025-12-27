@@ -39,7 +39,6 @@ dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:runtime"))
     implementation(project(":core:network"))
-    implementation(project(":data:repository"))
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)

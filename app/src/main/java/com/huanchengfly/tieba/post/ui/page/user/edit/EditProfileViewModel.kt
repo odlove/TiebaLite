@@ -11,7 +11,7 @@ import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
 import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
-import com.huanchengfly.tieba.post.models.database.Account
+import com.huanchengfly.tieba.core.common.account.AccountInfo
 import com.huanchengfly.tieba.post.repository.UserProfileRepository
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -248,7 +248,7 @@ sealed class EditProfilePartialChange : PartialChange<EditProfileState> {
             }
 
         data object Loading : Init()
-        data class Success(val account: Account) : Init()
+        data class Success(val account: AccountInfo) : Init()
         data class Fail(val error: String) : Init()
     }
 

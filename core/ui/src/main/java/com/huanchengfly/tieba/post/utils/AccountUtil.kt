@@ -7,9 +7,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.huanchengfly.tieba.post.data.account.AccountConstants
-import com.huanchengfly.tieba.post.data.account.AccountManager
-import com.huanchengfly.tieba.post.models.database.Account
+import com.huanchengfly.tieba.core.common.account.AccountInfo
+import com.huanchengfly.tieba.core.common.account.AccountManagerFacade
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import kotlinx.coroutines.flow.Flow
 
@@ -22,9 +21,9 @@ import kotlinx.coroutines.flow.Flow
 @Stable
 object AccountUtil {
     const val TAG = "AccountUtil"
-    const val ACTION_SWITCH_ACCOUNT = AccountConstants.ACTION_SWITCH_ACCOUNT
+    const val ACTION_SWITCH_ACCOUNT = "com.huanchengfly.tieba.post.action.SWITCH_ACCOUNT"
 
-    private lateinit var manager: AccountManager
+    private lateinit var manager: AccountManagerFacade
 
     /**
      * 检查 AccountUtil 是否已初始化
@@ -35,12 +34,12 @@ object AccountUtil {
     /**
      * 初始化 AccountUtil（在 App.onCreate 中调用）
      */
-    fun init(accountManager: AccountManager) {
+    fun init(accountManager: AccountManagerFacade) {
         this.manager = accountManager
     }
 
-    val LocalAccount = staticCompositionLocalOf<Account?> { null }
-    val AllAccounts = staticCompositionLocalOf<List<Account>> { emptyList() }
+    val LocalAccount = staticCompositionLocalOf<AccountInfo?> { null }
+    val AllAccounts = staticCompositionLocalOf<List<AccountInfo>> { emptyList() }
 
     /**
      * 提供账号信息的 CompositionLocal Provider
@@ -69,20 +68,20 @@ object AccountUtil {
         }
     }
 
-    val currentAccount: Account?
+    val currentAccount: AccountInfo?
         get() = if (isInitialized) manager.currentAccount else null
 
-    val allAccounts: List<Account>
+    val allAccounts: List<AccountInfo>
         get() = if (isInitialized) manager.allAccounts else emptyList()
 
     @JvmStatic
-    fun getLoginInfo(): Account? = if (isInitialized) manager.getLoginInfo() else null
+    fun getLoginInfo(): AccountInfo? = if (isInitialized) manager.getLoginInfo() else null
 
     @JvmStatic
-    fun <T> getAccountInfo(getter: Account.() -> T): T? =
+    fun <T> getAccountInfo(getter: AccountInfo.() -> T): T? =
         if (isInitialized) manager.getAccountInfo(getter) else null
 
-    fun newAccount(uid: String, account: Account, callback: (Boolean) -> Unit) {
+    fun newAccount(uid: String, account: AccountInfo, callback: (Boolean) -> Unit) {
         if (!isInitialized) {
             callback(false)
             return
@@ -91,11 +90,11 @@ object AccountUtil {
     }
 
     @JvmStatic
-    suspend fun getAccountInfoByUid(uid: String): Account? =
+    suspend fun getAccountInfoByUid(uid: String): AccountInfo? =
         if (isInitialized) manager.getAccountInfoByUid(uid) else null
 
     @JvmStatic
-    suspend fun getAccountInfoByBduss(bduss: String): Account? =
+    suspend fun getAccountInfoByBduss(bduss: String): AccountInfo? =
         if (isInitialized) manager.getAccountInfoByBduss(bduss) else null
 
     @JvmStatic
@@ -109,7 +108,7 @@ object AccountUtil {
      * 获取当前登录账号的信息流（网络请求）
      * 注意：必须在已登录状态下调用，否则会抛出异常
      */
-    fun fetchAccountFlow(): Flow<Account> {
+    fun fetchAccountFlow(): Flow<AccountInfo> {
         val account = getLoginInfo() ?: throw IllegalStateException("未登录，无法获取账号信息")
         return manager.fetchAccountFlow(account)
     }
@@ -117,7 +116,7 @@ object AccountUtil {
     /**
      * 获取指定账号的信息流（网络请求）
      */
-    fun fetchAccountFlow(account: Account): Flow<Account> {
+    fun fetchAccountFlow(account: AccountInfo): Flow<AccountInfo> {
         return manager.fetchAccountFlow(account)
     }
 
@@ -128,7 +127,7 @@ object AccountUtil {
         bduss: String,
         sToken: String,
         cookie: String? = null
-    ): Flow<Account> {
+    ): Flow<AccountInfo> {
         return manager.fetchAccountFlow(bduss, sToken, cookie)
     }
 
@@ -210,7 +209,7 @@ object AccountUtil {
      * 获取登录信息（登录必需）
      * @throws IllegalStateException 如果用户未登录
      */
-    fun requireLoginInfo(): Account {
+    fun requireLoginInfo(): AccountInfo {
         return getLoginInfo() ?: throw IllegalStateException("未登录，无法获取登录信息")
     }
 

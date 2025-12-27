@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.dataStore
-import com.huanchengfly.tieba.post.models.database.Account
+import com.huanchengfly.tieba.core.common.account.AccountInfo
 import com.huanchengfly.tieba.post.ui.common.prefs.PrefsScreen
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.SettingsItem
@@ -55,7 +55,7 @@ internal fun LeadingIcon(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NowAccountItem(
-    account: Account?,
+    account: AccountInfo?,
     modifier: Modifier = Modifier
 ) {
     val navigator = LocalNavigator.current

@@ -3,7 +3,7 @@ import com.huanchengfly.tieba.core.runtime.di.ApplicationScope
 import android.app.Application
 import com.huanchengfly.tieba.core.runtime.DataInitializer
 import com.huanchengfly.tieba.core.runtime.OrderedDataInitializer
-import com.huanchengfly.tieba.post.data.account.AccountManager
+import com.huanchengfly.tieba.core.common.account.AccountManagerFacade
 import com.huanchengfly.tieba.post.emoticon.EmoticonRepository
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import com.huanchengfly.tieba.post.utils.BlockManager
@@ -43,7 +43,7 @@ class LitePalInitializer @Inject constructor() : OrderedDataInitializer {
 }
 
 class AccountDataInitializer @Inject constructor(
-    private val accountManager: AccountManager
+    private val accountManager: AccountManagerFacade
 ) : OrderedDataInitializer {
     override val order: Int = 10
     override fun initialize(application: Application) {

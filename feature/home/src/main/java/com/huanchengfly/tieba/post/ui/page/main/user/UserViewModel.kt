@@ -11,7 +11,7 @@ import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
 import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
-import com.huanchengfly.tieba.post.models.database.Account
+import com.huanchengfly.tieba.core.common.account.AccountInfo
 import com.huanchengfly.tieba.post.repository.UserProfileRepository
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -127,7 +127,7 @@ sealed interface UserPartialChange : PartialChange<UserUiState> {
 
         data object NotLogin : Refresh()
 
-        data class Success(val account: Account, val isLocal: Boolean = false) : Refresh()
+        data class Success(val account: AccountInfo, val isLocal: Boolean = false) : Refresh()
 
         data class Failure(val errorMessage: String) : Refresh()
     }
@@ -135,7 +135,7 @@ sealed interface UserPartialChange : PartialChange<UserUiState> {
 
 data class UserUiState(
     val isLoading: Boolean = false,
-    val account: Account? = null
+    val account: AccountInfo? = null
 ) : UiState
 
 sealed interface UserUiEvent : UiEvent

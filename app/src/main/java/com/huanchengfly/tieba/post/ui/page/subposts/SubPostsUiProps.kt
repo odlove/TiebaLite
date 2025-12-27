@@ -6,7 +6,7 @@ import com.huanchengfly.tieba.post.api.models.protos.SimpleForum
 import com.huanchengfly.tieba.post.api.models.protos.SubPostList
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
-import com.huanchengfly.tieba.post.models.database.Account
+import com.huanchengfly.tieba.core.common.account.AccountInfo
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import kotlinx.collections.immutable.ImmutableList
 
@@ -42,7 +42,7 @@ data class SubPostsUiProps(
     val isRefreshing: Boolean,
     val hasMore: Boolean,
     // 用户信息
-    val currentAccount: Account?,
+    val currentAccount: AccountInfo?,
     // 计算属性
     val threadAuthorId: Long?,
     val canDelete: (SubPostList) -> Boolean,

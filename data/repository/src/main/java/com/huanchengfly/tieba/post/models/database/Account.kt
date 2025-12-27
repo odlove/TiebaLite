@@ -1,33 +1,34 @@
 package com.huanchengfly.tieba.post.models.database
 
 import androidx.compose.runtime.Stable
+import com.huanchengfly.tieba.core.common.account.AccountInfo
 import org.litepal.crud.LitePalSupport
 
 @Stable
 data class Account @JvmOverloads constructor(
-    var uid: String = "",
-    var name: String = "",
-    var bduss: String = "",
-    var tbs: String = "",
-    var portrait: String = "",
-    var sToken: String = "",
-    var cookie: String = "",
-    var nameShow: String? = null,
-    var intro: String? = null,
-    var sex: String? = null,
-    var fansNum: String? = null,
-    var postNum: String? = null,
-    var threadNum: String? = null,
-    var concernNum: String? = null,
-    var tbAge: String? = null,
-    var age: String? = null,
-    var birthdayShowStatus: String? = null,
-    var birthdayTime: String? = null,
-    var constellation: String? = null,
-    var tiebaUid: String? = null,
-    var loadSuccess: Boolean = false,
-    var uuid: String? = "",
-    var zid: String? = "",
-) : LitePalSupport() {
-    val id: Int = 0
+    override var uid: String = "",
+    override var name: String = "",
+    override var bduss: String = "",
+    override var tbs: String = "",
+    override var portrait: String = "",
+    override var sToken: String = "",
+    override var cookie: String = "",
+    override var nameShow: String? = null,
+    override var intro: String? = null,
+    override var sex: String? = null,
+    override var fansNum: String? = null,
+    override var postNum: String? = null,
+    override var threadNum: String? = null,
+    override var concernNum: String? = null,
+    override var tbAge: String? = null,
+    override var age: String? = null,
+    override var birthdayShowStatus: String? = null,
+    override var birthdayTime: String? = null,
+    override var constellation: String? = null,
+    override var tiebaUid: String? = null,
+    override var loadSuccess: Boolean = false,
+    override var uuid: String? = "",
+    override var zid: String? = "",
+) : LitePalSupport(), AccountInfo {
+    override val id: Int = 0
 }

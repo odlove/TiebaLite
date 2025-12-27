@@ -63,7 +63,7 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.core.ui.widgets.compose.Switch
 import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
-import com.huanchengfly.tieba.post.models.database.Account
+import com.huanchengfly.tieba.core.common.account.AccountInfo
 import com.huanchengfly.tieba.post.ui.page.main.user.UserUiIntent
 import com.huanchengfly.tieba.post.ui.page.main.user.UserUiState
 import com.huanchengfly.tieba.post.ui.page.main.user.UserViewModel
@@ -105,7 +105,7 @@ private fun StatCardPlaceholder(modifier: Modifier = Modifier) {
 
 @Composable
 private fun StatCard(
-    account: Account,
+    account: AccountInfo,
     modifier: Modifier = Modifier
 ) {
     val postNum by animateIntAsState(targetValue = account.postNum?.toIntOrNull() ?: 0)

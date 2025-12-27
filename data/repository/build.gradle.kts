@@ -33,6 +33,7 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:runtime"))
     implementation(project(":data:remote"))
+    implementation(project(":data:local"))
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.collections.immutable)

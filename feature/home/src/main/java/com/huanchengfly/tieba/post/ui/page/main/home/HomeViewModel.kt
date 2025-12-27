@@ -12,12 +12,12 @@ import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
 import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
-import com.huanchengfly.tieba.post.models.database.History
+import com.huanchengfly.tieba.core.common.history.HistoryItem
+import com.huanchengfly.tieba.core.common.history.HistoryRepository
 import com.huanchengfly.tieba.post.models.database.TopForum
 import com.huanchengfly.tieba.post.repository.ContentRecommendRepository
 import com.huanchengfly.tieba.post.repository.ForumOperationRepository
 import com.huanchengfly.tieba.post.utils.AccountUtil
-import com.huanchengfly.tieba.data.local.history.HistoryDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -43,7 +43,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val contentRecommendRepository: ContentRecommendRepository,
     private val forumOperationRepository: ForumOperationRepository,
-    private val historyDataSource: HistoryDataSource,
+    private val historyRepository: HistoryRepository,
     dispatcherProvider: DispatcherProvider
 ) : BaseViewModel<HomeUiIntent, HomePartialChange, HomeUiState, HomeUiEvent>(dispatcherProvider) {
     override fun createInitialState(): HomeUiState = HomeUiState()
@@ -80,7 +80,7 @@ class HomeViewModel @Inject constructor(
 
         @Suppress("USELESS_CAST")
         private fun produceRefreshPartialChangeFlow(): Flow<HomePartialChange.Refresh> =
-            historyDataSource.observe(HistoryDataSource.TYPE_FORUM, 0)
+            historyRepository.observe(HistoryRepository.TYPE_FORUM, 0)
                 .zip(
                     contentRecommendRepository.forumRecommend()
                 ) { historyForums, forumRecommend ->
@@ -107,7 +107,7 @@ class HomeViewModel @Inject constructor(
 
         @Suppress("USELESS_CAST")
         private fun produceRefreshHistoryPartialChangeFlow(): Flow<HomePartialChange.RefreshHistory> =
-            historyDataSource.observe(HistoryDataSource.TYPE_FORUM, 0)
+            historyRepository.observe(HistoryRepository.TYPE_FORUM, 0)
                 .map { HomePartialChange.RefreshHistory.Success(it) as HomePartialChange.RefreshHistory }
                 .catch { emit(HomePartialChange.RefreshHistory.Failure(it)) }
 
@@ -202,7 +202,7 @@ sealed interface HomePartialChange : PartialChange<HomeUiState> {
         data class Success(
             val forums: List<HomeUiState.Forum>,
             val topForums: List<HomeUiState.Forum>,
-            val historyForums: List<History>,
+            val historyForums: List<HistoryItem>,
         ) : Refresh()
 
         data class Failure(
@@ -221,7 +221,7 @@ sealed interface HomePartialChange : PartialChange<HomeUiState> {
             }
 
         data class Success(
-            val historyForums: List<History>,
+            val historyForums: List<HistoryItem>,
         ) : RefreshHistory()
 
         data class Failure(
@@ -276,7 +276,7 @@ data class HomeUiState(
     val isLoading: Boolean = true,
     val forums: ImmutableList<Forum> = persistentListOf(),
     val topForums: ImmutableList<Forum> = persistentListOf(),
-    val historyForums: ImmutableList<History> = persistentListOf(),
+    val historyForums: ImmutableList<HistoryItem> = persistentListOf(),
     val expandHistoryForum: Boolean = true,
     val error: Throwable? = null,
 ) : UiState {

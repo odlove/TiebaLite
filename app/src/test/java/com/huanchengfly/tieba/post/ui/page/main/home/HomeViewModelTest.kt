@@ -1,6 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.main.home
 
 import com.huanchengfly.tieba.post.TestFixtures
+import com.huanchengfly.tieba.core.common.history.HistoryItem
+import com.huanchengfly.tieba.core.common.history.HistoryRepository
 import com.huanchengfly.tieba.post.repository.ContentRecommendRepository
 import com.huanchengfly.tieba.post.repository.ForumOperationRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
@@ -39,7 +41,7 @@ class HomeViewModelTest : BaseViewModelTest() {
 
     private lateinit var mockContentRecommendRepo: ContentRecommendRepository
     private lateinit var mockForumOperationRepo: ForumOperationRepository
-    private lateinit var mockHistoryDataSource: com.huanchengfly.tieba.data.local.history.HistoryDataSource
+    private lateinit var mockHistoryRepository: HistoryRepository
 
     @Before
     override fun setup() {
@@ -49,7 +51,7 @@ class HomeViewModelTest : BaseViewModelTest() {
 
         mockContentRecommendRepo = mockk(relaxed = true)
         mockForumOperationRepo = mockk(relaxed = true)
-        mockHistoryDataSource = mockk(relaxed = true)
+        mockHistoryRepository = mockk(relaxed = true)
     }
 
     @After
@@ -73,7 +75,7 @@ class HomeViewModelTest : BaseViewModelTest() {
             val viewModel = HomeViewModel(
                 mockContentRecommendRepo,
                 mockForumOperationRepo,
-                mockHistoryDataSource,
+                mockHistoryRepository,
                 testDispatcherProvider
             )
             val job = collectUiState(viewModel)
@@ -99,7 +101,7 @@ class HomeViewModelTest : BaseViewModelTest() {
             HomeUiState.Forum(avatar = "b", forumId = "2", forumName = "Tieba2", isSign = false, levelId = "5"),
         )
         val history = listOf(
-            com.huanchengfly.tieba.post.models.database.History(title = "history", data = "2", type = 1)
+            HistoryItem(title = "history", data = "2", type = 1)
         )
 
         val partial = HomePartialChange.Refresh.Success(forums, topForums, history)
@@ -115,10 +117,10 @@ class HomeViewModelTest : BaseViewModelTest() {
     @Test
     fun `RefreshHistory success should replace only history list`() {
         val initialState = HomeUiState(historyForums = listOf(
-            com.huanchengfly.tieba.post.models.database.History(title = "old", data = "x")
+            HistoryItem(title = "old", data = "x")
         ).toImmutableList())
         val newHistory = listOf(
-            com.huanchengfly.tieba.post.models.database.History(title = "new", data = "y")
+            HistoryItem(title = "new", data = "y")
         )
 
         val newState = HomePartialChange.RefreshHistory.Success(newHistory).reduce(initialState)

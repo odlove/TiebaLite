@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light theme primary / accent variants -->
+    <color name="theme_color_primary_white">@color/tieba</color>
+    <color name="theme_color_primary_tieba">@color/tieba</color>
+    <color name="theme_color_primary_blue">@color/tieba</color>
+    <color name="theme_color_primary_pink">#FFFF9A9E</color>
+    <color name="theme_color_primary_red">@color/red</color>
+    <color name="theme_color_primary_black">@color/black</color>
+    <color name="theme_color_primary_purple">#FF512DA8</color>
+
+    <color name="theme_color_accent_white">@color/tieba</color>
+    <color name="theme_color_accent_tieba">@color/tieba</color>
+    <color name="theme_color_accent_blue">@color/tieba</color>
+    <color name="theme_color_accent_pink">#FFFF9A9E</color>
+    <color name="theme_color_accent_red">@color/red_accent</color>
+    <color name="theme_color_accent_black">@color/black</color>
+    <color name="theme_color_accent_purple">#FF512DA8</color>
+
+    <color name="theme_color_new_primary_light">#FF000000</color>
+
+    <color name="theme_color_chip_light">#FFF8F8F8</color>
+    <color name="theme_color_on_chip_light">#FF808080</color>
+
+    <color name="theme_color_background_light">#FFFFFFFF</color>
+    <color name="theme_color_on_accent_light">#FFFFFFFF</color>
+    <color name="theme_color_window_background_light">#FFF8F8F8</color>
+    <color name="theme_color_toolbar_white">@color/white</color>
+    <color name="theme_color_toolbar_item_light">#FF000000</color>
+    <color name="theme_color_toolbar_item_secondary_white">#DD545967</color>
+    <color name="theme_color_toolbar_item_secondary_light">#99FFFFFF</color>
+    <color name="theme_color_toolbar_item_active_white">@color/theme_color_accent_white</color>
+    <color name="theme_color_toolbar_surface_light">#F8F8F8</color>
+    <color name="theme_color_on_toolbar_surface_light">#BFBFBF</color>
+    <color name="theme_color_nav_light">@color/white</color>
+    <color name="theme_color_nav_bar_surface_light">#FFF8F8F8</color>
+    <color name="theme_color_on_nav_bar_surface_light">#FFBFBFBF</color>
+
+    <color name="theme_color_unselected_day">@color/colorUnselected</color>
+    <color name="theme_color_floor_card_light">#FFF8F8F8</color>
+    <color name="theme_color_card_light">#FFFFFFFF</color>
+    <color name="theme_color_indicator_light">#FFFFFFFF</color>
+    <color name="theme_color_divider_light">#FFF5F5F5</color>
+    <color name="theme_color_shadow_day">@color/color_shadow</color>
+    <color name="theme_color_placeholder_light">#FFF0F0F0</color>
+</resources>

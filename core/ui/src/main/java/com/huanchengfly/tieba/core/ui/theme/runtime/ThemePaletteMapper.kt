@@ -39,6 +39,29 @@ object ThemePaletteMapper {
     }
 
     fun colorForRes(palette: ThemePalette, @ColorRes colorId: Int): Int? = when (colorId) {
+        R.color.sem_surface_primary -> palette.background
+        R.color.sem_surface_window -> palette.windowBackground
+        R.color.sem_surface_card -> palette.card
+        R.color.sem_surface_floor -> palette.floorCard
+        R.color.sem_surface_chip -> palette.chip
+        R.color.sem_surface_nav -> palette.navBar
+        R.color.sem_surface_nav_surface -> palette.navBarSurface
+        R.color.sem_surface_toolbar -> palette.toolbar
+        R.color.sem_surface_scrim -> palette.shadow
+        R.color.sem_content_primary -> palette.textPrimary
+        R.color.sem_content_secondary -> palette.textSecondary
+        R.color.sem_content_disabled -> palette.textDisabled
+        R.color.sem_content_inverse -> palette.textOnPrimary
+        R.color.sem_content_on_primary -> palette.onAccent
+        R.color.sem_content_on_chip -> palette.onChip
+        R.color.sem_state_active -> palette.accent
+        R.color.sem_state_unselected -> palette.unselected
+        R.color.sem_state_indicator -> palette.indicator
+        R.color.sem_outline_low -> palette.divider
+        R.color.sem_outline_surface -> palette.onToolbarSurface
+        R.color.sem_outline_secondary -> palette.toolbarItemSecondary
+        R.color.sem_decor_placeholder -> palette.placeholder
+        R.color.sem_decor_shadow -> palette.shadow
         R.color.theme_color_primary_tieba,
         R.color.theme_color_primary_blue,
         R.color.theme_color_primary_pink,
@@ -104,16 +127,19 @@ object ThemePaletteMapper {
         R.color.theme_color_toolbar_item_active_amoled_dark -> palette.toolbarItemActive
 
         R.color.theme_color_background_light,
+        R.color.theme_color_background_translucent,
+        R.color.theme_color_background_translucent_light,
+        R.color.theme_color_background_translucent_dark,
         R.color.theme_color_background_dark,
         R.color.theme_color_background_blue_dark,
         R.color.theme_color_background_grey_dark,
         R.color.theme_color_background_amoled_dark -> palette.background
 
         R.color.theme_color_window_background_light,
-        R.color.theme_color_window_background_dark,
         R.color.theme_color_window_background_translucent,
         R.color.theme_color_window_background_translucent_light,
         R.color.theme_color_window_background_translucent_dark,
+        R.color.theme_color_window_background_dark,
         R.color.theme_color_window_background_blue_dark,
         R.color.theme_color_window_background_grey_dark,
         R.color.theme_color_window_background_amoled_dark -> palette.windowBackground
@@ -150,12 +176,18 @@ object ThemePaletteMapper {
         R.color.theme_color_on_chip_translucent_dark -> palette.onChip
 
         R.color.theme_color_nav_light,
+        R.color.theme_color_nav_translucent,
+        R.color.theme_color_nav_translucent_light,
+        R.color.theme_color_nav_translucent_dark,
         R.color.theme_color_nav_dark,
         R.color.theme_color_nav_blue_dark,
         R.color.theme_color_nav_grey_dark,
         R.color.theme_color_nav_amoled_dark -> palette.navBar
 
         R.color.theme_color_nav_bar_surface_light,
+        R.color.theme_color_nav_bar_surface_translucent,
+        R.color.theme_color_nav_bar_surface_translucent_light,
+        R.color.theme_color_nav_bar_surface_translucent_dark,
         R.color.theme_color_nav_bar_surface_dark,
         R.color.theme_color_nav_bar_surface_blue_dark,
         R.color.theme_color_nav_bar_surface_grey_dark,
@@ -213,8 +245,7 @@ object ThemePaletteMapper {
         R.color.theme_color_indicator_translucent_dark,
         R.color.theme_color_indicator_blue_dark,
         R.color.theme_color_indicator_grey_dark,
-        R.color.theme_color_indicator_amoled_dark,
-        R.color.default_color_swipe_refresh_view_background -> palette.indicator
+        R.color.theme_color_indicator_amoled_dark -> palette.indicator
 
         R.color.theme_color_shadow_day,
         R.color.theme_color_shadow_night -> palette.shadow

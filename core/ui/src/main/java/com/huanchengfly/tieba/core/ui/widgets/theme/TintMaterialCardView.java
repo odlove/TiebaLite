@@ -34,8 +34,8 @@ public class TintMaterialCardView extends MaterialCardView implements Tintable {
     }
 
     private void applyTintColor() {
-        int background = ThemeColorResolver.colorById(getContext(), R.color.default_color_card);
+        int background = ThemeColorResolver.colorById(getContext(), R.color.sem_surface_card);
         setCardBackgroundColor(background);
-        setStrokeColor(ThemeColorResolver.colorById(getContext(), R.color.default_color_divider));
+        setStrokeColor(ThemeColorResolver.colorById(getContext(), R.color.sem_outline_low));
     }
 }

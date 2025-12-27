@@ -4,8 +4,8 @@
     <size
         android:width="32dp"
         android:height="32dp" />
-    <solid android:color="@color/default_color_card" />
+    <solid android:color="@color/sem_surface_card" />
     <stroke
         android:width="10dp"
-        android:color="@color/default_color_primary" />
+        android:color="@color/sem_state_active" />
 </shape>

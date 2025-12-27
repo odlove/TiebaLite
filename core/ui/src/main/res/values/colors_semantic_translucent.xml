@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_sem_surface_primary_translucent">@color/color_base_neutral_0_translucent</color>
+    <color name="color_sem_surface_window_translucent">@color/color_base_neutral_5_translucent</color>
+    <color name="color_sem_surface_card_translucent">@color/color_base_surface_card_translucent</color>
+    <color name="color_sem_surface_floor_translucent">@color/color_base_surface_floor_translucent</color>
+    <color name="color_sem_surface_chip_translucent">@color/color_base_surface_chip_translucent</color>
+    <color name="color_sem_surface_nav_translucent">@color/color_base_surface_nav_translucent</color>
+    <color name="color_sem_surface_nav_surface_translucent">@color/color_base_surface_nav_surface_translucent</color>
+    <color name="color_sem_surface_toolbar_translucent">@color/color_base_surface_toolbar_translucent</color>
+    <color name="color_sem_surface_scrim_translucent">@color/color_base_alpha_high_translucent</color>
+
+    <color name="color_sem_content_primary_translucent">@color/color_base_neutral_100_translucent</color>
+    <color name="color_sem_content_secondary_translucent">@color/color_base_neutral_40_translucent</color>
+    <color name="color_sem_content_disabled_translucent">@color/color_base_neutral_60_translucent</color>
+    <color name="color_sem_content_inverse_translucent">@color/color_base_neutral_inverse_translucent</color>
+    <color name="color_sem_content_on_brand_translucent">@color/color_base_brand_on_primary_translucent</color>
+    <color name="color_sem_content_on_chip_translucent">@color/color_base_on_chip_translucent</color>
+
+    <color name="color_sem_state_active_translucent">@color/color_base_brand_primary_translucent</color>
+    <color name="color_sem_state_unselected_translucent">@color/color_base_neutral_variant_unselected_translucent</color>
+    <color name="color_sem_state_indicator_translucent">@color/color_base_indicator_primary_translucent</color>
+
+    <color name="color_sem_outline_low_translucent">@color/color_base_neutral_10_translucent</color>
+    <color name="color_sem_outline_surface_translucent">@color/color_base_neutral_variant_surface_translucent</color>
+    <color name="color_sem_outline_secondary_translucent">@color/color_base_neutral_variant_secondary_translucent</color>
+
+    <color name="color_sem_decor_placeholder_translucent">@color/color_base_placeholder_translucent</color>
+    <color name="color_sem_decor_shadow_translucent">@color/color_base_shadow_soft_translucent</color>
+</resources>

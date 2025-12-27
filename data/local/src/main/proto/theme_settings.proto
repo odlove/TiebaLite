@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+option java_package = "com.huanchengfly.tieba.data.local.proto";
+option java_multiple_files = true;
+
+message ThemeSettings {
+  ThemeChannel active_channel = 1;
+  bool follow_system_night = 2;
+  ThemeChannelConfig light_preset = 3;
+  ThemeChannelConfig dark_preset = 4;
+}
+
+enum ThemeChannel {
+  DAY = 0;
+  NIGHT = 1;
+}
+
+message ThemeChannelConfig {
+  string raw_theme = 1;
+  bool use_dynamic_color_wanted = 2;
+  bool toolbar_primary = 3;
+  CustomThemeConfig custom = 4;
+  TranslucentThemeConfig translucent = 5;
+  map<string, string> overrides = 6;
+}
+
+message CustomThemeConfig {
+  int32 primary_color_argb = 1;
+  bool status_bar_dark = 2;
+}
+
+message TranslucentThemeConfig {
+  string background_path = 1;
+  int32 primary_color_argb = 2;
+  int32 theme_variant = 3;
+  int32 blur = 4;
+  int32 alpha = 5;
+}

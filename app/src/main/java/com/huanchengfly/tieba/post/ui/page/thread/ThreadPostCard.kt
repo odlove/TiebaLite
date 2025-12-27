@@ -40,13 +40,12 @@ import androidx.compose.ui.unit.sp
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.network.retrofit.doIfFailure
 import com.huanchengfly.tieba.core.network.retrofit.doIfSuccess
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.widgets.compose.Chip
-import com.huanchengfly.tieba.core.ui.widgets.compose.LongClickMenu
-import com.huanchengfly.tieba.core.ui.widgets.compose.UserHeader
-import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
-import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
+import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
+import com.huanchengfly.tieba.core.ui.text.buildChipInlineContent
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.widgets.compose.*
+import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.Post
 import com.huanchengfly.tieba.post.api.models.protos.SubPostList
 import com.huanchengfly.tieba.post.api.models.protos.User
@@ -59,14 +58,7 @@ import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.post.ui.common.PbContentText
 import com.huanchengfly.tieba.post.ui.common.VideoContentRender
-import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.WebViewPageDestination
-import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.core.ui.widgets.compose.BlockTip
-import com.huanchengfly.tieba.core.ui.widgets.compose.BlockableContent
-import com.huanchengfly.tieba.core.ui.widgets.compose.Card
-import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.core.ui.text.buildChipInlineContent
 import com.huanchengfly.tieba.core.common.utils.DateTimeUtils.getRelativeTimeString
 import com.huanchengfly.tieba.post.utils.StringUtil
 import com.huanchengfly.tieba.post.utils.Util.getIconColorByLevel
@@ -237,7 +229,7 @@ fun PostCard(
             .padding(vertical = 8.dp, horizontal = 16.dp)
     ) {
         menuWrapper {
-            Card(
+            PlainCard(
                 header = {
                     if (!immersiveMode) {
                         UserHeader(
@@ -442,7 +434,7 @@ private fun SubPostItem(
                         menuState.expanded = false
                     }
                 ) {
-                    Text(text = stringResource(id = CoreUiR.string.title_reply))
+                    Text(text = stringResource(id = R.string.title_reply))
                 }
             }
             if (onMenuCopyClick != null) {

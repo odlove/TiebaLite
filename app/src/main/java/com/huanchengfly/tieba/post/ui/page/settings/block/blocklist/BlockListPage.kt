@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.settings.block.blocklist
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -44,14 +45,15 @@ import androidx.compose.ui.unit.sp
 import com.eygraber.compose.placeholder.material.placeholder
 import com.google.gson.reflect.TypeToken
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.models.database.Block
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabSelectedColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabUnselectedColor
 import com.huanchengfly.tieba.core.ui.widgets.compose.navigation.BottomNavigationDivider
-import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.LongClickMenu
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
@@ -59,10 +61,11 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.PromptDialog
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.TabRow
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
-import com.huanchengfly.tieba.core.ui.widgets.compose.TitleCentredToolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.utils.GsonUtil
+import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
@@ -118,45 +121,56 @@ fun BlockListPage(
         snackbarState = snackbarState,
         backgroundColor = Color.Transparent,
         topBar = {
-            TitleCentredToolbar(
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.title_block_list),
-                        fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h6
-                    )
-                },
-                navigationIcon = {
-                    BackNavigationIcon(onBackPressed = { navigator.navigateUp() })
-                },
-                content = {
-                    TabRow(
-                        selectedTabIndex = pagerState.currentPage,
-                        indicator = { tabPositions ->
-                            PagerTabIndicator(
-                                pagerState = pagerState,
-                                tabPositions = tabPositions
-                            )
-                        },
-                        divider = {},
-                        backgroundColor = Color.Transparent,
-                        contentColor = ExtendedTheme.colors.onTopBar,
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .width(84.dp * 2),
-                    ) {
-                        Tab(
-                            selected = pagerState.currentPage == 0,
-                            onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } },
-                            text = { Text(text = stringResource(id = R.string.title_black_list)) },
+            val topBarColor = ExtendedTheme.colors.topBar
+            val statusBarColor = topBarColor.calcStatusBarColor()
+            Column(modifier = Modifier.background(topBarColor)) {
+                ThemeTopAppBar(
+                    backgroundColor = topBarColor,
+                    statusBarColor = statusBarColor,
+                    centerTitle = true,
+                    title = {
+                        Text(
+                            text = stringResource(id = R.string.title_block_list),
+                            fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h6
                         )
-                        Tab(
-                            selected = pagerState.currentPage == 1,
-                            onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } },
-                            text = { Text(text = stringResource(id = R.string.title_white_list)) },
-                        )
+                    },
+                    navigationIcon = {
+                        DefaultBackIcon(onBack = { navigator.navigateUp()  })
                     }
+                )
+                val tabContentColor = tabSelectedColor()
+                val tabUnselectedColor = tabUnselectedColor()
+                TabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    indicator = { tabPositions ->
+                        PagerTabIndicator(
+                            pagerState = pagerState,
+                            tabPositions = tabPositions
+                        )
+                    },
+                    divider = {},
+                    backgroundColor = Color.Transparent,
+                    contentColor = tabContentColor,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .width(84.dp * 2),
+                ) {
+                    Tab(
+                        selected = pagerState.currentPage == 0,
+                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } },
+                        text = { Text(text = stringResource(id = R.string.title_black_list)) },
+                        selectedContentColor = tabContentColor,
+                        unselectedContentColor = tabUnselectedColor
+                    )
+                    Tab(
+                        selected = pagerState.currentPage == 1,
+                        onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } },
+                        text = { Text(text = stringResource(id = R.string.title_white_list)) },
+                        selectedContentColor = tabContentColor,
+                        unselectedContentColor = tabUnselectedColor
+                    )
                 }
-            )
+            }
         },
         bottomBar = {
             Column {
@@ -164,53 +178,24 @@ fun BlockListPage(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(ExtendedTheme.colors.bottomBarSurface)
                         .navigationBarsPadding()
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable {
-                                addBlockCategory = Block.CATEGORY_BLACK_LIST
-                                dialogState.show()
-                            }
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    BlockListActionButton(
+                        icon = Icons.Outlined.Block,
+                        text = stringResource(id = R.string.title_add_black),
+                        modifier = Modifier.weight(1f),
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Block,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = stringResource(id = R.string.title_add_black),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        addBlockCategory = Block.CATEGORY_BLACK_LIST
+                        dialogState.show()
                     }
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable {
-                                addBlockCategory = Block.CATEGORY_WHITE_LIST
-                                dialogState.show()
-                            }
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    BlockListActionButton(
+                        icon = Icons.Outlined.CheckCircle,
+                        text = stringResource(id = R.string.title_add_white),
+                        modifier = Modifier.weight(1f),
                     ) {
-                        Icon(
-                            imageVector = Icons.Outlined.CheckCircle,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = stringResource(id = R.string.title_add_white),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        addBlockCategory = Block.CATEGORY_WHITE_LIST
+                        dialogState.show()
                     }
                 }
             }
@@ -300,7 +285,7 @@ private fun BlockItem(
     ) {
         Icon(
             imageVector = if (item.type == Block.TYPE_USER) Icons.Outlined.AccountCircle else ImageVector.vectorResource(
-                id = CoreUiR.drawable.ic_comment_new
+                id = R.drawable.ic_comment_new
             ),
             contentDescription = if (item.type == Block.TYPE_USER) stringResource(
                 id = R.string.block_type_user
@@ -336,5 +321,35 @@ private fun BlockItem(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun BlockListActionButton(
+    icon: ImageVector,
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+            tint = MaterialTheme.colors.onSurface
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = text,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = ExtendedTheme.colors.text
+        )
     }
 }

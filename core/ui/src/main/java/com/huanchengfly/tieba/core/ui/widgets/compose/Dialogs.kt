@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.ProvideTextStyle
@@ -45,7 +44,12 @@ import androidx.constraintlayout.compose.Visibility
 import com.huanchengfly.tieba.core.ui.compose.ProvideContentColor
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogBackgroundColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogContentColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogPrimaryButtonColors
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogSecondaryButtonColors
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.core.ui.widgets.compose.dialogs.AnyPopDialog
 import com.huanchengfly.tieba.core.ui.widgets.compose.dialogs.AnyPopDialogProperties
@@ -68,10 +72,7 @@ fun DialogScope.DialogPositiveButton(
         modifier = Modifier
             .fillMaxWidth(),
         shape = RoundedCornerShape(100),
-        colors = ButtonDefaults.textButtonColors(
-            backgroundColor = MaterialTheme.colors.secondary,
-            contentColor = MaterialTheme.colors.onSecondary
-        ),
+        colors = dialogPrimaryButtonColors(),
     ) {
         Text(
             text = text,
@@ -93,12 +94,7 @@ fun DialogScope.DialogNegativeButton(
         },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(100),
-        colors = ButtonDefaults.textButtonColors(
-            backgroundColor = ExtendedTheme.colors.text.copy(
-                alpha = 0.1f
-            ),
-            contentColor = ExtendedTheme.colors.text
-        ),
+        colors = dialogSecondaryButtonColors(),
     ) {
         Text(
             text = text,
@@ -135,7 +131,7 @@ fun TimePickerDialog(
     ) {
         Column(modifier = Modifier.padding(horizontal = 24.dp)) {
             ProvideTextStyle(value = MaterialTheme.typography.body1) {
-                ProvideContentColor(color = ExtendedTheme.colors.text) {
+                ProvideContentColor(color = dialogContentColor()) {
                     content()
                 }
             }
@@ -173,7 +169,7 @@ fun AlertDialog(
     ) {
         Column(modifier = Modifier.padding(horizontal = 24.dp)) {
             ProvideTextStyle(value = MaterialTheme.typography.body1) {
-                ProvideContentColor(color = ExtendedTheme.colors.text) {
+                ProvideContentColor(color = dialogContentColor()) {
                     content()
                 }
             }
@@ -199,7 +195,7 @@ fun AlertDialog(
     ) {
         Column(modifier = Modifier.padding(horizontal = 24.dp)) {
             ProvideTextStyle(value = MaterialTheme.typography.body1) {
-                ProvideContentColor(color = ExtendedTheme.colors.text) {
+                ProvideContentColor(color = dialogContentColor()) {
                     content()
                 }
             }
@@ -231,7 +227,7 @@ fun ConfirmDialog(
     ) {
         Column(modifier = Modifier.padding(horizontal = 24.dp)) {
             ProvideTextStyle(value = MaterialTheme.typography.body1) {
-                ProvideContentColor(color = ExtendedTheme.colors.text) {
+                ProvideContentColor(color = dialogContentColor()) {
                     content()
                 }
             }
@@ -282,7 +278,7 @@ fun PromptDialog(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             ProvideTextStyle(value = MaterialTheme.typography.body1) {
-                ProvideContentColor(color = ExtendedTheme.colors.text) {
+                ProvideContentColor(color = dialogContentColor()) {
                     content()
                 }
             }
@@ -361,7 +357,7 @@ fun BaseDialog(
                 imePadding = imePadding
             )
         ) {
-            ProvideContentColor(color = ExtendedTheme.colors.text) {
+            ProvideContentColor(color = dialogContentColor()) {
                 dialogScope.content()
             }
         }
@@ -391,8 +387,8 @@ fun Dialog(
         },
         cancelable = cancelable,
         cancelableOnTouchOutside = cancelableOnTouchOutside,
-    ) {
-        ConstraintLayout(
+        ) {
+        CardSurface(
             modifier = modifier
                 .wrapContentHeight()
                 .animateContentSize()
@@ -403,16 +399,19 @@ fun Dialog(
                         0.6f
                     }
                 )
-                .padding(16.dp)
-                .background(
-                    color = ExtendedTheme.colors.windowBackground,
-                    shape = RoundedCornerShape(24.dp)
-                )
-                .padding(vertical = 24.dp),
+                .padding(16.dp),
+            shape = RoundedCornerShape(24.dp),
+            backgroundColor = dialogBackgroundColor(),
+            contentColor = dialogContentColor()
         ) {
-            val (titleRef, contentRef, buttonsRef) = createRefs()
-            Column(
+            ConstraintLayout(
                 modifier = Modifier
+                    .wrapContentHeight()
+                    .padding(vertical = 24.dp)
+            ) {
+                val (titleRef, contentRef, buttonsRef) = createRefs()
+                Column(
+                    modifier = Modifier
                     .constrainAs(titleRef) {
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
@@ -449,18 +448,19 @@ fun Dialog(
             ) {
                 content()
             }
-            Column(
-                modifier = Modifier
-                    .constrainAs(buttonsRef) {
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(parent.bottom)
-                        width = Dimension.fillToConstraints
-                    }
-                    .padding(horizontal = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                buttons()
+                Column(
+                    modifier = Modifier
+                        .constrainAs(buttonsRef) {
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            bottom.linkTo(parent.bottom)
+                            width = Dimension.fillToConstraints
+                        }
+                        .padding(horizontal = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    buttons()
+                }
             }
         }
     }

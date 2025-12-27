@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
     android:background="@drawable/bg_round"
-    app:backgroundTint="@color/default_color_background">
+    app:backgroundTint="@color/sem_surface_primary">
 
     <com.huanchengfly.tieba.core.ui.widgets.theme.TintTextView
         android:id="@+id/title_text_view"
@@ -18,7 +18,7 @@
         android:paddingBottom="8dp"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:tint="@color/default_color_text" />
+        app:tint="@color/sem_content_primary" />
 
     <com.huanchengfly.tieba.core.ui.widgets.theme.TintNavigationView
         android:id="@+id/navigation_view"
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/title_text_view"
         app:elevation="0dp"
-        app:itemIconTint="@color/default_color_primary"
+        app:itemIconTint="@color/sem_state_active"
         app:itemTextAppearance="@style/TextAppearance.Bold"
-        app:itemTextTint="@color/default_color_text" />
+        app:itemTextTint="@color/sem_content_primary" />
 </com.huanchengfly.tieba.core.ui.widgets.theme.TintRelativeLayout>

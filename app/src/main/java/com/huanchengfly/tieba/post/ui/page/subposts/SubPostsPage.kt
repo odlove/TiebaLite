@@ -219,22 +219,12 @@ internal fun SubPostsContent(
 
     val replyDialogState = rememberDialogState()
     var currentReplyArgs by remember { mutableStateOf<ReplyArgs?>(null) }
+    if (!replyDialogState.show && currentReplyArgs != null) {
+        currentReplyArgs = null
+    }
     currentReplyArgs?.let { args ->
         ReplyDialog(args = args, state = replyDialogState)
     }
-
-//    onGlobalEvent<GlobalEvent.ReplySuccess>(
-//        filter = { it.threadId == threadId && it.postId == postId }
-//    ) { event ->
-//        viewModel.send(
-//            SubPostsUiIntent.Load(
-//                forumId,
-//                threadId,
-//                postId,
-//                subPostId.takeIf { loadFromSubPost } ?: 0L
-//            )
-//        )
-//    }
 
     fun showReplyDialog(args: ReplyArgs) {
         currentReplyArgs = args

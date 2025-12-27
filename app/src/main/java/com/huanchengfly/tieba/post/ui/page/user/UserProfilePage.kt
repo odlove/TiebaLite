@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,7 +26,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ButtonDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentColor
@@ -68,7 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.ui.R as CoreUiR
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
@@ -81,14 +82,16 @@ import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.goToActivity
 import com.huanchengfly.tieba.post.models.database.Block
 import com.huanchengfly.tieba.post.toastShort
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabSelectedColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabUnselectedColor
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.user.edit.EditProfileActivity
 import com.huanchengfly.tieba.post.ui.page.user.likeforum.UserLikeForumPage
 import com.huanchengfly.tieba.post.ui.page.user.post.UserPostPage
 import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.Button
 import com.huanchengfly.tieba.core.ui.widgets.compose.Chip
 import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
@@ -102,8 +105,9 @@ import com.huanchengfly.tieba.core.ui.compose.ProvideContentColor
 import com.huanchengfly.tieba.core.ui.widgets.compose.PullToRefreshLayout
 import com.huanchengfly.tieba.core.ui.compose.ScrollableTabRow
 import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.core.ui.widgets.compose.Toolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.widgets.compose.UserHeader
+import com.huanchengfly.tieba.core.ui.widgets.compose.TextButton
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import com.huanchengfly.tieba.post.utils.BlockManager
@@ -250,7 +254,7 @@ private fun UserProfileToolbar(
 ) {
     val context = LocalContext.current
 
-    Toolbar(
+    ThemeTopAppBar(
         title = {
             AnimatedVisibility(
                 visible = showTitle,
@@ -261,7 +265,7 @@ private fun UserProfileToolbar(
             }
         },
         navigationIcon = {
-            BackNavigationIcon(onBackPressed = onBack)
+            DefaultBackIcon(onBack = onBack)
         },
         actions = {
             user.takeUnless { isSelf }?.let {
@@ -503,6 +507,7 @@ private fun UserProfileContentNormal(
                                     .padding(16.dp)
                                     .padding(top = 8.dp),
                                 showBtn = showActionBtn,
+                                disableButton = disableButton,
                                 isSelf = isSelf,
                                 onBtnClick = {
                                     if (disableButton || !showActionBtn) {
@@ -647,6 +652,7 @@ private fun UserProfileContentExpanded(
                             .weight(1f)
                             .align(Alignment.Top),
                         showBtn = showActionBtn,
+                        disableButton = disableButton,
                         isSelf = isSelf,
                         onBtnClick = {
                             if (disableButton || !showActionBtn) {
@@ -714,6 +720,9 @@ private fun UserProfileTabRow(
         letterSpacing = 0.sp
     )
 
+    val tabContentColor = tabSelectedColor()
+    val tabUnselectedColor = tabUnselectedColor()
+
     ScrollableTabRow(
         selectedTabIndex = pagerState.currentPage,
         indicator = { tabPositions ->
@@ -724,7 +733,7 @@ private fun UserProfileTabRow(
         },
         divider = {},
         backgroundColor = Color.Transparent,
-        contentColor = ExtendedTheme.colors.primary,
+        contentColor = tabContentColor,
         edgePadding = 0.dp,
         modifier = modifier.wrapContentWidth(align = Alignment.Start),
     ) {
@@ -736,8 +745,8 @@ private fun UserProfileTabRow(
                         pagerState.animateScrollToPage(i)
                     }
                 },
-                selectedContentColor = ExtendedTheme.colors.primary,
-                unselectedContentColor = ExtendedTheme.colors.textSecondary,
+                selectedContentColor = tabContentColor,
+                unselectedContentColor = tabUnselectedColor,
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -786,6 +795,7 @@ private fun UserProfileDetail(
     modifier: Modifier = Modifier,
     showBtn: Boolean = true,
     isSelf: Boolean = false,
+    disableButton: Boolean = false,
     onBtnClick: () -> Unit = {},
     onCopyIdClick: () -> Unit = {},
 ) {
@@ -805,32 +815,32 @@ private fun UserProfileDetail(
             )
             Spacer(modifier = Modifier.weight(1f))
             if (showBtn) {
-                Button(
-                    onClick = onBtnClick,
-                    colors = if (user.get { has_concerned } == 0 || isSelf) {
-                        ButtonDefaults.buttonColors()
-                    } else {
-                        ButtonDefaults.outlinedButtonColors()
-                    },
-                    border = if (user.get { has_concerned } == 0 || isSelf) {
-                        null
-                    } else {
-                        ButtonDefaults.outlinedBorder
-                    },
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                val needsFilledButton = isSelf || user.get { has_concerned } == 0
+                if (needsFilledButton) {
+                    Button(
+                        onClick = onBtnClick,
+                        enabled = !disableButton,
                     ) {
-                        if (isSelf) {
-                            Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
-                            Text(text = stringResource(id = R.string.menu_edit_info))
-                        } else if (user.get { has_concerned } == 0) {
-                            Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
-                            Text(text = stringResource(id = R.string.button_follow))
-                        } else {
-                            Text(text = stringResource(id = CoreUiR.string.button_unfollow))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            if (isSelf) {
+                                Icon(imageVector = Icons.Rounded.Edit, contentDescription = null)
+                                Text(text = stringResource(id = R.string.menu_edit_info))
+                            } else {
+                                Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
+                                Text(text = stringResource(id = R.string.button_follow))
+                            }
                         }
+                    }
+                } else {
+                    TextButton(
+                        onClick = onBtnClick,
+                        enabled = !disableButton,
+                        border = BorderStroke(1.dp, ExtendedTheme.colors.accent.copy(alpha = 0.35f))
+                    ) {
+                        Text(text = stringResource(id = R.string.button_unfollow))
                     }
                 }
             }
@@ -847,55 +857,63 @@ private fun UserProfileDetail(
             overflow = TextOverflow.Ellipsis,
             fontWeight = FontWeight.Bold
         )
-        ProvideTextStyle(value = MaterialTheme.typography.body2) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.height(IntrinsicSize.Min)
-            ) {
+        CardSurface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            ProvideTextStyle(value = MaterialTheme.typography.body2) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.text_stat_follow),
-                        color = ExtendedTheme.colors.textSecondary
-                    )
-                    Text(
-                        text = user.get { concern_num }.getShortNumString(),
-                        color = ExtendedTheme.colors.text,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                HorizontalDivider(modifier = Modifier.fillMaxHeight())
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.text_stat_fans),
-                        color = ExtendedTheme.colors.textSecondary
-                    )
-                    Text(
-                        text = user.get { fans_num }.getShortNumString(),
-                        color = ExtendedTheme.colors.text,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                HorizontalDivider(modifier = Modifier.fillMaxHeight())
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.text_stat_agrees),
-                        color = ExtendedTheme.colors.textSecondary
-                    )
-                    Text(
-                        text = user.get { total_agree_num }.getShortNumString(),
-                        color = ExtendedTheme.colors.text,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.text_stat_follow),
+                            color = ExtendedTheme.colors.textSecondary
+                        )
+                        Text(
+                            text = user.get { concern_num }.getShortNumString(),
+                            color = ExtendedTheme.colors.text,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    HorizontalDivider(modifier = Modifier.fillMaxHeight())
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.text_stat_fans),
+                            color = ExtendedTheme.colors.textSecondary
+                        )
+                        Text(
+                            text = user.get { fans_num }.getShortNumString(),
+                            color = ExtendedTheme.colors.text,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    HorizontalDivider(modifier = Modifier.fillMaxHeight())
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.text_stat_agrees),
+                            color = ExtendedTheme.colors.textSecondary
+                        )
+                        Text(
+                            text = user.get { total_agree_num }.getShortNumString(),
+                            color = ExtendedTheme.colors.text,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }

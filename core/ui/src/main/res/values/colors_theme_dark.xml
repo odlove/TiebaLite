@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark theme primary / accent variants -->
+    <color name="theme_color_primary_dark">@color/tieba</color>
+    <color name="theme_color_primary_blue_dark">@color/tieba</color>
+    <color name="theme_color_primary_grey_dark">@color/tieba</color>
+    <color name="theme_color_primary_amoled_dark">@color/tieba</color>
+
+    <color name="theme_color_accent_dark">@color/tieba</color>
+    <color name="theme_color_accent_blue_dark">@color/tieba</color>
+    <color name="theme_color_accent_grey_dark">@color/tieba</color>
+    <color name="theme_color_accent_amoled_dark">@color/tieba</color>
+
+    <color name="theme_color_new_primary_night">#FF5588D7</color>
+
+    <color name="theme_color_chip_dark">#242F3D</color>
+    <color name="theme_color_chip_blue_dark">#242F3D</color>
+    <color name="theme_color_chip_grey_dark">#323232</color>
+    <color name="theme_color_chip_amoled_dark">#1E1E1E</color>
+
+    <color name="theme_color_on_chip_dark">#68737E</color>
+    <color name="theme_color_on_chip_blue_dark">#68737E</color>
+    <color name="theme_color_on_chip_grey_dark">#FF808080</color>
+    <color name="theme_color_on_chip_amoled_dark">#FF808080</color>
+
+    <color name="theme_color_window_background_dark">#FF10171F</color>
+    <color name="theme_color_window_background_blue_dark">#17212B</color>
+    <color name="theme_color_window_background_grey_dark">#FF202020</color>
+    <color name="theme_color_window_background_amoled_dark">#FF1E1E1E</color>
+
+    <color name="theme_color_toolbar_dark">#17212B</color>
+    <color name="theme_color_toolbar_blue_dark">#17212B</color>
+    <color name="theme_color_toolbar_grey_dark">#202020</color>
+    <color name="theme_color_toolbar_amoled_dark">#000000</color>
+    <color name="theme_color_toolbar_item_dark">@color/white</color>
+    <color name="theme_color_toolbar_item_night">#EEEEEE</color>
+    <color name="theme_color_toolbar_item_secondary_dark">#CCE6E7EE</color>
+    <color name="theme_color_toolbar_item_secondary_blue_dark">#CCEEEEEE</color>
+    <color name="theme_color_toolbar_item_secondary_grey_dark">#CCEEEEEE</color>
+    <color name="theme_color_toolbar_item_secondary_amoled_dark">#CCEEEEEE</color>
+    <color name="theme_color_toolbar_item_active_dark">@color/white</color>
+    <color name="theme_color_toolbar_item_active_blue_dark">@color/white</color>
+    <color name="theme_color_toolbar_item_active_grey_dark">@color/white</color>
+    <color name="theme_color_toolbar_item_active_amoled_dark">@color/white</color>
+    <color name="theme_color_toolbar_surface_dark">#242F3D</color>
+    <color name="theme_color_toolbar_surface_blue_dark">#242F3D</color>
+    <color name="theme_color_toolbar_surface_grey_dark">#2C2C2C</color>
+    <color name="theme_color_toolbar_surface_amoled_dark">#1E1E1E</color>
+    <color name="theme_color_on_toolbar_surface_dark">#5C5C5C</color>
+    <color name="theme_color_on_toolbar_surface_blue_dark">#626C79</color>
+    <color name="theme_color_on_toolbar_surface_grey_dark">#5C5C5C</color>
+    <color name="theme_color_on_toolbar_surface_amoled_dark">#5C5C5C</color>
+
+    <color name="theme_color_background_dark">#FF131D28</color>
+    <color name="theme_color_background_blue_dark">#17212B</color>
+    <color name="theme_color_background_grey_dark">#FF202020</color>
+    <color name="theme_color_background_amoled_dark">#FF000000</color>
+
+    <color name="theme_color_on_accent_dark">#FF131D28</color>
+    <color name="theme_color_on_accent_blue_dark">#FF17212B</color>
+    <color name="theme_color_on_accent_grey_dark">#FF202020</color>
+    <color name="theme_color_on_accent_amoled_dark">#FF000000</color>
+
+    <color name="theme_color_nav_dark">#FF15202B</color>
+    <color name="theme_color_nav_blue_dark">#1B2733</color>
+    <color name="theme_color_nav_grey_dark">#FF303030</color>
+    <color name="theme_color_nav_amoled_dark">#FF171717</color>
+    <color name="theme_color_nav_bar_surface_dark">#141F2A</color>
+    <color name="theme_color_nav_bar_surface_blue_dark">#141F2A</color>
+    <color name="theme_color_nav_bar_surface_grey_dark">#242424</color>
+    <color name="theme_color_nav_bar_surface_amoled_dark">#282828</color>
+    <color name="theme_color_on_nav_bar_surface_dark">#5C5C5C</color>
+
+    <color name="theme_color_unselected_dark">#FF415C68</color>
+    <color name="theme_color_unselected_blue_dark">#5A6670</color>
+    <color name="theme_color_unselected_grey_dark">#FF808080</color>
+    <color name="theme_color_unselected_amoled_dark">#FF808080</color>
+
+    <color name="theme_color_floor_card_dark">#FF1A2A39</color>
+    <color name="theme_color_floor_card_blue_dark">#242F3D</color>
+    <color name="theme_color_floor_card_grey_dark">#FF1E1E1E</color>
+    <color name="theme_color_floor_card_amoled_dark">#FF1E1E1E</color>
+
+    <color name="theme_color_card_dark">#FF131D27</color>
+    <color name="theme_color_card_blue_dark">#202B37</color>
+    <color name="theme_color_card_grey_dark">#FF2A2A2A</color>
+    <color name="theme_color_card_amoled_dark">#FF101010</color>
+
+    <color name="theme_color_indicator_dark">#FF1C2938</color>
+    <color name="theme_color_indicator_blue_dark">#202B37</color>
+    <color name="theme_color_indicator_grey_dark">#FF252525</color>
+    <color name="theme_color_indicator_amoled_dark">#FF1C1C1C</color>
+
+    <color name="theme_color_divider_dark">#FF10171D</color>
+    <color name="theme_color_divider_blue_dark">#242F3D</color>
+    <color name="theme_color_divider_grey_dark">#FF1E1E1E</color>
+    <color name="theme_color_divider_amoled_dark">#FF1E1E1E</color>
+
+    <color name="theme_color_shadow_night">#FE191919</color>
+
+    <color name="theme_color_placeholder_dark">#99000000</color>
+    <color name="theme_color_placeholder_blue_dark">#99000000</color>
+    <color name="theme_color_placeholder_grey_dark">#99000000</color>
+    <color name="theme_color_placeholder_amoled_dark">#99000000</color>
+</resources>

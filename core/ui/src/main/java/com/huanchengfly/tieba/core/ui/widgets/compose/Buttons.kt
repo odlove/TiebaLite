@@ -28,7 +28,7 @@ fun Button(
     shape: Shape = RoundedCornerShape(100),
     border: BorderStroke? = null,
     colors: androidx.compose.material.ButtonColors = ButtonDefaults.buttonColors(
-        backgroundColor = ExtendedTheme.colors.primary,
+        backgroundColor = ExtendedTheme.colors.accent,
         contentColor = ExtendedTheme.colors.onAccent
     ),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -56,7 +56,7 @@ fun TextButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = RoundedCornerShape(100),
     border: BorderStroke? = null,
-    color: Color = ExtendedTheme.colors.text,
+    color: Color = ExtendedTheme.colors.accent,
     colors: androidx.compose.material.ButtonColors = ButtonDefaults.buttonColors(
         backgroundColor = color.copy(alpha = 0.1f),
         contentColor = color,

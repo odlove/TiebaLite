@@ -1,5 +1,6 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // 跟踪 git HEAD 变化，确保 commit 后 Gradle 重新配置
 // 通过读取 .git/HEAD 文件，Gradle 会自动将其作为配置输入
@@ -198,12 +199,27 @@ android {
 
             (this as BaseVariantOutputImpl).outputFileName = fileName
         }
-        kotlin.sourceSets {
-            getByName(variant.name) {
-                kotlin.srcDir("build/generated/ksp/${variant.name}/kotlin")
-            }
+    }
+}
+
+val kotlinExtension = extensions.getByType<org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension>()
+
+androidComponents {
+    onVariants { variant ->
+        val variantName = variant.name
+        kotlinExtension.sourceSets.named(variantName) {
+            kotlin.srcDir("build/generated/ksp/$variantName/kotlin")
+        }
+        android.sourceSets.named(variantName) {
+            java.srcDir("build/generated/ksp/$variantName/kotlin")
         }
     }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    val capitalizedVariant = name.removePrefix("compile").removeSuffix("Kotlin")
+    val kspTaskName = "ksp${capitalizedVariant}Kotlin"
+    tasks.findByName(kspTaskName)?.let { dependsOn(it) }
 }
 
 dependencies {

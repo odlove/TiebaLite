@@ -5,5 +5,5 @@
         android:bottom="5dp"
         android:top="5dp" />
     <corners android:radius="@dimen/radius" />
-    <solid android:color="@color/theme_color_card_light" />
+    <solid android:color="@color/sem_surface_card" />
 </shape>

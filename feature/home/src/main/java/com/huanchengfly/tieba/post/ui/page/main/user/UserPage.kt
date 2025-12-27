@@ -45,14 +45,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
+import com.huanchengfly.tieba.core.common.utils.AvatarUtils
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.pageViewModel
-import com.huanchengfly.tieba.post.models.database.Account
+import com.huanchengfly.tieba.core.ui.preferences.LocalAppPreferences
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.LocalThemeController
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.LocalThemeState
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.core.ui.widgets.compose.ConfirmDialog
 import com.huanchengfly.tieba.core.ui.widgets.compose.HorizontalDivider
@@ -61,30 +63,43 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.core.ui.widgets.compose.Switch
 import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.post.models.database.Account
+import com.huanchengfly.tieba.post.ui.page.main.user.UserUiIntent
+import com.huanchengfly.tieba.post.ui.page.main.user.UserUiState
+import com.huanchengfly.tieba.post.ui.page.main.user.UserViewModel
 import com.huanchengfly.tieba.post.utils.CuidUtils
-import com.huanchengfly.tieba.core.ui.preferences.LocalAppPreferences
-import com.huanchengfly.tieba.core.common.utils.AvatarUtils
 
 @Composable
 private fun StatCardPlaceholder(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.placeholder(visible = true, color = ExtendedTheme.colors.chip),
-        verticalAlignment = Alignment.CenterVertically,
+    CardSurface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp)),
+        shape = RoundedCornerShape(8.dp),
+        backgroundColor = ExtendedTheme.colors.chip
     ) {
-        StatCardItem(
-            statNum = 0,
-            statText = stringResource(id = CoreUiR.string.text_stat_follow)
-        )
-        HorizontalDivider(color = Color(if (ExtendedTheme.colors.isNightMode) 0xFF808080 else 0xFFDEDEDE))
-        StatCardItem(
-            statNum = 0,
-            statText = stringResource(id = CoreUiR.string.text_stat_fans)
-        )
-        HorizontalDivider(color = Color(if (ExtendedTheme.colors.isNightMode) 0xFF808080 else 0xFFDEDEDE))
-        StatCardItem(
-            statNum = 0,
-            statText = stringResource(id = CoreUiR.string.title_stat_posts_num)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 18.dp, horizontal = 16.dp)
+                .placeholder(visible = true, color = ExtendedTheme.colors.chip),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            StatCardItem(
+                statNum = 0,
+                statText = stringResource(id = CoreUiR.string.text_stat_follow)
+            )
+            HorizontalDivider(color = ExtendedTheme.colors.divider)
+            StatCardItem(
+                statNum = 0,
+                statText = stringResource(id = CoreUiR.string.text_stat_fans)
+            )
+            HorizontalDivider(color = ExtendedTheme.colors.divider)
+            StatCardItem(
+                statNum = 0,
+                statText = stringResource(id = CoreUiR.string.title_stat_posts_num)
+            )
+        }
     }
 }
 
@@ -96,24 +111,34 @@ private fun StatCard(
     val postNum by animateIntAsState(targetValue = account.postNum?.toIntOrNull() ?: 0)
     val fansNum by animateIntAsState(targetValue = account.fansNum?.toIntOrNull() ?: 0)
     val concernNum by animateIntAsState(targetValue = account.concernNum?.toIntOrNull() ?: 0)
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
+    CardSurface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp)),
+        shape = RoundedCornerShape(8.dp),
+        backgroundColor = ExtendedTheme.colors.chip
     ) {
-        StatCardItem(
-            statNum = concernNum,
-            statText = stringResource(id = CoreUiR.string.text_stat_follow)
-        )
-        HorizontalDivider(color = Color(if (ExtendedTheme.colors.isNightMode) 0xFF808080 else 0xFFDEDEDE))
-        StatCardItem(
-            statNum = fansNum,
-            statText = stringResource(id = CoreUiR.string.text_stat_fans)
-        )
-        HorizontalDivider(color = Color(if (ExtendedTheme.colors.isNightMode) 0xFF808080 else 0xFFDEDEDE))
-        StatCardItem(
-            statNum = postNum,
-            statText = stringResource(id = CoreUiR.string.title_stat_posts_num)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 18.dp, horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            StatCardItem(
+                statNum = concernNum,
+                statText = stringResource(id = CoreUiR.string.text_stat_follow)
+            )
+            HorizontalDivider(color = ExtendedTheme.colors.divider)
+            StatCardItem(
+                statNum = fansNum,
+                statText = stringResource(id = CoreUiR.string.text_stat_fans)
+            )
+            HorizontalDivider(color = ExtendedTheme.colors.divider)
+            StatCardItem(
+                statNum = postNum,
+                statText = stringResource(id = CoreUiR.string.title_stat_posts_num)
+            )
+        }
     }
 }
 
@@ -126,7 +151,8 @@ private fun InfoCard(
     isPlaceholder: Boolean = false
 ) {
     Row(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Bottom
     ) {
         Column(
             modifier = Modifier
@@ -160,7 +186,10 @@ private fun InfoCard(
                 contentDescription = stringResource(id = CoreUiR.string.desc_user_avatar),
                 modifier = Modifier
                     .align(Alignment.Bottom)
-                    .placeholder(visible = isPlaceholder, color = ExtendedTheme.colors.chip),
+                    .placeholder(
+                        visible = isPlaceholder,
+                        color = ExtendedTheme.colors.chip
+                    ),
             )
         }
     }
@@ -226,13 +255,10 @@ private fun LoginTipCard(modifier: Modifier = Modifier) {
 @Composable
 fun UserPage(
     viewModel: UserViewModel = pageViewModel<UserUiIntent, UserViewModel>(
-        listOf(
-            UserUiIntent.Refresh
-        )
+        listOf(UserUiIntent.Refresh)
     )
 ) {
     val context = LocalContext.current
-    val appPreferences = LocalAppPreferences.current
     val homeNavigation = LocalHomeNavigation.current
     val isLoading by viewModel.uiState.collectPartialAsState(
         prop1 = UserUiState::isLoading,
@@ -244,6 +270,7 @@ fun UserPage(
     )
     val themeController = LocalThemeController.current
     val themeState = LocalThemeState.current
+    val appPreferences = LocalAppPreferences.current
 
     val switchToNightDialogState = rememberDialogState()
     ConfirmDialog(
@@ -283,7 +310,7 @@ fun UserPage(
                 if (currentAccount != null) {
                     InfoCard(
                         modifier = Modifier
-                            .padding(top = 8.dp)
+                            .padding(top = 16.dp)
                             .clickable {
                                 homeNavigation.openUserProfile(currentAccount.uid.toLong())
                             }
@@ -294,11 +321,7 @@ fun UserPage(
                     )
                     StatCard(
                         account = currentAccount,
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(color = ExtendedTheme.colors.chip)
-                            .padding(vertical = 18.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                 } else if (isLoading) {
                     InfoCard(
@@ -308,11 +331,7 @@ fun UserPage(
                         isPlaceholder = true,
                     )
                     StatCardPlaceholder(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(color = ExtendedTheme.colors.chip)
-                            .padding(vertical = 18.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                 } else {
                     LoginTipCard(
@@ -325,24 +344,18 @@ fun UserPage(
                     ListMenuItem(
                         icon = ImageVector.vectorResource(id = CoreUiR.drawable.ic_favorite),
                         text = stringResource(id = CoreUiR.string.title_my_collect),
-                        onClick = {
-                            homeNavigation.openThreadStore()
-                        }
+                        onClick = { homeNavigation.openThreadStore() }
                     )
                 }
                 ListMenuItem(
                     icon = ImageVector.vectorResource(id = CoreUiR.drawable.ic_outline_watch_later_24),
                     text = stringResource(id = CoreUiR.string.title_history),
-                    onClick = {
-                        homeNavigation.openHistory()
-                    }
+                    onClick = { homeNavigation.openHistory() }
                 )
                 ListMenuItem(
                     icon = ImageVector.vectorResource(id = CoreUiR.drawable.ic_brush_24),
                     text = stringResource(id = CoreUiR.string.title_theme),
-                    onClick = {
-                        homeNavigation.openAppTheme()
-                    }
+                    onClick = { homeNavigation.openAppTheme() }
                 ) {
                     Text(
                         text = stringResource(id = CoreUiR.string.my_info_night),
@@ -372,9 +385,7 @@ fun UserPage(
                         },
                     )
                 }
-                VerticalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
-                )
+                VerticalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
                 ListMenuItem(
                     icon = ImageVector.vectorResource(id = CoreUiR.drawable.ic_settings_24),
                     text = stringResource(id = CoreUiR.string.my_info_settings),

@@ -22,7 +22,7 @@
     android:layout_height="wrap_content"
     android:gravity="start|left|top"
     android:orientation="vertical"
-    app:backgroundTint="@color/default_color_card"
+    app:backgroundTint="@color/sem_surface_card"
     tools:ignore="PrivateResource">
 
     <LinearLayout
@@ -62,7 +62,7 @@
                 android:singleLine="true"
                 android:textAlignment="viewStart"
                 android:textStyle="bold"
-                app:tint="@color/default_color_text" />
+                app:tint="@color/sem_content_primary" />
 
         </LinearLayout>
 
@@ -114,7 +114,7 @@
                     android:lineSpacingMultiplier="1.2"
                     android:paddingLeft="?attr/dialogPreferredPadding"
                     android:paddingRight="?attr/dialogPreferredPadding"
-                    app:tint="@color/default_color_text" />
+                    app:tint="@color/sem_content_primary" />
 
                 <android.widget.Space
                     android:id="@+id/textSpacerNoButtons"
@@ -171,7 +171,7 @@
                 style="?attr/buttonBarNeutralButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:buttonTextColor="@color/default_color_primary" />
+                app:buttonTextColor="@color/sem_state_active" />
 
             <android.widget.Space
                 android:id="@+id/spacer"
@@ -186,14 +186,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                app:buttonTextColor="@color/default_color_primary" />
+                app:buttonTextColor="@color/sem_state_active" />
 
             <com.huanchengfly.tieba.core.ui.widgets.theme.TintMaterialButton
                 android:id="@android:id/button1"
                 style="?attr/buttonBarPositiveButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:buttonTextColor="@color/default_color_text_on_primary" />
+                app:buttonTextColor="@color/sem_content_on_primary" />
 
         </androidx.appcompat.widget.ButtonBarLayout>
 

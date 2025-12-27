@@ -103,40 +103,41 @@ private fun Color.darken(amount: Float = 0.1f): Color {
     return Color(argb)
 }
 
-private fun ThemeState.toExtendedColors(): ExtendedColors {
+fun ThemeState.toExtendedColors(): ExtendedColors {
     val palette = palette
+    val semantics = semanticColors
     return ExtendedColors(
         theme = resolvedTheme,
         isNightMode = isNightMode,
         isTranslucent = isTranslucent,
         useDynamicColor = useDynamicColor,
         primary = palette.primaryAlt.toColor(),
-        onPrimary = palette.textOnPrimary.toColor(),
+        onPrimary = semantics.contentInverse.toColor(),
         accent = palette.accent.toColor(),
-        onAccent = palette.onAccent.toColor(),
-        topBar = palette.toolbar.toColor(),
+        onAccent = semantics.contentOnBrand.toColor(),
+        topBar = semantics.surfaceToolbar.toColor(),
         onTopBar = palette.toolbarItem.toColor(),
         onTopBarSecondary = palette.toolbarItemSecondary.toColor(),
         onTopBarActive = palette.toolbarItemActive.toColor(),
-        topBarSurface = palette.toolbarSurface.toColor(),
-        onTopBarSurface = palette.onToolbarSurface.toColor(),
-        bottomBar = palette.navBar.toColor(),
-        bottomBarSurface = palette.navBarSurface.toColor(),
-        onBottomBarSurface = palette.onNavBarSurface.toColor(),
-        text = palette.textPrimary.toColor(),
-        textSecondary = palette.textSecondary.toColor(),
-        textDisabled = palette.textDisabled.toColor(),
-        background = palette.background.toColor(),
-        chip = palette.chip.toColor(),
-        onChip = palette.onChip.toColor(),
-        unselected = palette.unselected.toColor(),
-        card = palette.card.toColor(),
-        floorCard = palette.floorCard.toColor(),
-        divider = palette.divider.toColor(),
-        shadow = palette.shadow.toColor(),
-        indicator = palette.indicator.toColor(),
-        windowBackground = palette.windowBackground.toColor(),
-        placeholder = palette.placeholder.toColor(),
+        topBarSurface = semantics.surfaceToolbar.toColor(),
+        onTopBarSurface = semantics.outlineSurface.toColor(),
+        bottomBar = semantics.surfaceNav.toColor(),
+        bottomBarSurface = semantics.surfaceNavSurface.toColor(),
+        onBottomBarSurface = semantics.outlineSurface.toColor(),
+        text = semantics.contentPrimary.toColor(),
+        textSecondary = semantics.contentSecondary.toColor(),
+        textDisabled = semantics.contentDisabled.toColor(),
+        background = semantics.surfacePrimary.toColor(),
+        chip = semantics.surfaceChip.toColor(),
+        onChip = semantics.contentOnChip.toColor(),
+        unselected = semantics.stateUnselected.toColor(),
+        card = semantics.surfaceCard.toColor(),
+        floorCard = semantics.surfaceFloor.toColor(),
+        divider = semantics.outlineLow.toColor(),
+        shadow = semantics.decorShadow.toColor(),
+        indicator = semantics.stateIndicator.toColor(),
+        windowBackground = semantics.surfaceWindow.toColor(),
+        placeholder = semantics.decorPlaceholder.toColor(),
     )
 }
 
@@ -148,8 +149,7 @@ fun TiebaLiteTheme(
 ) {
     val themeState = LocalThemeState.current
     val extendedColors = remember(themeState) { themeState.toExtendedColors() }
-    val isDarkColorPalette = themeState.isNightMode ||
-        (themeState.isTranslucent && themeState.effectiveTheme.contains("dark", ignoreCase = true))
+    val isDarkColorPalette = themeState.isNightMode
 
     SideEffect {
         Log.i(

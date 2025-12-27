@@ -1,13 +1,17 @@
 package com.huanchengfly.tieba.post.ui.page.subposts.components
 
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Text
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogPrimaryButtonColors
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogSecondaryButtonColors
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeDialog
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.api.models.protos.SubPostList
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
-import com.huanchengfly.tieba.core.ui.widgets.compose.ConfirmDialog
 import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
+import com.huanchengfly.tieba.core.ui.widgets.compose.TextButton
 
 /**
  * 删除确认对话框
@@ -24,24 +28,45 @@ fun SubPostsDeleteDialog(
     subPost: ImmutableHolder<SubPostList>?,
     onConfirm: () -> Unit,
 ) {
-    ConfirmDialog(
-        dialogState = dialogState,
-        onConfirm = onConfirm,
-    ) {
-        Text(
-            text =
-                stringResource(
-                    id = R.string.message_confirm_delete,
-                    if (subPost == null) {
-                        // 删除主楼：显示楼层号
-                        postFloor?.let {
-                            stringResource(id = R.string.tip_post_floor, it)
-                        } ?: stringResource(id = R.string.this_reply)
-                    } else {
-                        // 删除楼中楼：显示"这条回复"
-                        stringResource(id = R.string.this_reply)
-                    },
-                ),
+    if (!dialogState.show) return
+
+    val message =
+        stringResource(
+            id = R.string.message_confirm_delete,
+            if (subPost == null) {
+                // 删除主楼：显示楼层号
+                postFloor?.let {
+                    stringResource(id = R.string.tip_post_floor, it)
+                } ?: stringResource(id = R.string.this_reply)
+            } else {
+                // 删除楼中楼：显示"这条回复"
+                stringResource(id = R.string.this_reply)
+            },
         )
-    }
+
+    ThemeDialog(
+        onDismissRequest = { dialogState.show = false },
+        text = { Text(text = message) },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    dialogState.show = false
+                    onConfirm()
+                },
+                shape = RoundedCornerShape(100),
+                colors = dialogPrimaryButtonColors(),
+            ) {
+                Text(text = stringResource(id = R.string.button_sure_default))
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = { dialogState.show = false },
+                shape = RoundedCornerShape(100),
+                colors = dialogSecondaryButtonColors(),
+            ) {
+                Text(text = stringResource(id = R.string.button_cancel))
+            }
+        },
+    )
 }

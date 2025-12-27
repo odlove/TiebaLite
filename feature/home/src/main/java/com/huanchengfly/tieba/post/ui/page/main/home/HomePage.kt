@@ -32,12 +32,12 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.ViewAgenda
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -56,7 +56,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -71,14 +73,16 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
-import com.huanchengfly.tieba.feature.home.R as HomeR
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeSearchBox
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.widgets.compose.ActionItem
 import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
@@ -93,75 +97,22 @@ import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.widgets.compose.TextButton
 import com.huanchengfly.tieba.core.ui.widgets.compose.TipScreen
-import com.huanchengfly.tieba.core.ui.widgets.compose.Toolbar
 import com.huanchengfly.tieba.core.ui.widgets.compose.accountNavIconIfCompact
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
-import com.huanchengfly.tieba.core.ui.preferences.LocalAppPreferences
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
+import com.huanchengfly.tieba.core.runtime.client.ClientUtils
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
+import com.huanchengfly.tieba.core.ui.widgets.compose.ActionItem
+import com.huanchengfly.tieba.post.preferences.appPreferences
 import kotlinx.collections.immutable.persistentListOf
 
-private fun getGridCells(listSingle: Boolean): GridCells {
+private fun getGridCells(context: Context, listSingle: Boolean = context.appPreferences.listSingle): GridCells {
     return if (listSingle) {
         GridCells.Fixed(1)
     } else {
         GridCells.Adaptive(180.dp)
-    }
-}
-
-@Preview("SearchBoxPreview")
-@Composable
-fun SearchBoxPreview() {
-    PreviewTheme {
-        SearchBox(
-            backgroundColor = Color(0xFFF8F8F8),
-            contentColor = Color(0xFFBFBFBF),
-            onClick =  {}
-        )
-    }
-}
-
-@Composable
-fun SearchBox(
-    modifier: Modifier = Modifier,
-    backgroundColor: Color = ExtendedTheme.colors.topBarSurface,
-    contentColor: Color = ExtendedTheme.colors.onTopBarSurface,
-    onClick: () -> Unit,
-) {
-    Box(
-        modifier = modifier
-            .background(ExtendedTheme.colors.topBar)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Surface(
-            color = backgroundColor,
-            contentColor = contentColor,
-            shape = RoundedCornerShape(6.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-        ) {
-            Row(
-                verticalAlignment = CenterVertically,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Search,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .align(CenterVertically)
-                        .size(24.dp),
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = stringResource(id = CoreUiR.string.hint_search),
-                    modifier = Modifier.align(CenterVertically),
-                    fontSize = 14.sp
-                )
-            }
-        }
     }
 }
 
@@ -184,21 +135,27 @@ private fun Header(
 private fun ForumItemPlaceholder(
     showAvatar: Boolean,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+    CardSurface(
+        modifier = Modifier.fillMaxWidth(),
+        plain = true
     ) {
-        if (showAvatar) {
-            Box(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .size(40.dp)
-                    .align(CenterVertically)
-                    .placeholder(visible = true, color = ExtendedTheme.colors.chip)
-            )
-            Spacer(modifier = Modifier.width(14.dp))
-        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            if (showAvatar) {
+                Image(
+                    painter = rememberVectorPainter(image = Icons.Rounded.AccountCircle),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(40.dp)
+                        .align(CenterVertically)
+                        .placeholder(visible = true, color = ExtendedTheme.colors.chip),
+                )
+                Spacer(modifier = Modifier.width(14.dp))
+            }
         Text(
             color = ExtendedTheme.colors.text,
             text = "",
@@ -210,25 +167,26 @@ private fun ForumItemPlaceholder(
             fontWeight = FontWeight.Bold,
             maxLines = 1,
         )
-        Spacer(modifier = Modifier.width(8.dp))
-        Box(
-            modifier = Modifier
-                .width(54.dp)
-                .background(
-                    color = ExtendedTheme.colors.chip,
-                    shape = RoundedCornerShape(3.dp)
+            Spacer(modifier = Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .width(54.dp)
+                    .background(
+                        color = ExtendedTheme.colors.chip,
+                        shape = RoundedCornerShape(3.dp)
+                    )
+                    .padding(vertical = 4.dp)
+                    .align(CenterVertically)
+                    .placeholder(visible = true, color = ExtendedTheme.colors.chip)
+            ) {
+                Text(
+                    text = "0",
+                    color = ExtendedTheme.colors.onChip,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Center)
                 )
-                .padding(vertical = 4.dp)
-                .align(CenterVertically)
-                .placeholder(visible = true, color = ExtendedTheme.colors.chip)
-        ) {
-            Text(
-                text = "0",
-                color = ExtendedTheme.colors.onChip,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Center)
-            )
+            }
         }
     }
 }
@@ -253,9 +211,9 @@ private fun ForumItemMenuContent(
         }
     ) {
         if (isTopForum) {
-            Text(text = stringResource(id = HomeR.string.menu_top_del))
+            Text(text = stringResource(id = CoreUiR.string.menu_top_del))
         } else {
-            Text(text = stringResource(id = HomeR.string.menu_top))
+            Text(text = stringResource(id = CoreUiR.string.menu_top))
         }
     }
     DropdownMenuItem(
@@ -264,7 +222,7 @@ private fun ForumItemMenuContent(
             menuState.expanded = false
         }
     ) {
-        Text(text = stringResource(id = HomeR.string.title_copy_forum_name))
+        Text(text = stringResource(id = CoreUiR.string.title_copy_forum_name))
     }
     DropdownMenuItem(
         onClick = {
@@ -272,7 +230,7 @@ private fun ForumItemMenuContent(
             menuState.expanded = false
         }
     ) {
-            Text(text = stringResource(id = CoreUiR.string.button_unfollow))
+        Text(text = stringResource(id = CoreUiR.string.button_unfollow))
     }
 }
 
@@ -319,7 +277,7 @@ private fun ForumItemContent(
                 Text(
                     text = "Lv.${item.levelId}",
                     color = ExtendedTheme.colors.onChip,
-                    fontSize = 11.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(CenterVertically)
                 )
@@ -327,7 +285,7 @@ private fun ForumItemContent(
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
                         imageVector = Icons.Rounded.Check,
-                        contentDescription = stringResource(id = HomeR.string.tip_signed),
+                        contentDescription = stringResource(id = CoreUiR.string.tip_signed),
                         modifier = Modifier
                             .size(12.dp)
                             .align(CenterVertically),
@@ -349,7 +307,7 @@ private fun ForumItem(
     onDeleteTopForum: (HomeUiState.Forum) -> Unit,
     isTopForum: Boolean = false,
 ) {
-    val homeNavigation = LocalHomeNavigation.current
+    val context = LocalContext.current
     val menuState = rememberMenuState()
     LongClickMenu(
         menuContent = {
@@ -358,16 +316,24 @@ private fun ForumItem(
                 isTopForum = isTopForum,
                 onDeleteTopForum = { onDeleteTopForum(item) },
                 onAddTopForum = { onAddTopForum(item) },
-                onCopyName = { homeNavigation.copyText(item.forumName) },
+                onCopyName = {
+                    /* TODO host copy forum name */ 
+                },
                 onUnfollow = { onUnfollow(item) }
             )
         },
         menuState = menuState,
         onClick = {
             onClick(item)
-        }
+        },
+        shape = RectangleShape
     ) {
-        ForumItemContent(item = item, showAvatar = showAvatar)
+        CardSurface(
+            modifier = Modifier.fillMaxWidth(),
+            plain = true
+        ) {
+            ForumItemContent(item = item, showAvatar = showAvatar)
+        }
     }
 }
 
@@ -380,7 +346,7 @@ fun HomePage(
 ) {
     val account = LocalAccount.current
     val context = LocalContext.current
-    val appPreferences = LocalAppPreferences.current
+    val navigator = LocalHomeNavigation.current
     val isLoading by viewModel.uiState.collectPartialAsState(
         prop1 = HomeUiState::isLoading,
         initial = true
@@ -408,10 +374,10 @@ fun HomePage(
     val isLoggedIn = remember(account) { account != null }
     val isEmpty by remember { derivedStateOf { forums.isEmpty() } }
     val hasTopForum by remember { derivedStateOf { topForums.isNotEmpty() } }
-    val showHistoryForum by remember { derivedStateOf { appPreferences.homePageShowHistoryForum && historyForums.isNotEmpty() } }
-    var listSingle by remember { mutableStateOf(appPreferences.listSingle) }
+    val showHistoryForum by remember { derivedStateOf { context.appPreferences.homePageShowHistoryForum && historyForums.isNotEmpty() } }
+    var listSingle by remember { mutableStateOf(context.appPreferences.listSingle) }
     val isError by remember { derivedStateOf { error != null } }
-    val gridCells by remember { derivedStateOf { getGridCells(listSingle) } }
+    val gridCells by remember { derivedStateOf { getGridCells(context, listSingle) } }
 
     onGlobalEvent<CommonUiEvent.Refresh>(
         filter = { it.key == "home" }
@@ -442,28 +408,32 @@ fun HomePage(
     }
 
     val snackbarState = rememberSnackbarState()
-    val homeNavigation = LocalHomeNavigation.current
     SnackbarScaffold(
         snackbarState = snackbarState,
         backgroundColor = Color.Transparent,
         topBar = {
-            Toolbar(
-                title = stringResource(id = CoreUiR.string.title_main),
+            ThemeTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(id = CoreUiR.string.title_main),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 navigationIcon = accountNavIconIfCompact(),
                 actions = {
                     ActionItem(
                         icon = ImageVector.vectorResource(id = CoreUiR.drawable.ic_oksign),
-                        contentDescription = stringResource(id = CoreUiR.string.title_oksign)
-                    ) {
-                        homeNavigation.startSign()
-                    }
+                        contentDescription = stringResource(id = CoreUiR.string.title_oksign),
+                        onClick = { /* TODO host triggers sign */ }
+                    )
                     ActionItem(
                         icon = Icons.Outlined.ViewAgenda,
-                        contentDescription = stringResource(id = HomeR.string.title_switch_list_single)
-                    ) {
-                        appPreferences.listSingle = !listSingle
-                        listSingle = !listSingle
-                    }
+                        contentDescription = stringResource(id = CoreUiR.string.title_switch_list_single),
+                        onClick = {
+                            context.appPreferences.listSingle = !listSingle
+                            listSingle = !listSingle
+                        }
+                    )
                 }
             )
         },
@@ -479,9 +449,31 @@ fun HomePage(
                 .padding(contentPaddings)
         ) {
             Column {
-                SearchBox(modifier = Modifier.padding(bottom = 4.dp)) {
-                    homeNavigation.openSearch()
-                }
+                ThemeSearchBox(
+                    value = "",
+                    onValueChange = {},
+                    modifier = Modifier
+                        .padding(bottom = 4.dp, start = 16.dp, end = 16.dp, top = 8.dp)
+                            .clickable(
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() },
+                                onClick = { navigator.openSearch() }
+                            ),
+                    enabled = false,
+                    readOnly = true,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Rounded.Search,
+                            contentDescription = null
+                        )
+                    },
+                    placeholder = {
+                        Text(
+                            text = stringResource(id = CoreUiR.string.hint_search),
+                            fontSize = 14.sp
+                        )
+                    }
+                )
                 StateScreen(
                     isEmpty = isEmpty,
                     isError = isError,
@@ -508,7 +500,7 @@ fun HomePage(
                 ) {
                     MyLazyVerticalGrid(
                         columns = gridCells,
-                        contentPadding = PaddingValues(bottom = 12.dp),
+                        contentPadding = PaddingValues(bottom = 0.dp),
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         if (showHistoryForum) {
@@ -543,7 +535,7 @@ fun HomePage(
 
                                         Icon(
                                             imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                                            contentDescription = stringResource(id = HomeR.string.desc_show),
+                                            contentDescription = stringResource(id = CoreUiR.string.desc_show),
                                             modifier = Modifier
                                                 .size(24.dp)
                                                 .rotate(rotate)
@@ -566,7 +558,9 @@ fun HomePage(
                                                         .height(IntrinsicSize.Min)
                                                         .clip(RoundedCornerShape(100))
                                                         .background(color = ExtendedTheme.colors.chip)
-                                                        .clickable { homeNavigation.openForum(it.data) }
+                                                        .clickable {
+                                                            navigator.openForum(it.data)
+                                                        }
                                                         .padding(4.dp),
                                                     verticalAlignment = CenterVertically,
                                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -599,7 +593,7 @@ fun HomePage(
                                     modifier = Modifier.padding(vertical = 8.dp)
                                 ) {
                                     Header(
-                                        text = stringResource(id = HomeR.string.title_top_forum),
+                                        text = stringResource(id = CoreUiR.string.title_top_forum),
                                         invert = true
                                     )
                                 }
@@ -611,9 +605,7 @@ fun HomePage(
                                 ForumItem(
                                     item,
                                     listSingle,
-                                    onClick = {
-                                        homeNavigation.openForum(it.forumName)
-                                    },
+                                    onClick = { navigator.openForum(it.forumName) },
                                     onUnfollow = {
                                         unfollowForum = it
                                         confirmUnfollowDialog.show()
@@ -633,7 +625,7 @@ fun HomePage(
                                 Column(
                                     modifier = Modifier.padding(vertical = 8.dp)
                                 ) {
-                                    Header(text = stringResource(id = HomeR.string.forum_list_title))
+                                    Header(text = stringResource(id = CoreUiR.string.forum_list_title))
                                 }
                             }
                         }
@@ -645,7 +637,7 @@ fun HomePage(
                                 item,
                                 listSingle,
                                 onClick = {
-                                    homeNavigation.openForum(it.forumName)
+                                    navigator.openForum(it.forumName)
                                 },
                                 onUnfollow = {
                                     unfollowForum = it
@@ -690,7 +682,7 @@ private fun HomePageSkeletonScreen(
                 modifier = Modifier.padding(vertical = 8.dp)
             ) {
                 Header(
-                    text = stringResource(id = HomeR.string.title_top_forum),
+                    text = stringResource(id = CoreUiR.string.title_top_forum),
                     modifier = Modifier.placeholder(
                         visible = true,
                         color = ExtendedTheme.colors.chip
@@ -714,7 +706,7 @@ private fun HomePageSkeletonScreen(
         item(key = "ForumHeaderPlaceholder", span = { GridItemSpan(maxLineSpan) }) {
             Column {
                 Header(
-                    text = stringResource(id = HomeR.string.forum_list_title),
+                    text = stringResource(id = CoreUiR.string.forum_list_title),
                     modifier = Modifier.placeholder(
                         visible = true,
                         color = ExtendedTheme.colors.chip
@@ -736,11 +728,11 @@ fun EmptyScreen(
     canOpenExplore: Boolean,
     onOpenExplore: () -> Unit
 ) {
-    val homeNavigation = LocalHomeNavigation.current
+    val navigator = LocalHomeNavigation.current
     TipScreen(
         title = {
             if (!loggedIn) {
-                Text(text = stringResource(id = HomeR.string.title_empty_login))
+                Text(text = stringResource(id = CoreUiR.string.title_empty_login))
             } else {
                 Text(text = stringResource(id = CoreUiR.string.title_empty))
             }
@@ -758,7 +750,7 @@ fun EmptyScreen(
         message = {
             if (!loggedIn) {
                 Text(
-                    text = stringResource(id = HomeR.string.home_empty_login),
+                    text = stringResource(id = CoreUiR.string.home_empty_login),
                     style = MaterialTheme.typography.body1,
                     color = ExtendedTheme.colors.textSecondary,
                     textAlign = TextAlign.Center
@@ -769,12 +761,12 @@ fun EmptyScreen(
             if (!loggedIn) {
                 Button(
                     onClick = {
-                        homeNavigation.openLogin()
+                        navigator.openLogin()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    Text(text = stringResource(id = HomeR.string.button_login))
+                    Text(text = stringResource(id = CoreUiR.string.button_login))
                 }
             }
             if (canOpenExplore) {
@@ -783,7 +775,7 @@ fun EmptyScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    Text(text = stringResource(id = HomeR.string.button_go_to_explore))
+                    Text(text = stringResource(id = CoreUiR.string.button_go_to_explore))
                 }
             }
         },

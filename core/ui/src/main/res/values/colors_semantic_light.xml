@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_sem_surface_primary_light">@color/color_base_neutral_0_light</color>
+    <color name="color_sem_surface_window_light">@color/color_base_neutral_5_light</color>
+    <color name="color_sem_surface_card_light">@color/color_base_surface_card_light</color>
+    <color name="color_sem_surface_floor_light">@color/color_base_surface_floor_light</color>
+    <color name="color_sem_surface_chip_light">@color/color_base_surface_chip_light</color>
+    <color name="color_sem_surface_nav_light">@color/color_base_surface_nav_light</color>
+    <color name="color_sem_surface_nav_surface_light">@color/color_base_surface_nav_surface_light</color>
+    <color name="color_sem_surface_toolbar_light">@color/color_base_surface_toolbar_light</color>
+    <color name="color_sem_surface_scrim_light">@color/color_base_alpha_high_light</color>
+
+    <color name="color_sem_content_primary_light">@color/color_base_neutral_100_light</color>
+    <color name="color_sem_content_secondary_light">@color/color_base_neutral_40_light</color>
+    <color name="color_sem_content_disabled_light">@color/color_base_neutral_60_light</color>
+    <color name="color_sem_content_inverse_light">@color/color_base_neutral_inverse_light</color>
+    <color name="color_sem_content_on_brand_light">@color/color_base_brand_on_primary_light</color>
+    <color name="color_sem_content_on_chip_light">@color/color_base_on_chip_light</color>
+
+    <color name="color_sem_state_active_light">@color/color_base_brand_primary_light</color>
+    <color name="color_sem_state_unselected_light">@color/color_base_neutral_variant_unselected_light</color>
+    <color name="color_sem_state_indicator_light">@color/color_base_indicator_primary_light</color>
+
+    <color name="color_sem_outline_low_light">@color/color_base_neutral_10_light</color>
+    <color name="color_sem_outline_surface_light">@color/color_base_neutral_variant_surface_light</color>
+    <color name="color_sem_outline_secondary_light">@color/color_base_neutral_variant_secondary_light</color>
+
+    <color name="color_sem_decor_placeholder_light">@color/color_base_placeholder_light</color>
+    <color name="color_sem_decor_shadow_light">@color/color_base_shadow_soft_light</color>
+</resources>

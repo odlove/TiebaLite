@@ -24,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -34,12 +33,13 @@ import com.huanchengfly.tieba.post.BuildConfig
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
-import com.huanchengfly.tieba.core.ui.widgets.compose.TitleCentredToolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.utils.launchUrl
+import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -54,9 +54,14 @@ fun AboutPage(
     val snackbarState = rememberSnackbarState()
     SnackbarScaffold(
         snackbarState = snackbarState,
-        backgroundColor = Color.Transparent,
+        backgroundColor = ExtendedTheme.colors.background,
         topBar = {
-            TitleCentredToolbar(
+            val topBarColor = ExtendedTheme.colors.topBar
+            val statusBarColor = topBarColor.calcStatusBarColor()
+            ThemeTopAppBar(
+                backgroundColor = topBarColor,
+                statusBarColor = statusBarColor,
+                centerTitle = true,
                 title = {
                     Text(
                         text = stringResource(id = R.string.title_about),
@@ -65,7 +70,7 @@ fun AboutPage(
                     )
                 },
                 navigationIcon = {
-                    BackNavigationIcon(onBackPressed = { navigator.navigateUp() })
+                    DefaultBackIcon(onBack = { navigator.navigateUp()  })
                 }
             )
         }

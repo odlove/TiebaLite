@@ -22,14 +22,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.NavigationRail
-import androidx.compose.material.NavigationRailItem
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -52,10 +48,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
-import com.huanchengfly.tieba.core.ui.R as CoreUiR
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedColors
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.White
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.navigationSelectedColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.navigationUnselectedColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.topBarContentColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.topBarSecondaryColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.NavigationItemModel
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeDrawerSheet
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeNavigationBar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeNavigationRail
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeNavigationDrawerItem
 import com.huanchengfly.tieba.core.ui.utils.MainNavigationContentPosition
 import com.huanchengfly.tieba.core.ui.widgets.compose.AccountNavIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
@@ -63,6 +65,7 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.AvatarIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 private enum class LayoutType {
     HEADER, CONTENT
@@ -74,10 +77,12 @@ fun PermanentNavigationDrawer(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    Row(modifier.fillMaxSize()) {
-        drawerContent()
-        Box(modifier = Modifier.weight(1f)) {
-            content()
+    ThemeDrawerSheet(modifier = modifier) {
+        Row(Modifier.fillMaxSize()) {
+            drawerContent()
+            Box(modifier = Modifier.weight(1f)) {
+                content()
+            }
         }
     }
 }
@@ -95,12 +100,13 @@ fun NavigationDrawerItem(
     icon: (@Composable () -> Unit)? = null,
     badge: (@Composable () -> Unit)? = null,
     shape: Shape = MaterialTheme.shapes.medium,
-    backgroundColor: Color = Color.Transparent,
-    selectedBackgroundColor: Color = MaterialTheme.colors.primary.copy(0.25f),
-    itemColor: Color = MaterialTheme.colors.onSurface,
-    selectedItemColor: Color = MaterialTheme.colors.primary,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 ) {
+    val activeColor = navigationSelectedColor()
+    val inactiveColor = navigationUnselectedColor()
+    val inactiveSecondaryColor = topBarSecondaryColor()
+    val containerColor = if (selected) activeColor.copy(alpha = 0.12f) else Color.Transparent
+
     Surface(
         selected = selected,
         onClick = onClick,
@@ -108,7 +114,7 @@ fun NavigationDrawerItem(
             .height(ActiveIndicatorHeight)
             .fillMaxWidth(),
         shape = shape,
-        color = if (selected) selectedBackgroundColor else backgroundColor,
+        color = containerColor,
         interactionSource = interactionSource,
     ) {
         Row(
@@ -116,17 +122,17 @@ fun NavigationDrawerItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (icon != null) {
-                val iconColor = if (selected) selectedItemColor else itemColor
+                val iconColor = if (selected) activeColor else inactiveSecondaryColor
                 CompositionLocalProvider(LocalContentColor provides iconColor, content = icon)
                 Spacer(Modifier.width(12.dp))
             }
             Box(Modifier.weight(1f)) {
-                val labelColor = if (selected) selectedItemColor else itemColor
+                val labelColor = if (selected) activeColor else inactiveColor
                 CompositionLocalProvider(LocalContentColor provides labelColor, content = label)
             }
             if (badge != null) {
                 Spacer(Modifier.width(12.dp))
-                val badgeColor = if (selected) selectedItemColor else itemColor
+                val badgeColor = if (selected) activeColor else inactiveSecondaryColor
                 CompositionLocalProvider(LocalContentColor provides badgeColor, content = badge)
             }
         }
@@ -203,7 +209,7 @@ fun NavigationDrawerContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 navigationItems.fastForEachIndexed { index, navigationItem ->
-                    NavigationDrawerItem(
+                    ThemeNavigationDrawerItem(
                         selected = index == currentPosition,
                         onClick = {
                             if (index == currentPosition) {
@@ -214,33 +220,33 @@ fun NavigationDrawerContent(
                         },
                         label = { Text(text = navigationItem.title(index == currentPosition)) },
                         icon = {
-                            Box {
-                                Icon(
-                                    painter = rememberAnimatedVectorPainter(
-                                        animatedImageVector = navigationItem.icon(),
-                                        atEnd = index == currentPosition
-                                    ),
-                                    contentDescription = navigationItem.title(index == currentPosition),
-                                    modifier = Modifier.size(24.dp),
+                            val painter = rememberAnimatedVectorPainter(
+                                animatedImageVector = navigationItem.icon(),
+                                atEnd = index == currentPosition
+                            )
+                            Icon(
+                                painter = painter,
+                                contentDescription = navigationItem.title(index == currentPosition),
+                                modifier = Modifier.size(24.dp),
+                            )
+                        },
+                        badge = if (navigationItem.badge) {
+                            {
+                                Text(
+                                    textAlign = TextAlign.Center,
+                                    fontSize = 10.sp,
+                                    color = ExtendedTheme.colors.onPrimary,
+                                    text = navigationItem.badgeText ?: "",
+                                    modifier = Modifier
+                                        .size(14.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            color = ExtendedTheme.colors.primary,
+                                            shape = CircleShape
+                                        ),
                                 )
-                                if (navigationItem.badge) {
-                                    Text(
-                                        textAlign = TextAlign.Center,
-                                        fontSize = 10.sp,
-                                        color = White,
-                                        text = navigationItem.badgeText ?: "",
-                                        modifier = Modifier
-                                            .size(14.dp)
-                                            .clip(CircleShape)
-                                            .align(Alignment.TopEnd)
-                                            .background(
-                                                color = MaterialTheme.colors.secondary,
-                                                shape = CircleShape
-                                            ),
-                                    )
-                                }
                             }
-                        }
+                        } else null
                     )
                 }
             }
@@ -298,74 +304,39 @@ fun NavigationRail(
     navigationItems: ImmutableList<NavigationItem>,
     navigationContentPosition: MainNavigationContentPosition
 ) {
-    NavigationRail(
-        backgroundColor = ExtendedTheme.colors.bottomBar,
-        contentColor = ExtendedTheme.colors.unselected,
-        modifier = Modifier
-            .fillMaxHeight()
-            .statusBarsPadding()
-    ) {
-        Column(
-            modifier = Modifier.fillMaxHeight(),
-            verticalArrangement = when (navigationContentPosition) {
-                MainNavigationContentPosition.TOP -> Arrangement.Top
-                MainNavigationContentPosition.CENTER -> Arrangement.Center
-            }
-        ) {
-            navigationItems.fastForEachIndexed { index, navigationItem ->
-                val selected = index == currentPosition
-                NavigationRailItem(
-                    selected = selected,
-                    onClick = {
-                        if (selected) {
-                            onReselected(index)
-                        } else {
-                            onChangePosition(index)
-                        }
-                        navigationItem.onClick?.invoke()
-                    },
-                    icon = {
-                        Box {
-                            Icon(
-                                painter = rememberAnimatedVectorPainter(
-                                    animatedImageVector = navigationItem.icon(),
-                                    atEnd = selected
-                                ),
-                                contentDescription = navigationItem.title(selected),
-                                modifier = Modifier.size(24.dp),
-                            )
-                            if (navigationItem.badge) {
-                                Text(
-                                    textAlign = TextAlign.Center,
-                                    fontSize = 10.sp,
-                                    color = White,
-                                    text = navigationItem.badgeText ?: "",
-                                    modifier = Modifier
-                                        .size(14.dp)
-                                        .clip(CircleShape)
-                                        .align(Alignment.TopEnd)
-                                        .background(
-                                            color = MaterialTheme.colors.secondary,
-                                            shape = CircleShape
-                                        ),
-                                )
-                            }
-                        }
-                    },
-                    label = { Text(text = navigationItem.title(selected)) },
-                    alwaysShowLabel = false,
-                    selectedContentColor = MaterialTheme.colors.secondary,
-                    unselectedContentColor = ExtendedTheme.colors.unselected,
+    val models: ImmutableList<NavigationItemModel> = navigationItems.map { item ->
+        NavigationItemModel(
+            id = item.id,
+            iconPainter = { selected ->
+                rememberAnimatedVectorPainter(
+                    animatedImageVector = item.icon(),
+                    atEnd = selected
                 )
+            },
+            title = item.title(false),
+            badgeText = if (item.badge) item.badgeText else null,
+            onClick = item.onClick
+        )
+    }.toImmutableList()
+    ThemeNavigationRail(
+        items = models,
+        selectedIndex = currentPosition,
+        onItemSelected = { index ->
+            if (index == currentPosition) {
+                onReselected(index)
+            } else {
+                onChangePosition(index)
             }
-        }
-    }
+        },
+        onItemReselected = onReselected,
+        header = { AccountNavIcon(spacer = false) }
+    )
 }
 
 @Composable
 fun BottomNavigationDivider(
-    themeColors: ExtendedColors = ExtendedTheme.colors
 ) {
+    val themeColors = ExtendedTheme.colors
     if (!themeColors.isNightMode) {
         Spacer(
             modifier = Modifier
@@ -383,60 +354,35 @@ fun BottomNavigation(
     onChangePosition: (position: Int) -> Unit,
     onReselected: (position: Int) -> Unit,
     navigationItems: ImmutableList<NavigationItem>,
-    themeColors: ExtendedColors = ExtendedTheme.colors
 ) {
-    Column(modifier = Modifier.navigationBarsPadding()) {
-        BottomNavigationDivider(themeColors)
-        BottomNavigation(
-            backgroundColor = themeColors.bottomBar,
-            elevation = 0.dp,
-        ) {
-            navigationItems.fastForEachIndexed { index, navigationItem ->
-                BottomNavigationItem(
-                    selected = index == currentPosition,
-                    onClick = {
-                        if (index == currentPosition) {
-                            onReselected(index)
-                        } else {
-                            onChangePosition(index)
-                        }
-                        navigationItem.onClick?.invoke()
-                    },
-                    icon = {
-                        Box {
-                            Icon(
-                                painter = rememberAnimatedVectorPainter(
-                                    animatedImageVector = navigationItem.icon(),
-                                    atEnd = index == currentPosition
-                                ),
-                                contentDescription = navigationItem.title(index == currentPosition),
-                                modifier = Modifier.size(24.dp),
-                            )
-                            if (navigationItem.badge) {
-                                Text(
-                                    textAlign = TextAlign.Center,
-                                    fontSize = 10.sp,
-                                    color = White,
-                                    text = navigationItem.badgeText ?: "",
-                                    modifier = Modifier
-                                        .size(14.dp)
-                                        .clip(CircleShape)
-                                        .align(Alignment.TopEnd)
-                                        .background(
-                                            color = MaterialTheme.colors.secondary,
-                                            shape = CircleShape
-                                        ),
-                                )
-                            }
-                        }
-                    },
-                    selectedContentColor = MaterialTheme.colors.secondary,
-                    unselectedContentColor = themeColors.unselected,
-                    alwaysShowLabel = false
+    val models: ImmutableList<NavigationItemModel> = navigationItems.map { item ->
+        NavigationItemModel(
+            id = item.id,
+            iconPainter = { selected ->
+                rememberAnimatedVectorPainter(
+                    animatedImageVector = item.icon(),
+                    atEnd = selected
                 )
+            },
+            title = item.title(false),
+            badgeText = if (item.badge) item.badgeText else null,
+            onClick = item.onClick
+        )
+    }.toImmutableList()
+    ThemeNavigationBar(
+        items = models,
+        selectedIndex = currentPosition,
+        onItemSelected = { index ->
+            if (index == currentPosition) {
+                onReselected(index)
+            } else {
+                onChangePosition(index)
             }
-        }
-    }
+            navigationItems.getOrNull(index)?.onClick?.invoke()
+        },
+        onItemReselected = onReselected,
+        modifier = Modifier.navigationBarsPadding()
+    )
 }
 
 @Immutable
@@ -449,7 +395,6 @@ data class NavigationItem @OptIn(ExperimentalAnimationGraphicsApi::class) constr
     val onClick: (() -> Unit)? = null,
     val content: @Composable () -> Unit = {},
 )
-
 private fun resolveAppName(context: android.content.Context): String {
     val applicationInfo = context.applicationInfo
     val labelRes = applicationInfo.labelRes

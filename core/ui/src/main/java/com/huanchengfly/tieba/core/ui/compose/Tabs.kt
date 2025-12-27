@@ -333,3 +333,16 @@ fun PagerTabIndicator(
         )
     }
 }
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+@JvmName("PagerTabIndicatorMaterialTabPosition")
+fun PagerTabIndicator(
+    pagerState: PagerState,
+    tabPositions: List<androidx.compose.material.TabPosition>,
+) {
+    val mapped = remember(tabPositions) {
+        tabPositions.map { TabPosition(it.left, it.width) }
+    }
+    PagerTabIndicator(pagerState = pagerState, tabPositions = mapped)
+}

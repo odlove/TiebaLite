@@ -82,7 +82,6 @@ import com.eygraber.compose.placeholder.PlaceholderHighlight
 import com.eygraber.compose.placeholder.material.fade
 import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.ForumInfo
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
@@ -97,6 +96,11 @@ import com.huanchengfly.tieba.post.models.ForumHistoryExtra
 import com.huanchengfly.tieba.post.models.database.History
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabSelectedColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabUnselectedColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.topBarContentColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeScrollableTabRow
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
 import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumDetailPageDestination
@@ -105,21 +109,20 @@ import com.huanchengfly.tieba.post.ui.page.forum.threadlist.ForumThreadListPage
 import com.huanchengfly.tieba.post.ui.page.forum.threadlist.ForumThreadListUiEvent
 import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.core.ui.widgets.compose.AvatarPlaceholder
-import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.Button
 import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
 import com.huanchengfly.tieba.core.ui.widgets.compose.ConfirmDialog
 import com.huanchengfly.tieba.core.ui.widgets.compose.FeedCardPlaceholder
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
-import com.huanchengfly.tieba.core.ui.widgets.compose.MenuScope
+import com.huanchengfly.tieba.core.ui.compose.MenuScope
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
+import com.huanchengfly.tieba.core.ui.compose.TopAppBarContainer
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
 import com.huanchengfly.tieba.core.ui.widgets.compose.PullToRefreshLayout
-import com.huanchengfly.tieba.core.ui.compose.ScrollableTabRow
 import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.core.ui.widgets.compose.TabClickMenu
-import com.huanchengfly.tieba.core.ui.widgets.compose.Toolbar
 import com.huanchengfly.tieba.core.ui.widgets.compose.picker.ListSinglePicker
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
@@ -504,7 +507,7 @@ fun ForumPage(
             title = {
                 Text(
                     text = stringResource(
-                        id = CoreUiR.string.title_dialog_unfollow_forum,
+                        id = R.string.title_dialog_unfollow_forum,
                         forumName
                     )
                 )
@@ -545,7 +548,7 @@ fun ForumPage(
                                     dismiss()
                                 }
                             ) {
-                                Text(text = stringResource(id = CoreUiR.string.title_share))
+                                Text(text = stringResource(id = R.string.title_share))
                             }
                             DropdownMenuItem(
                                 onClick = {
@@ -785,8 +788,11 @@ fun ForumPage(
                                 letterSpacing = 0.sp
                             )
 
-                            ScrollableTabRow(
-                                selectedTabIndex = currentPage,
+                            val tabContentColor = tabSelectedColor()
+                            val tabUnselectedColor = tabUnselectedColor()
+
+                            ThemeScrollableTabRow(
+                                selectedIndex = currentPage,
                                 indicator = { tabPositions ->
                                     PagerTabIndicator(
                                         pagerState = pagerState,
@@ -795,12 +801,13 @@ fun ForumPage(
                                 },
                                 divider = {},
                                 backgroundColor = Color.Transparent,
-                                contentColor = ExtendedTheme.colors.primary,
+                                selectedContentColor = tabContentColor,
+                                unselectedContentColor = tabUnselectedColor,
                                 edgePadding = 0.dp,
                                 modifier = Modifier
                                     .wrapContentWidth(align = Alignment.Start)
                                     .align(Alignment.Start)
-                            ) {
+                            ) { selectedColor, unselectedColor ->
                                 var currentSortType by remember {
                                     mutableIntStateOf(
                                         getSortType(
@@ -847,8 +854,8 @@ fun ForumPage(
                                             }
                                         )
                                     },
-                                    selectedContentColor = ExtendedTheme.colors.primary,
-                                    unselectedContentColor = ExtendedTheme.colors.textSecondary
+                                    selectedContentColor = selectedColor,
+                                    unselectedContentColor = unselectedColor
                                 )
                                 Tab(
                                     selected = currentPage == 1,
@@ -857,8 +864,8 @@ fun ForumPage(
                                             pagerState.animateScrollToPage(1)
                                         }
                                     },
-                                    selectedContentColor = ExtendedTheme.colors.primary,
-                                    unselectedContentColor = ExtendedTheme.colors.textSecondary
+                                    selectedContentColor = selectedColor,
+                                    unselectedContentColor = unselectedColor
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
@@ -919,7 +926,7 @@ fun LoadingPlaceholder(
                             dismiss()
                         }
                     ) {
-                        Text(text = stringResource(id = CoreUiR.string.title_share))
+                        Text(text = stringResource(id = R.string.title_share))
                     }
                 }
             )
@@ -987,50 +994,65 @@ private fun ForumToolbar(
     forumId: Long? = null,
 ) {
     val navigator = LocalNavigator.current
-    Toolbar(
-        title = {
-            if (showTitle) Text(
-                text = stringResource(
-                    id = R.string.title_forum,
-                    forumName
-                )
-            )
-        },
-        navigationIcon = { BackNavigationIcon(onBackPressed = { navigator.navigateUp() }) },
-        actions = {
-            if (forumId != null) {
-                IconButton(
-                    onClick = {
-                        navigator.navigate(ForumSearchPostPageDestination(forumName, forumId))
+    val backgroundColor = ExtendedTheme.colors.topBar
+    val contentColor = topBarContentColor()
+    TopAppBarContainer(
+        topBar = {
+            ThemeTopAppBar(
+                title = {
+                    if (showTitle) {
+                        Text(
+                            text = stringResource(
+                                id = R.string.title_forum,
+                                forumName
+                            ),
+                            fontWeight = FontWeight.Bold
+                        )
                     }
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Search,
-                        contentDescription = stringResource(id = R.string.btn_search_in_forum)
-                    )
-                }
-            }
-            Box {
-                if (menuContent != null) {
-                    val menuState = rememberMenuState()
-                    ClickMenu(
-                        menuContent = menuContent,
-                        menuState = menuState,
-                        triggerShape = CircleShape
-                    ) {
-                        Box(
-                            modifier = Modifier.size(48.dp),
-                            contentAlignment = Alignment.Center
+                },
+                navigationIcon = { DefaultBackIcon(onBack = { navigator.navigateUp()  }) },
+                actions = {
+                    if (forumId != null) {
+                        IconButton(
+                            onClick = {
+                                navigator.navigate(ForumSearchPostPageDestination(forumName, forumId))
+                            }
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.MoreVert,
-                                contentDescription = stringResource(id = R.string.btn_more)
+                                imageVector = Icons.Rounded.Search,
+                                contentDescription = stringResource(id = R.string.btn_search_in_forum)
                             )
                         }
                     }
-                }
-            }
-        }
+                    Box {
+                        if (menuContent != null) {
+                            val menuState = rememberMenuState()
+                            ClickMenu(
+                                menuContent = menuContent,
+                                menuState = menuState,
+                                triggerShape = CircleShape
+                            ) {
+                                Box(
+                                    modifier = Modifier.size(48.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.MoreVert,
+                                        contentDescription = stringResource(id = R.string.btn_more)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                },
+                backgroundColor = backgroundColor,
+                contentColor = contentColor,
+                elevation = 0.dp,
+                insets = false,
+            )
+        },
+        statusBarColor = backgroundColor,
+        backgroundColor = backgroundColor,
     )
 }
 

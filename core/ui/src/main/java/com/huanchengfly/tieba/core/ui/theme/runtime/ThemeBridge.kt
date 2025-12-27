@@ -7,6 +7,8 @@ import com.huanchengfly.tieba.core.common.ext.getColorCompat
 import com.huanchengfly.tieba.core.ui.theme.ThemeController
 import com.huanchengfly.tieba.core.ui.theme.ThemePalette
 import com.huanchengfly.tieba.core.ui.theme.ThemeState
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedColors
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.StateFlow
@@ -25,6 +27,9 @@ class ThemeBridge @Inject constructor(
     val palette: ThemePalette
         get() = currentState.palette
 
+    val semanticColors: ThemeSemanticColors
+        get() = currentState.semanticColors
+
     fun colorByAttr(context: Context, @AttrRes attrId: Int): Int =
         ThemePaletteMapper.colorForAttr(palette, attrId) ?: resolveFallbackColor(context, attrId)
 
@@ -32,6 +37,8 @@ class ThemeBridge @Inject constructor(
         ThemePaletteMapper.colorForRes(palette, colorId) ?: context.getColorCompat(colorId)
 
     fun colorFromPalette(value: (ThemePalette) -> Int): Int = value(palette)
+
+    fun colorFromSemantic(value: (ThemeSemanticColors) -> Int): Int = value(semanticColors)
 
     fun resolveFallbackColor(context: Context, @AttrRes attrId: Int): Int {
         val fallbackRes = ThemeDefaults.resolveAttr(attrId)

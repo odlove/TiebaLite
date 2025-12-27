@@ -7,7 +7,7 @@
     android:layout_margin="16dp"
     android:background="@drawable/bg_radius_16dp"
     android:padding="16dp"
-    app:backgroundTint="@color/default_color_background">
+    app:backgroundTint="@color/sem_surface_primary">
 
     <ImageView
         android:id="@+id/request_permission_tip_dialog_icon"
@@ -31,7 +31,7 @@
         app:layout_constraintStart_toEndOf="@+id/request_permission_tip_dialog_icon"
         app:layout_constraintTop_toTopOf="@+id/request_permission_tip_dialog_icon"
         app:layout_constraintVertical_chainStyle="packed"
-        app:tint="@color/default_color_text"
+        app:tint="@color/sem_content_primary"
         tools:text="贴吧 Lite 正在请求“存储空间”权限" />
 
     <com.huanchengfly.tieba.core.ui.widgets.theme.TintTextView
@@ -45,7 +45,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/request_permission_tip_dialog_title"
         app:layout_constraintTop_toBottomOf="@+id/request_permission_tip_dialog_title"
-        app:tint="@color/default_color_text_secondary"
+        app:tint="@color/sem_content_secondary"
         tools:text="授权后，将用于保存图片" />
 
 </com.huanchengfly.tieba.core.ui.widgets.theme.TintConstraintLayout>

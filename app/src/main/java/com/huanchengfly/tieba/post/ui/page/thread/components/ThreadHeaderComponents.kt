@@ -27,13 +27,15 @@ import androidx.compose.ui.res.stringResource
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.ui.compose.Container
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.HorizontalDivider
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.post.api.models.protos.SimpleForum
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageState
-import com.huanchengfly.tieba.core.ui.widgets.compose.TitleCentredToolbar
+import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.huanchengfly.tieba.core.common.utils.getShortNumString
 
 @Composable
@@ -109,7 +111,13 @@ fun ThreadPageTopBar(
     onForumClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    TitleCentredToolbar(
+    val topBarColor = ExtendedTheme.colors.topBar
+    val statusBarColor = topBarColor.calcStatusBarColor()
+    ThemeTopAppBar(
+        backgroundColor = topBarColor,
+        statusBarColor = statusBarColor,
+        centerTitle = true,
+        modifier = modifier,
         title = {
             forum?.let {
                 val forumName = it.get { name }
@@ -145,8 +153,7 @@ fun ThreadPageTopBar(
             }
         },
         navigationIcon = {
-            BackNavigationIcon(onBack)
-        },
-        modifier = modifier
+            com.huanchengfly.tieba.post.ui.common.DefaultBackIcon(onBack = onBack)
+        }
     )
 }

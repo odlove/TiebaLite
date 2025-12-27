@@ -5,34 +5,34 @@ import com.huanchengfly.tieba.core.ui.R
 
 internal object ThemeDefaults {
     fun resolveAttr(@AttrRes attrId: Int): Int = when (attrId) {
-        R.attr.colorPrimary -> R.color.default_color_primary
-        R.attr.colorNewPrimary -> R.color.default_color_primary
-        R.attr.colorAccent -> R.color.default_color_accent
-        R.attr.colorOnAccent -> R.color.default_color_on_accent
-        R.attr.colorToolbar -> R.color.default_color_toolbar
-        R.attr.colorToolbarItem -> R.color.default_color_toolbar_item
-        R.attr.colorToolbarItemSecondary -> R.color.default_color_toolbar_item_secondary
-        R.attr.colorToolbarItemActive -> R.color.default_color_toolbar_item_active
-        R.attr.colorToolbarSurface -> R.color.default_color_toolbar_bar
-        R.attr.colorOnToolbarSurface -> R.color.default_color_on_toolbar_bar
-        R.attr.colorText -> R.color.default_color_text
-        R.attr.colorTextSecondary -> R.color.default_color_text_secondary
-        R.attr.colorTextOnPrimary -> R.color.default_color_text_on_primary
-        R.attr.color_text_disabled -> R.color.default_color_text_disabled
-        R.attr.colorBackground -> R.color.default_color_background
-        R.attr.colorWindowBackground -> R.color.default_color_window_background
-        R.attr.colorChip -> R.color.default_color_chip
-        R.attr.colorOnChip -> R.color.default_color_on_chip
-        R.attr.colorUnselected -> R.color.default_color_unselected
-        R.attr.colorNavBar -> R.color.default_color_nav
-        R.attr.colorNavBarSurface -> R.color.default_color_nav_bar_surface
-        R.attr.colorOnNavBarSurface -> R.color.default_color_on_nav_bar_surface
-        R.attr.colorCard -> R.color.default_color_card
-        R.attr.colorFloorCard -> R.color.default_color_floor_card
-        R.attr.colorDivider -> R.color.default_color_divider
-        R.attr.shadow_color -> R.color.default_color_shadow
-        R.attr.colorIndicator -> R.color.default_color_swipe_refresh_view_background
-        R.attr.colorPlaceholder -> R.color.default_color_placeholder
+        R.attr.colorPrimary -> R.color.sem_state_active
+        R.attr.colorNewPrimary -> R.color.sem_state_active
+        R.attr.colorAccent -> R.color.sem_state_active
+        R.attr.colorOnAccent -> R.color.sem_content_on_primary
+        R.attr.colorToolbar -> R.color.sem_surface_toolbar
+        R.attr.colorToolbarItem -> R.color.sem_content_primary
+        R.attr.colorToolbarItemSecondary -> R.color.sem_content_secondary
+        R.attr.colorToolbarItemActive -> R.color.sem_state_active
+        R.attr.colorToolbarSurface -> R.color.sem_surface_toolbar
+        R.attr.colorOnToolbarSurface -> R.color.sem_outline_surface
+        R.attr.colorText -> R.color.sem_content_primary
+        R.attr.colorTextSecondary -> R.color.sem_content_secondary
+        R.attr.colorTextOnPrimary -> R.color.sem_content_on_primary
+        R.attr.color_text_disabled -> R.color.sem_content_disabled
+        R.attr.colorBackground -> R.color.sem_surface_primary
+        R.attr.colorWindowBackground -> R.color.sem_surface_window
+        R.attr.colorChip -> R.color.sem_surface_chip
+        R.attr.colorOnChip -> R.color.sem_content_on_chip
+        R.attr.colorUnselected -> R.color.sem_state_unselected
+        R.attr.colorNavBar -> R.color.sem_surface_nav
+        R.attr.colorNavBarSurface -> R.color.sem_surface_nav_surface
+        R.attr.colorOnNavBarSurface -> R.color.sem_content_secondary
+        R.attr.colorCard -> R.color.sem_surface_card
+        R.attr.colorFloorCard -> R.color.sem_surface_floor
+        R.attr.colorDivider -> R.color.sem_outline_low
+        R.attr.shadow_color -> R.color.sem_decor_shadow
+        R.attr.colorIndicator -> R.color.sem_state_indicator
+        R.attr.colorPlaceholder -> R.color.sem_decor_placeholder
         else -> R.color.transparent
     }
 }

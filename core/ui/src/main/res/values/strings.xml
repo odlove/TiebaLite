@@ -25,7 +25,6 @@
     <string name="toast_exit_account_success">退出登录成功，请重新登录</string>
     <string name="hint_search">发现更多</string>
     <string name="button_unfollow">取消关注</string>
-    <string name="title_dialog_unfollow_forum">确定要取消关注%s吧吗？</string>
     <string name="title_history_forum">经过贴吧</string>
     <string name="title_main">首页</string>
     <string name="title_oksign">一键签到</string>
@@ -94,4 +93,18 @@
     <string name="desc_checked">已选中</string>
     <string name="pull_down_to_refresh">继续下拉以刷新</string>
     <string name="release_to_refresh">松手刷新</string>
+    <!-- Added for feature/home module decoupling -->
+    <string name="menu_top_del">移出置顶</string>
+    <string name="menu_top">置顶</string>
+    <string name="title_copy_forum_name">复制吧名</string>
+    <string name="tip_signed">已签到</string>
+    <string name="title_dialog_unfollow_forum">确定要取消关注%s吧吗？</string>
+    <string name="title_switch_list_single">切换列表布局</string>
+    <string name="desc_show">显示/隐藏</string>
+    <string name="title_top_forum">置顶的吧</string>
+    <string name="forum_list_title">推荐吧</string>
+    <string name="title_empty_login">你尚未登录</string>
+    <string name="home_empty_login">登录后可查看关注/推荐内容</string>
+    <string name="button_login">去登录</string>
+    <string name="button_go_to_explore">去发现更多</string>
 </resources>

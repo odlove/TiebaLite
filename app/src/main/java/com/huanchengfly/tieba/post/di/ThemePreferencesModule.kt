@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.di
 
 import com.huanchengfly.tieba.core.common.preferences.ThemePreferencesDataSource
-import com.huanchengfly.tieba.post.theme.preferences.ThemePreferencesDataSourceImpl
+import com.huanchengfly.tieba.data.local.preferences.ThemePreferencesDataSourceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

@@ -1,20 +1,15 @@
 package com.huanchengfly.tieba.post.ui.page.settings
 
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.LocalContentColor
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -22,12 +17,13 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.dataStore
 import com.huanchengfly.tieba.post.models.database.Account
 import com.huanchengfly.tieba.post.ui.common.prefs.PrefsScreen
-import com.huanchengfly.tieba.post.ui.common.prefs.widgets.TextPref
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.SettingsItem
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ThemeScaffold
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
 import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.AccountManagePageDestination
@@ -39,11 +35,11 @@ import com.huanchengfly.tieba.post.ui.page.destinations.MoreSettingsPageDestinat
 import com.huanchengfly.tieba.post.ui.page.destinations.OKSignSettingsPageDestination
 import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.core.ui.widgets.compose.AvatarIcon
-import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.core.ui.widgets.compose.TitleCentredToolbar
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import com.huanchengfly.tieba.post.utils.StringUtil
+import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -53,7 +49,6 @@ internal fun LeadingIcon(
 ) {
     CompositionLocalProvider(LocalContentColor provides ExtendedTheme.colors.primary) {
         content()
-        Spacer(modifier = Modifier.width(56.dp))
     }
 }
 
@@ -65,12 +60,10 @@ fun NowAccountItem(
 ) {
     val navigator = LocalNavigator.current
     if (account != null) {
-        TextPref(
-            title = stringResource(id = R.string.title_account_manage),
-            summary = stringResource(id = R.string.summary_now_account, account.nameShow ?: account.name),
-            enabled = true,
+        SettingsItem(
+            modifier = modifier,
             onClick = { navigator.navigate(AccountManagePageDestination) },
-            leadingIcon = {
+            leadingContent = {
                 LeadingIcon {
                     Avatar(
                         data = StringUtil.getAvatarUrl(account.portrait),
@@ -79,15 +72,21 @@ fun NowAccountItem(
                     )
                 }
             },
-            modifier = modifier,
+            title = { Text(text = stringResource(id = R.string.title_account_manage)) },
+            subtitle = {
+                Text(
+                    text = stringResource(
+                        id = R.string.summary_now_account,
+                        account.nameShow ?: account.name
+                    )
+                )
+            }
         )
     } else {
-        TextPref(
-            title = stringResource(id = R.string.title_account_manage),
-            summary = stringResource(id = R.string.summary_not_logged_in),
-            enabled = true,
+        SettingsItem(
+            modifier = modifier,
             onClick = { navigator.navigate(LoginPageDestination) },
-            leadingIcon = {
+            leadingContent = {
                 LeadingIcon {
                     AvatarIcon(
                         icon = Icons.Rounded.AccountCircle,
@@ -98,7 +97,8 @@ fun NowAccountItem(
                     )
                 }
             },
-            modifier = modifier,
+            title = { Text(text = stringResource(id = R.string.title_account_manage)) },
+            subtitle = { Text(text = stringResource(id = R.string.summary_not_logged_in)) }
         )
     }
 }
@@ -110,37 +110,40 @@ fun SettingsPage(
     navigator: DestinationsNavigator,
 ) {
     ProvideNavigator(navigator = navigator) {
-        Scaffold(
-            backgroundColor = Color.Transparent,
+        ThemeScaffold(
             topBar = {
-                TitleCentredToolbar(
+                val topBarColor = ExtendedTheme.colors.topBar
+                val statusBarColor = topBarColor.calcStatusBarColor()
+                ThemeTopAppBar(
+                    backgroundColor = topBarColor,
+                    statusBarColor = statusBarColor,
+                    centerTitle = true,
                     title = {
                         Text(
                             text = stringResource(id = R.string.title_settings),
-                            fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h6
+                            fontWeight = FontWeight.Bold
                         )
                     },
                     navigationIcon = {
-                        BackNavigationIcon(onBackPressed = { navigator.navigateUp() })
+                        DefaultBackIcon(onBack = { navigator.navigateUp()  })
                     }
                 )
             },
-        ) {
+        ) { padding ->
             PrefsScreen(
                 dataStore = LocalContext.current.dataStore,
                 dividerThickness = 0.dp,
                 modifier = Modifier
-                    .padding(it)
+                    .padding(padding)
                     .fillMaxSize(),
             ) {
                 prefsItem {
                     NowAccountItem(account = LocalAccount.current)
                 }
                 prefsItem {
-                    TextPref(
-                        title = stringResource(id = R.string.title_block_settings),
-                        summary = stringResource(id = R.string.summary_block_settings),
-                        leadingIcon = {
+                    SettingsItem(
+                        onClick = { navigator.navigate(BlockSettingsPageDestination) },
+                        leadingContent = {
                             LeadingIcon {
                                 AvatarIcon(
                                     icon = ImageVector.vectorResource(id = R.drawable.ic_settings_block),
@@ -149,15 +152,14 @@ fun SettingsPage(
                                 )
                             }
                         },
-                        darkenOnDisable = false,
-                        onClick = { navigator.navigate(BlockSettingsPageDestination) }
+                        title = { Text(text = stringResource(id = R.string.title_block_settings)) },
+                        subtitle = { Text(text = stringResource(id = R.string.summary_block_settings)) }
                     )
                 }
                 prefsItem {
-                    TextPref(
-                        title = stringResource(id = R.string.title_settings_custom),
-                        summary = stringResource(id = R.string.summary_settings_custom),
-                        leadingIcon = {
+                    SettingsItem(
+                        onClick = { navigator.navigate(CustomSettingsPageDestination) },
+                        leadingContent = {
                             LeadingIcon {
                                 AvatarIcon(
                                     icon = ImageVector.vectorResource(id = R.drawable.ic_brush_black_24dp),
@@ -166,15 +168,14 @@ fun SettingsPage(
                                 )
                             }
                         },
-                        darkenOnDisable = false,
-                        onClick = { navigator.navigate(CustomSettingsPageDestination) }
+                        title = { Text(text = stringResource(id = R.string.title_settings_custom)) },
+                        subtitle = { Text(text = stringResource(id = R.string.summary_settings_custom)) }
                     )
                 }
                 prefsItem {
-                    TextPref(
-                        title = stringResource(id = R.string.title_settings_read_habit),
-                        summary = stringResource(id = R.string.summary_settings_habit),
-                        leadingIcon = {
+                    SettingsItem(
+                        onClick = { navigator.navigate(HabitSettingsPageDestination) },
+                        leadingContent = {
                             LeadingIcon {
                                 AvatarIcon(
                                     icon = ImageVector.vectorResource(id = R.drawable.ic_dashboard_customize_black_24),
@@ -183,15 +184,16 @@ fun SettingsPage(
                                 )
                             }
                         },
-                        darkenOnDisable = false,
-                        onClick = { navigator.navigate(HabitSettingsPageDestination) }
+                        title = { Text(text = stringResource(id = R.string.title_settings_read_habit)) },
+                        subtitle = { Text(text = stringResource(id = R.string.summary_settings_habit)) }
                     )
                 }
                 prefsItem {
-                    TextPref(
-                        title = stringResource(id = CoreUiR.string.title_oksign),
-                        summary = stringResource(id = R.string.summary_settings_oksign),
-                        leadingIcon = {
+                    SettingsItem(
+                        onClick = {
+                            navigator.navigate(OKSignSettingsPageDestination)
+                        },
+                        leadingContent = {
                             LeadingIcon {
                                 AvatarIcon(
                                     icon = ImageVector.vectorResource(id = R.drawable.ic_rocket_launch_black_24),
@@ -200,17 +202,16 @@ fun SettingsPage(
                                 )
                             }
                         },
-                        darkenOnDisable = false,
-                        onClick = {
-                            navigator.navigate(OKSignSettingsPageDestination)
-                        }
+                        title = { Text(text = stringResource(id = R.string.title_oksign)) },
+                        subtitle = { Text(text = stringResource(id = R.string.summary_settings_oksign)) }
                     )
                 }
                 prefsItem {
-                    TextPref(
-                        title = stringResource(id = R.string.title_settings_more),
-                        summary = stringResource(id = R.string.summary_settings_more),
-                        leadingIcon = {
+                    SettingsItem(
+                        onClick = {
+                            navigator.navigate(MoreSettingsPageDestination)
+                        },
+                        leadingContent = {
                             LeadingIcon {
                                 AvatarIcon(
                                     icon = ImageVector.vectorResource(id = R.drawable.ic_more_horiz_black_24),
@@ -219,10 +220,8 @@ fun SettingsPage(
                                 )
                             }
                         },
-                        darkenOnDisable = false,
-                        onClick = {
-                            navigator.navigate(MoreSettingsPageDestination)
-                        }
+                        title = { Text(text = stringResource(id = R.string.title_settings_more)) },
+                        subtitle = { Text(text = stringResource(id = R.string.summary_settings_more)) }
                     )
                 }
             }

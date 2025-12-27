@@ -6,7 +6,6 @@ import android.provider.Settings
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BugReport
@@ -30,20 +29,22 @@ import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.post.BuildConfig
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.dataStore
-import com.huanchengfly.tieba.post.ui.common.prefs.PrefsScreen
-import com.huanchengfly.tieba.post.ui.common.prefs.dependNot
-import com.huanchengfly.tieba.post.ui.common.prefs.widgets.SwitchPref
-import com.huanchengfly.tieba.post.ui.common.prefs.widgets.TextPref
 import com.huanchengfly.tieba.post.ui.page.destinations.AboutPageDestination
 import com.huanchengfly.tieba.post.ui.page.settings.LeadingIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.AvatarIcon
-import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.SettingsItem
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.SettingsSwitch
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.post.ui.common.prefs.PrefsScreen
+import com.huanchengfly.tieba.post.ui.common.prefs.dependNot
 import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.core.ui.widgets.compose.TitleCentredToolbar
 import com.huanchengfly.tieba.post.utils.ImageCacheUtil
 import com.huanchengfly.tieba.post.preferences.appPreferences
+import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
@@ -59,17 +60,22 @@ fun MoreSettingsPage(
     val snackbarState = rememberSnackbarState()
     SnackbarScaffold(
         snackbarState = snackbarState,
-        backgroundColor = Color.Transparent,
+        backgroundColor = ExtendedTheme.colors.background,
         topBar = {
-            TitleCentredToolbar(
+            val topBarColor = ExtendedTheme.colors.topBar
+            val statusBarColor = topBarColor.calcStatusBarColor()
+            ThemeTopAppBar(
+                backgroundColor = topBarColor,
+                statusBarColor = statusBarColor,
+                centerTitle = true,
                 title = {
                     Text(
                         text = stringResource(id = R.string.title_settings_more),
-                        fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h6
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {
-                    BackNavigationIcon(onBackPressed = { navigator.navigateUp() })
+                    DefaultBackIcon(onBack = { navigator.navigateUp()  })
                 }
             )
         },
@@ -90,8 +96,8 @@ fun MoreSettingsPage(
         ) {
             if (context.appPreferences.showExperimentalFeatures) {
                 prefsItem {
-                    SwitchPref(
-                        leadingIcon = {
+                    SettingsSwitch(
+                        leadingContent = {
                             LeadingIcon {
                                 AvatarIcon(
                                     icon = Icons.Outlined.BugReport,
@@ -103,13 +109,13 @@ fun MoreSettingsPage(
                         key = "checkCIUpdate",
                         title = stringResource(id = R.string.title_check_ci_update),
                         defaultChecked = false,
-                        summary = stringResource(id = R.string.tip_check_ci_update)
+                        summary = { stringResource(id = R.string.tip_check_ci_update) }
                     )
                 }
             }
             prefsItem {
-                SwitchPref(
-                    leadingIcon = {
+                SettingsSwitch(
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = ImageVector.vectorResource(id = R.drawable.ic_chrome),
@@ -121,15 +127,15 @@ fun MoreSettingsPage(
                     key = "use_webview",
                     title = stringResource(id = R.string.title_use_webview),
                     defaultChecked = true,
-                    summary = {
-                        if (it) stringResource(id = R.string.tip_use_webview_on)
+                    summary = { isOn ->
+                        if (isOn) stringResource(id = R.string.tip_use_webview_on)
                         else stringResource(id = R.string.tip_use_webview)
                     },
                 )
             }
             prefsItem {
-                SwitchPref(
-                    leadingIcon = {
+                SettingsSwitch(
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = ImageVector.vectorResource(id = R.drawable.ic_today),
@@ -142,15 +148,15 @@ fun MoreSettingsPage(
                     key = "use_custom_tabs",
                     title = stringResource(id = R.string.title_use_custom_tabs),
                     defaultChecked = true,
-                    summary = {
-                        if (it) stringResource(id = R.string.tip_use_custom_tab_on)
+                    summary = { isOn ->
+                        if (isOn) stringResource(id = R.string.tip_use_custom_tab_on)
                         else stringResource(id = R.string.tip_use_custom_tab)
                     },
                 )
             }
             prefsItem {
-                TextPref(
-                    leadingIcon = {
+                SettingsItem(
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.OfflineBolt,
@@ -159,8 +165,6 @@ fun MoreSettingsPage(
                             )
                         }
                     },
-                    enabled = true,
-                    title = stringResource(id = R.string.title_clear_picture_cache),
                     onClick = {
                         coroutineScope.launch {
                             ImageCacheUtil.clearImageAllCache(context)
@@ -168,12 +172,13 @@ fun MoreSettingsPage(
                             snackbarState.showSnackbar(context.getString(R.string.toast_clear_picture_cache_success))
                         }
                     },
-                    summary = stringResource(id = R.string.tip_cache, cacheSize)
+                    title = { Text(text = stringResource(id = R.string.title_clear_picture_cache)) },
+                    subtitle = { Text(text = stringResource(id = R.string.tip_cache, cacheSize)) }
                 )
             }
             prefsItem {
-                TextPref(
-                    leadingIcon = {
+                SettingsItem(
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = ImageVector.vectorResource(id = R.drawable.ic_link),
@@ -182,20 +187,19 @@ fun MoreSettingsPage(
                             )
                         }
                     },
-                    enabled = true,
-                    title = stringResource(id = R.string.title_open_by_default),
                     onClick = {
                         context.startActivity(
                             Intent(Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS, Uri.parse("package:${context.packageName}"))
-                            .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                                .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
                         )
                     },
-                    summary = stringResource(id = R.string.tip_open_by_default)
+                    title = { Text(text = stringResource(id = R.string.title_open_by_default)) },
+                    subtitle = { Text(text = stringResource(id = R.string.tip_open_by_default)) }
                 )
             }
             prefsItem {
-                TextPref(
-                    leadingIcon = {
+                SettingsItem(
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.Info,
@@ -204,12 +208,11 @@ fun MoreSettingsPage(
                             )
                         }
                     },
-                    enabled = true,
-                    title = stringResource(id = R.string.title_about),
                     onClick = {
                         navigator.navigate(AboutPageDestination)
                     },
-                    summary = stringResource(id = R.string.tip_about, BuildConfig.VERSION_NAME)
+                    title = { Text(text = stringResource(id = R.string.title_about)) },
+                    subtitle = { Text(text = stringResource(id = R.string.tip_about, BuildConfig.VERSION_NAME)) }
                 )
             }
         }

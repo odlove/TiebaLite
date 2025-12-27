@@ -61,18 +61,19 @@ import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.post.components.dialogs.PermissionDialog
 import com.huanchengfly.tieba.post.models.PermissionBean
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.topBarSubtitleColor
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.core.ui.widgets.compose.AccompanistWebChromeClient
 import com.huanchengfly.tieba.core.ui.widgets.compose.AccompanistWebViewClient
-import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.widgets.compose.LoadingState
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
-import com.huanchengfly.tieba.core.ui.widgets.compose.Toolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.widgets.compose.WebView
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberSaveableWebViewState
@@ -175,7 +176,10 @@ fun WebViewPage(
     SnackbarScaffold(
         snackbarState = snackbarState,
         topBar = {
-            Toolbar(
+            ThemeTopAppBar(
+                backgroundColor = ExtendedTheme.colors.topBar,
+                contentColor = ExtendedTheme.colors.onTopBar,
+                statusBarColor = ExtendedTheme.colors.topBar,
                 title = {
                     Column {
                         Text(
@@ -188,13 +192,13 @@ fun WebViewPage(
                                 text = currentHost,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
-                                color = ExtendedTheme.colors.onTopBarSecondary,
+                                color = topBarSubtitleColor(),
                                 style = MaterialTheme.typography.caption
                             )
                         }
                     }
                 },
-                navigationIcon = { BackNavigationIcon(onBackPressed = { navigator.navigateUp() }) },
+                navigationIcon = { DefaultBackIcon(onBack = { navigator.navigateUp()  }) },
                 actions = {
                     val menuState = rememberMenuState()
                     ClickMenu(
@@ -245,6 +249,7 @@ fun WebViewPage(
                         }
                     }
                 },
+                centerTitle = false
             )
         }
     ) { paddingValues ->
@@ -354,22 +359,13 @@ open class MyWebViewClient(
                                 .setDefaultColorSchemeParams(
                                     CustomTabColorSchemeParams.Builder()
                                         .setToolbarColor(
-                                            ThemeColorResolver.colorByAttr(
-                                                context,
-                                                R.attr.colorToolbar
-                                            )
+                                            ThemeColorResolver.topBarColor(context)
                                         )
                                         .setNavigationBarColor(
-                                            ThemeColorResolver.colorByAttr(
-                                                context,
-                                                R.attr.colorNavBar
-                                            )
+                                            ThemeColorResolver.navBarColor(context)
                                         )
                                         .setNavigationBarDividerColor(
-                                            ThemeColorResolver.colorByAttr(
-                                                context,
-                                                R.attr.colorDivider
-                                            )
+                                            ThemeColorResolver.dividerColor(context)
                                         )
                                         .build()
                                 )

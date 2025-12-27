@@ -1,23 +1,21 @@
 package com.huanchengfly.tieba.core.ui.theme.data
 
+import com.huanchengfly.tieba.core.common.theme.ThemeChannel
+import com.huanchengfly.tieba.core.common.theme.ThemeChannelConfig
+import com.huanchengfly.tieba.core.common.theme.ThemeSettingsSnapshot
 import kotlinx.coroutines.flow.Flow
 
 interface ThemeRepository {
-    val themeFlow: Flow<String>
-    val dynamicThemeFlow: Flow<Boolean>
+    val settingsFlow: Flow<ThemeSettingsSnapshot>
 
-    var theme: String?
-    var oldTheme: String?
-    var darkTheme: String?
-    var useDynamicColorTheme: Boolean
+    fun currentSettings(): ThemeSettingsSnapshot
 
-    var customPrimaryColor: String?
-    var toolbarPrimaryColor: Boolean
-    var customStatusBarFontDark: Boolean
+    suspend fun updateChannel(
+        channel: ThemeChannel,
+        reducer: (ThemeChannelConfig) -> ThemeChannelConfig
+    )
 
-    var translucentThemeBackgroundPath: String?
-    var translucentPrimaryColor: String?
-    var translucentBackgroundTheme: Int
-    var translucentBackgroundBlur: Int
-    var translucentBackgroundAlpha: Int
+    suspend fun setActiveChannel(channel: ThemeChannel)
+
+    suspend fun setFollowSystemNight(enable: Boolean)
 }

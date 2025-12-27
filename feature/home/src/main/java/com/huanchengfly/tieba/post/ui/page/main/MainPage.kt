@@ -272,7 +272,7 @@ fun MainPageContent(
             val snackbarState = rememberSnackbarState()
             SnackbarScaffold(
                 snackbarState = snackbarState,
-                backgroundColor = Color.Transparent,
+                backgroundColor = themeColors.background,
                 modifier = Modifier.fillMaxSize(),
                 bottomBar = {
                     AnimatedVisibility(visible = navigationType == MainNavigationType.BOTTOM_NAVIGATION) {
@@ -283,7 +283,6 @@ fun MainPageContent(
                             },
                             onReselected = onReselected,
                             navigationItems = navigationItems,
-                            themeColors = themeColors,
                         )
                     }
                 }

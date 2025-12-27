@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    app:backgroundTint="@color/default_color_background">
+    app:backgroundTint="@color/sem_surface_primary">
 
     <com.huanchengfly.tieba.core.ui.widgets.theme.TintTextView
         android:id="@+id/dialog_copy_text"
@@ -16,7 +16,7 @@
         android:lineSpacingMultiplier="1.2"
         android:textSize="18sp"
         android:gravity="center"
-        app:tint="@color/default_color_text" />
+        app:tint="@color/sem_content_primary" />
 
     <com.huanchengfly.tieba.core.ui.widgets.theme.TintTextView
         android:id="@+id/dialog_copy_tip"
@@ -26,5 +26,5 @@
         android:gravity="center"
         android:text="@string/tip_copy_text"
         android:textStyle="bold"
-        app:tint="@color/default_color_primary" />
+        app:tint="@color/sem_state_active" />
 </com.huanchengfly.tieba.core.ui.widgets.theme.TintRelativeLayout>

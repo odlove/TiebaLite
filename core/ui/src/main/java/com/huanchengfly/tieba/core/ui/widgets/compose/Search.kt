@@ -55,8 +55,14 @@ import androidx.compose.ui.util.fastForEach
 import com.huanchengfly.tieba.core.common.utils.DateTimeUtils
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.text.EmoticonText
-import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.searchBoxBackgroundColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.searchBoxContentColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabUnselectedColor
+import com.huanchengfly.tieba.core.ui.widgets.compose.BaseTextField
+import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
+import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.post.api.models.SearchThreadBean
@@ -89,29 +95,33 @@ fun QuotePostCard(
             content = quotePostInfo.content
         )
     }
-    Column(
-        modifier = modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+    CardSurface(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        plain = true
     ) {
-        HighlightText(
-            text = quoteContentString,
-            style = MaterialTheme.typography.body2,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            highlightKeywords = (keyword?.split(" ") ?: emptyList()).toImmutableList()
-        )
-        MainPostCard(
-            mainPost = mainPost,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(6.dp))
-                .background(ExtendedTheme.colors.card)
-                .clickable {
-                    onMainPostClick(mainPost)
-                },
-            medias = medias,
-            keyword = keyword
-        )
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            HighlightText(
+                text = quoteContentString,
+                style = MaterialTheme.typography.body2,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                highlightKeywords = (keyword?.split(" ") ?: emptyList()).toImmutableList()
+            )
+            MainPostCard(
+                mainPost = mainPost,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onMainPostClick(mainPost)
+                    },
+                medias = medias,
+                keyword = keyword
+            )
+        }
     }
 }
 
@@ -135,27 +145,33 @@ fun MainPostCard(
             content = mainPost.title
         )
     }
-    Column(
-        modifier = modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+    CardSurface(
+        modifier = modifier,
+        shape = RoundedCornerShape(6.dp),
+        plain = true
     ) {
-        HighlightText(
-            text = titleString,
-            style = MaterialTheme.typography.subtitle2,
-            fontWeight = FontWeight.Bold,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            highlightKeywords = (keyword?.split(" ") ?: emptyList()).toImmutableList()
-        )
-        if (mainPost.content.isNotBlank()) {
-            EmoticonText(
-                text = mainPost.content,
-                style = MaterialTheme.typography.body2,
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            HighlightText(
+                text = titleString,
+                style = MaterialTheme.typography.subtitle2,
+                fontWeight = FontWeight.Bold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
+                highlightKeywords = (keyword?.split(" ") ?: emptyList()).toImmutableList()
             )
+            if (mainPost.content.isNotBlank()) {
+                EmoticonText(
+                    text = mainPost.content,
+                    style = MaterialTheme.typography.body2,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            SearchMedia(medias = medias)
         }
-        SearchMedia(medias = medias)
     }
 }
 
@@ -246,7 +262,7 @@ fun SearchThreadItem(
     hideForum: Boolean = false,
     searchKeyword: String? = null,
 ) {
-    Card(
+    PlainCard(
         modifier = modifier,
         header = {
             SearchThreadUserHeader(
@@ -418,8 +434,8 @@ fun SearchBox(
     appendIcon: @Composable () -> Unit = {},
     focusRequester: FocusRequester = remember { FocusRequester() },
     shape: Shape = RectangleShape,
-    color: Color = ExtendedTheme.colors.topBarSurface,
-    contentColor: Color = ExtendedTheme.colors.onTopBarSurface,
+    color: Color = searchBoxBackgroundColor(),
+    contentColor: Color = searchBoxContentColor(),
     elevation: Dp = 0.dp,
 ) {
     val isKeywordNotEmpty = remember(keyword) { keyword.isNotEmpty() }

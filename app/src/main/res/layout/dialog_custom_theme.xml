@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:padding="16dp"
     tools:background="@drawable/bg_radius_10dp"
-    tools:backgroundTint="@color/default_color_background">
+    tools:backgroundTint="@color/sem_surface_primary">
 
     <androidx.gridlayout.widget.GridLayout
         android:layout_width="match_parent"
@@ -32,7 +32,7 @@
                 android:layout_height="48dp"
                 android:layout_gravity="center_horizontal"
                 android:background="@drawable/bg_radius_50dp"
-                tools:backgroundTint="@color/default_color_primary" />
+                tools:backgroundTint="@color/sem_state_active" />
 
             <com.huanchengfly.tieba.core.ui.widgets.theme.TintTextView
                 android:layout_width="wrap_content"
@@ -41,7 +41,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/tip_primary_color"
                 android:textStyle="bold"
-                app:tint="@color/default_color_text" />
+                app:tint="@color/sem_content_primary" />
         </LinearLayout>
         <!--
         <LinearLayout
@@ -59,7 +59,7 @@
                 android:layout_height="48dp"
                 android:layout_gravity="center_horizontal"
                 android:background="@drawable/bg_radius_50dp"
-                tools:backgroundTint="@color/default_color_primary" />
+                tools:backgroundTint="@color/sem_state_active" />
 
             <com.huanchengfly.tieba.post.widgets.theme.TintTextView
                 android:textStyle="bold"
@@ -68,7 +68,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="8dp"
                 android:text="@string/tip_accent_color"
-                app:tint="@color/default_color_text" />
+                app:tint="@color/sem_content_primary" />
         </LinearLayout>
         -->
     </androidx.gridlayout.widget.GridLayout>
@@ -77,7 +77,7 @@
     <com.huanchengfly.tieba.post.widgets.theme.TintCheckBox
         style="@style/Widget.AppCompat.CompoundButton.CheckBox"
         app:buttonTint="@drawable/tint_checkbox"
-        app:textColor="@color/default_color_text_secondary"
+        app:textColor="@color/sem_content_secondary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -99,7 +99,7 @@
         android:text="@string/tip_toolbar_primary_color"
         android:textStyle="bold"
         app:buttonTint="@color/tint_checkbox"
-        app:textColor="@color/default_color_text_secondary" />
+        app:textColor="@color/sem_content_secondary" />
 
     <com.huanchengfly.tieba.core.ui.widgets.theme.TintCheckBox
         android:id="@+id/custom_theme_status_bar_font"
@@ -112,5 +112,5 @@
         android:text="@string/tip_status_bar_font"
         android:textStyle="bold"
         app:buttonTint="@color/tint_checkbox"
-        app:textColor="@color/default_color_text_secondary" />
+        app:textColor="@color/sem_content_secondary" />
 </LinearLayout>

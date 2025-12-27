@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,7 +29,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarResult
@@ -53,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -76,6 +77,7 @@ import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.loadMoreIndicator
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeModalBottomSheetLayout
 import com.huanchengfly.tieba.core.ui.widgets.compose.BlockTip
 import com.huanchengfly.tieba.core.ui.widgets.compose.BlockableContent
 import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
@@ -156,6 +158,21 @@ fun ThreadPageLayout(
         initialValue = ModalBottomSheetValue.Hidden,
         skipHalfExpanded = true
     )
+    val extendedColors = ExtendedTheme.colors
+    val sheetBackground = remember(extendedColors.windowBackground, extendedColors.isTranslucent) {
+        if (extendedColors.isTranslucent) {
+            extendedColors.windowBackground.copy(alpha = 0.8f)
+        } else {
+            extendedColors.windowBackground
+        }
+    }
+    val sheetScrim = remember(sheetBackground, extendedColors.isTranslucent) {
+        if (extendedColors.isTranslucent) {
+            sheetBackground.copy(alpha = 0.35f)
+        } else {
+            Color.Black.copy(alpha = 0.32f)
+        }
+    }
     val lastVisibilityPost by remember(pageState.postItems, pageState.firstPost, lazyListState) {
         derivedStateOf {
             pageState.postItems.firstOrNull { (post) ->
@@ -399,28 +416,33 @@ fun ThreadPageLayout(
                     )
                 }
             ) { paddingValues ->
-                ModalBottomSheetLayout(
+                ThemeModalBottomSheetLayout(
                     sheetState = bottomSheetState,
-                    sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-                    sheetBackgroundColor = ExtendedTheme.colors.windowBackground,
+                    shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+                    sheetBackgroundColor = sheetBackground,
                     sheetContent = {
-                        ThreadMenuSheetContent(
-                            pageState = pageState,
-                            forumId = forumId,
-                            lastVisibilityPost = lastVisibilityPost,
-                            bottomSheetState = bottomSheetState,
-                            jumpToPageDialogState = jumpToPageDialogState,
-                            confirmDeleteDialogState = confirmDeleteDialogState,
-                            deletePostState = dialogs.deletePost,
-                            actions = actions,
-                            navigator = navigator,
-                            viewModel = viewModel,
-                            coroutineScope = coroutineScope,
-                            context = context,
-                            closeBottomSheet = { closeBottomSheet() }
-                        )
+                        val isHidden = bottomSheetState.currentValue == ModalBottomSheetValue.Hidden &&
+                            bottomSheetState.targetValue == ModalBottomSheetValue.Hidden
+                        val hiddenOffset = if (isHidden) 4000.dp else 0.dp
+                        Box(modifier = Modifier.offset(y = hiddenOffset)) {
+                            ThreadMenuSheetContent(
+                                pageState = pageState,
+                                forumId = forumId,
+                                lastVisibilityPost = lastVisibilityPost,
+                                bottomSheetState = bottomSheetState,
+                                jumpToPageDialogState = jumpToPageDialogState,
+                                confirmDeleteDialogState = confirmDeleteDialogState,
+                                deletePostState = dialogs.deletePost,
+                                actions = actions,
+                                navigator = navigator,
+                                viewModel = viewModel,
+                                coroutineScope = coroutineScope,
+                                context = context,
+                                closeBottomSheet = { closeBottomSheet() }
+                            )
+                        }
                     },
-                    scrimColor = Color.Transparent,
+                    scrimColor = sheetScrim,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)

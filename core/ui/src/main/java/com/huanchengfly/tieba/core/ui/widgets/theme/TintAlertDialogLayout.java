@@ -27,13 +27,13 @@ public class TintAlertDialogLayout extends AlertDialogLayout implements Tintable
             return;
         }
         if (attrs == null) {
-            backgroundTintResId = R.color.default_color_background;
+            backgroundTintResId = R.color.sem_surface_card;
             applyTintColor();
             return;
         }
         @SuppressLint("CustomViewStyleable") TypedArray array =
             context.obtainStyledAttributes(attrs, R.styleable.TintView, 0, 0);
-        backgroundTintResId = array.getResourceId(R.styleable.TintView_backgroundTint, R.color.default_color_background);
+        backgroundTintResId = array.getResourceId(R.styleable.TintView_backgroundTint, R.color.sem_surface_card);
         array.recycle();
         applyTintColor();
     }

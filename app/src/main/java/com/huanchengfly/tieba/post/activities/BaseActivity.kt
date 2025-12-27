@@ -30,6 +30,7 @@ import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsManager
 import com.huanchengfly.tieba.core.ui.theme.ExtraRefreshable
 import com.huanchengfly.tieba.core.ui.theme.ThemeController
 import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
+import com.huanchengfly.tieba.core.ui.theme.data.ThemeRepository
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.App.Companion.INSTANCE
 import com.huanchengfly.tieba.post.R
@@ -89,6 +90,8 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     }
 
     protected val themeController: ThemeController by lazy { themeRuntimeEntryPoint.themeController() }
+
+    protected val themeRepository: ThemeRepository by lazy { themeRuntimeEntryPoint.themeRepository() }
 
     protected val themeUiDelegate: ThemeUiDelegate by lazy { themeUiEntryPoint.themeUiDelegate() }
 
@@ -220,7 +223,7 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     override fun onResume() {
         super.onResume()
         isActivityRunning = true
-        if (appPreferences.followSystemNight) {
+        if (themeRepository.currentSettings().followSystemNight) {
             val themeState = themeController.themeState.value
             if (App.isSystemNight && !themeState.isNightMode) {
                 themeController.toggleNightMode()

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sem_surface_primary">@color/color_sem_surface_primary_dark</color>
+    <color name="sem_surface_window">@color/color_sem_surface_window_dark</color>
+    <color name="sem_surface_card">@color/color_sem_surface_card_dark</color>
+    <color name="sem_surface_floor">@color/color_sem_surface_floor_dark</color>
+    <color name="sem_surface_chip">@color/color_sem_surface_chip_dark</color>
+    <color name="sem_surface_nav">@color/color_sem_surface_nav_dark</color>
+    <color name="sem_surface_nav_surface">@color/color_sem_surface_nav_surface_dark</color>
+    <color name="sem_surface_toolbar">@color/color_sem_surface_toolbar_dark</color>
+    <color name="sem_surface_scrim">@color/color_sem_surface_scrim_dark</color>
+
+    <color name="sem_content_primary">@color/color_sem_content_primary_dark</color>
+    <color name="sem_content_secondary">@color/color_sem_content_secondary_dark</color>
+    <color name="sem_content_disabled">@color/color_sem_content_disabled_dark</color>
+    <color name="sem_content_inverse">@color/color_sem_content_inverse_dark</color>
+    <color name="sem_content_on_primary">@color/color_sem_content_on_brand_dark</color>
+    <color name="sem_content_on_chip">@color/color_sem_content_on_chip_dark</color>
+
+    <color name="sem_state_active">@color/color_sem_state_active_dark</color>
+    <color name="sem_state_unselected">@color/color_sem_state_unselected_dark</color>
+    <color name="sem_state_indicator">@color/color_sem_state_indicator_dark</color>
+
+    <color name="sem_outline_low">@color/color_sem_outline_low_dark</color>
+    <color name="sem_outline_surface">@color/color_sem_outline_surface_dark</color>
+    <color name="sem_outline_secondary">@color/color_sem_outline_secondary_dark</color>
+
+    <color name="sem_decor_placeholder">@color/color_sem_decor_placeholder_dark</color>
+    <color name="sem_decor_shadow">@color/color_sem_decor_shadow_dark</color>
+</resources>

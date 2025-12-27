@@ -28,14 +28,14 @@ public class TintProgressBar extends ContentLoadingProgressBar implements Tintab
         super(context, attrs);
         if (attrs == null) {
             backgroundTintResId = 0;
-            progressTintResId = R.color.default_color_primary;
+            progressTintResId = R.color.sem_state_active;
             progressBackgroundTintResId = 0;
             applyTintColor();
             return;
         }
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.TintSeekbar, 0, 0);
         backgroundTintResId = array.getResourceId(R.styleable.TintSeekbar_seekbarBackgroundTint, 0);
-        progressTintResId = array.getResourceId(R.styleable.TintSeekbar_progressTint, R.color.default_color_primary);
+        progressTintResId = array.getResourceId(R.styleable.TintSeekbar_progressTint, R.color.sem_state_active);
         progressBackgroundTintResId = array.getResourceId(R.styleable.TintSeekbar_progressBackgroundTint, 0);
         array.recycle();
         applyTintColor();

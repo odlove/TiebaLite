@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_base_brand_primary_dark">#4477E0</color>
+    <color name="color_base_brand_on_primary_dark">#FF131D28</color>
+
+    <color name="color_base_neutral_0_dark">#FF131D28</color>
+    <color name="color_base_neutral_5_dark">#FF10171F</color>
+    <color name="color_base_neutral_10_dark">#FF10171D</color>
+    <color name="color_base_neutral_40_dark">#FF808080</color>
+    <color name="color_base_neutral_60_dark">#CC808080</color>
+    <color name="color_base_neutral_100_dark">#FFEEEEEE</color>
+    <color name="color_base_neutral_inverse_dark">#FFEEEEEE</color>
+
+    <color name="color_base_neutral_variant_surface_dark">#FF5C5C5C</color>
+    <color name="color_base_neutral_variant_secondary_dark">#CCE6E7EE</color>
+    <color name="color_base_neutral_variant_unselected_dark">#FF415C68</color>
+
+    <color name="color_base_surface_nav_dark">#FF15202B</color>
+    <color name="color_base_surface_nav_surface_dark">#FF141F2A</color>
+    <color name="color_base_surface_toolbar_dark">#FF17212B</color>
+    <color name="color_base_surface_card_dark">#FF131D27</color>
+    <color name="color_base_surface_floor_dark">#FF1A2A39</color>
+    <color name="color_base_surface_chip_dark">#FF242F3D</color>
+
+    <color name="color_base_on_chip_dark">#FF68737E</color>
+    <color name="color_base_indicator_primary_dark">#FF1C2938</color>
+    <color name="color_base_placeholder_dark">#99000000</color>
+    <color name="color_base_shadow_soft_dark">#FE191919</color>
+
+    <color name="color_base_alpha_low_dark">#00000000</color>
+    <color name="color_base_alpha_mid_dark">#20000000</color>
+    <color name="color_base_alpha_high_dark">#2A000000</color>
+</resources>

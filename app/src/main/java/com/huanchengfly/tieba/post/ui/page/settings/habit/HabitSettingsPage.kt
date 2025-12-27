@@ -21,7 +21,6 @@ import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -31,17 +30,19 @@ import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.dataStore
-import com.huanchengfly.tieba.post.ui.common.prefs.PrefsScreen
-import com.huanchengfly.tieba.post.ui.common.prefs.widgets.ListPref
-import com.huanchengfly.tieba.post.ui.common.prefs.widgets.SwitchPref
 import com.huanchengfly.tieba.post.ui.page.settings.LeadingIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.AvatarIcon
-import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.SettingsListPicker
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.SettingsSwitch
+import com.huanchengfly.tieba.post.ui.common.prefs.PrefsScreen
 import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.core.ui.widgets.compose.TitleCentredToolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.post.utils.isPhotoPickerAvailable
+import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -55,9 +56,14 @@ fun HabitSettingsPage(
     val snackbarState = rememberSnackbarState()
     SnackbarScaffold(
         snackbarState = snackbarState,
-        backgroundColor = Color.Transparent,
+        backgroundColor = ExtendedTheme.colors.background,
         topBar = {
-            TitleCentredToolbar(
+            val topBarColor = ExtendedTheme.colors.topBar
+            val statusBarColor = topBarColor.calcStatusBarColor()
+            ThemeTopAppBar(
+                backgroundColor = topBarColor,
+                statusBarColor = statusBarColor,
+                centerTitle = true,
                 title = {
                     Text(
                         text = stringResource(id = R.string.title_settings_read_habit),
@@ -65,7 +71,7 @@ fun HabitSettingsPage(
                     )
                 },
                 navigationIcon = {
-                    BackNavigationIcon(onBackPressed = { navigator.navigateUp() })
+                    DefaultBackIcon(onBack = { navigator.navigateUp()  })
                 }
             )
         },
@@ -78,7 +84,7 @@ fun HabitSettingsPage(
                 .fillMaxSize(),
         ) {
             prefsItem {
-                ListPref(
+                SettingsListPicker(
                     key = "image_load_type",
                     title = stringResource(id = R.string.title_settings_image_load_type),
                     entries = mapOf(
@@ -89,7 +95,7 @@ fun HabitSettingsPage(
                     ),
                     useSelectedAsSummary = true,
                     defaultValue = "0",
-                    leadingIcon = {
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.PhotoSizeSelectActual,
@@ -101,7 +107,7 @@ fun HabitSettingsPage(
                 )
             }
             prefsItem {
-                ListPref(
+                SettingsListPicker(
                     key = "pic_watermark_type",
                     title = stringResource(id = R.string.title_settings_image_watermark),
                     entries = mapOf(
@@ -111,7 +117,7 @@ fun HabitSettingsPage(
                     ),
                     useSelectedAsSummary = true,
                     defaultValue = "2",
-                    leadingIcon = {
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.AutoMirrored.Outlined.BrandingWatermark,
@@ -123,22 +129,23 @@ fun HabitSettingsPage(
                 )
             }
             prefsItem {
-                SwitchPref(
+                SettingsSwitch(
                     key = "imageDarkenWhenNightMode",
                     title = stringResource(id = R.string.settings_image_darken_when_night_mode),
                     defaultChecked = true,
-                ) {
-                    LeadingIcon {
-                        AvatarIcon(
-                            icon = Icons.Outlined.NightsStay,
-                            size = Sizes.Small,
-                            contentDescription = null,
-                        )
-                    }
-                }
+                    leadingContent = {
+                        LeadingIcon {
+                            AvatarIcon(
+                                icon = Icons.Outlined.NightsStay,
+                                size = Sizes.Small,
+                                contentDescription = null,
+                            )
+                        }
+                    },
+                )
             }
             prefsItem {
-                ListPref(
+                SettingsListPicker(
                     key = "default_sort_type",
                     title = stringResource(id = R.string.title_settings_default_sort_type),
                     entries = mapOf(
@@ -147,7 +154,7 @@ fun HabitSettingsPage(
                     ),
                     useSelectedAsSummary = true,
                     defaultValue = "0",
-                    leadingIcon = {
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.CalendarViewDay,
@@ -159,11 +166,11 @@ fun HabitSettingsPage(
                 )
             }
             prefsItem {
-                ListPref(
+                SettingsListPicker(
                     key = "forumFabFunction",
                     title = stringResource(id = R.string.settings_forum_fab_function),
                     defaultValue = "post",
-                    leadingIcon = {
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.AutoMirrored.Outlined.ExitToApp,
@@ -182,44 +189,34 @@ fun HabitSettingsPage(
                 )
             }
             prefsItem {
-                SwitchPref(
+                SettingsSwitch(
                     key = "hideMedia",
                     title = stringResource(id = R.string.title_hide_media),
-                    defaultChecked = false
-                ) {
-                    LeadingIcon {
-                        AvatarIcon(
-                            icon = ImageVector.vectorResource(R.drawable.ic_outline_collapse_all),
-                            size = Sizes.Small,
-                            contentDescription = null,
-                        )
+                    defaultChecked = false,
+                    leadingContent = {
+                        LeadingIcon {
+                            AvatarIcon(
+                                icon = ImageVector.vectorResource(R.drawable.ic_outline_collapse_all),
+                                size = Sizes.Small,
+                                contentDescription = null,
+                            )
+                        }
                     }
-                }
+                )
             }
-//            prefsItem {
-//                SwitchPref(
-//                    key = "showShortcutInThread",
-//                    title = stringResource(id = R.string.settings_show_shortcut),
-//                    defaultChecked = true,
-//                    leadingIcon = {
-//                        LeadingIcon {
-//                            AvatarIcon(
-//                                icon = ImageVector.vectorResource(id = R.drawable.ic_quick_yellow),
-//                                size = Sizes.Small,
-//                                contentDescription = null,
-//                            )
-//                        }
-//                    },
-//                    summaryOn = stringResource(id = R.string.tip_show_shortcut_in_thread_on),
-//                    summaryOff = stringResource(id = R.string.tip_show_shortcut_in_thread)
-//                )
-//            }
             prefsItem {
-                SwitchPref(
+                SettingsSwitch(
                     key = "collect_thread_see_lz",
                     title = stringResource(id = R.string.settings_collect_thread_see_lz),
                     defaultChecked = true,
-                    leadingIcon = {
+                    summary = { isOn ->
+                        if (isOn) {
+                            stringResource(id = R.string.tip_collect_thread_see_lz_on)
+                        } else {
+                            stringResource(id = R.string.tip_collect_thread_see_lz)
+                        }
+                    },
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.StarOutline,
@@ -228,16 +225,21 @@ fun HabitSettingsPage(
                             )
                         }
                     },
-                    summaryOn = stringResource(id = R.string.tip_collect_thread_see_lz_on),
-                    summaryOff = stringResource(id = R.string.tip_collect_thread_see_lz)
                 )
             }
             prefsItem {
-                SwitchPref(
+                SettingsSwitch(
                     key = "collect_thread_desc_sort",
                     title = stringResource(id = R.string.settings_collect_thread_desc_sort),
                     defaultChecked = false,
-                    leadingIcon = {
+                    summary = { isOn ->
+                        if (isOn) {
+                            stringResource(id = R.string.tip_collect_thread_desc_sort_on)
+                        } else {
+                            stringResource(id = R.string.tip_collect_thread_desc_sort)
+                        }
+                    },
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.AutoMirrored.Rounded.Sort,
@@ -245,32 +247,31 @@ fun HabitSettingsPage(
                                 contentDescription = null,
                             )
                         }
-                    },
-                    summaryOn = stringResource(id = R.string.tip_collect_thread_desc_sort_on),
-                    summaryOff = stringResource(id = R.string.tip_collect_thread_desc_sort)
+                    }
                 )
             }
             prefsItem {
-                SwitchPref(
+                SettingsSwitch(
                     key = "show_both_username_and_nickname",
                     title = stringResource(id = R.string.title_show_both_username_and_nickname),
                     defaultChecked = false,
-                ) {
-                    LeadingIcon {
-                        AvatarIcon(
-                            icon = Icons.Outlined.Verified,
-                            size = Sizes.Small,
-                            contentDescription = null,
-                        )
-                    }
-                }
+                    leadingContent = {
+                        LeadingIcon {
+                            AvatarIcon(
+                                icon = Icons.Outlined.Verified,
+                                size = Sizes.Small,
+                                contentDescription = null,
+                            )
+                        }
+                    },
+                )
             }
             prefsItem {
-                SwitchPref(
+                SettingsSwitch(
                     key = "homePageShowHistoryForum",
                     title = stringResource(id = R.string.settings_home_page_show_history_forum),
                     defaultChecked = true,
-                    leadingIcon = {
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.WatchLater,
@@ -282,50 +283,52 @@ fun HabitSettingsPage(
                 )
             }
             prefsItem {
-                SwitchPref(
+                SettingsSwitch(
                     key = "postOrReplyWarning",
                     title = stringResource(id = R.string.title_post_or_reply_warning),
                     defaultChecked = true,
-                ) {
-                    LeadingIcon {
-                        AvatarIcon(
-                            icon = Icons.Outlined.SecurityUpdateWarning,
-                            size = Sizes.Small,
-                            contentDescription = null,
-                        )
-                    }
-                }
+                    leadingContent = {
+                        LeadingIcon {
+                            AvatarIcon(
+                                icon = Icons.Outlined.SecurityUpdateWarning,
+                                size = Sizes.Small,
+                                contentDescription = null,
+                            )
+                        }
+                    },
+                )
             }
             prefsItem {
-                SwitchPref(
+                SettingsSwitch(
                     key = "hideReply",
                     title = stringResource(id = R.string.title_hide_reply),
                     defaultChecked = false,
-                ) {
-                    LeadingIcon {
-                        AvatarIcon(
-                            icon = Icons.Outlined.SpeakerNotesOff,
-                            size = Sizes.Small,
-                            contentDescription = null,
-                        )
-                    }
-                }
+                    leadingContent = {
+                        LeadingIcon {
+                            AvatarIcon(
+                                icon = Icons.Outlined.SpeakerNotesOff,
+                                size = Sizes.Small,
+                                contentDescription = null,
+                            )
+                        }
+                    },
+                )
             }
             prefsItem {
-                SwitchPref(
+                SettingsSwitch(
                     key = "doNotUsePhotoPicker",
                     title = stringResource(id = R.string.title_do_not_use_photo_picker),
-                    summary = {
+                    summary = { isChecked ->
                         if (!isPhotoPickerAvailable()) {
                             context.getString(R.string.summary_photo_picker_not_supported)
-                        } else if (it) {
+                        } else if (isChecked) {
                             context.getString(R.string.summary_do_not_use_photo_picker)
                         } else {
                             context.getString(R.string.summary_use_photo_picker)
                         }
                     },
                     defaultChecked = false,
-                    leadingIcon = {
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.ImageSearch,

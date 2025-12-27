@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -29,7 +28,11 @@ import androidx.compose.ui.window.DialogProperties
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.widgets.compose.Button
-import com.huanchengfly.tieba.core.ui.widgets.compose.TitleCentredToolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogContentColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogPrimaryButtonColors
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogSecondaryButtonColors
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.menuBackground
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.post.utils.TiebaUtil
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -57,7 +60,7 @@ fun CopyTextDialogPage(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxSize()
-            .background(color = ExtendedTheme.colors.windowBackground)
+            .background(color = ExtendedTheme.colors.menuBackground)
     ) {
         CopyTextPageContent(
             text = text,
@@ -80,13 +83,17 @@ private fun CopyTextPageContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = ExtendedTheme.colors.windowBackground)
+            .background(color = ExtendedTheme.colors.menuBackground)
             .systemBarsPadding()
             .padding(bottom = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        TitleCentredToolbar(
+        ThemeTopAppBar(
+            backgroundColor = ExtendedTheme.colors.topBar,
+            contentColor = ExtendedTheme.colors.onTopBar,
+            statusBarColor = ExtendedTheme.colors.topBar,
+            centerTitle = true,
             title = {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -98,7 +105,8 @@ private fun CopyTextPageContent(
                     )
                     Text(
                         text = stringResource(id = R.string.tip_copy_text),
-                        style = MaterialTheme.typography.caption
+                        style = MaterialTheme.typography.caption,
+                        color = dialogContentColor()
                     )
                 }
             },
@@ -139,7 +147,8 @@ private fun CopyTextPageContent(
                 onClick = {
                     onCopy(text)
                     onCancel()
-                }
+                },
+                colors = dialogPrimaryButtonColors()
             ) {
                 Text(text = stringResource(id = R.string.btn_copy_all))
             }
@@ -148,10 +157,7 @@ private fun CopyTextPageContent(
                 onClick = {
                     onCancel()
                 },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = ExtendedTheme.colors.text.copy(alpha = 0.1f),
-                    contentColor = ExtendedTheme.colors.text
-                )
+                colors = dialogSecondaryButtonColors()
             ) {
                 Text(text = stringResource(id = R.string.btn_close))
             }

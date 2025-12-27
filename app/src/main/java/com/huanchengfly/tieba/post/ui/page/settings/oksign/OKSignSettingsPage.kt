@@ -14,10 +14,10 @@ import androidx.compose.material.icons.outlined.OfflinePin
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -27,27 +27,28 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.dataStore
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.SettingsItem
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.SettingsSwitch
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.SettingsTimePicker
 import com.huanchengfly.tieba.post.ui.common.prefs.PrefsScreen
 import com.huanchengfly.tieba.post.ui.common.prefs.depend
-import com.huanchengfly.tieba.post.ui.common.prefs.widgets.SwitchPref
-import com.huanchengfly.tieba.post.ui.common.prefs.widgets.TextPref
-import com.huanchengfly.tieba.post.ui.common.prefs.widgets.TimePickerPerf
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.page.settings.LeadingIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.AvatarIcon
-import com.huanchengfly.tieba.core.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.core.ui.widgets.compose.TitleCentredToolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.post.utils.isIgnoringBatteryOptimizations
 import com.huanchengfly.tieba.post.utils.powerManager
 import com.huanchengfly.tieba.post.utils.requestIgnoreBatteryOptimizations
+import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Destination
@@ -58,18 +59,26 @@ fun OKSignSettingsPage(
     val snackbarState = rememberSnackbarState()
     SnackbarScaffold(
         snackbarState = snackbarState,
-        backgroundColor = Color.Transparent,
+        backgroundColor = ExtendedTheme.colors.background,
         topBar = {
-            TitleCentredToolbar(
-                title = stringResource(id = CoreUiR.string.title_oksign),
+            val topBarColor = ExtendedTheme.colors.topBar
+            val statusBarColor = topBarColor.calcStatusBarColor()
+            ThemeTopAppBar(
+                backgroundColor = topBarColor,
+                statusBarColor = statusBarColor,
+                centerTitle = true,
+                title = {
+                    Text(text = stringResource(id = R.string.title_oksign), fontWeight = FontWeight.Bold)
+                },
                 navigationIcon = {
-                    BackNavigationIcon(onBackPressed = { navigator.navigateUp() })
+                    DefaultBackIcon(onBack = { navigator.navigateUp()  })
                 }
             )
         },
     ) { paddingValues ->
         val context = LocalContext.current
         val dataStore = context.dataStore
+        val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
         PrefsScreen(
             dataStore = dataStore,
             dividerThickness = 0.dp,
@@ -78,8 +87,8 @@ fun OKSignSettingsPage(
                 .fillMaxSize(),
         ) {
             prefsItem {
-                SwitchPref(
-                    leadingIcon = {
+                SettingsSwitch(
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.BrowseGallery,
@@ -91,13 +100,18 @@ fun OKSignSettingsPage(
                     key = "oksign_slow_mode",
                     title = stringResource(id = R.string.title_oksign_slow_mode),
                     defaultChecked = true,
-                    summaryOn = stringResource(id = R.string.summary_oksign_slow_mode_on),
-                    summaryOff = stringResource(id = R.string.summary_oksign_slow_mode),
+                    summary = { isOn ->
+                        if (isOn) {
+                            stringResource(id = R.string.summary_oksign_slow_mode_on)
+                        } else {
+                            stringResource(id = R.string.summary_oksign_slow_mode)
+                        }
+                    },
                 )
             }
             prefsItem {
-                SwitchPref(
-                    leadingIcon = {
+                SettingsSwitch(
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.Speed,
@@ -109,12 +123,12 @@ fun OKSignSettingsPage(
                     key = "oksign_use_official_oksign",
                     title = stringResource(id = R.string.title_oksign_use_official_oksign),
                     defaultChecked = true,
-                    summary = stringResource(id = R.string.summary_oksign_use_official_oksign),
+                    summary = { stringResource(id = R.string.summary_oksign_use_official_oksign) },
                 )
             }
             prefsItem {
-                SwitchPref(
-                    leadingIcon = {
+                SettingsSwitch(
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.OfflinePin,
@@ -126,13 +140,23 @@ fun OKSignSettingsPage(
                     key = "auto_sign",
                     title = stringResource(id = R.string.title_auto_sign),
                     defaultChecked = false,
-                    summaryOn = stringResource(id = R.string.summary_auto_sign_on),
-                    summaryOff = stringResource(id = R.string.summary_auto_sign),
+                    summary = { isOn ->
+                        if (isOn) {
+                            stringResource(id = R.string.summary_auto_sign_on)
+                        } else {
+                            stringResource(id = R.string.summary_auto_sign)
+                        }
+                    },
                 )
             }
             prefsItem {
-                TimePickerPerf(
-                    leadingIcon = {
+                SettingsTimePicker(
+                    key = "auto_sign_time",
+                    title = stringResource(id = R.string.title_auto_sign_time),
+                    defaultValue = "09:00",
+                    summary = { time -> context.getString(R.string.summary_auto_sign_time, time.format(timeFormatter)) },
+                    enabled = depend(key = "auto_sign"),
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.WatchLater,
@@ -140,18 +164,12 @@ fun OKSignSettingsPage(
                                 contentDescription = null,
                             )
                         }
-                    },
-                    key = "auto_sign_time",
-                    title = stringResource(id = R.string.title_auto_sign_time),
-                    defaultValue = "09:00",
-                    summary = { stringResource(id = R.string.summary_auto_sign_time, it) },
-                    dialogTitle = stringResource(id = R.string.title_auto_sign_time),
-                    enabled = depend(key = "auto_sign")
+                    }
                 )
             }
             prefsItem {
-                TextPref(
-                    leadingIcon = {
+                SettingsItem(
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.BatteryAlert,
@@ -160,12 +178,6 @@ fun OKSignSettingsPage(
                             )
                         }
                     },
-                    title = stringResource(id = R.string.title_ignore_battery_optimization),
-                    enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !context.isIgnoringBatteryOptimizations(),
-                    summary =
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) stringResource(id = R.string.summary_battery_optimization_old_android_version)
-                    else if (context.isIgnoringBatteryOptimizations()) stringResource(id = R.string.summary_battery_optimization_ignored)
-                    else stringResource(id = R.string.summary_ignore_battery_optimization),
                     onClick = {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             if (!context.powerManager.isIgnoringBatteryOptimizations(context.packageName)) {
@@ -174,7 +186,23 @@ fun OKSignSettingsPage(
                                 snackbarState.showSnackbar(context.getString(R.string.toast_ignore_battery_optimization_already))
                             }
                         }
-                    }
+                    },
+                    title = { Text(text = stringResource(id = R.string.title_ignore_battery_optimization)) },
+                    subtitle = {
+                        Text(
+                            text = when {
+                                Build.VERSION.SDK_INT < Build.VERSION_CODES.M ->
+                                    stringResource(id = R.string.summary_battery_optimization_old_android_version)
+
+                                context.isIgnoringBatteryOptimizations() ->
+                                    stringResource(id = R.string.summary_battery_optimization_ignored)
+
+                                else ->
+                                    stringResource(id = R.string.summary_ignore_battery_optimization)
+                            }
+                        )
+                    },
+                    enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !context.isIgnoringBatteryOptimizations()
                 )
             }
 

@@ -49,6 +49,6 @@ fun rememberThemePalette(
             toolbarPrimary = toolbarPrimary,
             customConfig = customConfig,
             translucentConfig = translucentConfig
-        )
+        ).palette
     }
 }

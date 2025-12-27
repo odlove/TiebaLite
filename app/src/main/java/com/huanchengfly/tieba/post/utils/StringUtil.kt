@@ -87,7 +87,7 @@ object StringUtil {
             val builder = SpannableStringBuilder(nickname)
             builder.append(
                 "($username)",
-                ForegroundColorSpan(ThemeColorResolver.colorByAttr(context, R.attr.color_text_disabled)),
+                ForegroundColorSpan(ThemeColorResolver.textDisabledColor(context)),
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             return builder
@@ -128,7 +128,7 @@ object StringUtil {
             withAnnotation(tag = "user", annotation = userId) {
                 withStyle(
                     SpanStyle(
-                        color = Color(ThemeColorResolver.colorByAttr(context, R.attr.colorNewPrimary))
+                        color = Color(ThemeColorResolver.primaryColor(context))
                     )
                 ) {
                     append("@")

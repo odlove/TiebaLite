@@ -32,9 +32,9 @@ class ChatBubbleStyleAdapter(
         viewHolder.getView<TintLinearLayout>(R.id.chat_bubble_background).apply {
             setBackgroundTintResId(
                 if (item.position == POSITION_RIGHT) {
-                    R.color.default_color_accent
+                    R.color.sem_state_active
                 } else {
-                    R.color.default_color_card
+                    R.color.sem_surface_card
                 }
             )
             (layoutParams as FrameLayout.LayoutParams).gravity =
@@ -47,9 +47,9 @@ class ChatBubbleStyleAdapter(
         viewHolder.getView<TintTextView>(R.id.chat_bubble_text).apply {
             tintResId =
                 if (item.position == POSITION_RIGHT) {
-                    R.color.default_color_on_accent
+                    R.color.sem_content_on_primary
                 } else {
-                    R.color.default_color_text
+                    R.color.sem_content_primary
                 }
             if (bubblesFontSize > 0f) {
                 setTextSize(TypedValue.COMPLEX_UNIT_PX, bubblesFontSize)

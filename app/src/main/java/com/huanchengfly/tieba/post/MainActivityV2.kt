@@ -48,7 +48,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -56,7 +55,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
@@ -85,7 +83,9 @@ import com.huanchengfly.tieba.post.components.ClipBoardLinkDetector
 import com.huanchengfly.tieba.post.services.NotifyJobService
 import com.huanchengfly.tieba.post.services.notification.NotificationConstants
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.LocalThemeState
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.menuBackground
 import com.huanchengfly.tieba.post.ui.page.NavGraphs
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
@@ -107,7 +107,6 @@ import com.huanchengfly.tieba.post.utils.PermissionUtils
 import com.huanchengfly.tieba.post.utils.PickMediasRequest
 import com.huanchengfly.tieba.post.utils.TiebaUtil
 import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
-import com.huanchengfly.tieba.core.ui.preferences.collectPreferenceAsState
 import com.huanchengfly.tieba.post.dataStore
 import com.huanchengfly.tieba.core.ui.activityresult.ActivityResultPayload
 import com.huanchengfly.tieba.core.ui.activityresult.LaunchActivityForResult
@@ -602,8 +601,9 @@ class MainActivityV2 : BaseComposeActivity() {
                     ModalBottomSheetLayout(
                         bottomSheetNavigator = navigator,
                         sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-                        sheetBackgroundColor = ExtendedTheme.colors.windowBackground,
-                        scrimColor = Color.Black.copy(alpha = 0.32f),
+                        sheetBackgroundColor = ExtendedTheme.colors.menuBackground,
+                        sheetContentColor = ExtendedTheme.colors.text,
+                        scrimColor = ExtendedTheme.colors.indicator.copy(alpha = 0.32f),
                     ) {
                         SideEffect {
                             Log.i(
@@ -636,6 +636,7 @@ class MainActivityV2 : BaseComposeActivity() {
         content: @Composable () -> Unit,
     ) {
         val extendedColors = ExtendedTheme.colors
+        val themeState = LocalThemeState.current
         val isTranslucent = extendedColors.isTranslucent
 
         SideEffect {
@@ -665,12 +666,10 @@ class MainActivityV2 : BaseComposeActivity() {
             modifier = modifier
         ) {
             if (isTranslucent) {
-                val context = LocalContext.current
-                val backgroundPath by context.dataStore.collectPreferenceAsState(
-                    key = stringPreferencesKey("translucent_theme_background_path"),
-                    defaultValue = ""
-                )
-                val backgroundUri = remember(backgroundPath) { newFileUri(backgroundPath) }
+                val backgroundPath = themeState.translucentConfig?.backgroundPath
+                val backgroundUri = remember(backgroundPath) {
+                    backgroundPath?.takeIf { it.isNotBlank() }?.let { newFileUri(it) }
+                }
 
                 SideEffect {
                     Log.i(
@@ -685,12 +684,14 @@ class MainActivityV2 : BaseComposeActivity() {
                         "TranslucentThemeBackground backgroundPath changed -> $backgroundPath"
                     )
                 }
-                AsyncImage(
-                    imageUri = backgroundUri,
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
+                backgroundUri?.let { uri ->
+                    AsyncImage(
+                        imageUri = uri,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
             content()
         }

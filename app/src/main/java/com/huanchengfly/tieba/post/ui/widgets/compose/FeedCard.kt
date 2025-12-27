@@ -89,8 +89,11 @@ import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.findActivity
 import com.huanchengfly.tieba.post.goToActivity
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.cardBackgroundColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.cardContentColor
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.post.ui.page.photoview.PhotoViewActivity
 import com.huanchengfly.tieba.core.ui.photoview.getPhotoViewData
@@ -122,34 +125,98 @@ private val ImmutableHolder<Media>.url: String
 
 
 @Composable
-fun Card(
+private fun BaseCard(
     modifier: Modifier = Modifier,
     header: @Composable ColumnScope.() -> Unit = {},
     content: @Composable ColumnScope.() -> Unit = {},
     action: @Composable (ColumnScope.() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+    shape: Shape = RoundedCornerShape(12.dp),
+    plain: Boolean,
+    backgroundColor: Color = cardBackgroundColor(),
+    contentColor: Color = cardContentColor(),
 ) {
     val cardModifier = if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
 
-    val paddingModifier = if (action != null) Modifier.padding(top = 16.dp)
-    else Modifier.padding(vertical = 16.dp)
-
-    Column(
-        modifier = cardModifier
-            .then(modifier)
-            .then(paddingModifier)
-            .padding(contentPadding)
+    CardSurface(
+        modifier = cardModifier.then(modifier),
+        shape = shape,
+        plain = plain,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
     ) {
-        header()
         Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(contentPadding)
         ) {
-            content()
+            header()
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(top = 8.dp, bottom = if (action == null) 0.dp else 12.dp)
+            ) {
+                content()
+            }
+            action?.invoke(this)
         }
-        action?.invoke(this)
     }
+}
+
+/**
+ * 透明背景的卡片容器，保持原有 `plain=true` 行为。
+ */
+@Composable
+fun PlainCard(
+    modifier: Modifier = Modifier,
+    header: @Composable ColumnScope.() -> Unit = {},
+    content: @Composable ColumnScope.() -> Unit = {},
+    action: @Composable (ColumnScope.() -> Unit)? = null,
+    onClick: (() -> Unit)? = null,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+    shape: Shape = RoundedCornerShape(12.dp),
+    backgroundColor: Color = cardBackgroundColor(),
+    contentColor: Color = cardContentColor(),
+) {
+    BaseCard(
+        modifier = modifier,
+        header = header,
+        content = content,
+        action = action,
+        onClick = onClick,
+        contentPadding = contentPadding,
+        shape = shape,
+        plain = true,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+    )
+}
+
+/**
+ * 有背景/圆角的卡片容器，用于楼层卡等需要底色的场景。
+ */
+@Composable
+fun FilledCard(
+    modifier: Modifier = Modifier,
+    header: @Composable ColumnScope.() -> Unit = {},
+    content: @Composable ColumnScope.() -> Unit = {},
+    action: @Composable (ColumnScope.() -> Unit)? = null,
+    onClick: (() -> Unit)? = null,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+    shape: Shape = RoundedCornerShape(12.dp),
+    backgroundColor: Color = cardBackgroundColor(),
+    contentColor: Color = cardContentColor(),
+) {
+    BaseCard(
+        modifier = modifier,
+        header = header,
+        content = content,
+        action = action,
+        onClick = onClick,
+        contentPadding = contentPadding,
+        shape = shape,
+        plain = false,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+    )
 }
 
 @Composable
@@ -233,7 +300,7 @@ fun ThreadContent(
 
 @Composable
 fun FeedCardPlaceholder() {
-    Card(
+    PlainCard(
         header = { UserHeaderPlaceholder(avatarSize = Sizes.Small) },
         content = {
             Text(
@@ -667,7 +734,7 @@ fun FeedCard(
     agreeEnabled: Boolean = true,
     dislikeAction: @Composable () -> Unit = {},
 ) {
-    Card(
+    PlainCard(
         header = {
             val author = remember(item) { item.getNullableImmutable { author } }
             author?.let {
@@ -699,12 +766,8 @@ fun FeedCard(
                     OriginThreadCard(
                         originThreadInfo = it,
                         modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(ExtendedTheme.colors.floorCard)
-                            .clickable {
-                                onClickOriginThread(it.get())
-                            }
-                            .padding(16.dp)
+                            .fillMaxWidth()
+                            .clickable { onClickOriginThread(it.get()) }
                     )
                 }
 
@@ -750,7 +813,7 @@ fun FeedCard(
     onClickForum: (name: String) -> Unit = {},
     onClickOriginThread: (OriginThreadInfo) -> Unit = {},
 ) {
-    Card(
+    PlainCard(
         header = {
             UserHeader(
                 nameProvider = { item.get { user_name } },
@@ -783,12 +846,8 @@ fun FeedCard(
                     OriginThreadCard(
                         originThreadInfo = it,
                         modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(ExtendedTheme.colors.floorCard)
-                            .clickable {
-                                onClickOriginThread(it.get())
-                            }
-                            .padding(16.dp)
+                            .fillMaxWidth()
+                            .clickable { onClickOriginThread(it.get()) }
                     )
                 }
 

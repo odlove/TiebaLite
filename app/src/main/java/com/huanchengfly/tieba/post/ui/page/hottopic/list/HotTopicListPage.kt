@@ -47,11 +47,11 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.Shapes
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.White
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.Yellow
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.post.ui.widgets.compose.NetworkImage
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.post.utils.StringUtil.getShortNumString
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -174,7 +174,11 @@ fun HotTopicListPage(
     Scaffold(
         backgroundColor = Color.Transparent,
         topBar = {
-            TitleCentredToolbar(
+            ThemeTopAppBar(
+                backgroundColor = ExtendedTheme.colors.topBar,
+                contentColor = ExtendedTheme.colors.onTopBar,
+                statusBarColor = ExtendedTheme.colors.topBar,
+                centerTitle = true,
                 title = {
                     Text(
                         text = stringResource(id = R.string.title_hot_message_list),
@@ -182,7 +186,7 @@ fun HotTopicListPage(
                     )
                 },
                 navigationIcon = {
-                    BackNavigationIcon(onBackPressed = { navigator.navigateUp() })
+                    DefaultBackIcon(onBack = { navigator.navigateUp()  })
                 }
             )
         },

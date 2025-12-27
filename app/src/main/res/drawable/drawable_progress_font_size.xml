@@ -3,7 +3,7 @@
     <item android:id="@android:id/background">
         <shape>
             <corners android:radius="22dp" />
-            <solid android:color="@color/default_color_divider" />
+            <solid android:color="@color/sem_outline_low" />
         </shape>
     </item>
 
@@ -11,7 +11,7 @@
         <scale android:scaleWidth="100%">
             <shape>
                 <corners android:radius="22dp" />
-                <solid android:color="@color/default_color_divider" />
+                <solid android:color="@color/sem_outline_low" />
             </shape>
         </scale>
     </item>

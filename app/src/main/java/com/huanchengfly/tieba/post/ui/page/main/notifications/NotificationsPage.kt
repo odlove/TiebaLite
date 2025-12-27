@@ -1,10 +1,15 @@
 package com.huanchengfly.tieba.post.ui.page.main.notifications
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Tab
+import androidx.compose.material.TabRow
+import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
@@ -14,22 +19,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabSelectedColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabUnselectedColor
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.SearchPageDestination
 import com.huanchengfly.tieba.post.ui.page.main.notifications.list.NotificationsListPage
 import com.huanchengfly.tieba.post.ui.page.main.notifications.list.NotificationsType
-import com.huanchengfly.tieba.post.ui.widgets.compose.ActionItem
-import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultActionIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.compose.LazyLoadHorizontalPager
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
-import com.huanchengfly.tieba.core.ui.compose.TabRow
-import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
-import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.post.ui.widgets.compose.accountNavIconIfCompact
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
@@ -61,39 +67,50 @@ fun NotificationsPage(
     val coroutineScope = rememberCoroutineScope()
     ProvideNavigator(navigator = navigator) {
         val snackbarState = rememberSnackbarState()
+        val colors = ExtendedTheme.colors
+        val tabContentColor = tabSelectedColor()
+        val tabUnselectedColor = tabUnselectedColor()
         SnackbarScaffold(
             snackbarState = snackbarState,
             backgroundColor = Color.Transparent,
             topBar = {
-                TitleCentredToolbar(
-                    title = { Text(text = stringResource(id = R.string.title_notifications)) },
-                    navigationIcon = {
-                        BackNavigationIcon {
-                            navigator.navigateUp()
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    ThemeTopAppBar(
+                        backgroundColor = colors.topBar,
+                        contentColor = colors.onTopBar,
+                        statusBarColor = colors.topBar,
+                        centerTitle = false,
+                        title = {
+                            Text(
+                                text = stringResource(id = R.string.title_notifications),
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        navigationIcon = {
+                            DefaultBackIcon(onBack = { navigator.navigateUp()  })
                         }
-                    }
-                ) {
+                    )
                     TabRow(
                         selectedTabIndex = pagerState.currentPage,
+                        backgroundColor = Color.Transparent,
+                        contentColor = tabContentColor,
                         indicator = { tabPositions ->
                             PagerTabIndicator(
                                 pagerState = pagerState,
                                 tabPositions = tabPositions
                             )
                         },
-                        divider = {},
-                        backgroundColor = Color.Transparent,
-                        contentColor = ExtendedTheme.colors.onTopBar,
+                        divider = {}
                     ) {
-                        pages.forEachIndexed { index, pair ->
+                        pages.forEachIndexed { index, page ->
                             Tab(
-                                text = { Text(text = pair.first) },
                                 selected = pagerState.currentPage == index,
                                 onClick = {
-                                    coroutineScope.launch {
-                                        pagerState.animateScrollToPage(index)
-                                    }
+                                    coroutineScope.launch { pagerState.animateScrollToPage(index) }
                                 },
+                                selectedContentColor = tabContentColor,
+                                unselectedContentColor = tabUnselectedColor,
+                                text = { Text(text = page.first) },
                             )
                         }
                     }
@@ -133,42 +150,55 @@ fun NotificationsPage(
         initialPage = initialTab,
     ) { pages.size }
     val coroutineScope = rememberCoroutineScope()
+    val colors = ExtendedTheme.colors
+    val tabContentColor = tabSelectedColor()
+    val tabUnselectedColor = tabUnselectedColor()
     Scaffold(
         backgroundColor = Color.Transparent,
         topBar = {
-            Toolbar(
-                title = stringResource(id = R.string.title_notifications),
-                navigationIcon = accountNavIconIfCompact(),
-                actions = {
-                    ActionItem(
-                        icon = Icons.Rounded.Search,
-                        contentDescription = stringResource(id = R.string.title_search)
-                    ) {
-                        navigator.navigate(SearchPageDestination)
-                    }
-                },
-            ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                ThemeTopAppBar(
+                    backgroundColor = colors.topBar,
+                    contentColor = colors.onTopBar,
+                    statusBarColor = colors.topBar,
+                    centerTitle = false,
+                    title = {
+                        Text(
+                            text = stringResource(id = R.string.title_notifications),
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    navigationIcon = accountNavIconIfCompact(),
+                    actions = {
+                        DefaultActionIcon(
+                            imageVector = Icons.Rounded.Search,
+                            contentDescription = stringResource(id = R.string.title_search),
+                            tint = colors.onTopBar,
+                            onClick = { navigator.navigate(SearchPageDestination) }
+                        )
+                    },
+                )
                 TabRow(
                     selectedTabIndex = pagerState.currentPage,
+                    backgroundColor = Color.Transparent,
+                    contentColor = tabContentColor,
                     indicator = { tabPositions ->
                         PagerTabIndicator(
                             pagerState = pagerState,
                             tabPositions = tabPositions
                         )
                     },
-                    divider = {},
-                    backgroundColor = Color.Transparent,
-                    contentColor = ExtendedTheme.colors.onTopBar,
+                    divider = {}
                 ) {
-                    pages.forEachIndexed { index, pair -> 
+                    pages.forEachIndexed { index, page ->
                         Tab(
-                            text = { Text(text = pair.first) },
                             selected = pagerState.currentPage == index,
                             onClick = {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(index)
-                                }
+                                coroutineScope.launch { pagerState.animateScrollToPage(index) }
                             },
+                            selectedContentColor = tabContentColor,
+                            unselectedContentColor = tabUnselectedColor,
+                            text = { Text(text = page.first) },
                         )
                     }
                 }

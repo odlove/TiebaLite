@@ -26,10 +26,12 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.material.Tab
@@ -58,6 +60,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -75,8 +78,12 @@ import com.huanchengfly.tieba.post.models.database.SearchHistory
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
-import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeSearchBox
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabSelectedColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabUnselectedColor
+import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.SearchPageDestination
 import com.huanchengfly.tieba.post.ui.page.search.forum.SearchForumPage
@@ -91,10 +98,8 @@ import com.huanchengfly.tieba.core.ui.compose.MyBackHandler
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
-import com.huanchengfly.tieba.post.ui.widgets.compose.SearchBox
 import com.huanchengfly.tieba.core.ui.widgets.compose.TabClickMenu
 import com.huanchengfly.tieba.core.ui.compose.TabRow
-import com.huanchengfly.tieba.core.ui.compose.TopAppBarContainer
 import com.huanchengfly.tieba.post.ui.widgets.compose.picker.ListSinglePicker
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
@@ -251,33 +256,45 @@ fun SearchPage(
         topBar = {
             val topBarColor = ExtendedTheme.colors.topBar
             val statusBarColor = topBarColor.calcStatusBarColor()
-            TopAppBarContainer(
-                topBar = {
-                    Box(
-                        modifier = Modifier
-                            .height(64.dp)
-                            .background(topBarColor)
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        SearchTopBar(
-                            keyword = inputKeyword,
-                            onKeywordChange = { inputKeyword = it },
-                            onKeywordSubmit = {
-                                viewModel.send(SearchUiIntent.SubmitKeyword(it))
-                            },
-                            onBack = {
+            Column(modifier = Modifier.background(topBarColor)) {
+                ThemeTopAppBar(
+                    backgroundColor = topBarColor,
+                    statusBarColor = statusBarColor,
+                    navigationIcon = {
+                        IconButton(
+                            onClick = {
                                 if (isKeywordEmpty) {
                                     navigator.navigateUp()
                                 } else {
                                     viewModel.send(SearchUiIntent.SubmitKeyword(""))
                                 }
                             }
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                contentDescription = stringResource(id = R.string.button_back)
+                            )
+                        }
+                    },
+                    title = {
+                        ThemeSearchBox(
+                            value = inputKeyword,
+                            onValueChange = { inputKeyword = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 4.dp),
+                            placeholder = {
+                                Text(text = stringResource(id = R.string.hint_search))
+                            },
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                            keyboardActions = KeyboardActions(
+                                onSearch = {
+                                    viewModel.send(SearchUiIntent.SubmitKeyword(inputKeyword))
+                                }
+                            )
                         )
                     }
-                },
-                statusBarColor = statusBarColor,
-                backgroundColor = topBarColor
-            ) {
+                )
                 if (!isKeywordEmpty) {
                     SearchTabRow(pagerState = pagerState, pages = pages)
                 }
@@ -397,6 +414,9 @@ private fun ColumnScope.SearchTabRow(
     pages: ImmutableList<SearchPageItem>,
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val colors = ExtendedTheme.colors
+    val tabContentColor = tabSelectedColor()
+    val tabUnselectedColor = tabUnselectedColor()
     TabRow(
         selectedTabIndex = pagerState.currentPage,
         indicator = { tabPositions ->
@@ -407,7 +427,7 @@ private fun ColumnScope.SearchTabRow(
         },
         divider = {},
         backgroundColor = Color.Transparent,
-        contentColor = ExtendedTheme.colors.onTopBar,
+        contentColor = tabContentColor,
         modifier = Modifier
             .align(Alignment.CenterHorizontally)
             .width(76.dp * pages.size),
@@ -424,6 +444,8 @@ private fun ColumnScope.SearchTabRow(
                             pagerState.animateScrollToPage(index)
                         }
                     },
+                    selectedContentColor = tabContentColor,
+                    unselectedContentColor = tabUnselectedColor,
                     text = {
                         ProvideTextStyle(value = tabTextStyle) {
                             item.text(pagerState.currentPage == index)
@@ -454,6 +476,8 @@ private fun ColumnScope.SearchTabRow(
                             pagerState.animateScrollToPage(index)
                         }
                     },
+                    selectedContentColor = tabContentColor,
+                    unselectedContentColor = tabUnselectedColor
                 )
             }
         }
@@ -571,64 +595,6 @@ private fun SearchHistoryList(
     }
 }
 
-@Composable
-private fun SearchTopBar(
-    keyword: String,
-    onKeywordChange: (String) -> Unit,
-    onKeywordSubmit: (String) -> Unit = {},
-    onBack: () -> Unit = {},
-) {
-    SearchBox(
-        keyword = keyword,
-        onKeywordChange = onKeywordChange,
-        modifier = Modifier.fillMaxSize(),
-        onKeywordSubmit = onKeywordSubmit,
-        placeholder = {
-            Text(
-                text = stringResource(id = R.string.hint_search),
-                color = ExtendedTheme.colors.onTopBarSurface.copy(alpha = ContentAlpha.medium)
-            )
-        },
-        prependIcon = {
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(100))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = LocalIndication.current,
-                        role = Role.Button,
-                        onClick = onBack
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                    contentDescription = stringResource(id = R.string.button_back)
-                )
-            }
-        },
-        shape = RoundedCornerShape(6.dp)
-    )
-}
-
-@Preview("SearchBox")
-@Composable
-fun PreviewSearchBox() {
-    var keyword by remember { mutableStateOf("") }
-    TiebaLiteTheme {
-        Box(
-            modifier = Modifier
-                .height(64.dp)
-                .background(ExtendedTheme.colors.topBar)
-                .padding(vertical = 8.dp, horizontal = 16.dp)
-        ) {
-            SearchTopBar(
-                keyword = keyword,
-                onKeywordChange = { keyword = it }
-            )
-        }
-    }
-}
 
 @Preview("SearchHistoryList")
 @Composable

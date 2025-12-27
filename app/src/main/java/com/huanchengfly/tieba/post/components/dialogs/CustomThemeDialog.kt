@@ -58,7 +58,7 @@ class CustomThemeDialog(context: Context) : AlertDialog(context),
         statusBarFont = contentView.findViewById(R.id.custom_theme_status_bar_font)
         toolbarPrimaryColor = contentView.findViewById(R.id.custom_theme_toolbar_primary_color)
         setView(contentView)
-        primaryColor = ThemeColorResolver.colorByAttr(context, R.attr.colorPrimary)
+        primaryColor = ThemeColorResolver.primaryColor(context)
         statusBarFontDark = context.appPreferences.customStatusBarFontDark
         toolbarPrimary = context.appPreferences.toolbarPrimaryColor
         refreshView()

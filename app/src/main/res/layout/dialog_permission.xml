@@ -15,7 +15,7 @@
             android:id="@+id/permission_icon"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            app:tint="@color/default_color_primary"
+            app:tint="@color/sem_state_active"
             tools:src="@drawable/ic_round_location_on" />
 
         <RelativeLayout
@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                app:tint="@color/default_color_text"
+                app:tint="@color/sem_content_primary"
                 tools:text="要允许 m.baidu.com 访问您的位置信息吗？" />
         </RelativeLayout>
     </RelativeLayout>
@@ -51,7 +51,7 @@
             android:text="@string/title_not_ask"
             android:textStyle="bold"
             app:buttonTint="@color/tint_checkbox"
-            app:textColor="@color/default_color_text_secondary" />
+            app:textColor="@color/sem_content_secondary" />
 
         <RelativeLayout
             android:layout_width="match_parent"

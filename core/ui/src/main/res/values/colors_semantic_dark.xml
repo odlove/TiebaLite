@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_sem_surface_primary_dark">@color/color_base_neutral_0_dark</color>
+    <color name="color_sem_surface_window_dark">@color/color_base_neutral_5_dark</color>
+    <color name="color_sem_surface_card_dark">@color/color_base_surface_card_dark</color>
+    <color name="color_sem_surface_floor_dark">@color/color_base_surface_floor_dark</color>
+    <color name="color_sem_surface_chip_dark">@color/color_base_surface_chip_dark</color>
+    <color name="color_sem_surface_nav_dark">@color/color_base_surface_nav_dark</color>
+    <color name="color_sem_surface_nav_surface_dark">@color/color_base_surface_nav_surface_dark</color>
+    <color name="color_sem_surface_toolbar_dark">@color/color_base_surface_toolbar_dark</color>
+    <color name="color_sem_surface_scrim_dark">@color/color_base_alpha_high_dark</color>
+
+    <color name="color_sem_content_primary_dark">@color/color_base_neutral_100_dark</color>
+    <color name="color_sem_content_secondary_dark">@color/color_base_neutral_40_dark</color>
+    <color name="color_sem_content_disabled_dark">@color/color_base_neutral_60_dark</color>
+    <color name="color_sem_content_inverse_dark">@color/color_base_neutral_inverse_dark</color>
+    <color name="color_sem_content_on_brand_dark">@color/color_base_brand_on_primary_dark</color>
+    <color name="color_sem_content_on_chip_dark">@color/color_base_on_chip_dark</color>
+
+    <color name="color_sem_state_active_dark">@color/color_base_brand_primary_dark</color>
+    <color name="color_sem_state_unselected_dark">@color/color_base_neutral_variant_unselected_dark</color>
+    <color name="color_sem_state_indicator_dark">@color/color_base_indicator_primary_dark</color>
+
+    <color name="color_sem_outline_low_dark">@color/color_base_neutral_10_dark</color>
+    <color name="color_sem_outline_surface_dark">@color/color_base_neutral_variant_surface_dark</color>
+    <color name="color_sem_outline_secondary_dark">@color/color_base_neutral_variant_secondary_dark</color>
+
+    <color name="color_sem_decor_placeholder_dark">@color/color_base_placeholder_dark</color>
+    <color name="color_sem_decor_shadow_dark">@color/color_base_shadow_soft_dark</color>
+</resources>

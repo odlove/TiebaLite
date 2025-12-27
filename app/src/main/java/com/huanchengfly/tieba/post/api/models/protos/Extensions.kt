@@ -255,10 +255,7 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
                             withStyle(
                                 SpanStyle(
                                     color = Color(
-                                        ThemeColorResolver.colorByAttr(
-                                            App.INSTANCE,
-                                            R.attr.colorNewPrimary
-                                        )
+                                        ThemeColorResolver.primaryColor(App.INSTANCE)
                                     )
                                 )
                             ) {
@@ -300,10 +297,7 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
                                 withStyle(
                                     SpanStyle(
                                         color = Color(
-                                            ThemeColorResolver.colorByAttr(
-                                                App.INSTANCE,
-                                                R.attr.colorNewPrimary
-                                            )
+                                            ThemeColorResolver.primaryColor(App.INSTANCE)
                                         )
                                     )
                                 ) {
@@ -368,10 +362,7 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
                                 withStyle(
                                     SpanStyle(
                                         color = Color(
-                                            ThemeColorResolver.colorByAttr(
-                                                App.INSTANCE,
-                                                R.attr.colorNewPrimary
-                                            )
+                                            ThemeColorResolver.primaryColor(App.INSTANCE)
                                         )
                                     )
                                 ) {
@@ -450,7 +441,7 @@ val Post.subPosts: ImmutableList<SubPostItemData>
 @OptIn(ExperimentalTextApi::class)
 fun SubPostList.getContentText(threadAuthorId: Long? = null): AnnotatedString {
     val context = App.INSTANCE
-val accentColor = Color(ThemeColorResolver.colorByAttr(context, R.attr.colorNewPrimary))
+val accentColor = Color(ThemeColorResolver.primaryColor(context))
 
     val userNameString = buildAnnotatedString {
         withAnnotation("user", "${author?.id}") {

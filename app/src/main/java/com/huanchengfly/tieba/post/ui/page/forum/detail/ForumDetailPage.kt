@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,7 +44,7 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.Chip
 import com.huanchengfly.tieba.core.ui.compose.Container
 import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
@@ -52,9 +53,10 @@ import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.utils.StringUtil.getShortNumString
+import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -106,14 +108,20 @@ fun ForumDetailPage(
         SnackbarScaffold(
             snackbarState = snackbarState,
             topBar = {
-                TitleCentredToolbar(
+                val topBarColor = ExtendedTheme.colors.topBar
+                val statusBarColor = topBarColor.calcStatusBarColor()
+                ThemeTopAppBar(
+                    backgroundColor = topBarColor,
+                    statusBarColor = statusBarColor,
+                    centerTitle = false,
                     title = {
-                        Text(text = stringResource(id = R.string.title_forum_info))
+                        Text(
+                            text = stringResource(id = R.string.title_forum_info),
+                            fontWeight = FontWeight.Bold
+                        )
                     },
                     navigationIcon = {
-                        BackNavigationIcon {
-                            navigator.navigateUp()
-                        }
+                        DefaultBackIcon(onBack = { navigator.navigateUp() })
                     }
                 )
             }

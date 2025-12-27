@@ -16,21 +16,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.getOrNull
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.widgets.compose.UserHeader
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.utils.StringUtil
@@ -91,21 +93,28 @@ fun ForumRuleDetailPage(
             },
             errorScreen = { ErrorScreen(error = error.getOrNull()) }
         ) {
-            val snackbarState = rememberSnackbarState()
-            SnackbarScaffold(
-                snackbarState = snackbarState,
-                topBar = {
-                    TitleCentredToolbar(
-                        title = { Text(text = stringResource(id = R.string.title_forum_rule)) },
-                        navigationIcon = {
-                            BackNavigationIcon {
-                                navigator.navigateUp()
-                            }
-                        }
-                    )
-                }
-            ) {
-                Column(
+        val snackbarState = rememberSnackbarState()
+        SnackbarScaffold(
+            snackbarState = snackbarState,
+            topBar = {
+                ThemeTopAppBar(
+                    backgroundColor = ExtendedTheme.colors.topBar,
+                    contentColor = ExtendedTheme.colors.onTopBar,
+                    statusBarColor = ExtendedTheme.colors.topBar,
+                    centerTitle = false,
+                    title = {
+                        Text(
+                            text = stringResource(id = R.string.title_forum_rule),
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    navigationIcon = {
+                        DefaultBackIcon(onBack = { navigator.navigateUp() })
+                    }
+                )
+            }
+        ) {
+            Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)

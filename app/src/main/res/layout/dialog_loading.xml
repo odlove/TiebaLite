@@ -17,7 +17,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:progressTint="@color/default_color_primary" />
+        app:progressTint="@color/sem_state_active" />
 
     <com.huanchengfly.tieba.core.ui.widgets.theme.TintTextView
         android:id="@+id/dialog_loading_tip"
@@ -31,6 +31,6 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/progressBar"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/default_color_text"
+        app:tint="@color/sem_content_primary"
         tools:text="加载中..." />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,7 +9,7 @@
         <item name="android:paddingStart">16dp</item>
         <item name="android:paddingEnd">16dp</item>
         <item name="android:elevation">0dp</item>
-        <item name="buttonTextColor">@color/default_color_primary</item>
+        <item name="buttonTextColor">@color/sem_state_active</item>
         <item name="cornerRadius">16dp</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -21,8 +21,8 @@
         <item name="android:paddingStart">16dp</item>
         <item name="android:paddingEnd">16dp</item>
         <item name="android:elevation">0dp</item>
-        <item name="buttonBackgroundTint">@color/default_color_primary</item>
-        <item name="buttonTextColor">@color/default_color_text_on_primary</item>
+        <item name="buttonBackgroundTint">@color/sem_state_active</item>
+        <item name="buttonTextColor">@color/sem_content_on_primary</item>
         <item name="cornerRadius">16dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:gravity">center</item>
@@ -77,16 +77,16 @@
         <item name="popupTheme">@style/OverflowMenu</item>
         <item name="android:actionOverflowMenuStyle">@style/OverflowMenu</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu</item>
-        <item name="android:colorBackground">@color/theme_color_background_light</item>
-        <item name="android:colorButtonNormal">@color/theme_color_toolbar_item_light</item>
-        <item name="android:colorControlNormal">@color/theme_color_toolbar_item_light</item>
+        <item name="android:colorBackground">@color/sem_surface_toolbar</item>
+        <item name="android:colorButtonNormal">@color/sem_content_primary</item>
+        <item name="android:colorControlNormal">@color/sem_content_primary</item>
         <item name="android:textColorPrimary">?colorToolbarItem</item>
         <item name="actionMenuTextColor">?colorToolbarItem</item>
         <item name="android:textColorSecondary">?colorToolbarItem</item>
         <item name="toolbarBackgroundTint">@color/transparent</item>
-        <item name="itemTint">@color/default_color_toolbar_item</item>
-        <item name="secondaryItemTint">@color/default_color_toolbar_item_secondary</item>
-        <item name="activeItemTint">@color/default_color_toolbar_item_active</item>
+        <item name="itemTint">?attr/colorToolbarItem</item>
+        <item name="secondaryItemTint">?attr/colorToolbarItemSecondary</item>
+        <item name="activeItemTint">?attr/colorToolbarItemActive</item>
     </style>
 
     <style name="Toolbar.Dark" parent="Toolbar">
@@ -94,13 +94,13 @@
         <item name="popupTheme">@style/OverflowMenu.Dark</item>
         <item name="android:actionOverflowMenuStyle">@style/OverflowMenu.Dark</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu.Dark</item>
-        <item name="android:colorBackground">@color/theme_color_background_dark</item>
-        <item name="android:colorButtonNormal">@color/theme_color_toolbar_item_dark</item>
-        <item name="android:colorControlNormal">@color/theme_color_toolbar_item_dark</item>
+        <item name="android:colorBackground">@color/sem_surface_toolbar</item>
+        <item name="android:colorButtonNormal">@color/sem_content_primary</item>
+        <item name="android:colorControlNormal">@color/sem_content_primary</item>
         <item name="toolbarBackgroundTint">@color/transparent</item>
-        <item name="itemTint">@color/default_color_toolbar_item</item>
-        <item name="secondaryItemTint">@color/default_color_toolbar_item_secondary</item>
-        <item name="activeItemTint">@color/default_color_toolbar_item_active</item>
+        <item name="itemTint">?attr/colorToolbarItem</item>
+        <item name="secondaryItemTint">?attr/colorToolbarItemSecondary</item>
+        <item name="activeItemTint">?attr/colorToolbarItemActive</item>
     </style>
 
     <style name="Toolbar.Dark.Blue" parent="Toolbar.Dark">
@@ -108,7 +108,7 @@
         <item name="popupTheme">@style/OverflowMenu.Dark.Blue</item>
         <item name="android:actionOverflowMenuStyle">@style/OverflowMenu.Dark.Blue</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu.Dark.Blue</item>
-        <item name="android:colorBackground">@color/theme_color_background_blue_dark</item>
+        <item name="android:colorBackground">@color/sem_surface_toolbar</item>
     </style>
 
     <style name="Toolbar.Dark.Grey" parent="Toolbar.Dark">
@@ -116,7 +116,7 @@
         <item name="popupTheme">@style/OverflowMenu.Dark.Grey</item>
         <item name="android:actionOverflowMenuStyle">@style/OverflowMenu.Dark.Grey</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu.Dark.Grey</item>
-        <item name="android:colorBackground">@color/theme_color_background_grey_dark</item>
+        <item name="android:colorBackground">@color/sem_surface_toolbar</item>
     </style>
 
     <style name="Toolbar.Dark.Amoled" parent="Toolbar.Dark">
@@ -124,9 +124,9 @@
         <item name="popupTheme">@style/OverflowMenu.Dark.Amoled</item>
         <item name="android:actionOverflowMenuStyle">@style/OverflowMenu.Dark.Amoled</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu.Dark.Amoled</item>
-        <item name="android:colorBackground">@color/theme_color_background_amoled_dark</item>
-        <item name="android:colorButtonNormal">@color/theme_color_toolbar_item_dark</item>
-        <item name="android:colorControlNormal">@color/theme_color_toolbar_item_dark</item>
+        <item name="android:colorBackground">@color/sem_surface_toolbar</item>
+        <item name="android:colorButtonNormal">@color/sem_content_primary</item>
+        <item name="android:colorControlNormal">@color/sem_content_primary</item>
     </style>
 
     <style name="Animation.Bottom" parent="@android:style/Animation">
@@ -208,21 +208,21 @@
         <item name="android:colorAccent">@color/colorAccent</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="colorOnAccent">@color/theme_color_on_accent_light</item>
+        <item name="colorOnAccent">@color/sem_content_on_primary</item>
         <item name="colorToolbar">?attr/colorPrimary</item>
         <item name="colorToolbarItem">@color/white</item>
         <item name="colorToolbarItemActive">?attr/colorToolbarItem</item>
-        <item name="colorText">@color/color_text</item>
-        <item name="colorTextSecondary">@color/color_text_secondary</item>
-        <item name="colorDivider">@color/color_divider</item>
-        <item name="colorBackground">@color/theme_color_background_light</item>
-        <item name="colorChip">@color/theme_color_window_background_light</item>
-        <item name="colorUnselected">@color/colorUnselected</item>
-        <item name="colorNavBar">@color/white</item>
-        <item name="colorFloorCard">@color/default_color_floor_card</item>
-        <item name="colorCard">@color/white</item>
-        <item name="shadow_color">@color/color_shadow</item>
-        <item name="colorToolbarItemSecondary">@color/white</item>
+        <item name="colorText">@color/sem_content_primary</item>
+        <item name="colorTextSecondary">@color/sem_content_secondary</item>
+        <item name="colorDivider">@color/sem_outline_low</item>
+        <item name="colorBackground">@color/sem_surface_primary</item>
+        <item name="colorChip">@color/sem_surface_window</item>
+        <item name="colorUnselected">@color/sem_state_unselected</item>
+        <item name="colorNavBar">@color/sem_surface_nav</item>
+        <item name="colorFloorCard">@color/sem_surface_floor</item>
+        <item name="colorCard">@color/sem_surface_card</item>
+        <item name="shadow_color">@color/sem_decor_shadow</item>
+        <item name="colorToolbarItemSecondary">@color/sem_content_secondary</item>
     </style>
 
     <style name="AppTheme.Dark" parent="Base.AppTheme.Dark">
@@ -239,17 +239,17 @@
         <item name="android:colorAccent">?attr/colorAccent</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="colorOnAccent">@color/theme_color_on_accent_dark</item>
+        <item name="colorOnAccent">@color/sem_content_on_primary</item>
         <item name="colorToolbar">?attr/colorPrimary</item>
         <item name="colorToolbarItemActive">?attr/colorToolbarItem</item>
-        <item name="colorText">@color/color_text_night</item>
-        <item name="colorTextSecondary">@color/color_text_secondary_night</item>
-        <item name="colorBackground">@color/theme_color_background_dark</item>
-        <item name="colorChip">@color/theme_color_window_background_dark</item>
-        <item name="colorUnselected">#415c68</item>
-        <item name="colorFloorCard">#FF1A2A39</item>
-        <item name="colorCard">#15202B</item>
-        <item name="shadow_color">#FE191919</item>
+        <item name="colorText">@color/sem_content_primary</item>
+        <item name="colorTextSecondary">@color/sem_content_secondary</item>
+        <item name="colorBackground">@color/sem_surface_primary</item>
+        <item name="colorChip">@color/sem_surface_window</item>
+        <item name="colorUnselected">@color/sem_state_unselected</item>
+        <item name="colorFloorCard">@color/sem_surface_floor</item>
+        <item name="colorCard">@color/sem_surface_card</item>
+        <item name="shadow_color">@color/sem_decor_shadow</item>
     </style>
 
     <style name="OverflowMenu" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
@@ -285,8 +285,8 @@
     </style>
 
     <style name="TiebaLite.Custom" parent="TiebaLite.White">
-        <item name="colorPrimary">@color/theme_color_toolbar_grey_dark</item>
-        <item name="colorAccent">@color/theme_color_toolbar_grey_dark</item>
+        <item name="colorPrimary">@color/sem_state_active</item>
+        <item name="colorAccent">@color/sem_state_active</item>
         <item name="android:textCursorDrawable">@null</item>
         <item name="rippleColor">#1A000000</item>
     </style>
@@ -297,54 +297,46 @@
         <item name="colorAccent">#FF4477E0</item>
         <item name="colorToolbarItem">@color/colorToolbarText</item>
         <item name="colorToolbarItemActive">?attr/colorAccent</item>
-        <item name="colorToolbarItemSecondary">@color/color_text_secondary</item>
+        <item name="colorToolbarItemSecondary">@color/sem_content_secondary</item>
     </style>
 
     <style name="TiebaLite.Translucent.Light" parent="AppTheme">
         <item name="popupMenuStyle">@style/LightTranslucentPopupMenu</item>
         <item name="android:popupMenuStyle">@style/LightTranslucentPopupMenu</item>
-        <item name="colorPrimary">@color/theme_color_primary_tieba</item>
-        <item name="colorAccent">@color/theme_color_primary_tieba</item>
-        <item name="colorOnAccent">@color/theme_color_on_accent_translucent_light</item>
+        <item name="colorPrimary">@color/sem_state_active</item>
+        <item name="colorAccent">@color/sem_state_active</item>
+        <item name="colorOnAccent">@color/sem_content_on_primary</item>
         <item name="colorToolbar">@color/transparent</item>
         <item name="colorBackground">@color/transparent</item>
         <item name="colorChip">@color/transparent</item>
         <item name="colorNavBar">@color/transparent</item>
-        <item name="colorToolbarItem">@color/theme_color_toolbar_item_translucent_light</item>
-        <item name="colorToolbarItemActive">
-            @color/theme_color_toolbar_item_active_translucent_light
-        </item>
-        <item name="colorToolbarItemSecondary">
-            @color/theme_color_toolbar_item_secondary_translucent_light
-        </item>
-        <item name="colorText">@color/color_text_translucent_light</item>
-        <item name="colorTextSecondary">@color/color_text_secondary_translucent_light</item>
-        <item name="colorUnselected">@color/theme_color_unselected_translucent_light</item>
-        <item name="colorFloorCard">@color/theme_color_floor_card_translucent_light</item>
-        <item name="colorCard">@color/theme_color_card_translucent_light</item>
+        <item name="colorToolbarItem">@color/sem_content_primary</item>
+        <item name="colorToolbarItemActive">@color/sem_state_active</item>
+        <item name="colorToolbarItemSecondary">@color/sem_content_secondary</item>
+        <item name="colorText">@color/sem_content_primary</item>
+        <item name="colorTextSecondary">@color/sem_content_secondary</item>
+        <item name="colorUnselected">@color/sem_state_unselected</item>
+        <item name="colorFloorCard">@color/sem_surface_floor</item>
+        <item name="colorCard">@color/sem_surface_card</item>
     </style>
 
     <style name="TiebaLite.Translucent.Dark" parent="AppTheme.Dark">
         <item name="popupMenuStyle">@style/DarkTranslucentPopupMenu</item>
         <item name="android:popupMenuStyle">@style/DarkTranslucentPopupMenu</item>
-        <item name="colorPrimary">@color/theme_color_primary_tieba</item>
-        <item name="colorAccent">@color/theme_color_primary_tieba</item>
-        <item name="colorOnAccent">@color/theme_color_on_accent_translucent_dark</item>
+        <item name="colorPrimary">@color/sem_state_active</item>
+        <item name="colorAccent">@color/sem_state_active</item>
+        <item name="colorOnAccent">@color/sem_content_on_primary</item>
         <item name="colorToolbar">@color/transparent</item>
         <item name="colorBackground">@color/transparent</item>
         <item name="colorNavBar">@color/transparent</item>
-        <item name="colorToolbarItem">@color/theme_color_toolbar_item_translucent_dark</item>
-        <item name="colorToolbarItemActive">
-            @color/theme_color_toolbar_item_active_translucent_dark
-        </item>
-        <item name="colorToolbarItemSecondary">
-            @color/theme_color_toolbar_item_secondary_translucent_dark
-        </item>
-        <item name="colorText">@color/color_text_translucent_dark</item>
-        <item name="colorTextSecondary">@color/color_text_secondary_translucent_dark</item>
-        <item name="colorUnselected">@color/theme_color_unselected_translucent_dark</item>
-        <item name="colorFloorCard">@color/theme_color_floor_card_translucent_dark</item>
-        <item name="colorCard">@color/theme_color_card_translucent_dark</item>
+        <item name="colorToolbarItem">@color/sem_content_primary</item>
+        <item name="colorToolbarItemActive">@color/sem_state_active</item>
+        <item name="colorToolbarItemSecondary">@color/sem_content_secondary</item>
+        <item name="colorText">@color/sem_content_primary</item>
+        <item name="colorTextSecondary">@color/sem_content_secondary</item>
+        <item name="colorUnselected">@color/sem_state_unselected</item>
+        <item name="colorFloorCard">@color/sem_surface_floor</item>
+        <item name="colorCard">@color/sem_surface_card</item>
     </style>
 
     <style name="TiebaLite.Tieba" parent="AppTheme">
@@ -380,35 +372,31 @@
     <style name="TiebaLite.Dark.Blue" parent="AppTheme.Dark">
         <item name="toolbarStyle">@style/Toolbar.Dark.Blue</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu.Dark.Blue</item>
-        <item name="colorPrimary">@color/theme_color_primary_blue_dark</item>
-        <item name="colorAccent">@color/theme_color_accent_blue_dark</item>
-        <item name="colorToolbar">@color/theme_color_toolbar_blue_dark</item>
-        <item name="colorToolbarItem">@color/theme_color_toolbar_item_night</item>
-        <item name="colorToolbarItemActive">@color/theme_color_toolbar_item_active_blue_dark</item>
-        <item name="colorToolbarItemSecondary">
-            @color/theme_color_toolbar_item_secondary_blue_dark
-        </item>
-        <item name="colorBackground">@color/theme_color_background_blue_dark</item>
-        <item name="colorChip">@color/theme_color_window_background_blue_dark</item>
-        <item name="colorNavBar">@color/theme_color_nav_blue_dark</item>
-        <item name="colorDivider">@color/theme_color_divider_blue_dark</item>
+        <item name="colorPrimary">@color/sem_state_active</item>
+        <item name="colorAccent">@color/sem_state_active</item>
+        <item name="colorToolbar">@color/sem_surface_toolbar</item>
+        <item name="colorToolbarItem">@color/sem_content_primary</item>
+        <item name="colorToolbarItemActive">@color/sem_state_active</item>
+        <item name="colorToolbarItemSecondary">@color/sem_content_secondary</item>
+        <item name="colorBackground">@color/sem_surface_primary</item>
+        <item name="colorChip">@color/sem_surface_window</item>
+        <item name="colorNavBar">@color/sem_surface_nav</item>
+        <item name="colorDivider">@color/sem_outline_low</item>
     </style>
 
     <style name="TiebaLite.Dark.Grey" parent="AppTheme.Dark">
         <item name="toolbarStyle">@style/Toolbar.Dark.Grey</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenu.Dark.Grey</item>
-        <item name="colorPrimary">@color/theme_color_primary_grey_dark</item>
-        <item name="colorAccent">@color/theme_color_accent_grey_dark</item>
-        <item name="colorToolbar">@color/theme_color_toolbar_grey_dark</item>
-        <item name="colorToolbarItem">@color/theme_color_toolbar_item_night</item>
-        <item name="colorToolbarItemActive">@color/theme_color_toolbar_item_active_grey_dark</item>
-        <item name="colorToolbarItemSecondary">
-            @color/theme_color_toolbar_item_secondary_grey_dark
-        </item>
-        <item name="colorBackground">@color/theme_color_background_grey_dark</item>
-        <item name="colorChip">@color/theme_color_window_background_grey_dark</item>
-        <item name="colorNavBar">@color/theme_color_nav_grey_dark</item>
-        <item name="colorDivider">@color/theme_color_divider_grey_dark</item>
+        <item name="colorPrimary">@color/sem_state_active</item>
+        <item name="colorAccent">@color/sem_state_active</item>
+        <item name="colorToolbar">@color/sem_surface_toolbar</item>
+        <item name="colorToolbarItem">@color/sem_content_primary</item>
+        <item name="colorToolbarItemActive">@color/sem_state_active</item>
+        <item name="colorToolbarItemSecondary">@color/sem_content_secondary</item>
+        <item name="colorBackground">@color/sem_surface_primary</item>
+        <item name="colorChip">@color/sem_surface_window</item>
+        <item name="colorNavBar">@color/sem_surface_nav</item>
+        <item name="colorDivider">@color/sem_outline_low</item>
     </style>
 
     <style name="TiebaLite.Dark.Amoled" parent="AppTheme.Dark">
@@ -421,8 +409,8 @@
         <item name="colorToolbarItemSecondary">#CCE6E7EE</item>
         <item name="colorFloorCard">#FF151515</item>
         <item name="colorCard">#FF101010</item>
-        <item name="colorBackground">@color/theme_color_background_amoled_dark</item>
-        <item name="colorChip">@color/theme_color_window_background_amoled_dark</item>
+        <item name="colorBackground">@color/sem_surface_primary</item>
+        <item name="colorChip">@color/sem_surface_window</item>
         <item name="colorNavBar">@color/black</item>
         <item name="colorDivider">#FF101010</item>
     </style>

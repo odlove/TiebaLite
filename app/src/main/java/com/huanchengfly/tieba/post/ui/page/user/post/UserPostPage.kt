@@ -53,11 +53,11 @@ import com.huanchengfly.tieba.post.ui.page.destinations.SubPostsPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
 import com.huanchengfly.tieba.core.ui.widgets.compose.Button
-import com.huanchengfly.tieba.post.ui.widgets.compose.Card
 import com.huanchengfly.tieba.core.ui.compose.Container
 import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
 import com.huanchengfly.tieba.post.ui.widgets.compose.FeedCard
 import com.huanchengfly.tieba.post.ui.widgets.compose.FeedCardPlaceholder
+import com.huanchengfly.tieba.post.ui.widgets.compose.FilledCard
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.post.ui.widgets.compose.LoadMoreLayout
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
@@ -350,7 +350,7 @@ fun UserPostItem(
             onClickOriginThread = { onClickOriginThread(it.tid.toLong()) },
         )
     } else {
-        Card(
+        FilledCard(
             header = {
                 UserHeader(
                     nameProvider = { item.get { user_name } },

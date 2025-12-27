@@ -58,7 +58,7 @@ private fun createPreviewThemeState(context: android.content.Context, spec: Them
         blur = 0,
         alpha = 255
     ) else null
-    val palette: ThemePalette = provider.resolve(
+    val resolved = provider.resolve(
         spec = spec,
         useDynamicColor = false,
         toolbarPrimary = false,
@@ -72,7 +72,8 @@ private fun createPreviewThemeState(context: android.content.Context, spec: Them
         isNightMode = spec.isNight,
         isTranslucent = spec.type == ThemeType.TRANSLUCENT,
         useDynamicColor = false,
-        palette = palette,
+        palette = resolved.palette,
+        semanticColors = resolved.semanticColors,
         customConfig = null,
         translucentConfig = translucentConfig,
         toolbarPrimary = false

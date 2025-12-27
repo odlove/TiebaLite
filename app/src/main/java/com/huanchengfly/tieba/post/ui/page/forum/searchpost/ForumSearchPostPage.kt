@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.ContentAlpha
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -51,10 +50,15 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.IconButton
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
@@ -66,6 +70,8 @@ import com.huanchengfly.tieba.post.models.database.SearchPostHistory
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeSearchBox
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.SubPostsPageDestination
@@ -78,9 +84,7 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.HorizontalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.LoadMoreLayout
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
-import com.huanchengfly.tieba.post.ui.widgets.compose.SearchBox
 import com.huanchengfly.tieba.post.ui.widgets.compose.SearchThreadList
-import com.huanchengfly.tieba.core.ui.compose.TopAppBarContainer
 import com.huanchengfly.tieba.post.ui.widgets.compose.picker.ListSinglePicker
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
@@ -310,66 +314,54 @@ fun ForumSearchPostPage(
         topBar = {
             val topBarColor = ExtendedTheme.colors.topBar
             val statusBarColor = topBarColor.calcStatusBarColor()
-            TopAppBarContainer(
-                topBar = {
-                    Box(
-                        modifier = Modifier
-                            .height(64.dp)
-                            .background(ExtendedTheme.colors.topBar)
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        SearchBox(
-                            keyword = inputKeyword,
-                            onKeywordChange = { inputKeyword = it },
-                            modifier = Modifier.fillMaxSize(),
-                            onKeywordSubmit = {
-                                focusRequester.freeFocus()
-                                keyboardController?.hide()
-                                viewModel.send(
-                                    ForumSearchPostUiIntent.Refresh(
-                                        it,
-                                        forumName,
-                                        forumId,
-                                        currentSortType,
-                                        currentFilterType
-                                    )
-                                )
-                            },
+            Column(modifier = Modifier.background(topBarColor)) {
+                ThemeTopAppBar(
+                    backgroundColor = topBarColor,
+                    statusBarColor = statusBarColor,
+                    navigationIcon = {
+                        IconButton(onClick = { navigator.navigateUp() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                contentDescription = stringResource(id = R.string.button_back)
+                            )
+                        }
+                    },
+                    title = {
+                        ThemeSearchBox(
+                            value = inputKeyword,
+                            onValueChange = { inputKeyword = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 4.dp)
+                                .focusRequester(focusRequester),
                             placeholder = {
                                 Text(
                                     text = stringResource(
                                         id = R.string.hint_search_in_ba,
                                         forumName
-                                    ),
-                                    color = ExtendedTheme.colors.onTopBarSurface.copy(alpha = ContentAlpha.medium)
+                                    )
                                 )
                             },
-                            prependIcon = {
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(100))
-                                        .clickable(
-                                            interactionSource = remember { MutableInteractionSource() },
-                                            indication = LocalIndication.current,
-                                            role = Role.Button,
-                                            onClick = { navigator.navigateUp() }
-                                        ),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                                        contentDescription = stringResource(id = R.string.button_back)
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                            keyboardActions = KeyboardActions(
+                                onSearch = {
+                                    focusRequester.freeFocus()
+                                    keyboardController?.hide()
+                                    viewModel.send(
+                                        ForumSearchPostUiIntent.Refresh(
+                                            inputKeyword,
+                                            forumName,
+                                            forumId,
+                                            currentSortType,
+                                            currentFilterType
+                                        )
                                     )
                                 }
-                            },
-                            focusRequester = focusRequester,
-                            shape = RoundedCornerShape(6.dp)
+                            )
                         )
                     }
-                },
-                statusBarColor = statusBarColor,
-                backgroundColor = topBarColor
-            )
+                )
+            }
         }
     ) { paddingValues ->
         Box(

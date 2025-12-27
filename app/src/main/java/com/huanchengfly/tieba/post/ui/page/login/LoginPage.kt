@@ -42,16 +42,17 @@ import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.topBarSubtitleColor
 import com.huanchengfly.tieba.post.ui.page.webview.MyWebChromeClient
 import com.huanchengfly.tieba.post.ui.page.webview.MyWebViewClient
 import com.huanchengfly.tieba.post.ui.page.webview.isInternalHost
-import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.widgets.compose.LoadingState
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
-import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.widgets.compose.WebView
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberSaveableWebViewState
@@ -154,7 +155,10 @@ fun LoginPage(
     SnackbarScaffold(
         snackbarState = snackbarState,
         topBar = {
-            Toolbar(
+            ThemeTopAppBar(
+                backgroundColor = ExtendedTheme.colors.topBar,
+                contentColor = topBarSubtitleColor(),
+                statusBarColor = ExtendedTheme.colors.topBar,
                 title = {
                     Column {
                         Text(
@@ -167,13 +171,13 @@ fun LoginPage(
                                 text = currentHost,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
-                                color = ExtendedTheme.colors.onTopBarSecondary,
+                                color = topBarSubtitleColor(),
                                 style = MaterialTheme.typography.caption
                             )
                         }
                     }
                 },
-                navigationIcon = { BackNavigationIcon(onBackPressed = { navigator.navigateUp() }) },
+                navigationIcon = { DefaultBackIcon(onBack = { navigator.navigateUp()  }) },
                 actions = {
                     val menuState = rememberMenuState()
                     ClickMenu(

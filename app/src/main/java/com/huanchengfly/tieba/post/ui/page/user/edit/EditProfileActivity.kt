@@ -57,6 +57,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -69,6 +70,7 @@ import com.github.panpf.sketch.compose.AsyncImage
 import com.eygraber.compose.placeholder.material.placeholder
 import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.core.common.collectIn
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
@@ -80,13 +82,13 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ProvideThemeControll
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
-import com.huanchengfly.tieba.post.ui.widgets.compose.ActionItem
-import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultActionIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.BaseTextField
 import com.huanchengfly.tieba.core.ui.widgets.compose.CounterTextField
 import com.huanchengfly.tieba.post.ui.widgets.compose.Dialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.DialogNegativeButton
-import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.post.ui.widgets.compose.picker.ListSinglePicker
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
@@ -145,28 +147,16 @@ class EditProfileActivity : BaseActivity() {
                                     setShowCropFrame(true)
                                     setShowCropGrid(true)
                                     setToolbarColor(
-                                        ThemeColorResolver.colorByAttr(
-                                            this@EditProfileActivity,
-                                            R.attr.colorPrimary
-                                        )
+                                        ThemeColorResolver.primaryColor(this@EditProfileActivity)
                                     )
                                     setToolbarWidgetColor(
-                                        ThemeColorResolver.colorByAttr(
-                                            this@EditProfileActivity,
-                                            R.attr.colorTextOnPrimary
-                                        )
+                                        ThemeColorResolver.onPrimaryColor(this@EditProfileActivity)
                                     )
                                     setActiveControlsWidgetColor(
-                                        ThemeColorResolver.colorByAttr(
-                                            this@EditProfileActivity,
-                                            R.attr.colorAccent
-                                        )
+                                        ThemeColorResolver.accentColor(this@EditProfileActivity)
                                     )
                                     setLogoColor(
-                                        ThemeColorResolver.colorByAttr(
-                                            this@EditProfileActivity,
-                                            R.attr.colorPrimary
-                                        )
+                                        ThemeColorResolver.primaryColor(this@EditProfileActivity)
                                     )
                                     setCompressionFormat(Bitmap.CompressFormat.JPEG)
                                 }
@@ -486,35 +476,42 @@ fun PageEditProfile(
         var nickName by remember { mutableStateOf(uiState.nickName) }
         Scaffold(
             topBar = {
-                Toolbar(
-                    title = stringResource(id = R.string.title_activity_edit_profile),
-                    navigationIcon = { BackNavigationIcon { onBackPressed() } },
+                ThemeTopAppBar(
+                    backgroundColor = ExtendedTheme.colors.topBar,
+                    contentColor = ExtendedTheme.colors.onTopBar,
+                    statusBarColor = ExtendedTheme.colors.topBar,
+                    title = {
+                        Text(text = stringResource(id = R.string.title_activity_edit_profile), fontWeight = FontWeight.Bold)
+                    },
+                    navigationIcon = { DefaultBackIcon(onBack = { onBackPressed()  }) },
                     actions = {
-                        ActionItem(
-                            icon = ImageVector.vectorResource(id = R.drawable.ic_round_save_24),
-                            contentDescription = stringResource(id = R.string.button_save_profile)
-                        ) {
-                            if (sex != uiState.sex ||
-                                birthdayTime != uiState.birthdayTime ||
-                                birthdayShowStatus != uiState.birthdayShowStatus ||
-                                intro != uiState.intro ||
-                                nickName != uiState.nickName
-                            ) {
-                                if (nickName.isNotEmpty()) {
-                                    viewModel.send(
-                                        EditProfileIntent.Submit(
-                                            sex,
-                                            birthdayTime,
-                                            birthdayShowStatus,
-                                            intro ?: "",
-                                            nickName
+                        DefaultActionIcon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_round_save_24),
+                            contentDescription = stringResource(id = R.string.button_save_profile),
+                            tint = ExtendedTheme.colors.onTopBar,
+                            onClick = {
+                                if (sex != uiState.sex ||
+                                    birthdayTime != uiState.birthdayTime ||
+                                    birthdayShowStatus != uiState.birthdayShowStatus ||
+                                    intro != uiState.intro ||
+                                    nickName != uiState.nickName
+                                ) {
+                                    if (nickName.isNotEmpty()) {
+                                        viewModel.send(
+                                            EditProfileIntent.Submit(
+                                                sex,
+                                                birthdayTime,
+                                                birthdayShowStatus,
+                                                intro ?: "",
+                                                nickName
+                                            )
                                         )
-                                    )
+                                    }
+                                } else {
+                                    viewModel.send(EditProfileIntent.SubmitWithoutChange)
                                 }
-                            } else {
-                                viewModel.send(EditProfileIntent.SubmitWithoutChange)
                             }
-                        }
+                        )
                     }
                 )
             },
@@ -567,9 +564,17 @@ fun PageEditProfile(
     } else {
         Scaffold(
             topBar = {
-                Toolbar(
-                    title = stringResource(id = R.string.title_activity_edit_profile),
-                    navigationIcon = { BackNavigationIcon { onBackPressed() } }
+                ThemeTopAppBar(
+                    backgroundColor = ExtendedTheme.colors.topBar,
+                    contentColor = ExtendedTheme.colors.onTopBar,
+                    statusBarColor = ExtendedTheme.colors.topBar,
+                    title = {
+                        Text(
+                            text = stringResource(id = R.string.title_activity_edit_profile),
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    navigationIcon = { DefaultBackIcon(onBack = { onBackPressed() }) }
                 )
             },
         ) { contentPadding ->

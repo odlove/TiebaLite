@@ -32,12 +32,12 @@ public class TintAppBarLayout extends AppBarLayout implements Tintable {
             return;
         }
         if (attrs == null) {
-            backgroundTintResId = R.color.default_color_background;
+            backgroundTintResId = R.color.sem_surface_toolbar;
             applyTintColor();
             return;
         }
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.TintView, defStyleAttr, 0);
-        backgroundTintResId = array.getResourceId(R.styleable.TintView_backgroundTint, R.color.default_color_background);
+        backgroundTintResId = array.getResourceId(R.styleable.TintView_backgroundTint, R.color.sem_surface_toolbar);
         array.recycle();
         applyTintColor();
     }

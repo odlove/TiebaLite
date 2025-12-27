@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.WindowCompat
+import androidx.compose.ui.graphics.toArgb
 import com.github.panpf.sketch.fetch.newFileUri
 import com.github.panpf.sketch.request.DisplayRequest
 import com.github.panpf.sketch.request.DisplayResult
@@ -62,9 +63,9 @@ class ThemeUiDelegate @Inject constructor(
 
     fun applyToolbarColors(toolbar: Toolbar) {
         val context = toolbar.context
-        val background = themeBridge.colorByAttr(context, R.attr.colorToolbar)
-        val titleColor = themeBridge.colorByAttr(context, R.attr.colorToolbarItem)
-        val subtitleColor = themeBridge.colorByAttr(context, R.attr.colorToolbarItemSecondary)
+        val background = ThemeColorResolver.topBarColor(context)
+        val titleColor = ThemeColorResolver.topBarContentColor(context)
+        val subtitleColor = ThemeColorResolver.topBarSubtitleColor(context)
         toolbar.setBackgroundColor(background)
         toolbar.setTitleTextColor(titleColor)
         toolbar.setSubtitleTextColor(subtitleColor)
@@ -79,9 +80,9 @@ class ThemeUiDelegate @Inject constructor(
 
     fun applySnackbar(snackbar: Snackbar) {
         val context = snackbar.context
-        val cardColor = themeBridge.colorByAttr(context, R.attr.colorCard)
-        val textColor = themeBridge.colorByAttr(context, R.attr.colorText)
-        val accentColor = themeBridge.colorByAttr(context, R.attr.colorAccent)
+        val cardColor = ThemeColorResolver.cardColor(context)
+        val textColor = ThemeColorResolver.textColor(context)
+        val accentColor = ThemeColorResolver.accentColor(context)
         snackbar.setActionTextColor(accentColor)
         val view = snackbar.view
         view.setBackgroundColor(cardColor)
@@ -102,10 +103,9 @@ class ThemeUiDelegate @Inject constructor(
             layout.tint()
             return
         }
-        layout.setColorSchemeColors(themeBridge.colorByAttr(layout.context, R.attr.colorAccent))
-        layout.setProgressBackgroundColorSchemeColor(
-            themeBridge.colorByAttr(layout.context, R.attr.colorIndicator)
-        )
+        val context = layout.context
+        layout.setColorSchemeColors(ThemeColorResolver.accentColor(context))
+        layout.setProgressBackgroundColorSchemeColor(ThemeColorResolver.indicatorColor(context))
     }
 
     fun setTranslucentBackground(view: View?) {
@@ -118,7 +118,7 @@ class ThemeUiDelegate @Inject constructor(
         if (view == null || !themeBridge.currentState.isTranslucent) return
         view.backgroundTintList = null
         view.setBackgroundColor(
-            themeBridge.colorById(view.context, R.color.theme_color_card_grey_dark)
+            ThemeColorResolver.cardColor(view.context)
         )
     }
 
@@ -151,7 +151,8 @@ class ThemeUiDelegate @Inject constructor(
             if (view is BackgroundTintable) {
                 view.setBackgroundTintResId(0)
             }
-            view.setBackgroundColor(themeBridge.colorByAttr(view.context, R.attr.colorBackground))
+            val backgroundColor = ThemeColorResolver.backgroundColor(view.context)
+            view.setBackgroundColor(backgroundColor)
             view.setTag(R.id.tag_translucent_background_path, null)
             Log.i(TAG, "setTranslucentThemeBackground: skip (not translucent)")
             Log.i(

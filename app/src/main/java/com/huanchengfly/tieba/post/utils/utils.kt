@@ -47,7 +47,7 @@ fun getItemBackgroundDrawable(
     itemCount: Int,
     positionOffset: Int = 0,
     radius: Float = 8f.dpToPxFloat(),
-    colors: IntArray = intArrayOf(R.color.default_color_card),
+    colors: IntArray = intArrayOf(R.color.sem_surface_card),
     ripple: Boolean = true
 ): Drawable {
     val realPos = position + positionOffset
@@ -78,7 +78,7 @@ fun getItemBackgroundDrawable(
     }
     return if (ripple) {
         wrapRipple(
-            Util.getColorByAttr(context, R.attr.colorControlHighlight, R.color.transparent),
+            ThemeColorResolver.rippleColor(context),
             shape
         )
     } else {
@@ -104,11 +104,8 @@ fun getRadiusDrawable(
     }
     return if (ripple)
         wrapRipple(
-            Util.getColorByAttr(
-                App.INSTANCE,
-                R.attr.colorControlHighlight,
-                R.color.transparent
-            ), drawable
+            ThemeColorResolver.rippleColor(App.INSTANCE),
+            drawable
         )
     else drawable
 }
@@ -132,7 +129,7 @@ fun getIntermixedColorBackground(
     itemCount: Int,
     positionOffset: Int = 0,
     radius: Float = 8f.dpToPxFloat(),
-    colors: IntArray = intArrayOf(R.color.default_color_card),
+    colors: IntArray = intArrayOf(R.color.sem_surface_card),
     ripple: Boolean = true
 ): Drawable {
     return getItemBackgroundDrawable(
@@ -210,12 +207,7 @@ fun launchUrl(
                     .setShowTitle(true)
                     .setDefaultColorSchemeParams(
                         CustomTabColorSchemeParams.Builder()
-                            .setToolbarColor(
-                                ThemeColorResolver.colorByAttr(
-                                    context,
-                                    R.attr.colorToolbar
-                                )
-                            )
+                            .setToolbarColor(ThemeColorResolver.topBarColor(context))
                             .build()
                     )
                 try {

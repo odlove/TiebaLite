@@ -81,7 +81,7 @@ class AppSignNotificationController @Inject constructor() : SignNotificationCont
             .setAutoCancel(!ongoing)
             .setStyle(NotificationCompat.BigTextStyle())
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setColor(ThemeColorResolver.colorByAttr(service, R.attr.colorPrimary))
+            .setColor(ThemeColorResolver.primaryColor(service))
             .setOngoing(ongoing)
 
         if (contentIntent != null) {

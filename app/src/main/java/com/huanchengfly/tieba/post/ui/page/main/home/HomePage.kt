@@ -32,7 +32,6 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
@@ -56,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -77,14 +77,17 @@ import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeSearchBox
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.LoginPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.SearchPageDestination
-import com.huanchengfly.tieba.post.ui.widgets.compose.ActionItem
+import com.huanchengfly.tieba.post.ui.common.DefaultActionIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.core.ui.widgets.compose.Button
 import com.huanchengfly.tieba.core.ui.widgets.compose.Chip
@@ -97,7 +100,6 @@ import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.widgets.compose.TextButton
 import com.huanchengfly.tieba.core.ui.widgets.compose.TipScreen
-import com.huanchengfly.tieba.post.ui.widgets.compose.Toolbar
 import com.huanchengfly.tieba.post.ui.widgets.compose.accountNavIconIfCompact
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
@@ -113,61 +115,6 @@ private fun getGridCells(context: Context, listSingle: Boolean = context.appPref
         GridCells.Fixed(1)
     } else {
         GridCells.Adaptive(180.dp)
-    }
-}
-
-@Preview("SearchBoxPreview")
-@Composable
-fun SearchBoxPreview() {
-    PreviewTheme {
-        SearchBox(
-            backgroundColor = Color(0xFFF8F8F8),
-            contentColor = Color(0xFFBFBFBF),
-            onClick =  {}
-        )
-    }
-}
-
-@Composable
-fun SearchBox(
-    modifier: Modifier = Modifier,
-    backgroundColor: Color = ExtendedTheme.colors.topBarSurface,
-    contentColor: Color = ExtendedTheme.colors.onTopBarSurface,
-    onClick: () -> Unit,
-) {
-    Box(
-        modifier = modifier
-            .background(ExtendedTheme.colors.topBar)
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Surface(
-            color = backgroundColor,
-            contentColor = contentColor,
-            shape = RoundedCornerShape(6.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-        ) {
-            Row(
-                verticalAlignment = CenterVertically,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Search,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .align(CenterVertically)
-                        .size(24.dp),
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = stringResource(id = R.string.hint_search),
-                    modifier = Modifier.align(CenterVertically),
-                    fontSize = 14.sp
-                )
-            }
-        }
     }
 }
 
@@ -190,28 +137,32 @@ private fun Header(
 private fun ForumItemPlaceholder(
     showAvatar: Boolean,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+    CardSurface(
+        modifier = Modifier.fillMaxWidth(),
+        plain = true
     ) {
-        if (showAvatar) {
-            Image(
-                painter = rememberDrawablePainter(
-                    drawable = ImageUtil.getPlaceHolder(
-                        LocalContext.current,
-                        0
-                    )
-                ),
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .size(40.dp)
-                    .align(CenterVertically)
-                    .placeholder(visible = true, color = ExtendedTheme.colors.chip),
-            )
-            Spacer(modifier = Modifier.width(14.dp))
-        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            if (showAvatar) {
+                Image(
+                    painter = rememberDrawablePainter(
+                        drawable = ImageUtil.getPlaceHolder(
+                            LocalContext.current,
+                            0
+                        )
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(40.dp)
+                        .align(CenterVertically)
+                        .placeholder(visible = true, color = ExtendedTheme.colors.chip),
+                )
+                Spacer(modifier = Modifier.width(14.dp))
+            }
         Text(
             color = ExtendedTheme.colors.text,
             text = "",
@@ -223,25 +174,26 @@ private fun ForumItemPlaceholder(
             fontWeight = FontWeight.Bold,
             maxLines = 1,
         )
-        Spacer(modifier = Modifier.width(8.dp))
-        Box(
-            modifier = Modifier
-                .width(54.dp)
-                .background(
-                    color = ExtendedTheme.colors.chip,
-                    shape = RoundedCornerShape(3.dp)
+            Spacer(modifier = Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .width(54.dp)
+                    .background(
+                        color = ExtendedTheme.colors.chip,
+                        shape = RoundedCornerShape(3.dp)
+                    )
+                    .padding(vertical = 4.dp)
+                    .align(CenterVertically)
+                    .placeholder(visible = true, color = ExtendedTheme.colors.chip)
+            ) {
+                Text(
+                    text = "0",
+                    color = ExtendedTheme.colors.onChip,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Center)
                 )
-                .padding(vertical = 4.dp)
-                .align(CenterVertically)
-                .placeholder(visible = true, color = ExtendedTheme.colors.chip)
-        ) {
-            Text(
-                text = "0",
-                color = ExtendedTheme.colors.onChip,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Center)
-            )
+            }
         }
     }
 }
@@ -332,7 +284,7 @@ private fun ForumItemContent(
                 Text(
                     text = "Lv.${item.levelId}",
                     color = ExtendedTheme.colors.onChip,
-                    fontSize = 11.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(CenterVertically)
                 )
@@ -380,9 +332,15 @@ private fun ForumItem(
         menuState = menuState,
         onClick = {
             onClick(item)
-        }
+        },
+        shape = RectangleShape
     ) {
-        ForumItemContent(item = item, showAvatar = showAvatar)
+        CardSurface(
+            modifier = Modifier.fillMaxWidth(),
+            plain = true
+        ) {
+            ForumItemContent(item = item, showAvatar = showAvatar)
+        }
     }
 }
 
@@ -461,23 +419,30 @@ fun HomePage(
         snackbarState = snackbarState,
         backgroundColor = Color.Transparent,
         topBar = {
-            Toolbar(
-                title = stringResource(id = R.string.title_main),
+            ThemeTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(id = R.string.title_main),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 navigationIcon = accountNavIconIfCompact(),
                 actions = {
-                    ActionItem(
-                        icon = ImageVector.vectorResource(id = R.drawable.ic_oksign),
-                        contentDescription = stringResource(id = R.string.title_oksign)
-                    ) {
-                        TiebaUtil.startSign(context)
-                    }
-                    ActionItem(
-                        icon = Icons.Outlined.ViewAgenda,
-                        contentDescription = stringResource(id = R.string.title_switch_list_single)
-                    ) {
-                        context.appPreferences.listSingle = !listSingle
-                        listSingle = !listSingle
-                    }
+                    DefaultActionIcon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_oksign),
+                        contentDescription = stringResource(id = R.string.title_oksign),
+                        tint = ExtendedTheme.colors.onTopBar,
+                        onClick = { TiebaUtil.startSign(context) }
+                    )
+                    DefaultActionIcon(
+                        imageVector = Icons.Outlined.ViewAgenda,
+                        contentDescription = stringResource(id = R.string.title_switch_list_single),
+                        tint = ExtendedTheme.colors.onTopBar,
+                        onClick = {
+                            context.appPreferences.listSingle = !listSingle
+                            listSingle = !listSingle
+                        }
+                    )
                 }
             )
         },
@@ -493,9 +458,31 @@ fun HomePage(
                 .padding(contentPaddings)
         ) {
             Column {
-                SearchBox(modifier = Modifier.padding(bottom = 4.dp)) {
-                    navigator.navigate(SearchPageDestination)
-                }
+                ThemeSearchBox(
+                    value = "",
+                    onValueChange = {},
+                    modifier = Modifier
+                        .padding(bottom = 4.dp, start = 16.dp, end = 16.dp, top = 8.dp)
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = { navigator.navigate(SearchPageDestination) }
+                        ),
+                    enabled = false,
+                    readOnly = true,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Rounded.Search,
+                            contentDescription = null
+                        )
+                    },
+                    placeholder = {
+                        Text(
+                            text = stringResource(id = R.string.hint_search),
+                            fontSize = 14.sp
+                        )
+                    }
+                )
                 StateScreen(
                     isEmpty = isEmpty,
                     isError = isError,
@@ -522,7 +509,7 @@ fun HomePage(
                 ) {
                     MyLazyVerticalGrid(
                         columns = gridCells,
-                        contentPadding = PaddingValues(bottom = 12.dp),
+                        contentPadding = PaddingValues(bottom = 0.dp),
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         if (showHistoryForum) {

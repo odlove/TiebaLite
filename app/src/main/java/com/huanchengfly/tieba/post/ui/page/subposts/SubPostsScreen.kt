@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.OpenInBrowser
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,10 +32,11 @@ import com.huanchengfly.tieba.post.ui.widgets.compose.LoadMoreLayout
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
-import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.utils.StringUtil
+import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 
 /**
  * SubPostsScreen - 纯 UI 组件
@@ -48,42 +50,57 @@ import com.huanchengfly.tieba.post.utils.StringUtil
  * @param postId 主楼 ID（用于 item key）
  * @param totalCount 楼中楼总数（用于显示）
  * @param onNavigateToThread 点击"在原贴查看"按钮的回调
- * @param onShowReplyDialog 显示回复对话框（需要传入构建好的 ReplyArgs）
+ * @param onShowReplyDialog 触发回复入口（外层会导航到底部 ReplyPage）
  * @param onReportSubPost 举报楼中楼（传入 subPostId）
  * @param onAgreeMainPost 主楼点赞回调
  * @param onReplyMainPost 回复主楼回调
  * @param onMainPostMenuCopy 主楼长按菜单-复制
  * @param onMainPostMenuDelete 主楼长按菜单-删除
  */
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun SubPostsScreen(
-    props: SubPostsUiProps,
-    callbacks: SubPostsCallbacks,
-    lazyListState: LazyListState,
-    isSheet: Boolean,
-    postId: Long,
-    totalCount: Int,
-    onNavigateToThread: () -> Unit,
-    onShowReplyDialog: () -> Unit,
-    onReportSubPost: (String) -> Unit,
-    onAgreeMainPost: () -> Unit,
-    onReplyMainPost: () -> Unit,
-    onMainPostMenuCopy: (String) -> Unit,
-    onMainPostMenuDelete: () -> Unit,
-) {
-    StateScreen(
-        modifier = Modifier.fillMaxSize(),
-        isEmpty = props.subPosts.isEmpty(),
-        isError = false,
-        isLoading = props.isRefreshing,
+    @OptIn(ExperimentalFoundationApi::class)
+    @Composable
+    fun SubPostsScreen(
+        props: SubPostsUiProps,
+        callbacks: SubPostsCallbacks,
+        lazyListState: LazyListState,
+        isSheet: Boolean,
+        postId: Long,
+        totalCount: Int,
+        onNavigateToThread: () -> Unit,
+        onShowReplyDialog: () -> Unit,
+        onReportSubPost: (String) -> Unit,
+        onAgreeMainPost: () -> Unit,
+        onReplyMainPost: () -> Unit,
+        onMainPostMenuCopy: (String) -> Unit,
+        onMainPostMenuDelete: () -> Unit,
     ) {
-        val snackbarState = rememberSnackbarState()
-        SnackbarScaffold(
-            snackbarState = snackbarState,
+        val extendedColors = ExtendedTheme.colors
+        val scaffoldBackground = remember(isSheet, extendedColors.background, extendedColors.isTranslucent) {
+            if (isSheet && extendedColors.isTranslucent) {
+                extendedColors.background.copy(alpha = 0.8f)
+            } else {
+                extendedColors.background
+            }
+        }
+        StateScreen(
             modifier = Modifier.fillMaxSize(),
-            topBar = {
-                TitleCentredToolbar(
+            isEmpty = props.subPosts.isEmpty(),
+            isError = false,
+            isLoading = props.isRefreshing,
+        ) {
+            val snackbarState = rememberSnackbarState()
+            SnackbarScaffold(
+                snackbarState = snackbarState,
+                modifier = Modifier.fillMaxSize(),
+                backgroundColor = scaffoldBackground,
+                contentColor = extendedColors.text,
+                topBar = {
+                    val topBarColor = ExtendedTheme.colors.topBar
+                    val statusBarColor = topBarColor.calcStatusBarColor()
+                ThemeTopAppBar(
+                    backgroundColor = topBarColor,
+                    statusBarColor = statusBarColor,
+                    centerTitle = true,
                     title = {
                         Text(
                             text =

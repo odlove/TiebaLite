@@ -33,7 +33,7 @@
                     android:backgroundTint="@color/white"
                     android:padding="16dp"
                     app:srcCompat="@drawable/ic_round_arrow_back"
-                    app:tint="@color/color_text" />
+                    app:tint="@color/sem_content_primary" />
 
                 <com.huanchengfly.tieba.core.ui.widgets.theme.TintImageView
                     android:id="@+id/button_finish"
@@ -44,7 +44,7 @@
                     android:backgroundTint="@color/white"
                     android:padding="16dp"
                     app:srcCompat="@drawable/ic_round_check"
-                    app:tint="@color/color_text" />
+                    app:tint="@color/sem_content_primary" />
             </RelativeLayout>
 
         </com.google.android.material.appbar.AppBarLayout>
@@ -67,7 +67,7 @@
             android:paddingTop="8dp"
             android:paddingEnd="16dp"
             android:paddingBottom="16dp"
-            app:backgroundTint="@color/theme_color_card_light"
+            app:backgroundTint="@color/sem_surface_card"
             app:behavior_peekHeight="120dp"
             app:layout_behavior="@string/bottom_sheet_behavior">
 
@@ -76,7 +76,7 @@
                 android:layout_height="4dp"
                 android:layout_gravity="center_horizontal"
                 android:background="@drawable/bg_radius_50dp"
-                app:backgroundTint="@color/default_color_on_toolbar_bar" />
+                app:backgroundTint="@color/sem_outline_surface" />
 
             <com.huanchengfly.tieba.core.ui.widgets.theme.TintTextView
                 android:layout_width="match_parent"
@@ -85,7 +85,7 @@
                 android:text="@string/title_ui_settings"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                app:tint="@color/color_text" />
+                app:tint="@color/sem_content_primary" />
 
             <com.huanchengfly.tieba.core.ui.widgets.theme.TintMaterialButton
                 android:id="@+id/select_pic"
@@ -95,11 +95,11 @@
                 android:layout_marginTop="8dp"
                 android:padding="10dp"
                 android:text="@string/title_select_pic"
-                app:buttonBackgroundTint="@color/color_divider"
-                app:buttonTextColor="@color/color_text_secondary"
+                app:buttonBackgroundTint="@color/sem_outline_low"
+                app:buttonTextColor="@color/sem_content_secondary"
                 app:cornerRadius="10dp"
-                tools:backgroundTint="@color/color_divider"
-                tools:textColor="@color/color_text_secondary" />
+                tools:backgroundTint="@color/sem_outline_low"
+                tools:textColor="@color/sem_content_secondary" />
 
             <LinearLayout
                 android:id="@+id/color_theme"
@@ -120,11 +120,11 @@
                     android:drawableTint="@color/white"
                     android:padding="10dp"
                     android:text="@string/dark_color"
-                    app:buttonBackgroundTint="@color/color_divider"
-                    app:buttonTextColor="@color/color_text_secondary"
+                    app:buttonBackgroundTint="@color/sem_outline_low"
+                    app:buttonTextColor="@color/sem_content_secondary"
                     app:cornerRadius="10dp"
-                    tools:backgroundTint="@color/color_divider"
-                    tools:textColor="@color/color_text_secondary" />
+                    tools:backgroundTint="@color/sem_outline_low"
+                    tools:textColor="@color/sem_content_secondary" />
 
                 <com.huanchengfly.tieba.core.ui.widgets.theme.TintMaterialButton
                     android:id="@+id/light_color"
@@ -136,11 +136,11 @@
                     android:drawableTint="@color/white"
                     android:padding="10dp"
                     android:text="@string/light_color"
-                    app:buttonBackgroundTint="@color/color_divider"
-                    app:buttonTextColor="@color/color_text_secondary"
+                    app:buttonBackgroundTint="@color/sem_outline_low"
+                    app:buttonTextColor="@color/sem_content_secondary"
                     app:cornerRadius="10dp"
-                    tools:backgroundTint="@color/color_divider"
-                    tools:textColor="@color/color_text_secondary" />
+                    tools:backgroundTint="@color/sem_outline_low"
+                    tools:textColor="@color/sem_content_secondary" />
             </LinearLayout>
 
             <LinearLayout
@@ -158,7 +158,7 @@
                     android:text="@string/title_select_color"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    app:tint="@color/color_text" />
+                    app:tint="@color/sem_content_primary" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -180,7 +180,7 @@
                             android:background="@drawable/bg_radius_10dp"
                             android:padding="12dp"
                             android:src="@drawable/ic_round_create"
-                            app:backgroundTint="@color/default_color_on_toolbar_bar"
+                            app:backgroundTint="@color/sem_outline_surface"
                             app:tint="@color/white" />
                     </FrameLayout>
 
@@ -199,7 +199,7 @@
                 android:text="@string/title_translucent_theme_alpha"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                app:tint="@color/color_text" />
+                app:tint="@color/sem_content_primary" />
 
             <com.huanchengfly.tieba.core.ui.widgets.theme.TintSeekBar
                 android:id="@+id/alpha"
@@ -210,8 +210,8 @@
                 android:minHeight="16dp"
                 android:progress="255"
                 android:progressDrawable="@drawable/bg_seekbar_round"
-                app:progressBackgroundTint="@color/color_divider"
-                app:progressTint="@color/default_color_primary" />
+                app:progressBackgroundTint="@color/sem_outline_low"
+                app:progressTint="@color/sem_state_active" />
 
             <com.huanchengfly.tieba.core.ui.widgets.theme.TintTextView
                 android:layout_width="match_parent"
@@ -220,7 +220,7 @@
                 android:text="@string/title_translucent_theme_blur"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                app:tint="@color/color_text" />
+                app:tint="@color/sem_content_primary" />
 
             <com.huanchengfly.tieba.core.ui.widgets.theme.TintSeekBar
                 android:id="@+id/blur"
@@ -231,8 +231,8 @@
                 android:minHeight="16dp"
                 android:progress="0"
                 android:progressDrawable="@drawable/bg_seekbar_round"
-                app:progressBackgroundTint="@color/color_divider"
-                app:progressTint="@color/default_color_primary" />
+                app:progressBackgroundTint="@color/sem_outline_low"
+                app:progressTint="@color/sem_state_active" />
 
             <LinearLayout
                 android:id="@+id/recommend_wallpapers"
@@ -247,7 +247,7 @@
                     android:text="@string/title_translucent_theme_wallpapers"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    app:tint="@color/color_text" />
+                    app:tint="@color/sem_content_primary" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/wallpapers_rv"
@@ -262,7 +262,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_radius_10dp_ripple"
-                android:backgroundTint="@color/color_divider"
+                android:backgroundTint="@color/sem_outline_low"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="12dp">
@@ -279,7 +279,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="@string/title_translucent_theme_experimental_feature"
-                    android:textColor="@color/color_text_secondary"
+                    android:textColor="@color/sem_content_secondary"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -288,7 +288,7 @@
                     android:layout_height="12dp"
                     android:layout_marginStart="8dp"
                     android:src="@drawable/ic_round_help_green"
-                    app:tint="@color/color_text_secondary" />
+                    app:tint="@color/sem_content_secondary" />
             </LinearLayout>
         </com.huanchengfly.tieba.core.ui.widgets.theme.TintLinearLayout>
 

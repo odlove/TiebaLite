@@ -30,6 +30,7 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,9 +46,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.common.theme.ThemeSettingsSnapshot
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
+import com.huanchengfly.tieba.core.ui.hiltViewModel
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.models.database.Account
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.LocalThemeController
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.LocalThemeState
@@ -70,28 +74,39 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.post.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.utils.CuidUtils
 import com.huanchengfly.tieba.post.utils.StringUtil
-import com.huanchengfly.tieba.post.preferences.appPreferences
+import com.huanchengfly.tieba.post.ui.page.settings.theme.ThemeSettingsViewModel
 
 @Composable
 private fun StatCardPlaceholder(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier.placeholder(visible = true, color = ExtendedTheme.colors.chip),
-        verticalAlignment = Alignment.CenterVertically,
+    CardSurface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp)),
+        shape = RoundedCornerShape(8.dp),
+        backgroundColor = ExtendedTheme.colors.chip
     ) {
-        StatCardItem(
-            statNum = 0,
-            statText = stringResource(id = R.string.text_stat_follow)
-        )
-        HorizontalDivider(color = Color(if (ExtendedTheme.colors.isNightMode) 0xFF808080 else 0xFFDEDEDE))
-        StatCardItem(
-            statNum = 0,
-            statText = stringResource(id = R.string.text_stat_fans)
-        )
-        HorizontalDivider(color = Color(if (ExtendedTheme.colors.isNightMode) 0xFF808080 else 0xFFDEDEDE))
-        StatCardItem(
-            statNum = 0,
-            statText = stringResource(id = R.string.title_stat_posts_num)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 18.dp, horizontal = 16.dp)
+                .placeholder(visible = true, color = ExtendedTheme.colors.chip),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            StatCardItem(
+                statNum = 0,
+                statText = stringResource(id = R.string.text_stat_follow)
+            )
+            HorizontalDivider(color = ExtendedTheme.colors.divider)
+            StatCardItem(
+                statNum = 0,
+                statText = stringResource(id = R.string.text_stat_fans)
+            )
+            HorizontalDivider(color = ExtendedTheme.colors.divider)
+            StatCardItem(
+                statNum = 0,
+                statText = stringResource(id = R.string.title_stat_posts_num)
+            )
+        }
     }
 }
 
@@ -103,24 +118,34 @@ private fun StatCard(
     val postNum by animateIntAsState(targetValue = account.postNum?.toIntOrNull() ?: 0)
     val fansNum by animateIntAsState(targetValue = account.fansNum?.toIntOrNull() ?: 0)
     val concernNum by animateIntAsState(targetValue = account.concernNum?.toIntOrNull() ?: 0)
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
+    CardSurface(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp)),
+        shape = RoundedCornerShape(8.dp),
+        backgroundColor = ExtendedTheme.colors.chip
     ) {
-        StatCardItem(
-            statNum = concernNum,
-            statText = stringResource(id = R.string.text_stat_follow)
-        )
-        HorizontalDivider(color = Color(if (ExtendedTheme.colors.isNightMode) 0xFF808080 else 0xFFDEDEDE))
-        StatCardItem(
-            statNum = fansNum,
-            statText = stringResource(id = R.string.text_stat_fans)
-        )
-        HorizontalDivider(color = Color(if (ExtendedTheme.colors.isNightMode) 0xFF808080 else 0xFFDEDEDE))
-        StatCardItem(
-            statNum = postNum,
-            statText = stringResource(id = R.string.title_stat_posts_num)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 18.dp, horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            StatCardItem(
+                statNum = concernNum,
+                statText = stringResource(id = R.string.text_stat_follow)
+            )
+            HorizontalDivider(color = ExtendedTheme.colors.divider)
+            StatCardItem(
+                statNum = fansNum,
+                statText = stringResource(id = R.string.text_stat_fans)
+            )
+            HorizontalDivider(color = ExtendedTheme.colors.divider)
+            StatCardItem(
+                statNum = postNum,
+                statText = stringResource(id = R.string.title_stat_posts_num)
+            )
+        }
     }
 }
 
@@ -133,7 +158,8 @@ private fun InfoCard(
     isPlaceholder: Boolean = false
 ) {
     Row(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Bottom
     ) {
         Column(
             modifier = Modifier
@@ -167,7 +193,10 @@ private fun InfoCard(
                 contentDescription = stringResource(id = R.string.desc_user_avatar),
                 modifier = Modifier
                     .align(Alignment.Bottom)
-                    .placeholder(visible = isPlaceholder, color = ExtendedTheme.colors.chip),
+                    .placeholder(
+                        visible = isPlaceholder,
+                        color = ExtendedTheme.colors.chip
+                    ),
             )
         }
     }
@@ -250,13 +279,17 @@ fun UserPage(
     )
     val themeController = LocalThemeController.current
     val themeState = LocalThemeState.current
+    val themeSettingsViewModel: ThemeSettingsViewModel = hiltViewModel()
+    val themeSettings by themeSettingsViewModel.themeSettings.collectAsState(
+        initial = ThemeSettingsSnapshot.default()
+    )
 
     val switchToNightDialogState = rememberDialogState()
     ConfirmDialog(
         dialogState = switchToNightDialogState,
         onConfirm = {},
         onCancel = {
-            context.appPreferences.followSystemNight = false
+            themeSettingsViewModel.setFollowSystemNight(false)
             themeController.toggleNightMode()
         },
         confirmText = stringResource(id = R.string.btn_keep_following),
@@ -289,7 +322,7 @@ fun UserPage(
                 if (currentAccount != null) {
                     InfoCard(
                         modifier = Modifier
-                            .padding(top = 8.dp)
+                            .padding(top = 16.dp)
                             .clickable {
                                 navigator.navigate(UserProfilePageDestination(currentAccount.uid.toLong()))
                             }
@@ -300,11 +333,7 @@ fun UserPage(
                     )
                     StatCard(
                         account = currentAccount,
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(color = ExtendedTheme.colors.chip)
-                            .padding(vertical = 18.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                 } else if (isLoading) {
                     InfoCard(
@@ -314,11 +343,7 @@ fun UserPage(
                         isPlaceholder = true,
                     )
                     StatCardPlaceholder(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(color = ExtendedTheme.colors.chip)
-                            .padding(vertical = 18.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                 } else {
                     LoginTipCard(
@@ -359,7 +384,7 @@ fun UserPage(
                     Switch(
                         checked = themeState.isNightMode,
                         onCheckedChange = {
-                            if (context.appPreferences.followSystemNight) {
+                            if (themeSettings.followSystemNight) {
                                 switchToNightDialogState.show()
                             } else {
                                 themeController.toggleNightMode()

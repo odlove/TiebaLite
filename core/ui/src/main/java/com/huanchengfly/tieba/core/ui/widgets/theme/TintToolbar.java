@@ -41,17 +41,17 @@ public class TintToolbar extends Toolbar implements Tintable {
         }
         if (attrs == null) {
             mBackgroundTintResId = 0;
-            mItemTintResId = R.color.default_color_toolbar_item;
-            mSecondaryItemTintResId = R.color.default_color_toolbar_item_secondary;
-            mActiveItemTintResId = R.color.default_color_toolbar_item_active;
+            mItemTintResId = R.color.sem_content_primary;
+            mSecondaryItemTintResId = R.color.sem_content_secondary;
+            mActiveItemTintResId = R.color.sem_state_active;
             applyTintColor();
             return;
         }
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.TintToolbar, defStyleAttr, 0);
         mBackgroundTintResId = array.getResourceId(R.styleable.TintToolbar_toolbarBackgroundTint, 0);
-        mItemTintResId = array.getResourceId(R.styleable.TintToolbar_itemTint, R.color.default_color_toolbar_item);
-        mSecondaryItemTintResId = array.getResourceId(R.styleable.TintToolbar_secondaryItemTint, R.color.default_color_toolbar_item_secondary);
-        mActiveItemTintResId = array.getResourceId(R.styleable.TintToolbar_activeItemTint, R.color.default_color_toolbar_item_active);
+        mItemTintResId = array.getResourceId(R.styleable.TintToolbar_itemTint, R.color.sem_content_primary);
+        mSecondaryItemTintResId = array.getResourceId(R.styleable.TintToolbar_secondaryItemTint, R.color.sem_content_secondary);
+        mActiveItemTintResId = array.getResourceId(R.styleable.TintToolbar_activeItemTint, R.color.sem_state_active);
         array.recycle();
         applyTintColor();
     }
@@ -75,13 +75,13 @@ public class TintToolbar extends Toolbar implements Tintable {
 
     private void fixColor() {
         if (mItemTintResId == 0) {
-            mItemTintResId = R.color.default_color_toolbar_item;
+            mItemTintResId = R.color.sem_content_primary;
         }
         if (mSecondaryItemTintResId == 0) {
-            mSecondaryItemTintResId = R.color.default_color_toolbar_item_secondary;
+            mSecondaryItemTintResId = R.color.sem_content_secondary;
         }
         if (mActiveItemTintResId == 0) {
-            mActiveItemTintResId = R.color.default_color_toolbar_item_active;
+            mActiveItemTintResId = R.color.sem_state_active;
         }
     }
 

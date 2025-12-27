@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.core.ui.theme
 
 import androidx.annotation.ColorInt
+import kotlinx.serialization.Serializable
 
 data class ThemePalette(
     @ColorInt val primary: Int,
@@ -33,12 +34,14 @@ data class ThemePalette(
     @ColorInt val shadow: Int
 )
 
+@Serializable
 data class CustomThemeConfig(
     @ColorInt val primaryColor: Int,
     val toolbarPrimary: Boolean,
     val statusBarDark: Boolean
 )
 
+@Serializable
 data class TranslucentThemeConfig(
     val backgroundPath: String?,
     @ColorInt val primaryColor: Int?,

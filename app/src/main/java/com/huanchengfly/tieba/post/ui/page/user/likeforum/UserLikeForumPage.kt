@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -29,6 +30,7 @@ import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.getOrNull
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
@@ -181,28 +183,38 @@ private fun UserLikeForumItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = Modifier
-            .clickable(onClick = onClick)
-            .then(modifier),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    CardSurface(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp)
     ) {
-        Avatar(
-            data = item.avatar,
-            size = Sizes.Medium,
-            contentDescription = null
-        )
-        Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = item.name.orEmpty(), style = MaterialTheme.typography.subtitle1)
-            item.slogan.takeUnless { it.isNullOrEmpty() }?.let {
+            Avatar(
+                data = item.avatar,
+                size = Sizes.Medium,
+                contentDescription = null
+            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 Text(
-                    text = it,
-                    style = MaterialTheme.typography.body2,
-                    color = ExtendedTheme.colors.textSecondary
+                    text = item.name.orEmpty(),
+                    style = MaterialTheme.typography.subtitle1,
+                    color = ExtendedTheme.colors.text
                 )
+                item.slogan.takeUnless { it.isNullOrEmpty() }?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.body2,
+                        color = ExtendedTheme.colors.textSecondary
+                    )
+                }
             }
         }
     }

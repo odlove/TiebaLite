@@ -16,6 +16,7 @@ import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.core.ui.theme.ThemeType
 import com.huanchengfly.tieba.core.ui.theme.TranslucentThemeConfig
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dynamicTonalPalette
+import androidx.core.graphics.ColorUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -27,7 +28,7 @@ interface ThemePaletteProvider {
         toolbarPrimary: Boolean,
         customConfig: CustomThemeConfig?,
         translucentConfig: TranslucentThemeConfig?
-    ): ThemePalette
+    ): ResolvedPalette
 
     companion object {
         /**
@@ -38,6 +39,11 @@ interface ThemePaletteProvider {
             return ThemePaletteProviderImpl(context)
         }
     }
+
+    data class ResolvedPalette(
+        val palette: ThemePalette,
+        val semanticColors: ThemeSemanticColors
+    )
 }
 
 class ThemePaletteProviderImpl @Inject constructor(
@@ -51,7 +57,7 @@ class ThemePaletteProviderImpl @Inject constructor(
         toolbarPrimary: Boolean,
         customConfig: CustomThemeConfig?,
         translucentConfig: TranslucentThemeConfig?
-    ): ThemePalette {
+    ): ThemePaletteProvider.ResolvedPalette {
         // 动态配色优先于其他类型
         if (useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && spec.supportsDynamicColor) {
             Log.i(
@@ -84,7 +90,7 @@ class ThemePaletteProviderImpl @Inject constructor(
     }
 
     private fun defaultCustomConfig(toolbarPrimary: Boolean): CustomThemeConfig = CustomThemeConfig(
-        primaryColor = context.getColorCompat(R.color.theme_color_primary_tieba),
+        primaryColor = context.getColorCompat(R.color.tieba),
         toolbarPrimary = toolbarPrimary,
         statusBarDark = !toolbarPrimary
     )
@@ -97,214 +103,213 @@ class ThemePaletteProviderImpl @Inject constructor(
         alpha = 255
     )
 
-    private fun resolveDynamicPalette(spec: ThemeSpec, toolbarPrimary: Boolean): ThemePalette {
+    private fun resolveDynamicPalette(spec: ThemeSpec, toolbarPrimary: Boolean): ThemePaletteProvider.ResolvedPalette {
         val tonalPalette = dynamicTonalPalette(context)
-        val themeKey = spec.key
-        val isNight = spec.isNight
-
-        val topBarColor = if (toolbarPrimary) tonalPalette.primary40 else if (isNight) tonalPalette.neutralVariant20 else tonalPalette.neutralVariant95
-        val onTopBar = if (toolbarPrimary) tonalPalette.primary100 else if (isNight) tonalPalette.neutralVariant90 else tonalPalette.neutralVariant10
-        val onTopBarSecondary = if (toolbarPrimary) tonalPalette.primary80 else if (isNight) tonalPalette.neutralVariant60 else tonalPalette.neutralVariant40
-        val onTopBarActive = if (toolbarPrimary) tonalPalette.primary100 else if (isNight) tonalPalette.neutralVariant80 else tonalPalette.neutralVariant20
-        val topBarSurface = if (toolbarPrimary) tonalPalette.primary90 else if (isNight) tonalPalette.neutralVariant20 else tonalPalette.neutralVariant95
-        val onTopBarSurface = if (toolbarPrimary) tonalPalette.primary10 else if (isNight) tonalPalette.neutralVariant80 else tonalPalette.neutralVariant10
-
-        val backgroundBase = when {
-            themeKey == ThemeTokens.THEME_AMOLED_DARK -> tonalPalette.neutralVariant0
-            isNight -> tonalPalette.neutralVariant10
-            else -> tonalPalette.neutralVariant99
+        val variant = when {
+            spec.key == ThemeTokens.THEME_AMOLED_DARK -> DynamicVariant.AMOLED
+            spec.isNight -> DynamicVariant.DARK
+            else -> DynamicVariant.LIGHT
         }
-        val cardBase = if (isNight) tonalPalette.neutralVariant20 else tonalPalette.neutralVariant99
-        val floorCardBase = if (isNight) tonalPalette.neutralVariant20 else tonalPalette.neutralVariant95
-        val chipBase = if (isNight) tonalPalette.neutralVariant20 else tonalPalette.neutralVariant95
-        val navBar = if (isNight) tonalPalette.neutralVariant0 else tonalPalette.neutralVariant99
-        val navBarSurface = if (isNight) tonalPalette.neutralVariant10 else tonalPalette.neutralVariant95
-        val onNavBarSurface = if (isNight) tonalPalette.neutralVariant70 else tonalPalette.neutralVariant10
 
-        return ThemePalette(
-            primary = tonalPalette.primary40.toArgb(),
-            primaryAlt = if (isNight) tonalPalette.primary80.toArgb() else tonalPalette.primary40.toArgb(),
-            accent = tonalPalette.secondary40.toArgb(),
-            onAccent = tonalPalette.secondary90.toArgb(),
-            background = backgroundBase.toArgb(),
-            windowBackground = backgroundBase.toArgb(),
-            card = cardBase.toArgb(),
-            floorCard = floorCardBase.toArgb(),
-            chip = chipBase.toArgb(),
-            onChip = (if (isNight) tonalPalette.neutralVariant80 else tonalPalette.neutralVariant30).toArgb(),
-            textPrimary = tonalPalette.neutralVariant90.toArgb(),
-            textSecondary = tonalPalette.neutralVariant70.toArgb(),
-            textDisabled = tonalPalette.neutralVariant50.toArgb(),
-            textOnPrimary = tonalPalette.neutralVariant0.toArgb(),
-            toolbar = topBarColor.toArgb(),
-            toolbarItem = onTopBar.toArgb(),
-            toolbarItemActive = onTopBarActive.toArgb(),
-            toolbarItemSecondary = onTopBarSecondary.toArgb(),
-            toolbarSurface = topBarSurface.toArgb(),
-            onToolbarSurface = onTopBarSurface.toArgb(),
-            navBar = navBar.toArgb(),
-            navBarSurface = navBarSurface.toArgb(),
-            onNavBarSurface = onNavBarSurface.toArgb(),
-            unselected = (if (isNight) tonalPalette.neutralVariant60 else tonalPalette.neutralVariant40).toArgb(),
-            indicator = (if (isNight) tonalPalette.neutralVariant30 else tonalPalette.neutralVariant90).toArgb(),
-            placeholder = (if (isNight) tonalPalette.neutralVariant60 else tonalPalette.neutralVariant40).toArgb(),
-            divider = (if (isNight) tonalPalette.neutralVariant30 else tonalPalette.neutralVariant90).toArgb(),
-            shadow = (if (isNight) tonalPalette.neutralVariant30 else tonalPalette.neutralVariant80).toArgb()
+        val colors = DynamicColorSpec.resolveColors(tonalPalette, variant, toolbarPrimary)
+        val palette = ThemePalette(
+            primary = colors.primary,
+            primaryAlt = colors.primaryAlt,
+            accent = colors.accent,
+            onAccent = colors.onAccent,
+            background = colors.background,
+            windowBackground = colors.windowBackground,
+            card = colors.card,
+            floorCard = colors.floorCard,
+            chip = colors.chip,
+            onChip = colors.onChip,
+            textPrimary = colors.text,
+            textSecondary = colors.textSecondary,
+            textDisabled = colors.textDisabled,
+            textOnPrimary = colors.onPrimary,
+            toolbar = colors.topBar,
+            toolbarItem = colors.onTopBar,
+            toolbarItemActive = colors.onTopBarActive,
+            toolbarItemSecondary = colors.onTopBarSecondary,
+            toolbarSurface = colors.topBarSurface,
+            onToolbarSurface = colors.onTopBarSurface,
+            navBar = colors.bottomBar,
+            navBarSurface = colors.bottomBarSurface,
+            onNavBarSurface = colors.onBottomBarSurface,
+            unselected = colors.unselected,
+            indicator = colors.indicator,
+            placeholder = colors.placeholder,
+            divider = colors.divider,
+            shadow = colors.shadow
         )
+        val semantic = ThemeSemanticColors(
+            surfacePrimary = colors.background,
+            surfaceWindow = colors.windowBackground,
+            surfaceCard = colors.card,
+            surfaceFloor = colors.floorCard,
+            surfaceChip = colors.chip,
+            surfaceNav = colors.bottomBar,
+            surfaceNavSurface = colors.bottomBarSurface,
+            surfaceToolbar = colors.topBar,
+            surfaceScrim = colors.shadow,
+            contentPrimary = colors.text,
+            contentSecondary = colors.textSecondary,
+            contentDisabled = colors.textDisabled,
+            contentInverse = colors.onPrimary,
+            contentOnBrand = colors.onAccent,
+            contentOnChip = colors.onChip,
+            stateActive = colors.accent,
+            stateUnselected = colors.unselected,
+            stateIndicator = colors.indicator,
+            outlineLow = colors.divider,
+            outlineSurface = colors.onTopBarSurface,
+            outlineSecondary = colors.onTopBarSecondary,
+            decorPlaceholder = colors.placeholder,
+            decorShadow = colors.shadow
+        )
+        return ThemePaletteProvider.ResolvedPalette(palette, semantic)
     }
 
-    private fun resolveCustomPalette(custom: CustomThemeConfig): ThemePalette {
+    private fun resolveCustomPalette(custom: CustomThemeConfig): ThemePaletteProvider.ResolvedPalette {
         val primaryColor = custom.primaryColor
         val toolbarPrimary = custom.toolbarPrimary
-
-        val toolbar = if (toolbarPrimary) primaryColor else context.getColorCompat(R.color.white)
-        val toolbarItem = if (toolbarPrimary) context.getColorCompat(R.color.theme_color_toolbar_item_light) else context.getColorCompat(R.color.theme_color_toolbar_item_dark)
-        val toolbarItemSecondary = if (toolbarPrimary) context.getColorCompat(R.color.theme_color_toolbar_item_secondary_white) else context.getColorCompat(R.color.theme_color_toolbar_item_secondary_light)
-        val toolbarSurface = if (toolbarPrimary) primaryColor else context.getColorCompat(R.color.theme_color_toolbar_surface_light)
-        val onToolbarSurface = if (toolbarPrimary) context.getColorCompat(R.color.theme_color_toolbar_item_secondary_white) else context.getColorCompat(R.color.theme_color_on_toolbar_surface_light)
-
-        return ThemePalette(
+        val primaryAlt = if (custom.statusBarDark) {
+            darkenColor(primaryColor, 0.08f)
+        } else {
+            lightenColor(primaryColor, 0.08f)
+        }
+        val onAccent = if (isColorDark(primaryColor)) Color.WHITE else Color.BLACK
+        val palette = ThemePalette(
             primary = primaryColor,
-            primaryAlt = context.getColorCompat(R.color.theme_color_new_primary_light),
+            primaryAlt = primaryAlt,
             accent = primaryColor,
-            onAccent = context.getColorCompat(R.color.theme_color_on_accent_light),
-            background = context.getColorCompat(R.color.theme_color_background_light),
-            windowBackground = context.getColorCompat(R.color.theme_color_window_background_light),
-            card = context.getColorCompat(R.color.theme_color_card_light),
-            floorCard = context.getColorCompat(R.color.theme_color_floor_card_light),
-            chip = context.getColorCompat(R.color.theme_color_chip_light),
-            onChip = context.getColorCompat(R.color.theme_color_on_chip_light),
-            textPrimary = context.getColorCompat(R.color.color_text),
-            textSecondary = context.getColorCompat(R.color.color_text_secondary),
-            textDisabled = context.getColorCompat(R.color.color_text_disabled),
-            textOnPrimary = context.getColorCompat(R.color.theme_color_background_light),
-            toolbar = toolbar,
-            toolbarItem = toolbarItem,
+            onAccent = onAccent,
+            background = 0,
+            windowBackground = 0,
+            card = 0,
+            floorCard = 0,
+            chip = 0,
+            onChip = 0,
+            textPrimary = 0,
+            textSecondary = 0,
+            textDisabled = 0,
+            textOnPrimary = onAccent,
+            toolbar = 0,
+            toolbarItem = 0,
             toolbarItemActive = primaryColor,
-            toolbarItemSecondary = toolbarItemSecondary,
-            toolbarSurface = toolbarSurface,
-            onToolbarSurface = onToolbarSurface,
-            navBar = context.getColorCompat(R.color.theme_color_nav_light),
-            navBarSurface = context.getColorCompat(R.color.theme_color_nav_bar_surface_light),
-            onNavBarSurface = context.getColorCompat(R.color.theme_color_on_nav_bar_surface_light),
-            unselected = context.getColorCompat(R.color.theme_color_unselected_day),
-            indicator = context.getColorCompat(R.color.default_color_swipe_refresh_view_background),
-            placeholder = context.getColorCompat(R.color.theme_color_placeholder_light),
-            divider = context.getColorCompat(R.color.theme_color_divider_light),
-            shadow = context.getColorCompat(R.color.theme_color_shadow_day)
+            toolbarItemSecondary = 0,
+            toolbarSurface = 0,
+            onToolbarSurface = 0,
+            navBar = 0,
+            navBarSurface = 0,
+            onNavBarSurface = 0,
+            unselected = 0,
+            indicator = 0,
+            placeholder = 0,
+            divider = 0,
+            shadow = 0
         )
+        val semanticResult = applySemanticOverrides(palette, ThemeMode.LIGHT)
+        val adjusted = applyToolbarPreference(
+            semanticResult.palette,
+            usePrimary = toolbarPrimary,
+            defaultUsesPrimary = toolbarPrimary
+        )
+        val semantic = semanticResult.semanticColors.withToolbarFrom(adjusted)
+        return ThemePaletteProvider.ResolvedPalette(adjusted, semantic)
     }
 
     private fun resolveTranslucentPalette(
         spec: ThemeSpec,
         config: TranslucentThemeConfig?
-    ): ThemePalette {
+    ): ThemePaletteProvider.ResolvedPalette {
         // 从 Catalog 获取结构化配置
         val catalogSpec = ThemePaletteCatalog.specs[spec.key]
-        val basePalette = if (catalogSpec != null) {
+        var basePalette = if (catalogSpec != null) {
             buildPaletteFromColorSet(catalogSpec.base)
         } else {
-            val fallbackPrimary = config?.primaryColor ?: context.getColorCompat(R.color.theme_color_primary_tieba)
+            val fallbackPrimary = config?.primaryColor ?: context.getColorCompat(R.color.tieba)
             buildPaletteFromColorRes(fallbackPrimary, spec.isNight)
         }
 
-        return applyTranslucentOverrides(basePalette, config, spec.isNight)
+        val semanticResult = applySemanticOverrides(basePalette, ThemeMode.TRANSLUCENT)
+        val adjusted = applyTranslucentOverrides(semanticResult.palette, config, spec.isNight)
+        val resolved = ThemePaletteProvider.ResolvedPalette(adjusted, semanticResult.semanticColors)
+        return applyVariantOverrides(resolved, spec.key)
     }
 
-    private fun resolveStaticPalette(spec: ThemeSpec, toolbarPrimary: Boolean): ThemePalette {
+    private fun resolveStaticPalette(spec: ThemeSpec, toolbarPrimary: Boolean): ThemePaletteProvider.ResolvedPalette {
         // 从 Catalog 获取结构化配置
         val catalogSpec = ThemePaletteCatalog.specs[spec.key]
         if (catalogSpec == null) {
             // 降级处理：如果主题未在 Catalog 中，使用默认浅色主题
-            return buildPaletteFromColorRes(primary = context.getColorCompat(R.color.tieba), isNight = false)
+            val fallback = buildPaletteFromColorRes(primary = context.getColorCompat(R.color.tieba), isNight = spec.isNight)
+            val semanticResult = applySemanticOverrides(fallback, if (spec.isNight) ThemeMode.DARK else ThemeMode.LIGHT)
+            val adjusted = applyToolbarPreference(
+                palette = semanticResult.palette,
+                usePrimary = toolbarPrimary,
+                defaultUsesPrimary = false
+            )
+            val semantic = semanticResult.semanticColors.withToolbarFrom(adjusted)
+            val resolved = ThemePaletteProvider.ResolvedPalette(adjusted, semantic)
+            return applyVariantOverrides(resolved, spec.key)
         }
 
         // 获取基础调色板（lightPaletteBase）
         val base = catalogSpec.base
-        var palette = buildPaletteFromColorSet(base, null)
+        val palette = buildPaletteFromColorSet(base)
 
-        // 如果是夜间主题且有覆盖，应用 nightOverrides
-        if (spec.isNight && catalogSpec.nightOverrides != null) {
-            palette = applyNightOverrides(palette, catalogSpec.nightOverrides)
-        }
+        val semanticMode = if (spec.isNight) ThemeMode.DARK else ThemeMode.LIGHT
+        val semanticResult = applySemanticOverrides(palette, semanticMode)
 
         val preferPrimary = toolbarPrimary
-        return applyToolbarPreference(
-            palette = palette,
+        val adjusted = applyToolbarPreference(
+            palette = semanticResult.palette,
             usePrimary = preferPrimary,
             defaultUsesPrimary = catalogSpec.toolbarUsesPrimaryByDefault
         )
+        val semantic = semanticResult.semanticColors.withToolbarFrom(adjusted)
+        val resolved = ThemePaletteProvider.ResolvedPalette(adjusted, semantic)
+        return applyVariantOverrides(resolved, spec.key)
     }
 
     /**
      * 从 PaletteColorSet 构建 ThemePalette
      */
-    private fun buildPaletteFromColorSet(colorSet: PaletteColorSet, overrides: PaletteOverrides? = null): ThemePalette {
-        fun getColorOrOverride(@ColorRes original: Int, @ColorRes override: Int? = null): Int {
-            return if (override != null) context.getColorCompat(override) else context.getColorCompat(original)
-        }
-
+    private fun buildPaletteFromColorSet(colorSet: PaletteColorSet): ThemePalette {
+        val primary = context.getColorCompat(colorSet.primary)
+        val primaryAlt = context.getColorCompat(colorSet.primaryAlt)
+        val accent = context.getColorCompat(colorSet.accent)
+        val onAccent = context.getColorCompat(colorSet.onAccent)
         return ThemePalette(
-            primary = getColorOrOverride(colorSet.primary, overrides?.primary),
-            primaryAlt = getColorOrOverride(colorSet.primaryAlt, overrides?.primaryAlt),
-            accent = getColorOrOverride(colorSet.accent, overrides?.accent),
-            onAccent = getColorOrOverride(colorSet.onAccent, overrides?.onAccent),
-            background = getColorOrOverride(colorSet.background, overrides?.background),
-            windowBackground = getColorOrOverride(colorSet.windowBackground, overrides?.windowBackground),
-            card = getColorOrOverride(colorSet.card, overrides?.card),
-            floorCard = getColorOrOverride(colorSet.floorCard, overrides?.floorCard),
-            chip = getColorOrOverride(colorSet.chip, overrides?.chip),
-            onChip = getColorOrOverride(colorSet.onChip, overrides?.onChip),
-            textPrimary = getColorOrOverride(colorSet.textPrimary, overrides?.textPrimary),
-            textSecondary = getColorOrOverride(colorSet.textSecondary, overrides?.textSecondary),
-            textDisabled = getColorOrOverride(colorSet.textDisabled, overrides?.textDisabled),
-            textOnPrimary = getColorOrOverride(colorSet.textOnPrimary, overrides?.textOnPrimary),
-            toolbar = getColorOrOverride(colorSet.toolbar, overrides?.toolbar),
-            toolbarItem = getColorOrOverride(colorSet.toolbarItem, overrides?.toolbarItem),
-            toolbarItemActive = getColorOrOverride(colorSet.toolbarItemActive, overrides?.toolbarItemActive),
-            toolbarItemSecondary = getColorOrOverride(colorSet.toolbarItemSecondary, overrides?.toolbarItemSecondary),
-            toolbarSurface = getColorOrOverride(colorSet.toolbarSurface, overrides?.toolbarSurface),
-            onToolbarSurface = getColorOrOverride(colorSet.onToolbarSurface, overrides?.onToolbarSurface),
-            navBar = getColorOrOverride(colorSet.navBar, overrides?.navBar),
-            navBarSurface = getColorOrOverride(colorSet.navBarSurface, overrides?.navBarSurface),
-            onNavBarSurface = getColorOrOverride(colorSet.onNavBarSurface, overrides?.onNavBarSurface),
-            unselected = getColorOrOverride(colorSet.unselected, overrides?.unselected),
-            indicator = getColorOrOverride(colorSet.indicator, overrides?.indicator),
-            placeholder = getColorOrOverride(colorSet.placeholder, overrides?.placeholder),
-            divider = getColorOrOverride(colorSet.divider, overrides?.divider),
-            shadow = getColorOrOverride(colorSet.shadow, overrides?.shadow)
-        )
-    }
-
-    /**
-     * 应用夜间主题覆盖
-     */
-    private fun applyNightOverrides(palette: ThemePalette, overrides: PaletteOverrides): ThemePalette {
-        return palette.copy(
-            background = if (overrides.background != null) context.getColorCompat(overrides.background) else palette.background,
-            windowBackground = if (overrides.windowBackground != null) context.getColorCompat(overrides.windowBackground) else palette.windowBackground,
-            card = if (overrides.card != null) context.getColorCompat(overrides.card) else palette.card,
-            floorCard = if (overrides.floorCard != null) context.getColorCompat(overrides.floorCard) else palette.floorCard,
-            chip = if (overrides.chip != null) context.getColorCompat(overrides.chip) else palette.chip,
-            onChip = if (overrides.onChip != null) context.getColorCompat(overrides.onChip) else palette.onChip,
-            textPrimary = if (overrides.textPrimary != null) context.getColorCompat(overrides.textPrimary) else palette.textPrimary,
-            textSecondary = if (overrides.textSecondary != null) context.getColorCompat(overrides.textSecondary) else palette.textSecondary,
-            textDisabled = if (overrides.textDisabled != null) context.getColorCompat(overrides.textDisabled) else palette.textDisabled,
-            onAccent = if (overrides.onAccent != null) context.getColorCompat(overrides.onAccent) else palette.onAccent,
-            toolbar = if (overrides.toolbar != null) context.getColorCompat(overrides.toolbar) else palette.toolbar,
-            toolbarItem = if (overrides.toolbarItem != null) context.getColorCompat(overrides.toolbarItem) else palette.toolbarItem,
-            toolbarItemActive = if (overrides.toolbarItemActive != null) context.getColorCompat(overrides.toolbarItemActive) else palette.toolbarItemActive,
-            toolbarItemSecondary = if (overrides.toolbarItemSecondary != null) context.getColorCompat(overrides.toolbarItemSecondary) else palette.toolbarItemSecondary,
-            toolbarSurface = if (overrides.toolbarSurface != null) context.getColorCompat(overrides.toolbarSurface) else palette.toolbarSurface,
-            onToolbarSurface = if (overrides.onToolbarSurface != null) context.getColorCompat(overrides.onToolbarSurface) else palette.onToolbarSurface,
-            navBar = if (overrides.navBar != null) context.getColorCompat(overrides.navBar) else palette.navBar,
-            navBarSurface = if (overrides.navBarSurface != null) context.getColorCompat(overrides.navBarSurface) else palette.navBarSurface,
-            onNavBarSurface = if (overrides.onNavBarSurface != null) context.getColorCompat(overrides.onNavBarSurface) else palette.onNavBarSurface,
-            unselected = if (overrides.unselected != null) context.getColorCompat(overrides.unselected) else palette.unselected,
-            indicator = if (overrides.indicator != null) context.getColorCompat(overrides.indicator) else palette.indicator,
-            placeholder = if (overrides.placeholder != null) context.getColorCompat(overrides.placeholder) else palette.placeholder,
-            divider = if (overrides.divider != null) context.getColorCompat(overrides.divider) else palette.divider,
-            shadow = if (overrides.shadow != null) context.getColorCompat(overrides.shadow) else palette.shadow
+            primary = primary,
+            primaryAlt = primaryAlt,
+            accent = accent,
+            onAccent = onAccent,
+            background = 0,
+            windowBackground = 0,
+            card = 0,
+            floorCard = 0,
+            chip = 0,
+            onChip = 0,
+            textPrimary = 0,
+            textSecondary = 0,
+            textDisabled = 0,
+            textOnPrimary = onAccent,
+            toolbar = 0,
+            toolbarItem = 0,
+            toolbarItemActive = accent,
+            toolbarItemSecondary = 0,
+            toolbarSurface = 0,
+            onToolbarSurface = 0,
+            navBar = 0,
+            navBarSurface = 0,
+            onNavBarSurface = 0,
+            unselected = 0,
+            indicator = 0,
+            placeholder = 0,
+            divider = 0,
+            shadow = 0
         )
     }
 
@@ -316,35 +321,41 @@ class ThemePaletteProviderImpl @Inject constructor(
         isNight: Boolean = false
     ): ThemePalette {
         val accentColor = context.getColorCompat(R.color.tieba)
+        val primaryAlt = if (isNight) {
+            darkenColor(primary, 0.08f)
+        } else {
+            lightenColor(primary, 0.08f)
+        }
+        val onAccent = if (isColorDark(accentColor)) Color.WHITE else Color.BLACK
         return ThemePalette(
             primary = primary,
-            primaryAlt = if (isNight) context.getColorCompat(R.color.theme_color_new_primary_night) else context.getColorCompat(R.color.theme_color_new_primary_light),
+            primaryAlt = primaryAlt,
             accent = accentColor,
-            onAccent = context.getColorCompat(R.color.theme_color_on_accent_light),
-            background = context.getColorCompat(if (isNight) R.color.theme_color_background_dark else R.color.theme_color_background_light),
-            windowBackground = context.getColorCompat(if (isNight) R.color.theme_color_window_background_dark else R.color.theme_color_window_background_light),
-            card = context.getColorCompat(if (isNight) R.color.theme_color_card_dark else R.color.theme_color_card_light),
-            floorCard = context.getColorCompat(if (isNight) R.color.theme_color_floor_card_dark else R.color.theme_color_floor_card_light),
-            chip = context.getColorCompat(if (isNight) R.color.theme_color_chip_dark else R.color.theme_color_chip_light),
-            onChip = context.getColorCompat(if (isNight) R.color.theme_color_on_chip_dark else R.color.theme_color_on_chip_light),
-            textPrimary = context.getColorCompat(if (isNight) R.color.color_text_night else R.color.color_text),
-            textSecondary = context.getColorCompat(if (isNight) R.color.color_text_secondary_night else R.color.color_text_secondary),
-            textDisabled = context.getColorCompat(if (isNight) R.color.color_text_disabled_night else R.color.color_text_disabled),
-            textOnPrimary = context.getColorCompat(if (isNight) R.color.theme_color_background_dark else R.color.theme_color_background_light),
-            toolbar = context.getColorCompat(if (isNight) R.color.theme_color_toolbar_dark else R.color.white),
-            toolbarItem = context.getColorCompat(if (isNight) R.color.white else R.color.theme_color_toolbar_item_dark),
+            onAccent = onAccent,
+            background = 0,
+            windowBackground = 0,
+            card = 0,
+            floorCard = 0,
+            chip = 0,
+            onChip = 0,
+            textPrimary = 0,
+            textSecondary = 0,
+            textDisabled = 0,
+            textOnPrimary = onAccent,
+            toolbar = 0,
+            toolbarItem = 0,
             toolbarItemActive = accentColor,
-            toolbarItemSecondary = context.getColorCompat(if (isNight) R.color.theme_color_toolbar_item_secondary_dark else R.color.theme_color_toolbar_item_secondary_light),
-            toolbarSurface = context.getColorCompat(if (isNight) R.color.theme_color_toolbar_surface_dark else R.color.theme_color_toolbar_surface_light),
-            onToolbarSurface = context.getColorCompat(if (isNight) R.color.theme_color_on_toolbar_surface_dark else R.color.theme_color_on_toolbar_surface_light),
-            navBar = context.getColorCompat(if (isNight) R.color.theme_color_nav_dark else R.color.theme_color_nav_light),
-            navBarSurface = context.getColorCompat(if (isNight) R.color.theme_color_nav_bar_surface_dark else R.color.theme_color_nav_bar_surface_light),
-            onNavBarSurface = context.getColorCompat(if (isNight) R.color.theme_color_on_nav_bar_surface_dark else R.color.theme_color_on_nav_bar_surface_light),
-            unselected = context.getColorCompat(if (isNight) R.color.theme_color_unselected_dark else R.color.theme_color_unselected_day),
-            indicator = context.getColorCompat(if (isNight) R.color.theme_color_indicator_dark else R.color.default_color_swipe_refresh_view_background),
-            placeholder = context.getColorCompat(if (isNight) R.color.theme_color_placeholder_dark else R.color.theme_color_placeholder_light),
-            divider = context.getColorCompat(if (isNight) R.color.theme_color_divider_dark else R.color.theme_color_divider_light),
-            shadow = context.getColorCompat(if (isNight) R.color.theme_color_shadow_night else R.color.theme_color_shadow_day)
+            toolbarItemSecondary = 0,
+            toolbarSurface = 0,
+            onToolbarSurface = 0,
+            navBar = 0,
+            navBarSurface = 0,
+            onNavBarSurface = 0,
+            unselected = 0,
+            indicator = 0,
+            placeholder = 0,
+            divider = 0,
+            shadow = 0
         )
     }
 
@@ -361,20 +372,12 @@ class ThemePaletteProviderImpl @Inject constructor(
         if (usePrimary) {
             val primaryColor = palette.primary
             val isPrimaryDark = isColorDark(primaryColor)
-            val toolbarItem = if (isPrimaryDark) {
-                context.getColorCompat(R.color.theme_color_toolbar_item_dark)
-            } else {
-                context.getColorCompat(R.color.theme_color_toolbar_item_light)
-            }
-            val toolbarItemSecondary = if (isPrimaryDark) {
-                context.getColorCompat(R.color.theme_color_toolbar_item_secondary_dark)
-            } else {
-                context.getColorCompat(R.color.theme_color_toolbar_item_secondary_white)
-            }
+            val toolbarItem = if (isPrimaryDark) Color.WHITE else Color.BLACK
+            val toolbarItemSecondary = ColorUtils.setAlphaComponent(toolbarItem, (0.65f * 255).roundToInt())
             val onToolbarSurface = if (isPrimaryDark) {
-                context.getColorCompat(R.color.theme_color_on_toolbar_surface_dark)
+                lightenColor(primaryColor, 0.2f)
             } else {
-                context.getColorCompat(R.color.theme_color_on_toolbar_surface_light)
+                darkenColor(primaryColor, 0.2f)
             }
             return palette.copy(
                 toolbar = primaryColor,
@@ -386,18 +389,15 @@ class ThemePaletteProviderImpl @Inject constructor(
             )
         }
 
-        if (!usePrimary && defaultUsesPrimary) {
-            return palette.copy(
-                toolbar = context.getColorCompat(R.color.white),
-                toolbarItem = context.getColorCompat(R.color.theme_color_toolbar_item_dark),
-                toolbarItemSecondary = context.getColorCompat(R.color.theme_color_toolbar_item_secondary_light),
-                toolbarItemActive = palette.accent,
-                toolbarSurface = context.getColorCompat(R.color.theme_color_toolbar_surface_light),
-                onToolbarSurface = context.getColorCompat(R.color.theme_color_on_toolbar_surface_light)
-            )
-        }
-
-        return palette
+        val neutralSurface = palette.toolbarSurface.takeIf { it != 0 } ?: palette.toolbar
+        return palette.copy(
+            toolbar = neutralSurface,
+            toolbarItem = palette.textPrimary,
+            toolbarItemSecondary = palette.textSecondary,
+            toolbarItemActive = palette.accent,
+            toolbarSurface = neutralSurface,
+            onToolbarSurface = palette.divider
+        )
     }
 
     private fun applyTranslucentOverrides(
@@ -418,6 +418,359 @@ class ThemePaletteProviderImpl @Inject constructor(
             toolbarItemActive = primaryColor
         )
     }
+
+    private fun applySemanticOverrides(palette: ThemePalette, mode: ThemeMode): ThemePaletteProvider.ResolvedPalette {
+        val semantic = loadSemanticColors(mode)
+        val updated = palette.copy(
+            background = semantic.surfacePrimary,
+            windowBackground = semantic.surfaceWindow,
+            card = semantic.surfaceCard,
+            floorCard = semantic.surfaceFloor,
+            chip = semantic.surfaceChip,
+            onChip = semantic.contentOnChip,
+            textPrimary = semantic.contentPrimary,
+            textSecondary = semantic.contentSecondary,
+            textDisabled = semantic.contentDisabled,
+            textOnPrimary = semantic.contentOnBrand,
+            toolbar = semantic.surfaceToolbar,
+            toolbarItem = semantic.contentPrimary,
+            toolbarItemSecondary = semantic.contentSecondary,
+            toolbarItemActive = palette.accent,
+            toolbarSurface = semantic.surfaceToolbar,
+            onToolbarSurface = semantic.outlineSurface,
+            navBar = semantic.surfaceNav,
+            navBarSurface = semantic.surfaceNavSurface,
+            onNavBarSurface = semantic.outlineSurface,
+            unselected = semantic.stateUnselected,
+            indicator = semantic.stateIndicator,
+            placeholder = semantic.decorPlaceholder,
+            divider = semantic.outlineLow,
+            shadow = semantic.decorShadow
+        )
+        return ThemePaletteProvider.ResolvedPalette(updated, semantic)
+    }
+
+    private fun applyVariantOverrides(
+        resolved: ThemePaletteProvider.ResolvedPalette,
+        themeKey: String
+    ): ThemePaletteProvider.ResolvedPalette {
+        val override = darkVariantSemanticOverrides[themeKey] ?: return resolved
+        val overriddenSemantic = resolved.semanticColors.applyOverride(override)
+        val palette = resolved.palette.copy(
+            background = overriddenSemantic.surfacePrimary,
+            windowBackground = overriddenSemantic.surfaceWindow,
+            card = overriddenSemantic.surfaceCard,
+            floorCard = overriddenSemantic.surfaceFloor,
+            chip = overriddenSemantic.surfaceChip,
+            onChip = resolveOverrideColor(override.contentOnChipRes, resolved.palette.onChip),
+            navBar = overriddenSemantic.surfaceNav,
+            navBarSurface = overriddenSemantic.surfaceNavSurface,
+            toolbar = overriddenSemantic.surfaceToolbar,
+            toolbarItem = resolveOverrideColor(override.toolbarItemRes, resolved.palette.toolbarItem),
+            toolbarItemSecondary = resolveOverrideColor(
+                override.toolbarItemSecondaryRes,
+                resolved.palette.toolbarItemSecondary
+            ),
+            toolbarItemActive = resolveOverrideColor(
+                override.toolbarItemActiveRes,
+                resolved.palette.toolbarItemActive
+            ),
+            toolbarSurface = overriddenSemantic.surfaceToolbar,
+            onToolbarSurface = overriddenSemantic.outlineSurface,
+            unselected = resolveOverrideColor(override.stateUnselectedRes, resolved.palette.unselected),
+            indicator = overriddenSemantic.stateIndicator,
+            placeholder = overriddenSemantic.decorPlaceholder,
+            divider = overriddenSemantic.outlineLow,
+            shadow = overriddenSemantic.decorShadow
+        )
+        return ThemePaletteProvider.ResolvedPalette(palette, overriddenSemantic)
+    }
+
+    private fun ThemeSemanticColors.applyOverride(override: SemanticOverride): ThemeSemanticColors {
+        return copy(
+            surfacePrimary = resolveOverrideColor(override.surfacePrimaryRes, surfacePrimary),
+            surfaceWindow = resolveOverrideColor(override.surfaceWindowRes, surfaceWindow),
+            surfaceCard = resolveOverrideColor(override.surfaceCardRes, surfaceCard),
+            surfaceFloor = resolveOverrideColor(override.surfaceFloorRes, surfaceFloor),
+            surfaceChip = resolveOverrideColor(override.surfaceChipRes, surfaceChip),
+            surfaceNav = resolveOverrideColor(override.surfaceNavRes, surfaceNav),
+            surfaceNavSurface = resolveOverrideColor(override.surfaceNavSurfaceRes, surfaceNavSurface),
+            surfaceToolbar = resolveOverrideColor(override.surfaceToolbarRes, surfaceToolbar),
+            contentOnChip = resolveOverrideColor(override.contentOnChipRes, contentOnChip),
+            outlineSurface = resolveOverrideColor(override.outlineSurfaceRes, outlineSurface),
+            outlineLow = resolveOverrideColor(override.outlineLowRes, outlineLow),
+            stateIndicator = resolveOverrideColor(override.stateIndicatorRes, stateIndicator),
+            stateUnselected = resolveOverrideColor(override.stateUnselectedRes, stateUnselected),
+            decorPlaceholder = resolveOverrideColor(override.decorPlaceholderRes, decorPlaceholder)
+        )
+    }
+
+    private fun resolveOverrideColor(@ColorRes resId: Int?, fallback: Int): Int =
+        resId?.let { context.getColorCompat(it) } ?: fallback
+
+    private data class SemanticOverride(
+        @ColorRes val surfacePrimaryRes: Int? = null,
+        @ColorRes val surfaceWindowRes: Int? = null,
+        @ColorRes val surfaceCardRes: Int? = null,
+        @ColorRes val surfaceFloorRes: Int? = null,
+        @ColorRes val surfaceChipRes: Int? = null,
+        @ColorRes val surfaceNavRes: Int? = null,
+        @ColorRes val surfaceNavSurfaceRes: Int? = null,
+        @ColorRes val surfaceToolbarRes: Int? = null,
+        @ColorRes val toolbarItemRes: Int? = null,
+        @ColorRes val toolbarItemSecondaryRes: Int? = null,
+        @ColorRes val toolbarItemActiveRes: Int? = null,
+        @ColorRes val outlineSurfaceRes: Int? = null,
+        @ColorRes val outlineLowRes: Int? = null,
+        @ColorRes val stateIndicatorRes: Int? = null,
+        @ColorRes val stateUnselectedRes: Int? = null,
+        @ColorRes val decorPlaceholderRes: Int? = null,
+        @ColorRes val contentOnChipRes: Int? = null
+    )
+
+    private val darkVariantSemanticOverrides = mapOf(
+        ThemeTokens.THEME_BLUE_DARK to SemanticOverride(
+            surfacePrimaryRes = R.color.theme_color_background_blue_dark,
+            surfaceWindowRes = R.color.theme_color_window_background_blue_dark,
+            surfaceCardRes = R.color.theme_color_card_blue_dark,
+            surfaceFloorRes = R.color.theme_color_floor_card_blue_dark,
+            surfaceChipRes = R.color.theme_color_chip_blue_dark,
+            surfaceNavRes = R.color.theme_color_nav_blue_dark,
+            surfaceNavSurfaceRes = R.color.theme_color_nav_bar_surface_blue_dark,
+            surfaceToolbarRes = R.color.theme_color_toolbar_blue_dark,
+            toolbarItemRes = R.color.theme_color_toolbar_item_dark,
+            toolbarItemSecondaryRes = R.color.theme_color_toolbar_item_secondary_blue_dark,
+            toolbarItemActiveRes = R.color.theme_color_toolbar_item_active_blue_dark,
+            outlineSurfaceRes = R.color.theme_color_on_toolbar_surface_blue_dark,
+            outlineLowRes = R.color.theme_color_divider_blue_dark,
+            stateIndicatorRes = R.color.theme_color_indicator_blue_dark,
+            stateUnselectedRes = R.color.theme_color_unselected_blue_dark,
+            decorPlaceholderRes = R.color.theme_color_placeholder_blue_dark
+        ),
+        ThemeTokens.THEME_GREY_DARK to SemanticOverride(
+            surfacePrimaryRes = R.color.theme_color_background_grey_dark,
+            surfaceWindowRes = R.color.theme_color_window_background_grey_dark,
+            surfaceCardRes = R.color.theme_color_card_grey_dark,
+            surfaceFloorRes = R.color.theme_color_floor_card_grey_dark,
+            surfaceChipRes = R.color.theme_color_chip_grey_dark,
+            surfaceNavRes = R.color.theme_color_nav_grey_dark,
+            surfaceNavSurfaceRes = R.color.theme_color_nav_bar_surface_grey_dark,
+            surfaceToolbarRes = R.color.theme_color_toolbar_grey_dark,
+            toolbarItemRes = R.color.theme_color_toolbar_item_dark,
+            toolbarItemSecondaryRes = R.color.theme_color_toolbar_item_secondary_grey_dark,
+            toolbarItemActiveRes = R.color.theme_color_toolbar_item_active_grey_dark,
+            outlineSurfaceRes = R.color.theme_color_on_toolbar_surface_grey_dark,
+            outlineLowRes = R.color.theme_color_divider_grey_dark,
+            stateIndicatorRes = R.color.theme_color_indicator_grey_dark,
+            stateUnselectedRes = R.color.theme_color_unselected_grey_dark,
+            decorPlaceholderRes = R.color.theme_color_placeholder_grey_dark,
+            contentOnChipRes = R.color.theme_color_on_chip_grey_dark
+        ),
+        ThemeTokens.THEME_AMOLED_DARK to SemanticOverride(
+            surfacePrimaryRes = R.color.theme_color_background_amoled_dark,
+            surfaceWindowRes = R.color.theme_color_window_background_amoled_dark,
+            surfaceCardRes = R.color.theme_color_card_amoled_dark,
+            surfaceFloorRes = R.color.theme_color_floor_card_amoled_dark,
+            surfaceChipRes = R.color.theme_color_chip_amoled_dark,
+            surfaceNavRes = R.color.theme_color_nav_amoled_dark,
+            surfaceNavSurfaceRes = R.color.theme_color_nav_bar_surface_amoled_dark,
+            surfaceToolbarRes = R.color.theme_color_toolbar_amoled_dark,
+            toolbarItemRes = R.color.theme_color_toolbar_item_dark,
+            toolbarItemSecondaryRes = R.color.theme_color_toolbar_item_secondary_amoled_dark,
+            toolbarItemActiveRes = R.color.theme_color_toolbar_item_active_amoled_dark,
+            outlineSurfaceRes = R.color.theme_color_on_toolbar_surface_amoled_dark,
+            outlineLowRes = R.color.theme_color_divider_amoled_dark,
+            stateIndicatorRes = R.color.theme_color_indicator_amoled_dark,
+            stateUnselectedRes = R.color.theme_color_unselected_amoled_dark,
+            decorPlaceholderRes = R.color.theme_color_placeholder_amoled_dark,
+            contentOnChipRes = R.color.theme_color_on_chip_amoled_dark
+        ),
+        ThemeTokens.THEME_TRANSLUCENT_DARK to SemanticOverride(
+            surfacePrimaryRes = R.color.theme_color_background_translucent_dark,
+            surfaceWindowRes = R.color.theme_color_window_background_translucent_dark,
+            surfaceCardRes = R.color.theme_color_card_translucent_dark,
+            surfaceFloorRes = R.color.theme_color_floor_card_translucent_dark,
+            surfaceChipRes = R.color.theme_color_chip_translucent_dark,
+            surfaceNavRes = R.color.theme_color_nav_translucent_dark,
+            surfaceNavSurfaceRes = R.color.theme_color_nav_bar_surface_translucent_dark,
+            surfaceToolbarRes = R.color.theme_color_toolbar_translucent_dark,
+            toolbarItemRes = R.color.theme_color_toolbar_item_translucent_dark,
+            toolbarItemSecondaryRes = R.color.theme_color_toolbar_item_secondary_translucent_dark,
+            toolbarItemActiveRes = R.color.theme_color_toolbar_item_active_translucent_dark,
+            outlineSurfaceRes = R.color.theme_color_on_toolbar_surface_translucent_dark,
+            outlineLowRes = R.color.theme_color_divider_translucent_dark,
+            stateIndicatorRes = R.color.theme_color_indicator_translucent_dark,
+            stateUnselectedRes = R.color.theme_color_unselected_translucent_dark,
+            decorPlaceholderRes = R.color.theme_color_placeholder_translucent_dark
+        )
+    )
+
+    private fun loadSemanticColors(mode: ThemeMode): ThemeSemanticColors {
+        fun color(@ColorRes lightRes: Int, @ColorRes darkRes: Int, @ColorRes translucentRes: Int): Int {
+            val res = when (mode) {
+                ThemeMode.LIGHT -> lightRes
+                ThemeMode.DARK -> darkRes
+                ThemeMode.TRANSLUCENT -> translucentRes
+            }
+            return context.getColorCompat(res)
+        }
+
+        return ThemeSemanticColors(
+            surfacePrimary = color(
+                R.color.color_sem_surface_primary_light,
+                R.color.color_sem_surface_primary_dark,
+                R.color.color_sem_surface_primary_translucent
+            ),
+            surfaceWindow = color(
+                R.color.color_sem_surface_window_light,
+                R.color.color_sem_surface_window_dark,
+                R.color.color_sem_surface_window_translucent
+            ),
+            surfaceCard = color(
+                R.color.color_sem_surface_card_light,
+                R.color.color_sem_surface_card_dark,
+                R.color.color_sem_surface_card_translucent
+            ),
+            surfaceFloor = color(
+                R.color.color_sem_surface_floor_light,
+                R.color.color_sem_surface_floor_dark,
+                R.color.color_sem_surface_floor_translucent
+            ),
+            surfaceChip = color(
+                R.color.color_sem_surface_chip_light,
+                R.color.color_sem_surface_chip_dark,
+                R.color.color_sem_surface_chip_translucent
+            ),
+            surfaceNav = color(
+                R.color.color_sem_surface_nav_light,
+                R.color.color_sem_surface_nav_dark,
+                R.color.color_sem_surface_nav_translucent
+            ),
+            surfaceNavSurface = color(
+                R.color.color_sem_surface_nav_surface_light,
+                R.color.color_sem_surface_nav_surface_dark,
+                R.color.color_sem_surface_nav_surface_translucent
+            ),
+            surfaceToolbar = color(
+                R.color.color_sem_surface_toolbar_light,
+                R.color.color_sem_surface_toolbar_dark,
+                R.color.color_sem_surface_toolbar_translucent
+            ),
+            surfaceScrim = color(
+                R.color.color_sem_surface_scrim_light,
+                R.color.color_sem_surface_scrim_dark,
+                R.color.color_sem_surface_scrim_translucent
+            ),
+            contentPrimary = color(
+                R.color.color_sem_content_primary_light,
+                R.color.color_sem_content_primary_dark,
+                R.color.color_sem_content_primary_translucent
+            ),
+            contentSecondary = color(
+                R.color.color_sem_content_secondary_light,
+                R.color.color_sem_content_secondary_dark,
+                R.color.color_sem_content_secondary_translucent
+            ),
+            contentDisabled = color(
+                R.color.color_sem_content_disabled_light,
+                R.color.color_sem_content_disabled_dark,
+                R.color.color_sem_content_disabled_translucent
+            ),
+            contentInverse = color(
+                R.color.color_sem_content_inverse_light,
+                R.color.color_sem_content_inverse_dark,
+                R.color.color_sem_content_inverse_translucent
+            ),
+            contentOnBrand = color(
+                R.color.color_sem_content_on_brand_light,
+                R.color.color_sem_content_on_brand_dark,
+                R.color.color_sem_content_on_brand_translucent
+            ),
+            contentOnChip = color(
+                R.color.color_sem_content_on_chip_light,
+                R.color.color_sem_content_on_chip_dark,
+                R.color.color_sem_content_on_chip_translucent
+            ),
+            stateActive = color(
+                R.color.color_sem_state_active_light,
+                R.color.color_sem_state_active_dark,
+                R.color.color_sem_state_active_translucent
+            ),
+            stateUnselected = color(
+                R.color.color_sem_state_unselected_light,
+                R.color.color_sem_state_unselected_dark,
+                R.color.color_sem_state_unselected_translucent
+            ),
+            stateIndicator = color(
+                R.color.color_sem_state_indicator_light,
+                R.color.color_sem_state_indicator_dark,
+                R.color.color_sem_state_indicator_translucent
+            ),
+            outlineLow = color(
+                R.color.color_sem_outline_low_light,
+                R.color.color_sem_outline_low_dark,
+                R.color.color_sem_outline_low_translucent
+            ),
+            outlineSurface = color(
+                R.color.color_sem_outline_surface_light,
+                R.color.color_sem_outline_surface_dark,
+                R.color.color_sem_outline_surface_translucent
+            ),
+            outlineSecondary = color(
+                R.color.color_sem_outline_secondary_light,
+                R.color.color_sem_outline_secondary_dark,
+                R.color.color_sem_outline_secondary_translucent
+            ),
+            decorPlaceholder = color(
+                R.color.color_sem_decor_placeholder_light,
+                R.color.color_sem_decor_placeholder_dark,
+                R.color.color_sem_decor_placeholder_translucent
+            ),
+            decorShadow = color(
+                R.color.color_sem_decor_shadow_light,
+                R.color.color_sem_decor_shadow_dark,
+                R.color.color_sem_decor_shadow_translucent
+            )
+        )
+    }
+
+    private data class SemanticColors(
+        val surfacePrimary: Int,
+        val surfaceWindow: Int,
+        val surfaceCard: Int,
+        val surfaceFloor: Int,
+        val surfaceChip: Int,
+        val surfaceNav: Int,
+        val surfaceNavSurface: Int,
+        val surfaceToolbar: Int,
+        val surfaceScrim: Int,
+        val contentPrimary: Int,
+        val contentSecondary: Int,
+        val contentDisabled: Int,
+        val contentInverse: Int,
+        val contentOnBrand: Int,
+        val contentOnChip: Int,
+        val stateActive: Int,
+        val stateUnselected: Int,
+        val stateIndicator: Int,
+        val outlineLow: Int,
+        val outlineSurface: Int,
+        val outlineSecondary: Int,
+        val decorPlaceholder: Int,
+        val decorShadow: Int
+    )
+
+    private enum class ThemeMode {
+        LIGHT,
+        DARK,
+        TRANSLUCENT
+    }
+
+    private fun ThemeSemanticColors.withToolbarFrom(palette: ThemePalette): ThemeSemanticColors =
+        copy(
+            surfaceToolbar = palette.toolbar,
+            outlineSurface = palette.onToolbarSurface
+        )
 
     private fun lightenColor(@ColorInt color: Int, factor: Float): Int {
         val hsv = FloatArray(3)

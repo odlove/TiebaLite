@@ -25,7 +25,7 @@ import com.huanchengfly.tieba.post.ui.page.thread.UserNameText
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.post.ui.widgets.compose.BlockTip
 import com.huanchengfly.tieba.post.ui.widgets.compose.BlockableContent
-import com.huanchengfly.tieba.post.ui.widgets.compose.Card
+import com.huanchengfly.tieba.post.ui.widgets.compose.PlainCard
 import com.huanchengfly.tieba.core.ui.widgets.compose.LongClickMenu
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.core.ui.widgets.compose.UserHeader
@@ -128,7 +128,7 @@ fun SubPostItem(
             },
             onClick = { onReplyClick(subPost.get()) }.takeUnless { context.appPreferences.hideReply },
         ) {
-            Card(
+            PlainCard(
                 header = {
                     if (author != null) {
                         UserHeader(

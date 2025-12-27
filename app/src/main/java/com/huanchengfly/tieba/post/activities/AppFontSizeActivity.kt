@@ -1,68 +1,188 @@
 package com.huanchengfly.tieba.post.activities
 
-import android.os.Bundle
-import android.util.TypedValue
-import android.widget.SeekBar
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.huanchengfly.tieba.post.*
-import com.huanchengfly.tieba.post.adapters.ChatBubbleStyleAdapter
-import com.huanchengfly.tieba.post.components.MyLinearLayoutManager
-import com.huanchengfly.tieba.post.databinding.ActivityAppFontSizeBinding
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Slider
+import androidx.compose.material.SliderDefaults
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ThemeScaffold
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
+import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
+import com.huanchengfly.tieba.post.App
+import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.post.arch.BaseComposeActivity
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
+import com.huanchengfly.tieba.post.toastShort
+import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
+import dagger.hilt.android.AndroidEntryPoint
+import kotlin.math.roundToInt
 
+@AndroidEntryPoint
+class AppFontSizeActivity : BaseComposeActivity() {
+    private var oldFontSize: Float = DEFAULT_FONT_SCALE
+    private var finished: Boolean = false
 
-class AppFontSizeActivity : BaseActivity() {
-    private lateinit var binding: ActivityAppFontSizeBinding
-
-    var oldFontSize: Float = 0f
-    var finished: Boolean = false
-
-    private val bubblesAdapter: ChatBubbleStyleAdapter by lazy {
-        ChatBubbleStyleAdapter(
-            this,
-            listOf(
-                ChatBubbleStyleAdapter.Bubble(
-                    getString(R.string.bubble_want_change_font_size),
-                    ChatBubbleStyleAdapter.Bubble.POSITION_RIGHT
-                ),
-                ChatBubbleStyleAdapter.Bubble(getString(R.string.bubble_change_font_size))
-            )
-        )
+    override fun onCreateContent(systemUIBarsTweaker: SystemUIBarsTweaker) {
+        super.onCreateContent(systemUIBarsTweaker)
+        oldFontSize = appPreferences.fontScale
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityAppFontSizeBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    @Composable
+    override fun Content() {
+        var progress by rememberSaveable {
+            mutableStateOf(
+                ((appPreferences.fontScale - FONT_SCALE_MIN) / FONT_SCALE_STEP)
+                    .roundToInt()
+                    .coerceIn(0, MAX_PROGRESS)
+            )
+        }
 
-        themeUiDelegate.setTranslucentThemeBackground(this, binding.background)
-        setSupportActionBar(findViewById(R.id.toolbar))
-        supportActionBar?.apply {
-            setDisplayHomeAsUpEnabled(true)
-            title = this@AppFontSizeActivity.title
+        val fontScale = remember(progress) { FONT_SCALE_MIN + progress * FONT_SCALE_STEP }
+
+        LaunchedEffect(fontScale) {
+            appPreferences.fontScale = fontScale
         }
-        findViewById<com.google.android.material.appbar.CollapsingToolbarLayout>(R.id.collapsing_toolbar).title = title
-        oldFontSize = appPreferences.fontScale
-        binding.appFontSizeBubbles.apply {
-            layoutManager =
-                MyLinearLayoutManager(this@AppFontSizeActivity, LinearLayoutManager.VERTICAL, false)
-            adapter = bubblesAdapter
-        }
-        val progress =
-            ((appPreferences.fontScale * 1000L - FONT_SCALE_MIN * 1000L).toInt()) / ((FONT_SCALE_STEP * 1000L).toInt())
-        binding.appFontSizeSeekbar.progress = progress
-        updateSizeText(progress)
-        binding.appFontSizeSeekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val fontScale = FONT_SCALE_MIN + progress * FONT_SCALE_STEP
-                appPreferences.fontScale = fontScale
-                updatePreview(fontScale)
-                updateSizeText(progress)
+
+        BackHandler { finish() }
+
+        ThemeScaffold(
+            topBar = {
+                val topBarColor = ExtendedTheme.colors.topBar
+                ThemeTopAppBar(
+                    backgroundColor = topBarColor,
+                    statusBarColor = topBarColor.calcStatusBarColor(),
+                    centerTitle = true,
+                    title = {
+                        Text(
+                            text = getString(R.string.title_custom_font_size),
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    navigationIcon = { DefaultBackIcon(onBack = { finish() }) }
+                )
+            },
+            containerColor = ExtendedTheme.colors.background,
+            contentColor = ExtendedTheme.colors.text,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 28.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                BubblePreview(
+                    fontScale = fontScale,
+                    startText = getString(R.string.bubble_want_change_font_size),
+                    replyText = getString(R.string.bubble_change_font_size),
+                )
+
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = ExtendedTheme.colors.card,
+                    contentColor = ExtendedTheme.colors.text,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = getSizeLabel(progress),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = ExtendedTheme.colors.text
+                        )
+
+                        Slider(
+                            value = progress.toFloat(),
+                            onValueChange = { value ->
+                                progress = value.roundToInt().coerceIn(0, MAX_PROGRESS)
+                            },
+                            valueRange = 0f..MAX_PROGRESS.toFloat(),
+                            // total discrete positions = steps + 1 + 1 => keep与旧 SeekBar 11 档一致
+                            steps = MAX_PROGRESS - 1,
+                            colors = SliderDefaults.colors(
+                                thumbColor = ExtendedTheme.colors.accent,
+                                activeTrackColor = ExtendedTheme.colors.accent,
+                                inactiveTrackColor = ExtendedTheme.colors.indicator,
+                                activeTickColor = ExtendedTheme.colors.onAccent,
+                                inactiveTickColor = ExtendedTheme.colors.divider
+                            )
+                        )
+                    }
+                }
             }
+        }
+    }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+    @Composable
+    private fun BubblePreview(
+        fontScale: Float,
+        startText: String,
+        replyText: String,
+    ) {
+        val bubbles = remember(startText, replyText) {
+            listOf(
+                Bubble(text = startText, isMe = true),
+                Bubble(text = replyText, isMe = false)
+            )
+        }
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            bubbles.forEach { bubble ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = if (bubble.isMe) Arrangement.End else Arrangement.Start
+                ) {
+                    val bubbleShape = if (bubble.isMe) {
+                        RoundedCornerShape(topStart = 16.dp, topEnd = 4.dp, bottomEnd = 16.dp, bottomStart = 16.dp)
+                    } else {
+                        RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 16.dp)
+                    }
+                    Surface(
+                        color = if (bubble.isMe) ExtendedTheme.colors.accent else ExtendedTheme.colors.card,
+                        contentColor = if (bubble.isMe) ExtendedTheme.colors.onAccent else ExtendedTheme.colors.text,
+                        shape = bubbleShape,
+                    ) {
+                        Text(
+                            text = bubble.text,
+                            modifier = Modifier
+                                .padding(horizontal = 12.dp, vertical = 8.dp)
+                                // 使预览气泡宽度适中，避免顶到另一侧
+                                .widthIn(min = 0.dp, max = 260.dp),
+                            fontSize = (15.sp * fontScale),
+                            textAlign = TextAlign.Start,
+                            lineHeight = 20.sp * fontScale
+                        )
+                    }
+                }
+            }
+        }
     }
 
     override fun finish() {
@@ -77,29 +197,25 @@ class AppFontSizeActivity : BaseActivity() {
         super.finish()
     }
 
-    fun updateSizeText(progress: Int) {
-        val sizeTexts = SIZE_TEXT_MAPPING.filterValues {
-            progress in it
-        }
-        if (sizeTexts.isNotEmpty()) {
-            binding.appFontSizeText.setText(sizeTexts.map { it.key }[0])
+    private fun getSizeLabel(progress: Int): String {
+        val sizeTexts = SIZE_TEXT_MAPPING.filterValues { progress in it }
+        return if (sizeTexts.isNotEmpty()) {
+            getString(sizeTexts.keys.first())
+        } else {
+            getString(R.string.text_size_default)
         }
     }
 
-    fun updatePreview(fontScale: Float = appPreferences.fontScale) {
-        bubblesAdapter.bubblesFontSize = 15f.dpToPxFloat() * fontScale
-        binding.appFontSizeText.setTextSize(TypedValue.COMPLEX_UNIT_PX, 16f.dpToPxFloat() * fontScale)
-    }
+    override fun getLayoutId(): Int = -1
 
-    override fun getLayoutId(): Int {
-        return -1  // Using View Binding instead
-    }
+    private data class Bubble(val text: String, val isMe: Boolean)
 
     companion object {
         const val FONT_SCALE_MIN = 0.8f
         const val FONT_SCALE_MAX = 1.3f
         const val FONT_SCALE_STEP = 0.05f
         const val DEFAULT_FONT_SCALE = 1f
+        const val MAX_PROGRESS = 10
 
         val SIZE_TEXT_MAPPING = mapOf(
             R.string.text_size_small to 0..1,

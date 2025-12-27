@@ -4,11 +4,13 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import android.util.Log
-import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import com.huanchengfly.tieba.core.runtime.di.ApplicationScope
 import com.huanchengfly.tieba.core.common.ext.getColorCompat
 import com.huanchengfly.tieba.core.ui.R
 import com.huanchengfly.tieba.core.ui.theme.CustomThemeConfig
+import com.huanchengfly.tieba.core.common.theme.ThemeChannel
+import com.huanchengfly.tieba.core.common.theme.ThemeChannelConfig
+import com.huanchengfly.tieba.core.common.theme.ThemeSettingsSnapshot
 import com.huanchengfly.tieba.core.ui.theme.ThemeCatalog
 import com.huanchengfly.tieba.core.ui.theme.ThemeController
 import com.huanchengfly.tieba.core.ui.theme.ThemePalette
@@ -22,15 +24,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 private data class ThemeSnapshot(
     val spec: ThemeSpec,
@@ -38,18 +36,20 @@ private data class ThemeSnapshot(
     val effectiveTheme: String,
     val resolvedTheme: String,
     val palette: ThemePalette,
+    val semanticColors: ThemeSemanticColors,
     val customConfig: CustomThemeConfig?,
     val translucentConfig: TranslucentThemeConfig?,
     val useDynamicColor: Boolean,
-    val toolbarPrimary: Boolean
+    val toolbarPrimary: Boolean,
+    val channel: ThemeChannel,
+    val followSystemNight: Boolean
 )
 
 @Singleton
 class AppThemeController @Inject constructor(
     @ApplicationContext private val context: Context,
     private val themeRepository: ThemeRepository,
-    @ApplicationScope private val applicationScope: CoroutineScope,
-    private val dispatcherProvider: DispatcherProvider
+    @ApplicationScope private val applicationScope: CoroutineScope
 ) : ThemeController {
 
     private val themePaletteProvider: ThemePaletteProvider by lazy {
@@ -58,68 +58,50 @@ class AppThemeController @Inject constructor(
 
     private val logTag = "AppThemeController"
 
-private val state = MutableStateFlow(createSnapshot(themeRepository.theme, themeRepository.useDynamicColorTheme))
+    private val snapshotState: StateFlow<ThemeSnapshot> = themeRepository.settingsFlow
+        .map { settings -> createSnapshot(settings) }
+        .stateIn(
+            scope = applicationScope,
+            started = SharingStarted.Eagerly,
+            initialValue = createSnapshot(themeRepository.currentSettings())
+        )
 
-private val themeStateFlow: StateFlow<ThemeState> = state
-    .map { it.toThemeState() }
-    .stateIn(
-        scope = applicationScope,
-        started = SharingStarted.Eagerly,
-        initialValue = state.value.toThemeState()
-    )
+    private val themeStateFlow: StateFlow<ThemeState> = snapshotState
+        .map { it.toThemeState() }
+        .stateIn(
+            scope = applicationScope,
+            started = SharingStarted.Eagerly,
+            initialValue = snapshotState.value.toThemeState()
+        )
 
-    init {
-        applicationScope.launch(dispatcherProvider.io) {
-            themeRepository.themeFlow
-                .distinctUntilChanged()
-                .collect { themeKey ->
-                    Log.i(logTag, "themeFlow emit themeKey=$themeKey")
-                    refresh(themeKey, themeRepository.useDynamicColorTheme)
-                }
-        }
-        applicationScope.launch(dispatcherProvider.io) {
-            themeRepository.dynamicThemeFlow
-                .distinctUntilChanged()
-                .collect { useDynamic ->
-                    Log.i(logTag, "dynamicThemeFlow emit useDynamic=$useDynamic")
-                    refresh(themeRepository.theme ?: ThemeTokens.THEME_DEFAULT, useDynamic)
-                }
-        }
-    }
-
-    private fun refresh(themeKey: String?, useDynamic: Boolean) {
-        val newSnapshot = createSnapshot(themeKey, useDynamic)
-        if (newSnapshot == state.value) {
-            return
-        }
-        Log.i(logTag, "refresh themeKey=$themeKey useDynamic=$useDynamic")
-        state.value = newSnapshot
-    }
-
-    private fun createSnapshot(themeKey: String?, useDynamic: Boolean): ThemeSnapshot {
-        val rawKey = themeKey
-            ?.takeUnless { it.isBlank() }
+    private fun createSnapshot(settings: ThemeSettingsSnapshot): ThemeSnapshot {
+        val channelConfig = settings.currentChannelConfig()
+        val rawKey = channelConfig.rawTheme
+            .takeUnless { it.isBlank() }
             ?.removeSuffix("_dynamic")
             ?: ThemeTokens.THEME_DEFAULT
         val spec = ThemeCatalog.get(rawKey)
-        val custom = loadCustomConfig()
-        val translucent = loadTranslucentConfig()
-        val toolbarPrimary = themeRepository.toolbarPrimaryColor
+        val custom = buildCustomConfig(channelConfig)
+        val translucent = buildTranslucentConfig(channelConfig)
+        val toolbarPrimary = channelConfig.toolbarPrimary
         val effectiveTheme = resolveEffectiveTheme(spec, translucent)
-        val dynamicEnabled = useDynamic && spec.supportsDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-        // 获取对应的 ThemeSpec（用于 effectiveTheme）
+        val dynamicEnabled = channelConfig.useDynamicColorWanted &&
+            spec.supportsDynamicColor &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
         val effectiveSpec = ThemeCatalog.get(effectiveTheme)
-        val palette = themePaletteProvider.resolve(
+        val resolvedPalette = themePaletteProvider.resolve(
             spec = effectiveSpec,
             useDynamicColor = dynamicEnabled,
             toolbarPrimary = toolbarPrimary,
             customConfig = custom,
             translucentConfig = translucent
         )
+        val palette = resolvedPalette.palette
+        val semantics = resolvedPalette.semanticColors
         Log.i(
             logTag,
             "createSnapshot raw=$rawKey effective=$effectiveTheme dynamicEnabled=$dynamicEnabled " +
-                "toolbarPrimary=$toolbarPrimary translucentPath=${translucent.backgroundPath}"
+                "toolbarPrimary=$toolbarPrimary translucentPath=${translucent?.backgroundPath}"
         )
         val resolvedTheme = if (dynamicEnabled) "${effectiveTheme}_dynamic" else effectiveTheme
         return ThemeSnapshot(
@@ -128,10 +110,13 @@ private val themeStateFlow: StateFlow<ThemeState> = state
             effectiveTheme = effectiveTheme,
             resolvedTheme = resolvedTheme,
             palette = palette,
+            semanticColors = semantics,
             customConfig = custom,
             translucentConfig = translucent,
             useDynamicColor = dynamicEnabled,
-            toolbarPrimary = toolbarPrimary
+            toolbarPrimary = toolbarPrimary,
+            channel = settings.activeChannel,
+            followSystemNight = settings.followSystemNight
         )
     }
 
@@ -144,7 +129,7 @@ private val themeStateFlow: StateFlow<ThemeState> = state
         }
         return when (spec.key) {
             ThemeTokens.THEME_TRANSLUCENT -> {
-                val variant = translucentConfig?.themeVariant ?: themeRepository.translucentBackgroundTheme
+                val variant = translucentConfig?.themeVariant ?: ThemeTokens.TRANSLUCENT_THEME_LIGHT
                 if (variant == ThemeTokens.TRANSLUCENT_THEME_DARK) {
                     ThemeTokens.THEME_TRANSLUCENT_DARK
                 } else {
@@ -157,26 +142,25 @@ private val themeStateFlow: StateFlow<ThemeState> = state
         }
     }
 
-    private fun loadCustomConfig(): CustomThemeConfig {
-        val primary = themeRepository.customPrimaryColor?.let { colorHex ->
-            runCatching { Color.parseColor(colorHex) }.getOrNull()
-        }
+    private fun buildCustomConfig(channelConfig: ThemeChannelConfig): CustomThemeConfig? {
+        val persisted = channelConfig.custom ?: return null
         val fallbackPrimary = ThemeDefaults.resolveAttr(R.attr.colorPrimary)
-        val resolvedPrimary = primary ?: context.getColorCompat(fallbackPrimary)
+        val resolvedPrimary = persisted.primaryColor ?: context.getColorCompat(fallbackPrimary)
         return CustomThemeConfig(
             primaryColor = resolvedPrimary,
-            toolbarPrimary = themeRepository.toolbarPrimaryColor,
-            statusBarDark = themeRepository.customStatusBarFontDark
+            toolbarPrimary = channelConfig.toolbarPrimary,
+            statusBarDark = persisted.statusBarDark
         )
     }
 
-    private fun loadTranslucentConfig(): TranslucentThemeConfig {
+    private fun buildTranslucentConfig(channelConfig: ThemeChannelConfig): TranslucentThemeConfig? {
+        val persisted = channelConfig.translucent ?: return null
         return TranslucentThemeConfig(
-            backgroundPath = themeRepository.translucentThemeBackgroundPath,
-            primaryColor = themeRepository.translucentPrimaryColor?.let { runCatching { Color.parseColor(it) }.getOrNull() },
-            themeVariant = themeRepository.translucentBackgroundTheme,
-            blur = themeRepository.translucentBackgroundBlur,
-            alpha = themeRepository.translucentBackgroundAlpha
+            backgroundPath = persisted.backgroundPath,
+            primaryColor = persisted.primaryColor,
+            themeVariant = persisted.themeVariant,
+            blur = persisted.blur,
+            alpha = persisted.alpha
         )
     }
 
@@ -193,6 +177,7 @@ private val themeStateFlow: StateFlow<ThemeState> = state
             isTranslucent = spec.type == ThemeType.TRANSLUCENT,
             useDynamicColor = useDynamicColor,
             palette = palette,
+            semanticColors = semanticColors,
             customConfig = customConfig,
             translucentConfig = translucentConfig,
             toolbarPrimary = toolbarPrimary
@@ -201,26 +186,23 @@ private val themeStateFlow: StateFlow<ThemeState> = state
 
     override fun switchTheme(theme: String, recordOldTheme: Boolean) {
         val spec = ThemeCatalog.get(theme)
-        val currentSpec = state.value.spec
-        if (recordOldTheme && !currentSpec.isNight) {
-            themeRepository.oldTheme = currentSpec.key
+        val targetChannel = if (spec.isNight) ThemeChannel.NIGHT else ThemeChannel.DAY
+        applicationScope.launch {
+            themeRepository.updateChannel(targetChannel) { config ->
+                config.copy(rawTheme = spec.key)
+            }
+            themeRepository.setActiveChannel(targetChannel)
         }
-        if (spec.isNight) {
-            themeRepository.darkTheme = spec.key
-        }
-        themeRepository.theme = spec.key
-        refresh(spec.key, themeRepository.useDynamicColorTheme)
     }
 
     override fun toggleNightMode() {
-        val snapshot = state.value
-        val isNight = ThemeCatalog.get(snapshot.effectiveTheme).isNight
-        if (isNight) {
-            val fallback = themeRepository.oldTheme ?: ThemeTokens.THEME_DEFAULT
-            switchTheme(fallback, recordOldTheme = false)
+        val nextChannel = if (snapshotState.value.channel == ThemeChannel.DAY) {
+            ThemeChannel.NIGHT
         } else {
-            val target = themeRepository.darkTheme ?: ThemeTokens.THEME_AMOLED_DARK
-            switchTheme(target, recordOldTheme = false)
+            ThemeChannel.DAY
+        }
+        applicationScope.launch {
+            themeRepository.setActiveChannel(nextChannel)
         }
     }
 
@@ -229,15 +211,19 @@ private val themeStateFlow: StateFlow<ThemeState> = state
     }
 
     override fun setUseDynamicTheme(useDynamicTheme: Boolean) {
-        themeRepository.useDynamicColorTheme = useDynamicTheme
-        refresh(state.value.rawTheme, useDynamicTheme)
+        val channel = snapshotState.value.channel
+        applicationScope.launch {
+            themeRepository.updateChannel(channel) { config ->
+                config.copy(useDynamicColorWanted = useDynamicTheme)
+            }
+        }
     }
 
     private fun normalizeThemeKey(theme: String): String =
         if (theme.endsWith("_dynamic")) theme.removeSuffix("_dynamic") else theme
 
     override val isUsingDynamicTheme: Boolean
-        get() = state.value.useDynamicColor
+        get() = snapshotState.value.useDynamicColor
 
     override fun isNightTheme(theme: String): Boolean = ThemeCatalog.get(normalizeThemeKey(theme)).isNight
 
@@ -245,7 +231,7 @@ private val themeStateFlow: StateFlow<ThemeState> = state
         ThemeCatalog.get(normalizeThemeKey(theme)).type == ThemeType.TRANSLUCENT
 
     override fun shouldUseDarkStatusBarIcons(): Boolean {
-        val snapshot = state.value
+        val snapshot = snapshotState.value
         return when (snapshot.spec.type) {
             ThemeType.CUSTOM -> snapshot.customConfig?.statusBarDark ?: false
             ThemeType.TRANSLUCENT -> {
@@ -256,10 +242,10 @@ private val themeStateFlow: StateFlow<ThemeState> = state
     }
 
     override fun shouldUseDarkNavigationBarIcons(): Boolean =
-        !ThemeCatalog.get(state.value.effectiveTheme).isNight
+        !ThemeCatalog.get(snapshotState.value.effectiveTheme).isNight
 
     override fun resolveCurrentTheme(checkDynamic: Boolean): String {
-        val snapshot = state.value
+        val snapshot = snapshotState.value
         return if (checkDynamic) snapshot.resolvedTheme else snapshot.effectiveTheme
     }
 }

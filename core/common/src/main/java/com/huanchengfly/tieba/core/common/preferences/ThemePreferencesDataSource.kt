@@ -1,26 +1,20 @@
 package com.huanchengfly.tieba.core.common.preferences
 
+import com.huanchengfly.tieba.core.common.theme.ThemeChannel
+import com.huanchengfly.tieba.core.common.theme.ThemeChannelConfig
+import com.huanchengfly.tieba.core.common.theme.ThemeSettingsSnapshot
 import kotlinx.coroutines.flow.Flow
 
 /**
- * 面向主题系统的偏好访问接口，仅暴露主题相关的字段与 Flow。
+ * 面向主题系统的偏好访问接口，统一通过 ThemeSettingsSnapshot 暴露日/夜配置。
  */
 interface ThemePreferencesDataSource {
-    val themeFlow: Flow<String>
-    val dynamicThemeFlow: Flow<Boolean>
-
-    var theme: String?
-    var oldTheme: String?
-    var darkTheme: String?
-    var useDynamicColorTheme: Boolean
-
-    var customPrimaryColor: String?
-    var toolbarPrimaryColor: Boolean
-    var customStatusBarFontDark: Boolean
-
-    var translucentThemeBackgroundPath: String?
-    var translucentPrimaryColor: String?
-    var translucentBackgroundTheme: Int
-    var translucentBackgroundBlur: Int
-    var translucentBackgroundAlpha: Int
+    val themeSettingsFlow: Flow<ThemeSettingsSnapshot>
+    suspend fun updateThemeSettings(transform: (ThemeSettingsSnapshot) -> ThemeSettingsSnapshot)
+    suspend fun updateChannel(
+        channel: ThemeChannel,
+        reducer: (ThemeChannelConfig) -> ThemeChannelConfig
+    )
+    suspend fun setActiveChannel(channel: ThemeChannel)
+    suspend fun setFollowSystemNight(enable: Boolean)
 }

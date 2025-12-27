@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
@@ -19,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -33,22 +31,24 @@ import androidx.compose.ui.unit.sp
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.dataStore
 import com.huanchengfly.tieba.post.ui.common.prefs.PrefsScreen
-import com.huanchengfly.tieba.post.ui.common.prefs.widgets.DropDownPref
-import com.huanchengfly.tieba.post.ui.common.prefs.widgets.EditTextPref
-import com.huanchengfly.tieba.post.ui.common.prefs.widgets.TextPref
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.SettingsItem
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.SettingsListPicker
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.SettingsTextField
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ThemeScaffold
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.post.ui.page.destinations.LoginPageDestination
 import com.huanchengfly.tieba.post.ui.page.settings.LeadingIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.AvatarIcon
-import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import com.huanchengfly.tieba.post.utils.AccountUtil.AllAccounts
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import com.huanchengfly.tieba.post.utils.TiebaUtil
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.utils.launchUrl
+import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
@@ -59,10 +59,15 @@ import kotlinx.coroutines.launch
 fun AccountManagePage(
     navigator: DestinationsNavigator,
 ) {
-    Scaffold(
-        backgroundColor = Color.Transparent,
+    ThemeScaffold(
+        containerColor = ExtendedTheme.colors.background,
         topBar = {
-            TitleCentredToolbar(
+            val topBarColor = ExtendedTheme.colors.topBar
+            val statusBarColor = topBarColor.calcStatusBarColor()
+            ThemeTopAppBar(
+                backgroundColor = topBarColor,
+                statusBarColor = statusBarColor,
+                centerTitle = true,
                 title = {
                     Text(
                         text = stringResource(id = R.string.title_account_manage),
@@ -70,7 +75,7 @@ fun AccountManagePage(
                     )
                 },
                 navigationIcon = {
-                    BackNavigationIcon(onBackPressed = { navigator.navigateUp() })
+                    DefaultBackIcon(onBack = { navigator.navigateUp()  })
                 }
             )
         },
@@ -78,6 +83,7 @@ fun AccountManagePage(
         val account = LocalAccount.current
         val context = LocalContext.current
         val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
+        val littleTailSummary = remember { context.appPreferences.littleTail }
         PrefsScreen(
             dataStore = LocalContext.current.dataStore,
             dividerThickness = 0.dp,
@@ -87,14 +93,15 @@ fun AccountManagePage(
         ) {
             prefsItem {
                 if (account != null) {
-                    DropDownPref(
+                    val accountsMap = AllAccounts.current.associate {
+                        it.id.toString() to (it.nameShow ?: it.name)
+                    }
+                    SettingsListPicker(
                         key = "switch_account",
                         title = stringResource(id = R.string.title_switch_account),
-                        summary = stringResource(
-                            id = R.string.summary_now_account,
-                            account.nameShow ?: account.name
-                        ),
-                        leadingIcon = {
+                        defaultValue = account.id.toString(),
+                        enabled = true,
+                        leadingContent = {
                             LeadingIcon {
                                 AvatarIcon(
                                     icon = Icons.Outlined.AccountCircle,
@@ -103,22 +110,24 @@ fun AccountManagePage(
                                 )
                             }
                         },
-                        onValueChange = {
-                            coroutineScope.launch {
-                                AccountUtil.switchAccount(context, it.toInt())
-                            }
+                        summary = { selectedKey ->
+                            val name = accountsMap[selectedKey]
+                                ?: account.nameShow ?: account.name
+                            stringResource(
+                                id = R.string.summary_now_account,
+                                name
+                            )
                         },
-                        enabled = true,
-                        defaultValue = account.id.toString(),
-                        entries = AllAccounts.current.associate {
-                            it.id.toString() to (it.nameShow ?: it.name)
+                        entries = accountsMap,
+                        onValueChange = { selected ->
+                            coroutineScope.launch {
+                                AccountUtil.switchAccount(context, selected.toInt())
+                            }
                         }
                     )
                 } else {
-                    TextPref(
-                        title = stringResource(id = R.string.title_switch_account),
-                        summary = null,
-                        leadingIcon = {
+                    SettingsItem(
+                        leadingContent = {
                             LeadingIcon {
                                 AvatarIcon(
                                     icon = Icons.Outlined.AccountCircle,
@@ -127,16 +136,15 @@ fun AccountManagePage(
                                 )
                             }
                         },
-                        darkenOnDisable = true,
-                        enabled = false,
+                        title = { Text(text = stringResource(id = R.string.title_switch_account)) },
+                        subtitle = { Text(text = stringResource(id = R.string.summary_not_logged_in)) },
+                        enabled = false
                     )
                 }
             }
             prefsItem {
-                TextPref(
-                    title = stringResource(id = R.string.title_new_account),
-                    onClick = { navigator.navigate(LoginPageDestination) },
-                    leadingIcon = {
+                SettingsItem(
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.AddCircleOutline,
@@ -145,6 +153,8 @@ fun AccountManagePage(
                             )
                         }
                     },
+                    onClick = { navigator.navigate(LoginPageDestination) },
+                    title = { Text(text = stringResource(id = R.string.title_new_account)) }
                 )
             }
             prefsItem {
@@ -170,14 +180,8 @@ fun AccountManagePage(
                 )
             }
             prefsItem {
-                TextPref(
-                    title = stringResource(id = R.string.title_exit_account),
-                    onClick = {
-                        coroutineScope.launch {
-                            AccountUtil.exit(context)
-                        }
-                    },
-                    leadingIcon = {
+                SettingsItem(
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = ImageVector.vectorResource(id = R.drawable.ic_outlined_close_circle_24),
@@ -186,19 +190,17 @@ fun AccountManagePage(
                             )
                         }
                     },
+                    onClick = {
+                        coroutineScope.launch {
+                            AccountUtil.exit(context)
+                        }
+                    },
+                    title = { Text(text = stringResource(id = R.string.title_exit_account)) }
                 )
             }
             prefsItem {
-                TextPref(
-                    title = stringResource(id = R.string.title_modify_username),
-                    onClick = {
-                        launchUrl(
-                            context,
-                            navigator,
-                            "https://wappass.baidu.com/static/manage-chunk/change-username.html#/showUsername"
-                        )
-                    },
-                    leadingIcon = {
+                SettingsItem(
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.SupervisedUserCircle,
@@ -207,15 +209,20 @@ fun AccountManagePage(
                             )
                         }
                     },
-                    enabled = account != null
+                    onClick = {
+                        launchUrl(
+                            context,
+                            navigator,
+                            "https://wappass.baidu.com/static/manage-chunk/change-username.html#/showUsername"
+                        )
+                    },
+                    enabled = account != null,
+                    title = { Text(text = stringResource(id = R.string.title_modify_username)) }
                 )
             }
             prefsItem {
-                TextPref(
-                    title = stringResource(id = R.string.title_copy_bduss),
-                    summary = stringResource(id = R.string.summary_copy_bduss),
-                    onClick = { TiebaUtil.copyText(context, account?.bduss, isSensitive = true) },
-                    leadingIcon = {
+                SettingsItem(
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.ContentCopy,
@@ -224,19 +231,26 @@ fun AccountManagePage(
                             )
                         }
                     },
-                    enabled = account != null
+                    onClick = { TiebaUtil.copyText(context, account?.bduss, isSensitive = true) },
+                    enabled = account != null,
+                    title = { Text(text = stringResource(id = R.string.title_copy_bduss)) },
+                    subtitle = { Text(text = stringResource(id = R.string.summary_copy_bduss)) }
                 )
             }
             prefsItem {
-                val littleTail = remember { context.appPreferences.littleTail }
-                EditTextPref(
+                SettingsTextField(
                     key = "little_tail",
                     title = stringResource(id = R.string.title_my_tail),
-                    summary = if (littleTail.isNullOrEmpty())
-                        stringResource(id = R.string.tip_no_little_tail)
-                    else
-                        littleTail,
-                    leadingIcon = {
+                    defaultValue = littleTailSummary ?: "",
+                    dialogTitle = stringResource(id = R.string.title_dialog_modify_little_tail),
+                    summary = { value ->
+                        if (value.isEmpty()) {
+                            context.getString(R.string.tip_no_little_tail)
+                        } else {
+                            value
+                        }
+                    },
+                    leadingContent = {
                         LeadingIcon {
                             AvatarIcon(
                                 icon = Icons.Outlined.Edit,
@@ -245,8 +259,7 @@ fun AccountManagePage(
                             )
                         }
                     },
-                    enabled = true,
-                    dialogTitle = stringResource(id = R.string.title_dialog_modify_little_tail),
+                    onValueSaved = { context.appPreferences.littleTail = it }
                 )
             }
         }

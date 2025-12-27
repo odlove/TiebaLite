@@ -129,6 +129,15 @@
 -keep class com.huanchengfly.tieba.post.models.** { *; }
 -keep class com.huanchengfly.tieba.post.api.models.** { *; }
 
+# DataStore proto messages (GeneratedMessageLite) rely on reflective field names
+-keep class com.google.protobuf.GeneratedMessageLite { *; }
+-keep class com.google.protobuf.GeneratedMessageLite$* { *; }
+-keepclassmembers class * extends com.google.protobuf.GeneratedMessageLite {
+    <fields>;
+}
+# Explicitly keep Local proto package to avoid renaming fields accessed via reflection
+-keep class com.huanchengfly.tieba.data.local.proto.** { *; }
+
 -keep public class com.huanchengfly.tieba.post.utils.TiebaLiteJavaScript { *; }
 
 -dontwarn com.yanzhenjie.permission.**

@@ -1,8 +1,13 @@
 package com.huanchengfly.tieba.post.ui.page.history
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Icon
@@ -26,15 +31,18 @@ import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabSelectedColor
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabUnselectedColor
 import com.huanchengfly.tieba.post.ui.page.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.history.list.HistoryListPage
 import com.huanchengfly.tieba.post.ui.page.history.list.HistoryListUiEvent
-import com.huanchengfly.tieba.post.ui.widgets.compose.BackNavigationIcon
+import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
 import com.huanchengfly.tieba.core.ui.compose.TabRow
-import com.huanchengfly.tieba.post.ui.widgets.compose.TitleCentredToolbar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.post.utils.HistoryUtil
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
@@ -62,84 +70,93 @@ fun HistoryPage(
         backgroundColor = Color.Transparent,
         snackbarState = snackbarState,
         topBar = {
-            TitleCentredToolbar(
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.title_history),
-                        fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h6
-                    )
-                },
-                navigationIcon = {
-                    BackNavigationIcon(onBackPressed = { navigator.navigateUp() })
-                },
-                actions = {
-                    IconButton(onClick = {
-                        coroutineScope.launch {
-                            HistoryUtil.deleteAll()
-                            globalEventBus.emitGlobalEvent(HistoryListUiEvent.DeleteAll)
-                            snackbarState.showSnackbar(
-                                context.getString(R.string.toast_clear_success)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(ExtendedTheme.colors.topBar)
+            ) {
+                ThemeTopAppBar(
+                    backgroundColor = ExtendedTheme.colors.topBar,
+                    contentColor = ExtendedTheme.colors.onTopBar,
+                    statusBarColor = ExtendedTheme.colors.topBar,
+                    centerTitle = true,
+                    title = {
+                        Text(
+                            text = stringResource(id = R.string.title_history),
+                            fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h6
+                        )
+                    },
+                    navigationIcon = {
+                        DefaultBackIcon(onBack = { navigator.navigateUp()  })
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            coroutineScope.launch {
+                                HistoryUtil.deleteAll()
+                                globalEventBus.emitGlobalEvent(HistoryListUiEvent.DeleteAll)
+                                snackbarState.showSnackbar(
+                                    context.getString(R.string.toast_clear_success)
+                                )
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = stringResource(id = R.string.title_history_delete)
                             )
                         }
-                    }) {
-                        Icon(
-                            imageVector = Icons.Outlined.Delete,
-                            contentDescription = stringResource(id = R.string.title_history_delete),
-                            tint = ExtendedTheme.colors.onTopBar
-                        )
                     }
-                },
-                content = {
-                    TabRow(
-                        selectedTabIndex = pagerState.currentPage,
-                        indicator = { tabPositions ->
-                            PagerTabIndicator(
-                                pagerState = pagerState,
-                                tabPositions = tabPositions
+                )
+                val selectedColor = tabSelectedColor()
+                val unselectedColor = tabUnselectedColor()
+                TabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    indicator = { tabPositions ->
+                        PagerTabIndicator(
+                            pagerState = pagerState,
+                            tabPositions = tabPositions
+                        )
+                    },
+                    divider = {},
+                    backgroundColor = Color.Transparent,
+                    contentColor = selectedColor,
+                    modifier = Modifier
+                        .width(100.dp * 2)
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    Tab(
+                        text = {
+                            Text(
+                                text = stringResource(id = R.string.title_history_thread),
+                                fontSize = 13.sp
                             )
                         },
-                        divider = {},
-                        backgroundColor = Color.Transparent,
-                        contentColor = ExtendedTheme.colors.primary,
-                        modifier = Modifier
-                            .width(100.dp * 2)
-                            .align(Alignment.CenterHorizontally)
-                    ) {
-                        Tab(
-                            text = {
-                                Text(
-                                    text = stringResource(id = R.string.title_history_thread),
-                                    fontSize = 13.sp
-                                )
-                            },
-                            selected = pagerState.currentPage == 0,
-                            onClick = {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(0)
-                                }
-                            },
-                            selectedContentColor = ExtendedTheme.colors.onTopBar,
-                            unselectedContentColor = ExtendedTheme.colors.onTopBarSecondary
-                        )
-                        Tab(
-                            text = {
-                                Text(
-                                    text = stringResource(id = R.string.title_history_forum),
-                                    fontSize = 13.sp
-                                )
-                            },
-                            selected = pagerState.currentPage == 1,
-                            onClick = {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(1)
-                                }
-                            },
-                            selectedContentColor = ExtendedTheme.colors.onTopBar,
-                            unselectedContentColor = ExtendedTheme.colors.onTopBarSecondary
-                        )
-                    }
+                        selected = pagerState.currentPage == 0,
+                        onClick = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(0)
+                            }
+                        },
+                        selectedContentColor = selectedColor,
+                        unselectedContentColor = unselectedColor
+                    )
+                    Tab(
+                        text = {
+                            Text(
+                                text = stringResource(id = R.string.title_history_forum),
+                                fontSize = 13.sp
+                            )
+                        },
+                        selected = pagerState.currentPage == 1,
+                        onClick = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(1)
+                            }
+                        },
+                        selectedContentColor = selectedColor,
+                        unselectedContentColor = unselectedColor
+                    )
                 }
-            )
+            }
         }
     ) {
         ProvideNavigator(navigator = navigator) {

@@ -51,10 +51,10 @@
             android:layout_height="12dp"
             android:layout_margin="1dp"
             android:background="@drawable/bg_radius_50dp"
-            app:backgroundTint="@color/default_color_accent"
+            app:backgroundTint="@color/sem_state_active"
             app:srcCompat="@drawable/ic_round_check"
             app:tint="@color/white"
-            tools:backgroundTint="@color/default_color_accent"
+            tools:backgroundTint="@color/sem_state_active"
             tools:tint="@color/white" />
     </RelativeLayout>
 </FrameLayout>

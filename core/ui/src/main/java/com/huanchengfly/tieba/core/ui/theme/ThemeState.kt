@@ -14,6 +14,8 @@ package com.huanchengfly.tieba.core.ui.theme
  * @property translucentConfig 透明主题的额外配置。
  * @property toolbarPrimary Toolbar 是否使用主色。
  */
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeSemanticColors
+
 data class ThemeState(
     val rawTheme: String,
     val effectiveTheme: String,
@@ -22,6 +24,7 @@ data class ThemeState(
     val isTranslucent: Boolean,
     val useDynamicColor: Boolean,
     val palette: ThemePalette,
+    val semanticColors: ThemeSemanticColors,
     val customConfig: CustomThemeConfig?,
     val translucentConfig: TranslucentThemeConfig?,
     val toolbarPrimary: Boolean

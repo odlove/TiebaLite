@@ -25,8 +25,8 @@ public class TintSwipeRefreshLayout extends SwipeRefreshLayout implements Tintab
     }
 
     private void applyTintColor() {
-        setColorSchemeColors(ThemeColorResolver.colorByAttr(getContext(), R.attr.colorAccent));
-        setProgressBackgroundColorSchemeColor(ThemeColorResolver.colorByAttr(getContext(), R.attr.colorIndicator));
+        setColorSchemeColors(ThemeColorResolver.accentColor(getContext()));
+        setProgressBackgroundColorSchemeColor(ThemeColorResolver.indicatorColor(getContext()));
     }
 
     @Override

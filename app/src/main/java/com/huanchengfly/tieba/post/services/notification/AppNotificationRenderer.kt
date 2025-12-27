@@ -63,7 +63,7 @@ class AppNotificationRenderer @Inject constructor(
     }
 
     private fun baseBuilder(context: Context, channelId: String): NotificationCompat.Builder {
-        val color = ThemeColorResolver.colorByAttr(context, R.attr.colorPrimary)
+        val color = ThemeColorResolver.primaryColor(context)
         return NotificationCompat.Builder(context, channelId)
             .setContentText(resourceProvider.getString(R.string.tip_touch_to_view))
             .setSmallIcon(R.drawable.ic_round_drafts)

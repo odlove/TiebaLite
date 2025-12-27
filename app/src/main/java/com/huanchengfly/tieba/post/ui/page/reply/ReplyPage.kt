@@ -43,10 +43,12 @@ import androidx.compose.material.Badge
 import androidx.compose.material.BadgedBox
 import androidx.compose.material.Checkbox
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -95,12 +97,14 @@ import com.huanchengfly.tieba.post.pxToDpFloat
 import com.huanchengfly.tieba.post.toMD5
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.menuBackground
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeModalBottomSheetLayout
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.rememberDefaultBottomSheetState
 import com.huanchengfly.tieba.post.ui.page.destinations.ReplyPageDestination
 import com.huanchengfly.tieba.post.ui.page.reply.ReplyPanelType.EMOJI
 import com.huanchengfly.tieba.post.ui.page.reply.ReplyPanelType.IMAGE
 import com.huanchengfly.tieba.post.ui.page.reply.ReplyPanelType.NONE
 import com.huanchengfly.tieba.post.ui.utils.imeNestedScroll
-import com.huanchengfly.tieba.post.ui.widgets.compose.BaseDialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.Dialog
 import com.huanchengfly.tieba.post.ui.widgets.compose.DialogNegativeButton
 import com.huanchengfly.tieba.post.ui.widgets.compose.DialogPositiveButton
@@ -119,6 +123,8 @@ import com.huanchengfly.tieba.post.utils.hideKeyboard
 import com.huanchengfly.tieba.post.utils.showKeyboard
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import androidx.compose.ui.window.Dialog as ComposeDialog
+import androidx.compose.ui.window.DialogProperties
 import com.ramcosta.composedestinations.spec.DestinationStyleBottomSheet
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -147,35 +153,78 @@ data class ReplyArgs(
     val tbs: String? = null,
 )
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ReplyDialog(
     args: ReplyArgs,
     state: DialogState = rememberDialogState(),
 ) {
-    BaseDialog(
-        dialogState = state,
-        imePadding = false,
+    if (!state.show) return
+
+    ComposeDialog(
+        onDismissRequest = { state.show = false },
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false,
+        )
     ) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
-            color = ExtendedTheme.colors.windowBackground,
-            elevation = 0.dp,
-        ) {
-            ReplyPageContent(
-                viewModel = pageViewModel(),
-                onBack = { dismiss() },
-                forumId = args.forumId,
-                forumName = args.forumName,
-                threadId = args.threadId,
-                postId = args.postId,
-                subPostId = args.subPostId,
-                replyUserId = args.replyUserId,
-                replyUserName = args.replyUserName,
-                replyUserPortrait = args.replyUserPortrait,
-                tbs = args.tbs,
-                isDialog = true
-            )
+        val sheetState = rememberDefaultBottomSheetState(
+            initialValue = ModalBottomSheetValue.Hidden,
+        )
+        val coroutineScope = rememberCoroutineScope()
+        var hasShownSheet by remember { mutableStateOf(false) }
+
+        LaunchedEffect(Unit) {
+            sheetState.show()
+        }
+
+        LaunchedEffect(sheetState) {
+            snapshotFlow { sheetState.currentValue }
+                .collect { value ->
+                    if (value != ModalBottomSheetValue.Hidden) {
+                        hasShownSheet = true
+                    } else if (hasShownSheet) {
+                        state.show = false
+                    }
+                }
+        }
+
+        val closeSheet: () -> Unit = {
+            coroutineScope.launch {
+                if (sheetState.isVisible) {
+                    sheetState.hide()
+                } else {
+                    state.show = false
+                }
+            }
+        }
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            ThemeModalBottomSheetLayout(
+                sheetState = sheetState,
+                shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+                sheetBackgroundColor = ExtendedTheme.colors.menuBackground,
+                sheetContentColor = ExtendedTheme.colors.text,
+                scrimColor = ExtendedTheme.colors.indicator.copy(alpha = 0.32f),
+                sheetContent = {
+                    ReplyPageContent(
+                        viewModel = pageViewModel(),
+                        onBack = closeSheet,
+                        forumId = args.forumId,
+                        forumName = args.forumName,
+                        threadId = args.threadId,
+                        postId = args.postId,
+                        subPostId = args.subPostId,
+                        replyUserId = args.replyUserId,
+                        replyUserName = args.replyUserName,
+                        replyUserPortrait = args.replyUserPortrait,
+                        tbs = args.tbs,
+                        isDialog = true
+                    )
+                }
+            ) {
+                Box(modifier = Modifier.fillMaxSize())
+            }
         }
     }
 }

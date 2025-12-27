@@ -27,6 +27,7 @@ import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.fromJson
 import com.huanchengfly.tieba.post.models.ThreadHistoryInfoBean
 import com.huanchengfly.tieba.post.models.database.History
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.page.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
@@ -224,41 +225,47 @@ private fun HistoryItem(
         menuState = menuState,
         onClick = { onClick(info) }
     ) {
-        Column(
+        CardSurface(
             modifier = modifier
+                .fillMaxWidth()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            plain = true
         ) {
-            UserHeader(
-                avatar = {
-                    Avatar(
-                        data = info.avatar,
-                        size = Sizes.Small,
-                        contentDescription = null
-                    )
-                },
-                name = {
-                    Text(
-                        text = (if (info.type == HistoryUtil.TYPE_THREAD) info.username else info.title)
-                            ?: ""
-                    )
-                },
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(
-                    text = DateTimeUtils.getRelativeTimeString(
-                        LocalContext.current,
-                        info.timestamp
-                    ),
-                    fontSize = 15.sp,
-                    color = ExtendedTheme.colors.text,
-                )
-            }
-            if (info.type == HistoryUtil.TYPE_THREAD) {
-                Text(
-                    text = info.title,
-                    fontSize = 15.sp,
-                    color = ExtendedTheme.colors.text,
-                )
+                UserHeader(
+                    avatar = {
+                        Avatar(
+                            data = info.avatar,
+                            size = Sizes.Small,
+                            contentDescription = null
+                        )
+                    },
+                    name = {
+                        Text(
+                            text = (if (info.type == HistoryUtil.TYPE_THREAD) info.username else info.title)
+                                ?: ""
+                        )
+                    },
+                ) {
+                    Text(
+                        text = DateTimeUtils.getRelativeTimeString(
+                            LocalContext.current,
+                            info.timestamp
+                        ),
+                        fontSize = 15.sp,
+                        color = ExtendedTheme.colors.text,
+                    )
+                }
+                if (info.type == HistoryUtil.TYPE_THREAD) {
+                    Text(
+                        text = info.title,
+                        fontSize = 15.sp,
+                        color = ExtendedTheme.colors.text,
+                    )
+                }
             }
         }
     }

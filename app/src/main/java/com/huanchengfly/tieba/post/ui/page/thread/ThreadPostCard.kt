@@ -63,7 +63,7 @@ import com.huanchengfly.tieba.post.ui.page.destinations.WebViewPageDestination
 import com.huanchengfly.tieba.post.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.post.ui.widgets.compose.BlockTip
 import com.huanchengfly.tieba.post.ui.widgets.compose.BlockableContent
-import com.huanchengfly.tieba.post.ui.widgets.compose.Card
+import com.huanchengfly.tieba.post.ui.widgets.compose.PlainCard
 import com.huanchengfly.tieba.post.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.post.ui.widgets.compose.buildChipInlineContent
 import com.huanchengfly.tieba.post.utils.DateTimeUtils.getRelativeTimeString
@@ -236,7 +236,7 @@ fun PostCard(
             .padding(vertical = 8.dp, horizontal = 16.dp)
     ) {
         menuWrapper {
-            Card(
+            PlainCard(
                 header = {
                     if (!immersiveMode) {
                         UserHeader(

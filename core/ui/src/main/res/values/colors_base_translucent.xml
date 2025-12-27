@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_base_brand_primary_translucent">#4477E0</color>
+    <color name="color_base_brand_on_primary_translucent">#FFFFFFFF</color>
+
+    <color name="color_base_neutral_0_translucent">#10FFFFFF</color>
+    <color name="color_base_neutral_5_translucent">#15FFFFFF</color>
+    <color name="color_base_neutral_10_translucent">#10FFFFFF</color>
+    <color name="color_base_neutral_40_translucent">#8AFFFFFF</color>
+    <color name="color_base_neutral_60_translucent">#61FFFFFF</color>
+    <color name="color_base_neutral_100_translucent">#EFFFFFFF</color>
+    <color name="color_base_neutral_inverse_translucent">#FF000000</color>
+
+    <color name="color_base_neutral_variant_surface_translucent">#FFBFBFBF</color>
+    <color name="color_base_neutral_variant_secondary_translucent">#8AFFFFFF</color>
+    <color name="color_base_neutral_variant_unselected_translucent">#43FFFFFF</color>
+
+    <color name="color_base_surface_nav_translucent">#FFFFFFFF</color>
+    <color name="color_base_surface_nav_surface_translucent">#FFF8F8F8</color>
+    <color name="color_base_surface_toolbar_translucent">#00FFFFFF</color>
+    <color name="color_base_surface_card_translucent">#10FFFFFF</color>
+    <color name="color_base_surface_floor_translucent">#15FFFFFF</color>
+    <color name="color_base_surface_chip_translucent">#18F8F8F8</color>
+
+    <color name="color_base_on_chip_translucent">#FF808080</color>
+    <color name="color_base_indicator_primary_translucent">#FFFFFFFF</color>
+    <color name="color_base_placeholder_translucent">#15FFFFFF</color>
+    <color name="color_base_shadow_soft_translucent">#FEE9E9E9</color>
+
+    <color name="color_base_alpha_low_translucent">#00FFFFFF</color>
+    <color name="color_base_alpha_mid_translucent">#10FFFFFF</color>
+    <color name="color_base_alpha_high_translucent">#15FFFFFF</color>
+</resources>

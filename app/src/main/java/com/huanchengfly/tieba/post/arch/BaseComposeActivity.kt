@@ -25,6 +25,7 @@ import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.ui.windowsizeclass.calculateWindowSizeClass
 import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ApplySystemBars
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ProvideThemeController
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
@@ -109,7 +110,12 @@ abstract class BaseComposeActivity : BaseActivity(), CommonUiEventHandler {
                     }
 
                     val systemUIBarsTweaker = rememberSystemUIBarsTweaker()
-                    ApplySystemBars(systemUIBarsTweaker)
+                    val extendedColors = ExtendedTheme.colors
+                    ApplySystemBars(
+                        systemUIBarsTweaker = systemUIBarsTweaker,
+                        statusBarColor = extendedColors.topBar,
+                        navigationBarColor = extendedColors.bottomBar
+                    )
 
                     LaunchedEffect(key1 = "onCreateContent") {
                         onCreateContent(systemUIBarsTweaker)

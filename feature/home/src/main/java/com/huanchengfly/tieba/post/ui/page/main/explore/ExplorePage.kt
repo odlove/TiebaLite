@@ -35,7 +35,7 @@ import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.post.ui.page.main.explore.concern.ConcernPage
 import com.huanchengfly.tieba.post.ui.page.main.explore.hot.HotPage
@@ -123,7 +123,7 @@ private fun TabText(
 @Composable
 fun ExplorePage() {
     val account = LocalAccount.current
-    val navigator = LocalNavigator.current
+    val homeNavigation = LocalHomeNavigation.current
     val globalEventBus = LocalGlobalEventBus.current
 
     val loggedIn = remember(account) { account != null }
@@ -188,7 +188,7 @@ fun ExplorePage() {
                         ActionItem(
                             icon = Icons.Rounded.Search,
                             contentDescription = stringResource(id = CoreUiR.string.title_search),
-                            onClick = { navigator.navigateUp() } // search destination在 app 模块，暂用占位
+                            onClick = { homeNavigation.openSearch() }
                         )
                     },
                     backgroundColor = ExtendedTheme.colors.topBar,

@@ -1,9 +1,9 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.models.SearchForumBean
+import com.huanchengfly.tieba.core.common.search.SearchForumResult
+import com.huanchengfly.tieba.core.common.search.SearchThreadResult
+import com.huanchengfly.tieba.core.common.search.SearchUserResult
 import com.huanchengfly.tieba.post.api.models.SearchThreadBean
-import com.huanchengfly.tieba.post.api.models.SearchUserBean
-import com.huanchengfly.tieba.post.api.models.protos.searchSug.SearchSugResponse
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -24,7 +24,7 @@ interface SearchRepository {
         keyword: String,
         page: Int,
         sortType: Int
-    ): Flow<SearchThreadBean>
+    ): Flow<SearchThreadResult>
 
     /**
      * 获取搜索建议
@@ -34,7 +34,7 @@ interface SearchRepository {
      */
     fun searchSuggestions(
         keyword: String
-    ): Flow<SearchSugResponse>
+    ): Flow<List<String>>
 
     /**
      * 在论坛内搜索帖子
@@ -66,7 +66,7 @@ interface SearchRepository {
      */
     fun searchForum(
         keyword: String,
-    ): Flow<SearchForumBean>
+    ): Flow<SearchForumResult>
 
     /**
      * 搜索用户
@@ -76,5 +76,5 @@ interface SearchRepository {
      */
     fun searchUser(
         keyword: String,
-    ): Flow<SearchUserBean>
+    ): Flow<SearchUserResult>
 }

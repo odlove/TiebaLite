@@ -1,7 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.search.user
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.models.SearchUserBean
+import com.huanchengfly.tieba.core.common.search.SearchUser
+import com.huanchengfly.tieba.core.common.search.SearchUserResult
 import com.huanchengfly.tieba.post.repository.SearchRepository
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
@@ -51,12 +52,11 @@ class SearchUserViewModel @Inject constructor(
         private fun SearchUserUiIntent.Refresh.producePartialChange(): Flow<SearchUserPartialChange.Refresh> =
             searchRepository
                 .searchUser(keyword)
-                .map<SearchUserBean, SearchUserPartialChange.Refresh> {
-                    val fuzzyForumList = it.data?.fuzzyMatch ?: emptyList()
+                .map<SearchUserResult, SearchUserPartialChange.Refresh> {
                     SearchUserPartialChange.Refresh.Success(
                         keyword = keyword,
-                        exactMatch = it.data?.exactMatch,
-                        fuzzyMatch = fuzzyForumList,
+                        exactMatch = it.exactMatch,
+                        fuzzyMatch = it.fuzzyMatch,
                     )
                 }
                 .onStart { emit(SearchUserPartialChange.Refresh.Start) }
@@ -87,8 +87,8 @@ sealed interface SearchUserPartialChange : PartialChange<SearchUserUiState> {
 
         data class Success(
             val keyword: String,
-            val exactMatch: SearchUserBean.UserBean?,
-            val fuzzyMatch: List<SearchUserBean.UserBean>,
+            val exactMatch: SearchUser?,
+            val fuzzyMatch: List<SearchUser>,
         ) : Refresh()
 
         data class Failure(val error: Throwable) : Refresh()
@@ -99,8 +99,8 @@ data class SearchUserUiState(
     val isRefreshing: Boolean = true,
     val error: ImmutableHolder<Throwable>? = null,
     val keyword: String = "",
-    val exactMatch: SearchUserBean.UserBean? = null,
-    val fuzzyMatch: ImmutableList<SearchUserBean.UserBean> = persistentListOf(),
+    val exactMatch: SearchUser? = null,
+    val fuzzyMatch: ImmutableList<SearchUser> = persistentListOf(),
 ) : UiState
 
 sealed interface SearchUserUiEvent : UiEvent

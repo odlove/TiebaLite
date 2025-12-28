@@ -27,7 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.SearchForumBean
+import com.huanchengfly.tieba.core.common.search.SearchForum
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
@@ -146,7 +146,7 @@ fun SearchForumPage(
                             SearchForumItem(
                                 item = forum,
                                 onClick = {
-                                    navigator.navigate(ForumPageDestination(forum.forumName.orEmpty()))
+                                navigator.navigate(ForumPageDestination(forum.name))
                                 }
                             )
                         }
@@ -170,7 +170,7 @@ fun SearchForumPage(
                         SearchForumItem(
                             item = it,
                             onClick = {
-                                navigator.navigate(ForumPageDestination(it.forumName.orEmpty()))
+                                navigator.navigate(ForumPageDestination(it.name))
                             }
                         )
                     }
@@ -191,7 +191,7 @@ fun SearchForumPage(
 
 @Composable
 private fun SearchForumItem(
-    item: SearchForumBean.ForumInfoBean,
+    item: SearchForum,
     onClick: () -> Unit,
 ) {
     Row(
@@ -205,7 +205,7 @@ private fun SearchForumItem(
         Avatar(
             data = item.avatar,
             size = Sizes.Medium,
-            contentDescription = item.forumNameShow
+            contentDescription = item.nameShow
         )
         Column(
             modifier = Modifier
@@ -213,7 +213,7 @@ private fun SearchForumItem(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = stringResource(id = R.string.title_forum, item.forumNameShow.orEmpty()),
+                text = stringResource(id = R.string.title_forum, item.nameShow ?: item.name),
                 style = MaterialTheme.typography.subtitle1
             )
             if (!item.intro.isNullOrEmpty()) {

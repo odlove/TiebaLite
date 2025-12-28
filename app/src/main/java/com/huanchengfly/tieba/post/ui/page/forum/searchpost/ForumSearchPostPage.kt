@@ -85,7 +85,7 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.LoadMoreLayout
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.widgets.compose.SearchThreadList
-import com.huanchengfly.tieba.post.ui.page.search.mapper.toSearchThreadItem
+import com.huanchengfly.tieba.post.models.mappers.toSearchThreadItem
 import com.huanchengfly.tieba.core.ui.widgets.compose.picker.ListSinglePicker
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen

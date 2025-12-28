@@ -1,7 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.search.forum
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.models.SearchForumBean
+import com.huanchengfly.tieba.core.common.search.SearchForum
+import com.huanchengfly.tieba.core.common.search.SearchForumResult
 import com.huanchengfly.tieba.post.repository.SearchRepository
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
@@ -50,12 +51,11 @@ class SearchForumViewModel @Inject constructor(
         private fun SearchForumUiIntent.Refresh.producePartialChange(): Flow<SearchForumPartialChange.Refresh> =
             searchRepository
                 .searchForum(keyword)
-                .map<SearchForumBean, SearchForumPartialChange.Refresh> {
-                    val fuzzyForumList = it.data?.fuzzyMatch ?: emptyList()
+                .map<SearchForumResult, SearchForumPartialChange.Refresh> {
                     SearchForumPartialChange.Refresh.Success(
                         keyword = keyword,
-                        exactMatchForum = it.data?.exactMatch,
-                        fuzzyMatchForumList = fuzzyForumList,
+                        exactMatchForum = it.exactMatch,
+                        fuzzyMatchForumList = it.fuzzyMatch,
                     )
                 }
                 .onStart { emit(SearchForumPartialChange.Refresh.Start) }
@@ -86,8 +86,8 @@ sealed interface SearchForumPartialChange : PartialChange<SearchForumUiState> {
 
         data class Success(
             val keyword: String,
-            val exactMatchForum: SearchForumBean.ForumInfoBean?,
-            val fuzzyMatchForumList: List<SearchForumBean.ForumInfoBean>,
+            val exactMatchForum: SearchForum?,
+            val fuzzyMatchForumList: List<SearchForum>,
         ) : Refresh()
 
         data class Failure(val error: Throwable) : Refresh()
@@ -96,8 +96,8 @@ sealed interface SearchForumPartialChange : PartialChange<SearchForumUiState> {
 
 data class SearchForumUiState(
     val keyword: String = "",
-    val exactMatchForum: SearchForumBean.ForumInfoBean? = null,
-    val fuzzyMatchForumList: List<SearchForumBean.ForumInfoBean> = persistentListOf(),
+    val exactMatchForum: SearchForum? = null,
+    val fuzzyMatchForumList: List<SearchForum> = persistentListOf(),
     val isRefreshing: Boolean = true,
     val error: ImmutableHolder<Throwable>? = null,
 ) : UiState

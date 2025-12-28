@@ -1,9 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.search
 
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.protos.searchSug.SearchSugResponse
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.network.error.defaultErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
@@ -92,7 +90,7 @@ class SearchViewModel @Inject constructor(
                 )
             )
         }.catch {
-            emit(SearchPartialChange.Init.Failure(it.getErrorCode(), it.getErrorMessage()))
+            emit(SearchPartialChange.Init.Failure(0, it.defaultErrorMessage()))
         }
 
         private fun produceClearHistoryPartialChange() =
@@ -100,7 +98,7 @@ class SearchViewModel @Inject constructor(
                 LitePal.deleteAll<SearchHistory>()
                 emit(SearchPartialChange.ClearSearchHistory.Success)
             }.catch {
-                emit(SearchPartialChange.ClearSearchHistory.Failure(it.getErrorMessage()))
+                emit(SearchPartialChange.ClearSearchHistory.Failure(it.defaultErrorMessage()))
             }.flowOn(Dispatchers.IO)
 
         private fun SearchUiIntent.DeleteSearchHistory.producePartialChange() =
@@ -108,7 +106,7 @@ class SearchViewModel @Inject constructor(
                 LitePal.delete<SearchHistory>(id)
                 emit(SearchPartialChange.DeleteSearchHistory.Success(id))
             }.catch {
-                emit(SearchPartialChange.DeleteSearchHistory.Failure(it.getErrorMessage()))
+                emit(SearchPartialChange.DeleteSearchHistory.Failure(it.defaultErrorMessage()))
             }.flowOn(Dispatchers.IO)
 
         private fun SearchUiIntent.SubmitKeyword.producePartialChange() =
@@ -125,13 +123,12 @@ class SearchViewModel @Inject constructor(
         private fun SearchUiIntent.KeywordInputChanged.producePartialChange() =
             if (keyword.isNotBlank()) {
                 searchRepository.searchSuggestions(keyword)
-                    .map<SearchSugResponse, SearchPartialChange.KeywordInputChanged> {
-                        SearchPartialChange.KeywordInputChanged.Success(
-                            it.data_?.list ?: listOf()
-                        )
+                    .map {
+                        SearchPartialChange.KeywordInputChanged.Success(it)
+                            as SearchPartialChange.KeywordInputChanged
                     }
                     .catch {
-                        emit(SearchPartialChange.KeywordInputChanged.Failure(it.getErrorMessage()))
+                        emit(SearchPartialChange.KeywordInputChanged.Failure(it.defaultErrorMessage()))
                     }
             } else {
                 flowOf(SearchPartialChange.KeywordInputChanged.Success(emptyList()))

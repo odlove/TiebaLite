@@ -1,7 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.search.thread
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.models.SearchThreadBean
+import com.huanchengfly.tieba.core.common.search.SearchThreadItem
+import com.huanchengfly.tieba.core.common.search.SearchThreadResult
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
@@ -51,12 +52,11 @@ class SearchThreadViewModel @Inject constructor(
 
         private fun SearchThreadUiIntent.Refresh.producePartialChange(): Flow<SearchThreadPartialChange.Refresh> =
             searchRepository.searchThread(keyword, 1, sortType)
-                .map<SearchThreadBean, SearchThreadPartialChange.Refresh> {
-                    val threadList = it.data.postList
+                .map<SearchThreadResult, SearchThreadPartialChange.Refresh> {
                     SearchThreadPartialChange.Refresh.Success(
                         keyword = keyword,
-                        data = threadList,
-                        hasMore = it.data.hasMore == 1,
+                        data = it.items,
+                        hasMore = it.hasMore,
                         sortType = sortType
                     )
                 }
@@ -65,12 +65,11 @@ class SearchThreadViewModel @Inject constructor(
 
         private fun SearchThreadUiIntent.LoadMore.producePartialChange(): Flow<SearchThreadPartialChange.LoadMore> =
             searchRepository.searchThread(keyword, page + 1, sortType)
-                .map<SearchThreadBean, SearchThreadPartialChange.LoadMore> {
-                    val threadList = it.data.postList
+                .map<SearchThreadResult, SearchThreadPartialChange.LoadMore> {
                     SearchThreadPartialChange.LoadMore.Success(
-                        data = threadList,
+                        data = it.items,
                         page = page + 1,
-                        hasMore = it.data.hasMore == 1
+                        hasMore = it.hasMore
                     )
                 }
                 .onStart { emit(SearchThreadPartialChange.LoadMore.Start) }
@@ -106,7 +105,7 @@ sealed interface SearchThreadPartialChange : PartialChange<SearchThreadUiState> 
         data object Start : Refresh()
         data class Success(
             val keyword: String,
-            val data: List<SearchThreadBean.ThreadInfoBean>,
+            val data: List<SearchThreadItem>,
             val hasMore: Boolean,
             val sortType: Int,
         ) : Refresh()
@@ -130,7 +129,7 @@ sealed interface SearchThreadPartialChange : PartialChange<SearchThreadUiState> 
 
         data object Start : LoadMore()
         data class Success(
-            val data: List<SearchThreadBean.ThreadInfoBean>,
+            val data: List<SearchThreadItem>,
             val page: Int,
             val hasMore: Boolean,
         ) : LoadMore()
@@ -146,7 +145,7 @@ data class SearchThreadUiState(
     val currentPage: Int = 1,
     val hasMore: Boolean = true,
     val keyword: String = "",
-    val data: ImmutableList<SearchThreadBean.ThreadInfoBean> = persistentListOf(),
+    val data: ImmutableList<SearchThreadItem> = persistentListOf(),
     val sortType: Int = SearchThreadSortType.SORT_TYPE_NEWEST,
 ) : UiState
 

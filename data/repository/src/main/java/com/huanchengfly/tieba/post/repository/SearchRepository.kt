@@ -1,11 +1,16 @@
 package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
-import com.huanchengfly.tieba.post.api.models.SearchForumBean
+import com.huanchengfly.tieba.core.common.search.SearchForumResult
+import com.huanchengfly.tieba.core.common.search.SearchThreadResult
+import com.huanchengfly.tieba.core.common.search.SearchUserResult
 import com.huanchengfly.tieba.post.api.models.SearchThreadBean
-import com.huanchengfly.tieba.post.api.models.SearchUserBean
-import com.huanchengfly.tieba.post.api.models.protos.searchSug.SearchSugResponse
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import com.huanchengfly.tieba.post.models.mappers.toSearchForumResult
+import com.huanchengfly.tieba.post.models.mappers.toSearchThreadResult
+import com.huanchengfly.tieba.post.models.mappers.toSearchUserResult
+import com.huanchengfly.tieba.post.models.mappers.toSuggestionList
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,13 +25,15 @@ class SearchRepositoryImpl @Inject constructor(
         keyword: String,
         page: Int,
         sortType: Int
-    ): Flow<SearchThreadBean> =
+    ): Flow<SearchThreadResult> =
         api.searchThreadFlow(keyword, page, sortType)
+            .map { it.toSearchThreadResult() }
 
     override fun searchSuggestions(
         keyword: String
-    ): Flow<SearchSugResponse> =
+    ): Flow<List<String>> =
         api.searchSuggestionsFlow(keyword)
+            .map { it.toSuggestionList() }
 
     override fun searchPost(
         keyword: String,
@@ -41,11 +48,13 @@ class SearchRepositoryImpl @Inject constructor(
 
     override fun searchForum(
         keyword: String
-    ): Flow<SearchForumBean> =
+    ): Flow<SearchForumResult> =
         api.searchForumFlow(keyword)
+            .map { it.toSearchForumResult() }
 
     override fun searchUser(
         keyword: String
-    ): Flow<SearchUserBean> =
+    ): Flow<SearchUserResult> =
         api.searchUserFlow(keyword)
+            .map { it.toSearchUserResult() }
 }

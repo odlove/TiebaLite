@@ -5,11 +5,15 @@ data class SearchUser(
     val userName: String = "",
     val showNickname: String? = null,
     val portrait: String? = null,
+    val intro: String? = null,
 )
 
 data class SearchForum(
     val name: String,
+    val nameShow: String? = null,
     val avatar: String? = null,
+    val slogan: String? = null,
+    val intro: String? = null,
 )
 
 data class SearchMedia(
@@ -49,4 +53,19 @@ data class SearchThreadItem(
     val postNum: String = "",
     val likeNum: String = "",
     val shareNum: String = "",
+)
+
+data class SearchThreadResult(
+    val items: List<SearchThreadItem> = emptyList(),
+    val hasMore: Boolean = false,
+)
+
+data class SearchUserResult(
+    val exactMatch: SearchUser? = null,
+    val fuzzyMatch: List<SearchUser> = emptyList(),
+)
+
+data class SearchForumResult(
+    val exactMatch: SearchForum? = null,
+    val fuzzyMatch: List<SearchForum> = emptyList(),
 )

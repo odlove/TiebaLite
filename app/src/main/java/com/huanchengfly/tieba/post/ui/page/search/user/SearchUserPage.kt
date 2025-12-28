@@ -28,7 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.SearchUserBean
+import com.huanchengfly.tieba.core.common.search.SearchUser
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
@@ -148,7 +148,7 @@ fun SearchUserPage(
                             SearchUserItem(
                                 item = it,
                                 onClick = {
-                                    val id = it.id?.toLongOrNull()
+                                    val id = it.userId.toLongOrNull()
                                     if (id != null) {
                                         navigator.navigate(UserProfilePageDestination(id))
                                     }
@@ -175,7 +175,7 @@ fun SearchUserPage(
                         SearchUserItem(
                             item = it,
                             onClick = {
-                                val id = it.id?.toLongOrNull()
+                                val id = it.userId.toLongOrNull()
                                 if (id != null) {
                                     navigator.navigate(UserProfilePageDestination(id))
                                 }
@@ -198,7 +198,7 @@ fun SearchUserPage(
 
 @Composable
 private fun SearchUserItem(
-    item: SearchUserBean.UserBean,
+    item: SearchUser,
     onClick: () -> Unit,
 ) {
     Row(
@@ -212,7 +212,7 @@ private fun SearchUserItem(
         Avatar(
             data = StringUtil.getAvatarUrl(item.portrait),
             size = Sizes.Medium,
-            contentDescription = item.name
+            contentDescription = item.userName
         )
         Column(
             modifier = Modifier
@@ -222,7 +222,7 @@ private fun SearchUserItem(
             Text(
                 text = StringUtil.getUsernameAnnotatedString(
                     LocalContext.current,
-                    item.name.orEmpty(),
+                    item.userName,
                     item.showNickname
                 ),
                 style = MaterialTheme.typography.subtitle1

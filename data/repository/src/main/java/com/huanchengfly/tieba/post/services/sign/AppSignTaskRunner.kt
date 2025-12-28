@@ -1,8 +1,8 @@
 package com.huanchengfly.tieba.post.services.sign
 
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.app.PendingIntent
 import android.os.Handler
 import android.os.Looper
 import com.huanchengfly.tieba.core.common.ResourceProvider
@@ -10,13 +10,12 @@ import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import com.huanchengfly.tieba.core.runtime.service.sign.SignForegroundStopMode
 import com.huanchengfly.tieba.core.runtime.service.sign.SignNotificationUpdate
 import com.huanchengfly.tieba.core.runtime.service.sign.SignTaskRunner
-import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.ui.R as CoreUiR
+import com.huanchengfly.tieba.core.runtime.R as RuntimeR
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
+import com.huanchengfly.tieba.post.data.account.AccountService
 import com.huanchengfly.tieba.post.models.SignDataBean
 import com.huanchengfly.tieba.post.api.models.SignResultBean
-import com.huanchengfly.tieba.post.services.sign.SignServiceConstants
-import com.huanchengfly.tieba.post.utils.AccountUtil
+import com.huanchengfly.tieba.core.runtime.service.sign.SignServiceConstants
 import com.huanchengfly.tieba.post.utils.ProgressListener
 import com.huanchengfly.tieba.post.utils.SingleAccountSigner
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -31,6 +30,7 @@ class AppSignTaskRunner @Inject constructor(
     @ApplicationContext private val context: Context,
     private val resourceProvider: ResourceProvider,
     private val dispatcherProvider: DispatcherProvider,
+    private val accountService: AccountService,
     private val api: ITiebaApi
 ) : SignTaskRunner {
 
@@ -38,10 +38,10 @@ class AppSignTaskRunner @Inject constructor(
     private var signer: SingleAccountSigner? = null
 
     override suspend fun run(update: (SignNotificationUpdate) -> Unit) {
-        val loginInfo = AccountUtil.getLoginInfo()
+        val loginInfo = accountService.getLoginInfo()
         if (loginInfo == null) {
-            val failureTitle = resourceProvider.getString(R.string.title_oksign_fail)
-            val failureText = resourceProvider.getString(R.string.text_login_first)
+            val failureTitle = resourceProvider.getString(RuntimeR.string.title_oksign_fail)
+            val failureText = resourceProvider.getString(RuntimeR.string.text_login_first)
             update(
                 SignNotificationUpdate(
                     title = failureTitle,
@@ -55,7 +55,7 @@ class AppSignTaskRunner @Inject constructor(
 
         withContext(dispatcherProvider.io) {
             currentJob = coroutineContext[Job]
-            val runnerSigner = SingleAccountSigner(context, loginInfo, api)
+            val runnerSigner = SingleAccountSigner(context, loginInfo, accountService, api)
             signer = runnerSigner
 
             val mainHandler = Handler(Looper.getMainLooper())
@@ -72,10 +72,10 @@ class AppSignTaskRunner @Inject constructor(
                 runnerSigner
                     .setProgressListener(object : ProgressListener {
                         override fun onStart(total: Int) {
-                            val title = resourceProvider.getString(R.string.title_start_sign)
-                            val baseText = resourceProvider.getString(R.string.text_please_wait)
+                            val title = resourceProvider.getString(RuntimeR.string.title_start_sign)
+                            val baseText = resourceProvider.getString(RuntimeR.string.text_please_wait)
                             val toastMessage = if (total > 0) {
-                                resourceProvider.getString(R.string.toast_oksign_start)
+                                resourceProvider.getString(RuntimeR.string.toast_oksign_start)
                             } else null
                             emit(
                                 SignNotificationUpdate(
@@ -93,13 +93,13 @@ class AppSignTaskRunner @Inject constructor(
                             total: Int
                         ) {
                             val title = resourceProvider.getString(
-                                R.string.title_signing_progress,
+                                RuntimeR.string.title_signing_progress,
                                 signDataBean.userName,
                                 current + 1,
                                 total
                             )
                             val message = resourceProvider.getString(
-                                CoreUiR.string.title_forum_name,
+                                RuntimeR.string.title_forum_name,
                                 signDataBean.forumName
                             )
                             emit(
@@ -118,7 +118,7 @@ class AppSignTaskRunner @Inject constructor(
                             total: Int
                         ) {
                             val title = resourceProvider.getString(
-                                R.string.title_signing_progress,
+                                RuntimeR.string.title_signing_progress,
                                 signDataBean.userName,
                                 current + 1,
                                 total
@@ -126,12 +126,12 @@ class AppSignTaskRunner @Inject constructor(
                             val message =
                                 signResultBean.userInfo?.signBonusPoint?.let { bonus ->
                                     resourceProvider.getString(
-                                        R.string.text_singing_progress_exp,
+                                        RuntimeR.string.text_singing_progress_exp,
                                         signDataBean.forumName,
                                         bonus
                                     )
                                 } ?: resourceProvider.getString(
-                                    R.string.text_singing_progress,
+                                    RuntimeR.string.text_singing_progress,
                                     signDataBean.forumName
                                 )
                             emit(
@@ -144,14 +144,14 @@ class AppSignTaskRunner @Inject constructor(
                         }
 
                         override fun onFinish(success: Boolean, signedCount: Int, total: Int) {
-                            val title = resourceProvider.getString(R.string.title_oksign_finish)
+                            val title = resourceProvider.getString(RuntimeR.string.title_oksign_finish)
                             val message = if (total > 0) {
                                 resourceProvider.getString(
-                                    R.string.text_oksign_done,
+                                    RuntimeR.string.text_oksign_done,
                                     signedCount
                                 )
                             } else {
-                                resourceProvider.getString(R.string.text_oksign_no_signable)
+                                resourceProvider.getString(RuntimeR.string.text_oksign_no_signable)
                             }
                             val launchIntent = context.packageManager
                                 .getLaunchIntentForPackage(context.packageName)
@@ -181,9 +181,9 @@ class AppSignTaskRunner @Inject constructor(
                             errorCode: Int,
                             errorMsg: String
                         ) {
-                            val title = resourceProvider.getString(R.string.title_oksign_fail)
+                            val title = resourceProvider.getString(RuntimeR.string.title_oksign_fail)
                             val message = errorMsg.ifBlank {
-                                resourceProvider.getString(R.string.text_oksign_unknown_error)
+                                resourceProvider.getString(RuntimeR.string.text_oksign_unknown_error)
                             }
                             emit(
                                 SignNotificationUpdate(
@@ -200,13 +200,10 @@ class AppSignTaskRunner @Inject constructor(
                 signer = null
             }
         }
-        currentJob = null
     }
 
     override fun cancel() {
         currentJob?.cancel()
-        currentJob = null
         signer?.setProgressListener(null)
-        signer = null
     }
 }

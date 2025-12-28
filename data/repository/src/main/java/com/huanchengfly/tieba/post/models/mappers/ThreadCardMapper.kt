@@ -7,6 +7,7 @@ import com.huanchengfly.tieba.core.common.feed.ThreadCard
 import com.huanchengfly.tieba.core.common.feed.ThreadForumInfo
 import com.huanchengfly.tieba.core.common.feed.ThreadMediaItem
 import com.huanchengfly.tieba.core.common.feed.ThreadVideoInfo
+import com.huanchengfly.tieba.core.common.feed.OriginThreadCard
 import com.huanchengfly.tieba.post.models.ThreadEntity
 
 object ThreadCardMapper {
@@ -66,6 +67,42 @@ object ThreadCardMapper {
             hasAgree = meta.hasAgree,
             agreeNum = meta.agreeNum
         )
+        val originThread = proto.origin_thread_info?.let { origin ->
+            val abstractSegments = origin._abstract.map {
+                RichTextSegment(
+                    type = it.type,
+                    text = it.text
+                )
+            }
+            val medias = origin.media.map {
+                ThreadMediaItem(
+                    originPic = it.originPic,
+                    bigPic = it.bigPic,
+                    dynamicPic = it.dynamicPic,
+                    srcPic = it.srcPic,
+                    postId = it.postId,
+                    showOriginalBtn = it.showOriginalBtn,
+                    originSize = it.originSize
+                )
+            }
+            val videoInfo = origin.video_info?.let {
+                ThreadVideoInfo(
+                    videoUrl = it.videoUrl,
+                    thumbnailUrl = it.thumbnailUrl,
+                    thumbnailWidth = it.thumbnailWidth,
+                    thumbnailHeight = it.thumbnailHeight
+                )
+            }
+            OriginThreadCard(
+                threadId = origin.tid.toLongOrNull() ?: 0L,
+                forumId = origin.fid,
+                forumName = origin.fname,
+                title = origin.title,
+                abstractSegments = abstractSegments,
+                medias = medias,
+                videoInfo = videoInfo
+            )
+        }
         return ThreadCard(
             threadId = entity.threadId,
             firstPostId = entity.firstPostId,
@@ -89,8 +126,8 @@ object ThreadCardMapper {
             abstractSegments = abstractSegments,
             medias = medias,
             videoInfo = videoInfo,
-            hasOriginThreadInfo = proto.origin_thread_info != null,
-            originThreadPayload = proto.origin_thread_info,
+            hasOriginThreadInfo = originThread != null,
+            originThreadPayload = originThread,
         )
     }
 }

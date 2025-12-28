@@ -40,6 +40,12 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.api.models.protos.PostInfoList
+import com.huanchengfly.tieba.core.common.feed.OriginThreadCard
+import com.huanchengfly.tieba.core.common.feed.RichTextSegment
+import com.huanchengfly.tieba.core.common.feed.ThreadAuthor
+import com.huanchengfly.tieba.core.common.feed.ThreadCard
+import com.huanchengfly.tieba.core.common.feed.ThreadMediaItem
+import com.huanchengfly.tieba.core.common.feed.ThreadVideoInfo
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.getOrNull
@@ -339,15 +345,22 @@ fun UserPostItem(
 ) {
     val item = post.data
     if (post.isThread) {
+        val postInfo = item.get { this }
+        val threadCard = remember(postInfo) { postInfo.toThreadCard() }
         FeedCard(
-            item = item,
-            onClick = { onClick(it.thread_id, null, false) },
-            onAgree = onAgree,
+            item = threadCard,
+            onClick = { onClick(it.threadId, null, false) },
+            onAgree = { onAgree(postInfo) },
             modifier = modifier,
-            onClickReply = onClickReply,
+            onClickReply = { onClickReply(postInfo) },
             onClickUser = onClickUser,
             onClickForum = onClickForum,
-            onClickOriginThread = { onClickOriginThread(it.tid.toLong()) },
+            onClickOriginThread = {
+                val originThread = threadCard.originThreadPayload as? OriginThreadCard
+                if (originThread != null) {
+                    onClickOriginThread(originThread.threadId)
+                }
+            },
         )
     } else {
         FilledCard(
@@ -414,4 +427,112 @@ fun UserPostItem(
             contentPadding = PaddingValues(0.dp),
         )
     }
+}
+
+private fun PostInfoList.toThreadCard(): ThreadCard {
+    val author = ThreadAuthor(
+        id = user_id,
+        name = user_name,
+        nameShow = name_show,
+        portrait = user_portrait
+    )
+    val abstractSegments = if (rich_abstract.isNotEmpty()) {
+        rich_abstract.map {
+            RichTextSegment(
+                type = it.type,
+                text = it.text,
+                c = it.c
+            )
+        }
+    } else {
+        abstract_thread.map {
+            RichTextSegment(
+                type = it.type,
+                text = it.text
+            )
+        }
+    }
+    val medias = media.map {
+        ThreadMediaItem(
+            originPic = it.originPic,
+            bigPic = it.bigPic,
+            dynamicPic = it.dynamicPic,
+            srcPic = it.srcPic,
+            postId = it.postId,
+            showOriginalBtn = it.showOriginalBtn,
+            originSize = it.originSize
+        )
+    }
+    val videoInfo = video_info?.let {
+        ThreadVideoInfo(
+            videoUrl = it.videoUrl,
+            thumbnailUrl = it.thumbnailUrl,
+            thumbnailWidth = it.thumbnailWidth,
+            thumbnailHeight = it.thumbnailHeight
+        )
+    }
+    val originThread = origin_thread_info?.toOriginThreadCard()
+    return ThreadCard(
+        threadId = thread_id,
+        firstPostId = post_id,
+        forumId = forum_id,
+        forumName = forum_name,
+        title = title,
+        tabName = "",
+        isNoTitle = is_ntitle == 1,
+        isGood = good_types > 0,
+        isShareThread = is_share_thread == 1,
+        lastTimeInt = create_time.toInt(),
+        shareNum = share_num.toInt(),
+        replyNum = reply_num.toInt(),
+        hotNum = 0,
+        agreeNum = agree_num,
+        hasAgree = agree?.hasAgree ?: 0,
+        collectStatus = 0,
+        collectMarkPid = 0L,
+        author = author,
+        forumInfo = null,
+        abstractSegments = abstractSegments,
+        medias = medias,
+        videoInfo = videoInfo,
+        hasOriginThreadInfo = originThread != null,
+        originThreadPayload = originThread,
+    )
+}
+
+private fun com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo.toOriginThreadCard(): OriginThreadCard {
+    val abstractSegments = _abstract.map {
+        RichTextSegment(
+            type = it.type,
+            text = it.text
+        )
+    }
+    val medias = media.map {
+        ThreadMediaItem(
+            originPic = it.originPic,
+            bigPic = it.bigPic,
+            dynamicPic = it.dynamicPic,
+            srcPic = it.srcPic,
+            postId = it.postId,
+            showOriginalBtn = it.showOriginalBtn,
+            originSize = it.originSize
+        )
+    }
+    val videoInfo = video_info?.let {
+        ThreadVideoInfo(
+            videoUrl = it.videoUrl,
+            thumbnailUrl = it.thumbnailUrl,
+            thumbnailWidth = it.thumbnailWidth,
+            thumbnailHeight = it.thumbnailHeight
+        )
+    }
+    return OriginThreadCard(
+        threadId = tid.toLongOrNull() ?: 0L,
+        forumId = fid,
+        forumName = fname,
+        title = title,
+        abstractSegments = abstractSegments,
+        medias = medias,
+        videoInfo = videoInfo
+    )
 }

@@ -15,7 +15,7 @@ import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.pendingIntentFlagMutable
 import com.huanchengfly.tieba.post.receivers.AutoSignAlarm
 import com.huanchengfly.tieba.post.services.OKSignService
-import com.huanchengfly.tieba.post.services.sign.SignServiceConstants
+import com.huanchengfly.tieba.core.runtime.service.sign.SignServiceConstants
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import java.util.Calendar

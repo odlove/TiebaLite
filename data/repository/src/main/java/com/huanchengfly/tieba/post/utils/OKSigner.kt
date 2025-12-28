@@ -2,23 +2,34 @@ package com.huanchengfly.tieba.post.utils
 
 import android.content.Context
 import android.util.Log
-import com.huanchengfly.tieba.post.App
+import com.huanchengfly.tieba.core.common.account.AccountInfo
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.MSignBean
 import com.huanchengfly.tieba.post.api.models.SignResultBean
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.post.data.account.AccountService
 import com.huanchengfly.tieba.post.models.SignDataBean
-import com.huanchengfly.tieba.core.common.account.AccountInfo
 import com.huanchengfly.tieba.post.preferences.appPreferences
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.properties.Delegates
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onEmpty
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.zip
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.withContext
 
 abstract class IOKSigner(
     context: Context,
@@ -27,14 +38,12 @@ abstract class IOKSigner(
     private val contextWeakReference: WeakReference<Context> = WeakReference(context)
 
     val context: Context
-        get() = contextWeakReference.get() ?: App.INSTANCE
+        get() = requireNotNull(contextWeakReference.get()) { "Context is null" }
 
     abstract suspend fun start(): Boolean
 
-    fun signFlow(signDataBean: SignDataBean): Flow<SignResultBean> {
-        return api
-            .signFlow(signDataBean.forumId, signDataBean.forumName, signDataBean.tbs)
-    }
+    fun signFlow(signDataBean: SignDataBean) =
+        api.signFlow(signDataBean.forumId, signDataBean.forumName, signDataBean.tbs)
 
     fun getSignDelay(): Long {
         return if (context.appPreferences.oksignSlowMode) {
@@ -45,53 +54,10 @@ abstract class IOKSigner(
     }
 }
 
-/*
-class MultiAccountSigner(
-        context: Context
-) : IOKSigner(context) {
-    private val accounts: MutableList<Account> = mutableListOf()
-
-    override suspend fun start() {
-        accounts.clear()
-        accounts.addAll(AccountUtil.allAccounts)
-    }
-
-    interface ProgressListener {
-        fun onStart(
-                total: Int
-        )
-
-        fun onProgressStart(
-                signDataBean: SignDataBean,
-                current: Int,
-                total: Int
-        )
-
-        fun onProgressFinish(
-                signResultBean: SignResultBean,
-                current: Int,
-                total: Int
-        )
-
-        fun onFinish(
-                success: Boolean,
-                signedCount: Int,
-                total: Int
-        )
-
-        fun onFailure(
-                current: Int,
-                total: Int,
-                errorCode: Int,
-                errorMsg: String
-        )
-    }
-}
-*/
-
 class SingleAccountSigner(
     context: Context,
     private val account: AccountInfo,
+    private val accountService: AccountService,
     api: ITiebaApi
 ) : IOKSigner(context, api) {
     companion object {
@@ -120,10 +86,10 @@ class SingleAccountSigner(
         var userName: String by Delegates.notNull()
         var tbs: String by Delegates.notNull()
         Log.i(TAG, "start")
-        AccountUtil.fetchAccountFlow(account)
-            .flatMapConcat { account ->
-                userName = account.name
-                tbs = account.tbs
+        accountService.fetchAccountFlow(account)
+            .flatMapConcat { accountInfo ->
+                userName = accountInfo.name
+                tbs = accountInfo.tbs
                 api.getForumListFlow()
             }
             .zip(

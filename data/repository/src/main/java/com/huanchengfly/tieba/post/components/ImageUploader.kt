@@ -2,18 +2,20 @@ package com.huanchengfly.tieba.post.components
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
+import com.huanchengfly.tieba.core.network.exception.TiebaException
+import com.huanchengfly.tieba.core.network.http.multipart.MyMultipartBody
+import com.huanchengfly.tieba.core.network.http.multipart.buildMultipartBody
 import com.huanchengfly.tieba.post.api.BOUNDARY
 import com.huanchengfly.tieba.post.api.booleanToString
 import com.huanchengfly.tieba.post.api.models.UploadPictureResultBean
 import com.huanchengfly.tieba.post.api.retrofit.RetrofitTiebaApi
-import com.huanchengfly.tieba.core.network.http.multipart.MyMultipartBody
-import com.huanchengfly.tieba.core.network.http.multipart.buildMultipartBody
-import com.huanchengfly.tieba.core.network.exception.TiebaException
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
-import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
-import com.huanchengfly.tieba.post.utils.ImageUtil
 import com.huanchengfly.tieba.post.utils.MD5Util
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.RandomAccessFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -27,8 +29,6 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.withContext
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.File
-import java.io.RandomAccessFile
 
 class ImageUploader(
     private val forumName: String,
@@ -76,7 +76,7 @@ class ImageUploader(
                 originFile.copyTo(tempFile, true)
             } else {
                 val bitmap = BitmapFactory.decodeFile(filePath)
-                val firstCompressResult = ImageUtil.compressImage(bitmap, quality = 95)
+                val firstCompressResult = compressBitmap(bitmap, quality = 95)
                 tempFile.writeBytes(firstCompressResult)
                 if (firstCompressResult.size > maxSize) {
                     // 压缩尺寸至 1080P
@@ -91,7 +91,7 @@ class ImageUploader(
                         val newWidth = (width * scale).toInt()
                         val newHeight = (height * scale).toInt()
                         val newBitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
-                        tempFile.writeBytes(ImageUtil.compressImage(newBitmap, quality = 95))
+                        tempFile.writeBytes(compressBitmap(newBitmap, quality = 95))
                     }
                 }
             }
@@ -168,6 +168,15 @@ class ImageUploader(
             }
             .last()
     }
+}
+
+private fun compressBitmap(
+    bitmap: Bitmap,
+    quality: Int = 100
+): ByteArray {
+    val baos = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, quality, baos)
+    return baos.use { it.toByteArray() }
 }
 
 class UploadPictureFailedException(

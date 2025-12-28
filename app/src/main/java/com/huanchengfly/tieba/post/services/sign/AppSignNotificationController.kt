@@ -14,8 +14,8 @@ import com.huanchengfly.tieba.core.runtime.service.sign.SignNotificationUpdate
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
-import com.huanchengfly.tieba.post.services.sign.SignServiceConstants.NOTIFICATION_CHANNEL_ID
-import com.huanchengfly.tieba.post.services.sign.SignServiceConstants.NOTIFICATION_ID
+import com.huanchengfly.tieba.core.runtime.service.sign.SignServiceConstants.NOTIFICATION_CHANNEL_ID
+import com.huanchengfly.tieba.core.runtime.service.sign.SignServiceConstants.NOTIFICATION_ID
 import javax.inject.Inject
 import javax.inject.Singleton
 

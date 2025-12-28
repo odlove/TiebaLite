@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.services.sign
+package com.huanchengfly.tieba.core.runtime.service.sign
 
 object SignServiceConstants {
     const val ACTION_START_SIGN = "com.huanchengfly.tieba.post.service.action.ACTION_SIGN_START"

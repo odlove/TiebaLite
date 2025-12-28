@@ -40,6 +40,16 @@ data class ThreadVideoInfo(
     val thumbnailHeight: Int = 0,
 )
 
+data class OriginThreadCard(
+    val threadId: Long,
+    val forumId: Long,
+    val forumName: String,
+    val title: String = "",
+    val abstractSegments: List<RichTextSegment> = emptyList(),
+    val medias: List<ThreadMediaItem> = emptyList(),
+    val videoInfo: ThreadVideoInfo? = null,
+)
+
 data class ThreadCard(
     val threadId: Long,
     val firstPostId: Long,

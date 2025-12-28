@@ -21,7 +21,9 @@ import com.huanchengfly.tieba.post.ui.common.VideoContentRender
 import com.huanchengfly.tieba.post.ui.common.VoiceContentRender
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
 import com.huanchengfly.tieba.post.ui.page.thread.SubPostItemData
-import com.huanchengfly.tieba.core.ui.photoview.getPhotoViewData
+import com.huanchengfly.tieba.core.ui.photoview.LoadPicPageData
+import com.huanchengfly.tieba.core.ui.photoview.PhotoViewData
+import com.huanchengfly.tieba.core.ui.photoview.PicItem
 import com.huanchengfly.tieba.post.utils.EmoticonManager
 import com.huanchengfly.tieba.post.utils.EmoticonUtil.emoticonString
 import com.huanchengfly.tieba.post.utils.ImageUtil
@@ -310,6 +312,42 @@ val Post.contentRenders: ImmutableList<PbContentRender>
             } else it
         }.toImmutableList()
     }
+
+private fun getPhotoViewData(
+    post: Post,
+    picId: String,
+    picUrl: String,
+    originUrl: String,
+    showOriginBtn: Boolean,
+    originSize: Int,
+    seeLz: Boolean = false
+): PhotoViewData? {
+    val forum = post.from_forum ?: return null
+    return PhotoViewData(
+        data = LoadPicPageData(
+            forumId = forum.id,
+            forumName = forum.name,
+            threadId = post.tid,
+            postId = post.id,
+            objType = "pb",
+            picId = picId,
+            picIndex = 1,
+            seeLz = seeLz,
+            originUrl = originUrl,
+        ),
+        picItems = persistentListOf(
+            PicItem(
+                picId = picId,
+                picIndex = 1,
+                url = picUrl,
+                originUrl = originUrl,
+                showOriginBtn = showOriginBtn,
+                originSize = originSize,
+                postId = post.id
+            )
+        )
+    )
+}
 
 val User.bawuType: String?
     get() = if (is_bawu == 1) {

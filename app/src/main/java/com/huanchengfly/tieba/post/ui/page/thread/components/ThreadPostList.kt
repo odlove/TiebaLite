@@ -65,8 +65,13 @@ import com.huanchengfly.tieba.post.ui.page.thread.ThreadSortType
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadViewModel
 import com.huanchengfly.tieba.post.ui.page.thread.PostCard
 import com.huanchengfly.tieba.post.ui.page.thread.components.ThreadInfoHeader
+import com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo
 import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
 import com.huanchengfly.tieba.core.ui.widgets.compose.LoadMoreLayout
+import com.huanchengfly.tieba.core.common.feed.OriginThreadCard as OriginThreadCardModel
+import com.huanchengfly.tieba.core.common.feed.RichTextSegment
+import com.huanchengfly.tieba.core.common.feed.ThreadMediaItem
+import com.huanchengfly.tieba.core.common.feed.ThreadVideoInfo
 import com.huanchengfly.tieba.post.ui.widgets.compose.OriginThreadCard
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlin.math.max
@@ -149,6 +154,43 @@ fun ThreadPostList(
             contentColor = ExtendedTheme.colors.primary,
         )
     }
+}
+
+private fun OriginThreadInfo.toOriginThreadCard(): OriginThreadCardModel {
+    val abstractSegments = _abstract.map {
+        RichTextSegment(
+            type = it.type,
+            text = it.text
+        )
+    }
+    val medias = media.map {
+        ThreadMediaItem(
+            originPic = it.originPic,
+            bigPic = it.bigPic,
+            dynamicPic = it.dynamicPic,
+            srcPic = it.srcPic,
+            postId = it.postId,
+            showOriginalBtn = it.showOriginalBtn,
+            originSize = it.originSize
+        )
+    }
+    val videoInfo = video_info?.let {
+        ThreadVideoInfo(
+            videoUrl = it.videoUrl,
+            thumbnailUrl = it.thumbnailUrl,
+            thumbnailWidth = it.thumbnailWidth,
+            thumbnailHeight = it.thumbnailHeight
+        )
+    }
+    return OriginThreadCardModel(
+        threadId = tid.toLongOrNull() ?: 0L,
+        forumId = fid,
+        forumName = fname,
+        title = title,
+        abstractSegments = abstractSegments,
+        medias = medias,
+        videoInfo = videoInfo
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -236,7 +278,9 @@ private fun LazyListScope.threadListContent(
                             }
 
                             OriginThreadCard(
-                                originThreadInfo = originThreadInfo,
+                                originThread = originThreadInfo.get { this }
+                                    .toOriginThreadCard()
+                                    .wrapImmutable(),
                                 modifier = originThreadModifier.padding(16.dp)
                             )
                         }

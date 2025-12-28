@@ -36,18 +36,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo
-import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
-import com.huanchengfly.tieba.post.api.models.protos.User
-import com.huanchengfly.tieba.post.api.models.protos.abstractText
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.Classify
+import com.huanchengfly.tieba.core.common.feed.OriginThreadCard
+import com.huanchengfly.tieba.core.common.feed.ThreadCard
+import com.huanchengfly.tieba.core.common.thread.toThreadPreview
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
-import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
@@ -66,6 +64,7 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.LoadMoreLayout
 import com.huanchengfly.tieba.core.ui.compose.LocalSnackbarState
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
+import com.huanchengfly.tieba.core.ui.text.feedAbstractText
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -167,15 +166,14 @@ private fun TopThreadItem(
 @Composable
 private fun ThreadList(
     state: LazyListState,
-    pbPageRepository: com.huanchengfly.tieba.post.repository.PbPageRepository,
     items: ImmutableList<ThreadItemData>,
-    onItemClicked: (ThreadInfo) -> Unit,
-    onItemReplyClicked: (ThreadInfo) -> Unit,
-    onAgree: (ThreadInfo) -> Unit,
+    onItemClicked: (ThreadCard) -> Unit,
+    onItemReplyClicked: (ThreadCard) -> Unit,
+    onAgree: (ThreadCard) -> Unit,
     forumRuleTitle: String? = null,
     onOpenForumRule: (() -> Unit)? = null,
-    onOriginThreadClicked: (OriginThreadInfo) -> Unit = {},
-    onUserClicked: (User) -> Unit = {},
+    onOriginThreadClicked: (OriginThreadCard) -> Unit = {},
+    onUserClicked: (Long) -> Unit = {},
 ) {
     val windowSizeClass = LocalWindowSizeClass.current
     val itemFraction = when (windowSizeClass.widthSizeClass) {
@@ -203,15 +201,15 @@ private fun ThreadList(
         itemsIndexed(
             items = items,
             key = { index, item ->
-                "${index}_${item.thread.get { id }}"
+                "${index}_${item.thread.get { threadId }}"
             },
             contentType = { _, item ->
                 val thread = item.thread.get()
-                if (thread.isTop == 1) {
+                if (item.isTop) {
                     ItemType.Top
                 } else when {
-                    thread.media.isNotEmpty() ->
-                        if (thread.media.size == 1) ItemType.SingleMedia else ItemType.MultiMedia
+                    thread.medias.isNotEmpty() ->
+                        if (thread.medias.size == 1) ItemType.SingleMedia else ItemType.MultiMedia
                     thread.videoInfo != null -> ItemType.Video
                     else -> ItemType.PlainText
                 }
@@ -229,8 +227,9 @@ private fun ThreadList(
                 Column(
                     modifier = Modifier.fillMaxWidth(itemFraction)
                 ) {
-                    if (thread.isTop == 1) {
-                        val title = thread.title.takeUnless { it.isBlank() } ?: thread.abstractText
+                    if (item.isTop) {
+                        val title = thread.title.takeUnless { it.isBlank() }
+                            ?: thread.abstractSegments.feedAbstractText()
                         TopThreadItem(
                             title = title,
                             onClick = { onItemClicked(thread) },
@@ -238,18 +237,23 @@ private fun ThreadList(
                         )
                     } else {
                         if (index > 0) {
-                            if (items[index - 1].thread.get { isTop } == 1) {
+                            if (items[index - 1].isTop) {
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                             VerticalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                         }
 
                         FeedCard(
-                            item = threadHolder,
+                            item = thread,
                             onClick = onItemClicked,
                             onClickReply = onItemReplyClicked,
                             onAgree = onAgree,
-                            onClickOriginThread = onOriginThreadClicked,
+                            onClickOriginThread = {
+                                val originThread = thread.originThreadPayload as? OriginThreadCard
+                                if (originThread != null) {
+                                    onOriginThreadClicked(originThread)
+                                }
+                            },
                             onClickUser = onUserClicked,
                             agreeEnabled = true  // ✅ 总是启用，PbPageRepository 处理缓存
                         )
@@ -392,14 +396,13 @@ fun ForumThreadListPage(
             ) {
                 ThreadList(
                     state = lazyListState,
-                    pbPageRepository = viewModel.pbPageRepository,
                     items = threadList.map { it.get { this } }.toImmutableList(),
                     onItemClicked = {
                         navigator.navigate(
                             ThreadPageDestination(
                                 it.threadId,
                                 forumId = it.forumId,
-                                threadInfo = it
+                                threadPreview = it.toThreadPreview()
                             )
                         )
                     },
@@ -417,7 +420,7 @@ fun ForumThreadListPage(
                             ForumThreadListUiIntent.Agree(
                                 it.threadId,
                                 it.firstPostId,
-                                it.agree?.hasAgree ?: 0
+                                it.hasAgree
                             )
                         )
                     },
@@ -428,12 +431,12 @@ fun ForumThreadListPage(
                     onOriginThreadClicked = {
                         navigator.navigate(
                             ThreadPageDestination(
-                                threadId = it.tid.toLong(),
-                                forumId = it.fid,
+                                threadId = it.threadId,
+                                forumId = it.forumId,
                             )
                         )
                     }
-                ) { navigator.navigate(UserProfilePageDestination(it.id)) }
+                ) { navigator.navigate(UserProfilePageDestination(it)) }
             }
         }
 

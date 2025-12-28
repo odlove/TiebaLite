@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_oksign_finish">签到完成</string>
+    <string name="title_oksign_fail">签到失败</string>
+    <string name="text_login_first">请先登录</string>
+    <string name="title_start_sign">即将开始签到</string>
+    <string name="toast_oksign_start">签到已开始，可在通知栏查看进度</string>
+    <string name="text_please_wait">请稍候……</string>
+    <string name="title_signing_progress">%1$s正在签到中 (%2$d/%3$d)</string>
+    <string name="title_forum_name">%1$s吧</string>
+    <string name="text_singing_progress">%1$s吧 ✓</string>
+    <string name="text_singing_progress_exp">%1$s吧 ✓ 经验 +%2$s</string>
+    <string name="text_oksign_done">共签到 %1$d 个吧</string>
+    <string name="text_oksign_no_signable">没有可签到的吧</string>
+    <string name="text_oksign_unknown_error">出现未知错误</string>
+</resources>

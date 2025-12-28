@@ -7,20 +7,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
-import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.core.ui.locals.OriginThreadRenderer
-import com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo
+import com.huanchengfly.tieba.core.common.feed.OriginThreadCard
+import com.huanchengfly.tieba.core.ui.text.feedAbstractText
 import com.huanchengfly.tieba.core.ui.widgets.compose.ThreadMedia
-import com.huanchengfly.tieba.post.api.models.protos.renders
-import kotlinx.collections.immutable.toImmutableList
+import com.huanchengfly.tieba.core.ui.widgets.compose.ThreadContent
 
 val AppOriginThreadRenderer: OriginThreadRenderer = { originThreadPayload, modifier, onClick ->
-    val originThreadInfo = originThreadPayload.item as? OriginThreadInfo
-    if (originThreadInfo != null) {
+    val originThread = originThreadPayload.item as? OriginThreadCard
+    if (originThread != null) {
         OriginThreadCard(
-            originThreadInfo = originThreadInfo.wrapImmutable(),
+            originThread = originThread.wrapImmutable(),
             modifier = modifier.clickable(onClick = onClick)
         )
     }
@@ -28,26 +26,32 @@ val AppOriginThreadRenderer: OriginThreadRenderer = { originThreadPayload, modif
 
 @Composable
 fun OriginThreadCard(
-    originThreadInfo: ImmutableHolder<OriginThreadInfo>,
+    originThread: com.huanchengfly.tieba.core.mvi.ImmutableHolder<OriginThreadCard>,
     modifier: Modifier = Modifier,
 ) {
-    val origin = originThreadInfo.item
-    val contentRenders = remember(originThreadInfo) { origin.content.renders }
+    val origin = originThread.item
+    val abstractText = remember(originThread) { origin.abstractSegments.feedAbstractText() }
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Column {
-            contentRenders.fastForEach {
-                it.Render()
-            }
+        val showTitle = origin.title.isNotBlank()
+        val showAbstract = abstractText.isNotBlank()
+        if (showTitle || showAbstract) {
+            ThreadContent(
+                title = origin.title,
+                abstractText = abstractText,
+                showTitle = showTitle,
+                showAbstract = showAbstract,
+                maxLines = 6,
+            )
         }
         ThreadMedia(
-            forumId = origin.fid,
-            forumName = origin.fname,
-            threadId = origin.tid.toLong(),
-            medias = origin.media.map { it.wrapImmutable() }.toImmutableList(),
-            videoInfo = origin.video_info?.wrapImmutable()
+            forumId = origin.forumId,
+            forumName = origin.forumName,
+            threadId = origin.threadId,
+            medias = origin.medias,
+            videoInfo = origin.videoInfo
         )
     }
 }

@@ -6,7 +6,7 @@ import android.os.IBinder
 import android.util.Log
 import com.huanchengfly.tieba.core.runtime.service.sign.SignActions
 import com.huanchengfly.tieba.core.runtime.service.sign.SignForegroundServiceDelegate
-import com.huanchengfly.tieba.post.services.sign.SignServiceConstants
+import com.huanchengfly.tieba.core.runtime.service.sign.SignServiceConstants
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope

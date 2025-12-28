@@ -3,6 +3,7 @@ package com.huanchengfly.tieba.post.ui.page.forum.threadlist
 import androidx.compose.runtime.Stable
 import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.Classify
+import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
 import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
@@ -15,6 +16,13 @@ import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
+import com.huanchengfly.tieba.core.common.feed.RichTextSegment
+import com.huanchengfly.tieba.core.common.feed.ThreadAuthor
+import com.huanchengfly.tieba.core.common.feed.ThreadCard
+import com.huanchengfly.tieba.core.common.feed.ThreadForumInfo
+import com.huanchengfly.tieba.core.common.feed.ThreadMediaItem
+import com.huanchengfly.tieba.core.common.feed.ThreadVideoInfo
+import com.huanchengfly.tieba.core.common.feed.OriginThreadCard
 import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
 import com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
@@ -23,6 +31,7 @@ import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.ui.models.ThreadItemData
 import com.huanchengfly.tieba.post.ui.models.distinctById
+import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -139,10 +148,12 @@ private class ForumThreadListPartialChangeProducer(
             .map<FrsPageResponse, ForumThreadListPartialChange.FirstLoad> { response ->
                 val data = response.data_ ?: throw TiebaUnknownException
                 val page = data.page ?: throw TiebaUnknownException
-                val threadList = data.thread_list.map {
+                val threadList = data.thread_list.map { threadInfo ->
                     ThreadItemData(
-                        thread = it.wrapImmutable(),
-                        hideBlockedContent = appPreferences.hideBlockedContent
+                        thread = threadInfo.toThreadCard().wrapImmutable(),
+                        hideBlockedContent = appPreferences.hideBlockedContent,
+                        blocked = threadInfo.shouldBlock(),
+                        isTop = threadInfo.isTop == 1
                     )
                 }
                 val forumRule = data.forum_rule
@@ -172,10 +183,12 @@ private class ForumThreadListPartialChangeProducer(
             .map<FrsPageResponse, ForumThreadListPartialChange.Refresh> { response ->
                 val data = response.data_ ?: throw TiebaUnknownException
                 val page = data.page ?: throw TiebaUnknownException
-                val threadList = data.thread_list.map {
+                val threadList = data.thread_list.map { threadInfo ->
                     ThreadItemData(
-                        thread = it.wrapImmutable(),
-                        hideBlockedContent = appPreferences.hideBlockedContent
+                        thread = threadInfo.toThreadCard().wrapImmutable(),
+                        hideBlockedContent = appPreferences.hideBlockedContent,
+                        blocked = threadInfo.shouldBlock(),
+                        isTop = threadInfo.isTop == 1
                     )
                 }
                 ForumThreadListPartialChange.Refresh.Success(
@@ -200,10 +213,12 @@ private class ForumThreadListPartialChangeProducer(
                 threadListIds.subList(0, size).joinToString(separator = ",") { "$it" }
             ).map { response ->
                 val data = response.data_ ?: throw TiebaUnknownException
-                val threadList = data.thread_list.map {
+                val threadList = data.thread_list.map { threadInfo ->
                     ThreadItemData(
-                        thread = it.wrapImmutable(),
-                        hideBlockedContent = appPreferences.hideBlockedContent
+                        thread = threadInfo.toThreadCard().wrapImmutable(),
+                        hideBlockedContent = appPreferences.hideBlockedContent,
+                        blocked = threadInfo.shouldBlock(),
+                        isTop = threadInfo.isTop == 1
                     )
                 }
                 ForumThreadListPartialChange.LoadMore.Success(
@@ -226,8 +241,10 @@ private class ForumThreadListPartialChangeProducer(
                     val page = data.page ?: throw TiebaUnknownException
                     val threadList = data.thread_list.map {
                         ThreadItemData(
-                            thread = it.wrapImmutable(),
-                            hideBlockedContent = appPreferences.hideBlockedContent
+                            thread = it.toThreadCard().wrapImmutable(),
+                            hideBlockedContent = appPreferences.hideBlockedContent,
+                            blocked = it.shouldBlock(),
+                            isTop = it.isTop == 1
                         )
                     }
                     ForumThreadListPartialChange.LoadMore.Success(
@@ -483,4 +500,120 @@ sealed interface ForumThreadListUiEvent : UiEvent {
     data class BackToTop(
         val isGood: Boolean
     ) : ForumThreadListUiEvent
+}
+
+private fun ThreadInfo.toThreadCard(): ThreadCard {
+    val author = author?.let {
+        ThreadAuthor(
+            id = it.id,
+            name = it.name,
+            nameShow = it.nameShow,
+            portrait = it.portrait
+        )
+    }
+    val forumInfo = forumInfo?.let {
+        ThreadForumInfo(
+            name = it.name,
+            avatar = it.avatar
+        )
+    }
+    val abstractSegments = if (richAbstract.isNotEmpty()) {
+        richAbstract.map {
+            RichTextSegment(
+                type = it.type,
+                text = it.text,
+                c = it.c
+            )
+        }
+    } else {
+        _abstract.map {
+            RichTextSegment(
+                type = it.type,
+                text = it.text
+            )
+        }
+    }
+    val medias = media.map {
+        ThreadMediaItem(
+            originPic = it.originPic,
+            bigPic = it.bigPic,
+            dynamicPic = it.dynamicPic,
+            srcPic = it.srcPic,
+            postId = it.postId,
+            showOriginalBtn = it.showOriginalBtn,
+            originSize = it.originSize
+        )
+    }
+    val videoInfo = videoInfo?.let {
+        ThreadVideoInfo(
+            videoUrl = it.videoUrl,
+            thumbnailUrl = it.thumbnailUrl,
+            thumbnailWidth = it.thumbnailWidth,
+            thumbnailHeight = it.thumbnailHeight
+        )
+    }
+    val originThread = origin_thread_info?.toOriginThreadCard()
+    return ThreadCard(
+        threadId = threadId.takeIf { it != 0L } ?: id,
+        firstPostId = firstPostId,
+        forumId = forumId,
+        forumName = forumName,
+        title = title,
+        tabName = tabName,
+        isNoTitle = isNoTitle == 1,
+        isGood = isGood == 1,
+        isShareThread = is_share_thread == 1,
+        lastTimeInt = lastTimeInt,
+        shareNum = shareNum.toInt(),
+        replyNum = replyNum,
+        hotNum = hotNum,
+        agreeNum = agreeNum,
+        hasAgree = agree?.hasAgree ?: 0,
+        collectStatus = collectStatus,
+        collectMarkPid = collectMarkPid.toLongOrNull() ?: 0L,
+        author = author,
+        forumInfo = forumInfo,
+        abstractSegments = abstractSegments,
+        medias = medias,
+        videoInfo = videoInfo,
+        hasOriginThreadInfo = originThread != null,
+        originThreadPayload = originThread,
+    )
+}
+
+private fun com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo.toOriginThreadCard(): OriginThreadCard {
+    val abstractSegments = _abstract.map {
+        RichTextSegment(
+            type = it.type,
+            text = it.text
+        )
+    }
+    val medias = media.map {
+        ThreadMediaItem(
+            originPic = it.originPic,
+            bigPic = it.bigPic,
+            dynamicPic = it.dynamicPic,
+            srcPic = it.srcPic,
+            postId = it.postId,
+            showOriginalBtn = it.showOriginalBtn,
+            originSize = it.originSize
+        )
+    }
+    val videoInfo = video_info?.let {
+        ThreadVideoInfo(
+            videoUrl = it.videoUrl,
+            thumbnailUrl = it.thumbnailUrl,
+            thumbnailWidth = it.thumbnailWidth,
+            thumbnailHeight = it.thumbnailHeight
+        )
+    }
+    return OriginThreadCard(
+        threadId = tid.toLongOrNull() ?: 0L,
+        forumId = fid,
+        forumName = fname,
+        title = title,
+        abstractSegments = abstractSegments,
+        medias = medias,
+        videoInfo = videoInfo
+    )
 }

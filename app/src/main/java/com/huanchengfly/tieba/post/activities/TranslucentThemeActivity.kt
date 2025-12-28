@@ -38,8 +38,8 @@ import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsRegistry
 import com.huanchengfly.tieba.post.*
 import com.huanchengfly.tieba.post.adapters.TranslucentThemeColorAdapter
 import com.huanchengfly.tieba.post.adapters.WallpaperAdapter
-import com.huanchengfly.tieba.post.api.LiteApi
-import com.huanchengfly.tieba.core.network.retrofit.doIfSuccess
+import com.huanchengfly.tieba.core.common.wallpaper.WallpaperRepository
+import com.huanchengfly.tieba.post.di.entrypoints.WallpaperRepositoryEntryPoint
 import com.huanchengfly.tieba.post.components.MyLinearLayoutManager
 import com.huanchengfly.tieba.post.components.dividers.HorizontalSpacesDecoration
 import com.huanchengfly.tieba.post.components.transformations.SketchBlurTransformation
@@ -52,6 +52,7 @@ import com.huanchengfly.tieba.post.utils.*
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import com.yalantis.ucrop.UCrop
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import java.io.File
@@ -81,6 +82,12 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
             refreshWallpapers()
         }
     private val wallpaperAdapter: WallpaperAdapter by lazy { WallpaperAdapter(this) }
+    private val wallpaperRepository: WallpaperRepository by lazy {
+        EntryPointAccessors.fromApplication(
+            applicationContext,
+            WallpaperRepositoryEntryPoint::class.java
+        ).wallpaperRepository()
+    }
 
     private val mTranslucentThemeColorAdapter: TranslucentThemeColorAdapter by lazy {
         TranslucentThemeColorAdapter(
@@ -340,9 +347,9 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
 
     private fun fetchWallpapers() {
         launch(IO + job) {
-            LiteApi.instance
-                .wallpapersAsync()
-                .doIfSuccess {
+            wallpaperRepository
+                .fetchWallpapers()
+                .onSuccess {
                     CacheUtil.putCache(this@TranslucentThemeActivity, "recommend_wallpapers", it)
                     wallpapers = it
                 }

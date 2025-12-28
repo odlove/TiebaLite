@@ -70,7 +70,7 @@ import androidx.compose.material.navigation.bottomSheet
 import androidx.compose.material.navigation.rememberBottomSheetNavigator
 import androidx.core.app.NotificationManagerCompat
 import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.network.error.defaultErrorMessage
 import com.huanchengfly.tieba.post.arch.BaseComposeActivity
 import com.huanchengfly.tieba.core.mvi.GlobalEvent
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
@@ -535,7 +535,7 @@ class MainActivityV2 : BaseComposeActivity() {
                 AccountUtil.fetchAccountFlow()
                     .flowOn(Dispatchers.IO)
                     .catch { e ->
-                        toastShort(e.getErrorMessage())
+                        toastShort(e.defaultErrorMessage())
                         e.printStackTrace()
                     }
                     .collect()

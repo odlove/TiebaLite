@@ -2,24 +2,22 @@ package com.huanchengfly.tieba.post.ui.models
 
 import androidx.compose.runtime.Immutable
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
-import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
-import com.huanchengfly.tieba.post.api.models.protos.personalized.ThreadPersonalized
-import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
+import com.huanchengfly.tieba.core.common.feed.ThreadCard
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
 @Immutable
 data class ThreadItemData(
-    val thread: ImmutableHolder<ThreadInfo>,
+    val thread: ImmutableHolder<ThreadCard>,
     private val hideBlockedContent: Boolean,
-    val blocked: Boolean = thread.get { shouldBlock() },
-    val personalized: ImmutableHolder<ThreadPersonalized>? = null,
+    val blocked: Boolean,
+    val isTop: Boolean = false,
 ) {
     val hidden: Boolean = blocked && hideBlockedContent
 }
 
 fun List<ThreadItemData>.distinctById(): ImmutableList<ThreadItemData> {
     return distinctBy {
-        it.thread.get { id }
+        it.thread.get { threadId }
     }.toImmutableList()
 }

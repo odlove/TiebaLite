@@ -13,8 +13,7 @@ import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.network.retrofit.doIfFailure
 import com.huanchengfly.tieba.core.network.retrofit.doIfSuccess
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.booleanToString
-import com.huanchengfly.tieba.post.api.models.protos.Post
+import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import com.huanchengfly.tieba.post.components.dialogs.LoadingDialog
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.post.ui.page.destinations.WebViewPageDestination
@@ -33,11 +32,11 @@ import kotlinx.coroutines.launch
 fun ThreadMenuSheetContent(
     pageState: ThreadPageState,
     forumId: Long?,
-    lastVisibilityPost: ImmutableHolder<Post>?,
+    lastVisibilityPost: ImmutableHolder<ThreadPost>?,
     bottomSheetState: ModalBottomSheetState,
     jumpToPageDialogState: DialogState,
     confirmDeleteDialogState: DialogState,
-    deletePostState: MutableState<ImmutableHolder<Post>?>,
+    deletePostState: MutableState<ImmutableHolder<ThreadPost>?>,
     actions: ThreadPageActions,
     navigator: DestinationsNavigator,
     viewModel: ThreadViewModel,
@@ -126,7 +125,7 @@ fun ThreadMenuSheetContent(
         onCopyLinkClick = {
             TiebaUtil.copyText(
                 context,
-                "https://tieba.baidu.com/p/${pageState.threadId}?see_lz=${pageState.isSeeLz.booleanToString()}"
+                "https://tieba.baidu.com/p/${pageState.threadId}?see_lz=${if (pageState.isSeeLz) "1" else "0"}"
             )
         },
         onReportClick = {

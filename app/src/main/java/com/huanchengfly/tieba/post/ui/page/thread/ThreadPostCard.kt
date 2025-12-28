@@ -46,11 +46,9 @@ import com.huanchengfly.tieba.core.ui.text.buildChipInlineContent
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.widgets.compose.*
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.protos.Post
-import com.huanchengfly.tieba.post.api.models.protos.SubPostList
-import com.huanchengfly.tieba.post.api.models.protos.User
-import com.huanchengfly.tieba.post.api.models.protos.bawuType
-import com.huanchengfly.tieba.post.api.models.protos.plainText
+import com.huanchengfly.tieba.core.common.thread.ThreadPost
+import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
+import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import com.huanchengfly.tieba.post.components.dialogs.LoadingDialog
 import com.huanchengfly.tieba.post.models.PostEntity
 import com.huanchengfly.tieba.post.preferences.appPreferences
@@ -88,7 +86,7 @@ private fun getDescText(
 
 @Composable
 fun PostCard(
-    postHolder: ImmutableHolder<Post>,
+    postHolder: ImmutableHolder<ThreadPost>,
     contentRenders: ImmutableList<PbContentRender>,
     viewModel: ThreadViewModel? = null,
     threadId: Long = 0L,
@@ -96,18 +94,18 @@ fun PostCard(
     threadAuthorId: Long = 0L,
     blocked: Boolean = false,
     postEntities: List<PostEntity> = emptyList(),
-    canDelete: (Post) -> Boolean = { false },
+    canDelete: (ThreadPost) -> Boolean = { false },
     immersiveMode: Boolean = false,
-    isCollected: (Post) -> Boolean = { false },
+    isCollected: (ThreadPost) -> Boolean = { false },
     showSubPosts: Boolean = true,
-    onUserClick: (User) -> Unit = {},
+    onUserClick: (ThreadUser) -> Unit = {},
     onAgree: () -> Unit = {},
-    onReplyClick: (Post) -> Unit = {},
-    onSubPostReplyClick: ((Post, SubPostList) -> Unit)? = null,
+    onReplyClick: (ThreadPost) -> Unit = {},
+    onSubPostReplyClick: ((ThreadPost, ThreadSubPost) -> Unit)? = null,
     onOpenSubPosts: (subPostId: Long) -> Unit = {},
     onMenuCopyClick: ((String) -> Unit)? = null,
-    onMenuFavoriteClick: ((Post) -> Unit)? = null,
-    onMenuDeleteClick: ((Post) -> Unit)? = null,
+    onMenuFavoriteClick: ((ThreadPost) -> Unit)? = null,
+    onMenuDeleteClick: ((ThreadPost) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val navigator = LocalNavigator.current
@@ -119,7 +117,7 @@ fun PostCard(
     val paddingModifier = Modifier.padding(start = if (hasPadding) Sizes.Small + 8.dp else 0.dp)
     val author = postHolder.get { author } ?: return
     val showTitle = remember(postHolder) {
-        post.title.isNotBlank() && post.floor <= 1 && post.is_ntitle != 1
+        post.title.isNotBlank() && post.floor <= 1 && post.isNTitle != 1
     }
 
     val postMeta = remember(postHolder, postEntities) {
@@ -151,7 +149,7 @@ fun PostCard(
         if (onMenuCopyClick != null) {
             DropdownMenuItem(
                 onClick = {
-                    onMenuCopyClick(post.content.plainText)
+                    onMenuCopyClick(contentRenders.joinToString("\n") { it.toString() })
                     menuState.expanded = false
                 }
             ) {
@@ -247,7 +245,7 @@ fun PostCard(
                                         author.name,
                                         author.nameShow
                                     ),
-                                    userLevel = author.level_id,
+                                    userLevel = author.levelId,
                                     isLz = author.id == threadAuthorId,
                                     bawuType = author.bawuType,
                                 )
@@ -256,9 +254,9 @@ fun PostCard(
                                 Text(
                                     text = getDescText(
                                         LocalContext.current,
-                                        post.time.toLong(),
+                                        post.time,
                                         post.floor,
-                                        author.ip_address
+                                        author.ipAddress
                                     )
                                 )
                             },
@@ -342,7 +340,7 @@ fun PostCard(
                     }
                 }
 
-                if (showSubPosts && post.sub_post_number > 0 && subPosts.isNotEmpty() && !immersiveMode) {
+                if (showSubPosts && post.subPostCount > 0 && subPosts.isNotEmpty() && !immersiveMode) {
                     Column(
                         modifier = Modifier
                         .fillMaxWidth()
@@ -384,11 +382,11 @@ fun PostCard(
                             }
                         }
 
-                        if (post.sub_post_number > subPosts.size) {
+                        if (post.subPostCount > subPosts.size) {
                             Text(
                                 text = stringResource(
                                     id = R.string.open_all_sub_posts,
-                                    post.sub_post_number
+                                    post.subPostCount
                                 ),
                                 style = MaterialTheme.typography.caption,
                                 fontSize = 13.sp,
@@ -412,13 +410,13 @@ fun PostCard(
 
 @Composable
 private fun SubPostItem(
-    subPostList: ImmutableHolder<SubPostList>,
+    subPostList: ImmutableHolder<ThreadSubPost>,
     subPostContent: AnnotatedString,
     viewModel: ThreadViewModel? = null,
     modifier: Modifier = Modifier,
-    onReplyClick: ((SubPostList) -> Unit)?,
+    onReplyClick: ((ThreadSubPost) -> Unit)?,
     onOpenSubPosts: (Long) -> Unit,
-    onMenuCopyClick: ((SubPostList) -> Unit)?,
+    onMenuCopyClick: ((ThreadSubPost) -> Unit)?,
 ) {
     val context = LocalContext.current
     val navigator = LocalNavigator.current

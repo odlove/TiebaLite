@@ -1,14 +1,14 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
 import com.huanchengfly.tieba.core.mvi.UiIntent
-import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
+import com.huanchengfly.tieba.core.common.thread.ThreadDetail
 
 sealed interface ThreadUiIntent : UiIntent {
     data class Init(
         val threadId: Long,
         val forumId: Long? = null,
         val postId: Long = 0,
-        val threadInfo: ThreadInfo? = null,
+        val threadDetail: ThreadDetail? = null,
         val seeLz: Boolean = false,
         val sortType: Int = 0,
     ) : ThreadUiIntent

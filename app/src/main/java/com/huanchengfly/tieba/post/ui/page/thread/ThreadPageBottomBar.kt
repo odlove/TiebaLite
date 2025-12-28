@@ -37,7 +37,7 @@ import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.threadBottomBar
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.protos.User
+import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButton
@@ -151,7 +151,7 @@ fun BottomBarPlaceholder() {
 
 @Composable
 fun BottomBar(
-    user: ImmutableHolder<User>,
+    user: ImmutableHolder<ThreadUser>,
     pbPageRepository: PbPageRepository,
     threadId: Long,
     onClickReply: () -> Unit,
@@ -175,7 +175,7 @@ fun BottomBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (user.get { is_login } == 1 && !LocalContext.current.appPreferences.hideReply) {
+            if (user.get { isLogin } == 1 && !LocalContext.current.appPreferences.hideReply) {
                 Avatar(
                     data = StringUtil.getAvatarUrl(user.get { portrait }),
                     size = Sizes.Tiny,

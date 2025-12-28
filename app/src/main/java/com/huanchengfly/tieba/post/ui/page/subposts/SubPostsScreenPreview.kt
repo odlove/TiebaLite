@@ -67,7 +67,7 @@ private fun createMockSubPostsUiProps(
 private fun createMockSubPostsCallbacks() =
     SubPostsCallbacks(
         onBack = {},
-        onUserClick = {},
+        onUserClick = { _ -> },
         onReplyClick = {},
         onAgree = {},
         onMenuCopy = {},

@@ -16,16 +16,12 @@ import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
-import com.huanchengfly.tieba.post.api.models.protos.Anti
-import com.huanchengfly.tieba.post.api.models.protos.Post
-import com.huanchengfly.tieba.post.api.models.protos.SimpleForum
-import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
-import com.huanchengfly.tieba.post.api.models.protos.User
-import com.huanchengfly.tieba.post.api.models.protos.contentRenders
-import com.huanchengfly.tieba.post.api.models.protos.subPosts
-import com.huanchengfly.tieba.post.api.models.protos.SubPostList
-import com.huanchengfly.tieba.post.api.models.protos.updateAgreeStatus
-import com.huanchengfly.tieba.post.api.models.protos.updateCollectStatus
+import com.huanchengfly.tieba.core.common.thread.ThreadAnti
+import com.huanchengfly.tieba.core.common.thread.ThreadPost
+import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
+import com.huanchengfly.tieba.core.common.thread.ThreadDetail
+import com.huanchengfly.tieba.core.common.thread.ThreadForum
+import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import com.huanchengfly.tieba.post.models.PostEntity
 import com.huanchengfly.tieba.post.models.ThreadMeta
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
@@ -52,15 +48,15 @@ import kotlinx.collections.immutable.persistentListOf
 @Stable
 class ThreadPageState(
     threadId: Long = 0L,
-    displayThread: ImmutableHolder<ThreadInfo>? = null,
-    firstPost: ImmutableHolder<Post>? = null,
+    displayThread: ImmutableHolder<ThreadDetail>? = null,
+    firstPost: ImmutableHolder<ThreadPost>? = null,
     firstPostContentRenders: ImmutableList<PbContentRender> = persistentListOf(),
     postItems: ImmutableList<PostItemData> = persistentListOf(),
     latestPosts: ImmutableList<PostItemData> = persistentListOf(),
-    author: ImmutableHolder<User>? = null,
-    forum: ImmutableHolder<SimpleForum>? = null,
-    user: ImmutableHolder<User> = com.huanchengfly.tieba.core.mvi.wrapImmutable(User()),
-    anti: ImmutableHolder<Anti>? = null,
+    author: ImmutableHolder<ThreadUser>? = null,
+    forum: ImmutableHolder<ThreadForum>? = null,
+    user: ImmutableHolder<ThreadUser> = com.huanchengfly.tieba.core.mvi.wrapImmutable(ThreadUser()),
+    anti: ImmutableHolder<ThreadAnti>? = null,
     threadMeta: ThreadMeta = ThreadMeta(),
     postEntities: List<PostEntity> = emptyList(),
     postIds: ImmutableList<Long> = persistentListOf(),
@@ -420,7 +416,7 @@ data class ThreadPageDialogs(
     val updateCollectMarkDialogState: DialogState,
     val confirmDeleteDialogState: DialogState,
     val jumpToPageDialogState: DialogState,
-    val deletePost: MutableState<ImmutableHolder<Post>?>,
+    val deletePost: MutableState<ImmutableHolder<ThreadPost>?>,
     val readFloorBeforeBack: MutableIntState,
 )
 
@@ -429,7 +425,7 @@ fun rememberThreadPageDialogs(): ThreadPageDialogs {
     val updateCollectMark = rememberDialogState()
     val confirmDelete = rememberDialogState()
     val jumpToPage = rememberDialogState()
-    val deletePost = remember { mutableStateOf<ImmutableHolder<Post>?>(null) }
+    val deletePost = remember { mutableStateOf<ImmutableHolder<ThreadPost>?>(null) }
     val readFloorBeforeBack = remember { mutableIntStateOf(1) }
     return remember(updateCollectMark, confirmDelete, jumpToPage, deletePost, readFloorBeforeBack) {
         ThreadPageDialogs(
@@ -474,12 +470,12 @@ data class ThreadUiState(
     val threadId: Long = 0,
 
     val title: String = "",
-    val author: ImmutableHolder<User>? = null,
-    val user: ImmutableHolder<User> = wrapImmutable(User()),
-    val threadInfo: ImmutableHolder<ThreadInfo>? = null,
-    val firstPost: ImmutableHolder<Post>? = null,
-    val forum: ImmutableHolder<SimpleForum>? = null,
-    val anti: ImmutableHolder<Anti>? = null,
+    val author: ImmutableHolder<ThreadUser>? = null,
+    val user: ImmutableHolder<ThreadUser> = wrapImmutable(ThreadUser()),
+    val threadDetail: ImmutableHolder<ThreadDetail>? = null,
+    val firstPost: ImmutableHolder<ThreadPost>? = null,
+    val forum: ImmutableHolder<ThreadForum>? = null,
+    val anti: ImmutableHolder<ThreadAnti>? = null,
 
     val firstPostContentRenders: ImmutableList<PbContentRender> = persistentListOf(),
     val data: ImmutableList<PostItemData> = persistentListOf(),
@@ -499,21 +495,21 @@ object ThreadSortType {
 
 @Immutable
 data class PostItemData(
-    val post: ImmutableHolder<Post>,
+    val post: ImmutableHolder<ThreadPost>,
     val blocked: Boolean = post.get { shouldBlock() },
     val contentRenders: ImmutableList<PbContentRender> = post.get { this.contentRenders },
-    val subPosts: ImmutableList<SubPostItemData> = post.get { this.subPosts },
+    val subPosts: ImmutableList<SubPostItemData> = persistentListOf(),
 )
 
 @Immutable
 data class SubPostItemData(
-    val subPost: ImmutableHolder<SubPostList>,
+    val subPost: ImmutableHolder<ThreadSubPost>,
     val subPostContent: AnnotatedString,
     val blocked: Boolean = subPost.get { shouldBlock() },
 ) {
     val id: Long
         get() = subPost.get { id }
 
-    val author: ImmutableHolder<User>?
+    val author: ImmutableHolder<ThreadUser>?
         get() = subPost.get { author }?.wrapImmutable()
 }

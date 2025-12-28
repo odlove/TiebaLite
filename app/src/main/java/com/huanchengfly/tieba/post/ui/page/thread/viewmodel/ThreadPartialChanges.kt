@@ -2,12 +2,11 @@ package com.huanchengfly.tieba.post.ui.page.thread
 
 import com.huanchengfly.tieba.core.mvi.PartialChange
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
-import com.huanchengfly.tieba.post.api.models.protos.Anti
-import com.huanchengfly.tieba.post.api.models.protos.Post
-import com.huanchengfly.tieba.post.api.models.protos.SimpleForum
-import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
-import com.huanchengfly.tieba.post.api.models.protos.User
-import com.huanchengfly.tieba.post.api.models.protos.updateCollectStatus
+import com.huanchengfly.tieba.core.common.thread.ThreadAnti
+import com.huanchengfly.tieba.core.common.thread.ThreadDetail
+import com.huanchengfly.tieba.core.common.thread.ThreadForum
+import com.huanchengfly.tieba.core.common.thread.ThreadPost
+import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import com.huanchengfly.tieba.post.removeAt
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import kotlinx.collections.immutable.ImmutableList
@@ -23,16 +22,8 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                 error = null,
                 title = title,
                 author = if (author != null) wrapImmutable(author) else null,
-                threadInfo = threadInfo?.wrapImmutable(),
-                firstPost = if (threadInfo != null && author != null)
-                    wrapImmutable(
-                        Post(
-                            title = title,
-                            author = author,
-                            floor = 1,
-                            time = threadInfo.createTime
-                        )
-                    ) else null,
+                threadDetail = threadDetail?.wrapImmutable(),
+                firstPost = oldState.firstPost,
                 firstPostContentRenders = firstPostContentRenders.toImmutableList(),
                 postId = postId,
                 seeLz = seeLz,
@@ -48,8 +39,8 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
 
         data class Success(
             val title: String,
-            val author: User?,
-            val threadInfo: ThreadInfo?,
+            val author: ThreadUser?,
+            val threadDetail: ThreadDetail?,
             val firstPostContentRenders: List<PbContentRender>,
             val postId: Long = 0,
             val seeLz: Boolean = false,
@@ -74,7 +65,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                 author = wrapImmutable(author),
                 user = wrapImmutable(user),
                 data = data.toImmutableList(),
-                threadInfo = threadInfo.wrapImmutable(),
+                threadDetail = threadDetail.wrapImmutable(),
                 firstPost = if (firstPost != null) wrapImmutable(firstPost) else oldState.firstPost,
                 forum = wrapImmutable(forum),
                 anti = wrapImmutable(anti),
@@ -105,13 +96,13 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
 
         data class Success(
             val title: String,
-            val author: User,
-            val user: User,
-            val firstPost: Post?,
+            val author: ThreadUser,
+            val user: ThreadUser,
+            val firstPost: ThreadPost?,
             val data: List<PostItemData>,
-            val threadInfo: ThreadInfo,
-            val forum: SimpleForum,
-            val anti: Anti,
+            val threadDetail: ThreadDetail,
+            val forum: ThreadForum,
+            val anti: ThreadAnti,
             val currentPage: Int,
             val totalPage: Int,
             val hasMore: Boolean,
@@ -141,7 +132,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                 author = wrapImmutable(author),
                 user = wrapImmutable(user),
                 data = data.toImmutableList(),
-                threadInfo = threadInfo.wrapImmutable(),
+                threadDetail = threadDetail.wrapImmutable(),
                 firstPost = firstPost?.wrapImmutable(),
                 forum = wrapImmutable(forum),
                 anti = wrapImmutable(anti),
@@ -171,13 +162,13 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
 
         data class Success(
             val title: String,
-            val author: User,
-            val user: User,
-            val firstPost: Post?,
+            val author: ThreadUser,
+            val user: ThreadUser,
+            val firstPost: ThreadPost?,
             val data: List<PostItemData>,
-            val threadInfo: ThreadInfo,
-            val forum: SimpleForum,
-            val anti: Anti,
+            val threadDetail: ThreadDetail,
+            val forum: ThreadForum,
+            val anti: ThreadAnti,
             val currentPage: Int,
             val totalPage: Int,
             val hasMore: Boolean,
@@ -207,7 +198,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                     isLoadingMore = false,
                     author = wrapImmutable(author),
                     data = (oldState.data + uniqueData).toImmutableList(),
-                    threadInfo = threadInfo.wrapImmutable(),
+                    threadDetail = threadDetail.wrapImmutable(),
                     currentPageMax = currentPage,
                     totalPage = totalPage,
                     hasMore = hasMore,
@@ -223,9 +214,9 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
         data object Start : LoadMore()
 
         data class Success(
-            val author: User,
+            val author: ThreadUser,
             val data: List<PostItemData>,
-            val threadInfo: ThreadInfo,
+            val threadDetail: ThreadDetail,
             val currentPage: Int,
             val totalPage: Int,
             val hasMore: Boolean,
@@ -246,7 +237,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                 isRefreshing = false,
                 author = wrapImmutable(author),
                 data = (data + oldState.data).toImmutableList(),
-                threadInfo = threadInfo.wrapImmutable(),
+                threadDetail = threadDetail.wrapImmutable(),
                 currentPageMin = currentPage,
                 totalPage = totalPage,
                 hasPrevious = hasPrevious,
@@ -259,9 +250,9 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
         data object Start : LoadPrevious()
 
         data class Success(
-            val author: User,
+            val author: ThreadUser,
             val data: List<PostItemData>,
-            val threadInfo: ThreadInfo,
+            val threadDetail: ThreadDetail,
             val currentPage: Int,
             val totalPage: Int,
             val hasPrevious: Boolean,
@@ -285,7 +276,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
                     isLoadingMore = false,
                     author = wrapImmutable(author),
                     data = (oldState.data + uniqueData).toImmutableList(),
-                    threadInfo = threadInfo.wrapImmutable(),
+                    threadDetail = threadDetail.wrapImmutable(),
                     currentPageMax = currentPage,
                     totalPage = totalPage,
                     hasMore = hasMore,
@@ -302,9 +293,9 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
         data object Start : LoadLatestPosts()
 
         data class Success(
-            val author: User,
+            val author: ThreadUser,
             val data: List<PostItemData>,
-            val threadInfo: ThreadInfo,
+            val threadDetail: ThreadDetail,
             val currentPage: Int,
             val totalPage: Int,
             val hasMore: Boolean,
@@ -408,7 +399,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
         object Start : LoadMyLatestReply()
 
         data class Success(
-            val anti: Anti,
+            val anti: ThreadAnti,
             val posts: List<PostItemData>,
             val page: Int,
             val isContinuous: Boolean,
@@ -437,7 +428,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             return when (this) {
                 Start -> oldState
                 is Success -> oldState.copy(
-                    threadInfo = oldState.threadInfo?.getImmutable {
+                    threadDetail = oldState.threadDetail?.getImmutable {
                         updateCollectStatus(
                             newStatus = 1,
                             markPostId = markPostId
@@ -467,7 +458,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             return when (this) {
                 Start -> oldState
                 Success -> oldState.copy(
-                    threadInfo = oldState.threadInfo?.getImmutable {
+                    threadDetail = oldState.threadDetail?.getImmutable {
                         updateCollectStatus(
                             newStatus = 0,
                             markPostId = 0
@@ -578,7 +569,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             return when (this) {
                 Start -> oldState
                 is Success -> oldState.copy(
-                    threadInfo = oldState.threadInfo?.getImmutable {
+                    threadDetail = oldState.threadDetail?.getImmutable {
                         updateCollectStatus(
                             newStatus = 1,
                             markPostId = markPostId
@@ -601,4 +592,16 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             val errorMessage: String
         ) : UpdateFavoriteMark()
     }
+}
+
+private fun ThreadDetail.updateCollectStatus(
+    newStatus: Int,
+    markPostId: Long
+): ThreadDetail = if (collectStatus != newStatus || collectMarkPid != markPostId) {
+    copy(
+        collectStatus = newStatus,
+        collectMarkPid = markPostId
+    )
+} else {
+    this
 }

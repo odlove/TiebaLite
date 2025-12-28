@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.network.error.getErrorCode
+import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
 import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject

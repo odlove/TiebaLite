@@ -33,7 +33,7 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.HorizontalDivider
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
-import com.huanchengfly.tieba.post.api.models.protos.SimpleForum
+import com.huanchengfly.tieba.core.common.thread.ThreadForum
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageState
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.huanchengfly.tieba.core.common.utils.getShortNumString
@@ -106,7 +106,7 @@ fun ThreadInfoHeader(
 
 @Composable
 fun ThreadPageTopBar(
-    forum: ImmutableHolder<SimpleForum>?,
+    forum: ImmutableHolder<ThreadForum>?,
     onBack: () -> Unit,
     onForumClick: () -> Unit,
     modifier: Modifier = Modifier

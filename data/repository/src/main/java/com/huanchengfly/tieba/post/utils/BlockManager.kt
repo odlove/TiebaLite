@@ -5,6 +5,9 @@ import com.huanchengfly.tieba.post.api.models.protos.Post
 import com.huanchengfly.tieba.post.api.models.protos.PbContent
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.SubPostList
+import com.huanchengfly.tieba.core.common.thread.ThreadContentItem
+import com.huanchengfly.tieba.core.common.thread.ThreadPost
+import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
 import com.huanchengfly.tieba.post.models.database.Block
 import com.huanchengfly.tieba.post.models.database.Block.Companion.getKeywords
 import org.litepal.LitePal
@@ -76,6 +79,12 @@ object BlockManager {
     fun SubPostList.shouldBlock(): Boolean =
         shouldBlock(content.blockingPlainText()) || shouldBlock(author_id, author?.name)
 
+    fun ThreadPost.shouldBlock(): Boolean =
+        shouldBlock(content.blockingPlainTextForThreadContent()) || shouldBlock(authorId, author?.name)
+
+    fun ThreadSubPost.shouldBlock(): Boolean =
+        shouldBlock(content.blockingPlainTextForThreadContent()) || shouldBlock(authorId, author?.name)
+
     fun MessageListBean.MessageInfoBean.shouldBlock(): Boolean =
         shouldBlock(content.orEmpty()) || shouldBlock(
             this.replyer?.id?.toLongOrNull() ?: -1,
@@ -96,5 +105,14 @@ private fun List<PbContent>.blockingPlainText(): String =
 private fun PbContent.toPlainSegment(): String = when (type) {
     0, 4 -> text.replace(Regex(" {2,}"), " ")
     2 -> if (c.isNullOrBlank()) "" else "#($c)"
+    else -> text
+}
+
+private fun List<ThreadContentItem>.blockingPlainTextForThreadContent(): String =
+    joinToString(separator = "") { it.toPlainSegment() }
+
+private fun ThreadContentItem.toPlainSegment(): String = when (type) {
+    0, 4 -> text.replace(Regex(" {2,}"), " ")
+    2 -> if (c.isBlank()) "" else "#($c)"
     else -> text
 }

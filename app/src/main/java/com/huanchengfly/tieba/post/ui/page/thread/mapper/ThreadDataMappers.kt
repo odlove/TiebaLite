@@ -1,15 +1,13 @@
 package com.huanchengfly.tieba.post.ui.page.thread.mapper
 
-import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
+import com.huanchengfly.tieba.core.common.thread.ThreadDetail
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadSortType
 
-fun ThreadInfo.nextPagePostId(
+fun ThreadDetail.nextPagePostId(
     postIds: List<Long> = emptyList(),
     sortType: Int = ThreadSortType.SORT_TYPE_DEFAULT
 ): Long {
-    val fetchedPostIds = pids.split(",")
-        .filterNot { it.isBlank() }
-        .map { it.toLong() }
+    val fetchedPostIds = this.postIds
     if (sortType == ThreadSortType.SORT_TYPE_DESC) {
         return fetchedPostIds.firstOrNull() ?: 0
     }

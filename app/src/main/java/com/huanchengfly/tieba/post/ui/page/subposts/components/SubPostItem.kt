@@ -39,7 +39,7 @@ import com.huanchengfly.tieba.post.preferences.appPreferences
  * @param item 楼中楼数据（包含 subPost, contentRenders, blocked）
  * @param threadAuthorId 主题作者 ID（用于显示"楼主"标识）
  * @param canDelete 判断是否可以删除该楼中楼
- * @param onUserClick 点击用户头像/名称的回调
+ * @param onUserClick 点击用户头像/名称的回调（传入 userId）
  * @param onAgree 点击点赞按钮的回调
  * @param onReplyClick 点击回复的回调
  * @param onMenuCopyClick 长按菜单-复制内容的回调
@@ -51,7 +51,7 @@ fun SubPostItem(
     item: SubPostItemData,
     threadAuthorId: Long? = null,
     canDelete: (SubPostList) -> Boolean = { false },
-    onUserClick: (User) -> Unit = {},
+    onUserClick: (Long) -> Unit = {},
     onAgree: (SubPostList) -> Unit = {},
     onReplyClick: (SubPostList) -> Unit = {},
     onMenuCopyClick: ((String) -> Unit)? = null,
@@ -161,7 +161,7 @@ fun SubPostItem(
                                 )
                             },
                             onClick = {
-                                onUserClick(author.get())
+                                onUserClick(author.get { id })
                             },
                         ) {
                             PostAgreeBtn(

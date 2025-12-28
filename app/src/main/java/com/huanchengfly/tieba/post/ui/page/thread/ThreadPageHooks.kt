@@ -16,7 +16,7 @@ import com.huanchengfly.tieba.post.models.ThreadHistoryInfoBean
 import com.huanchengfly.tieba.post.utils.StringUtil
 import com.huanchengfly.tieba.post.toJson
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
-import com.huanchengfly.tieba.post.api.models.protos.Post
+import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -68,7 +68,7 @@ fun rememberThreadHistorySaver(
     routeThreadId: Long,
     pageState: ThreadPageState,
     lastVisibilityPostId: Long,
-    lastVisibilityPost: ImmutableHolder<Post>?
+    lastVisibilityPost: ImmutableHolder<ThreadPost>?
 ) {
     var savedHistory by remember(routeThreadId) { mutableStateOf(false) }
     var lastSavedPostId by remember(routeThreadId) { mutableStateOf(0L) }

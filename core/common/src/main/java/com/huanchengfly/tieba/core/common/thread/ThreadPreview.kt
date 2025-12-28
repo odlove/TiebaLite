@@ -21,6 +21,32 @@ data class ThreadPreview(
     val authorPortrait: String? = null,
 ) : Parcelable
 
+fun ThreadPreview.toThreadDetail(): ThreadDetail =
+    ThreadDetail(
+        threadId = threadId,
+        firstPostId = 0L,
+        title = title,
+        replyNum = replyNum,
+        forumId = forumId,
+        forumName = forumName,
+        isShareThread = false,
+        author = ThreadUser(
+            id = authorId,
+            name = authorName.orEmpty(),
+            nameShow = authorNameShow,
+            portrait = authorPortrait,
+        ),
+        agree = ThreadAgree(
+            hasAgree = hasAgree,
+            agreeNum = agreeNum.toLong(),
+            diffAgreeNum = 0L,
+        ),
+        collectStatus = collectStatus,
+        collectMarkPid = collectMarkPid,
+        postIds = emptyList(),
+        originThread = null,
+    )
+
 fun ThreadCard.toThreadPreview(): ThreadPreview =
     ThreadPreview(
         threadId = threadId,

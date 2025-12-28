@@ -1,11 +1,12 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
+import com.huanchengfly.tieba.core.common.thread.ThreadDetail
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
-import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.models.PostEntity
 import com.huanchengfly.tieba.post.models.ThreadEntity
 import com.huanchengfly.tieba.post.models.ThreadMeta
+import com.huanchengfly.tieba.post.models.mappers.toThreadDetail
 
 object ThreadPageStateMapper {
     fun map(
@@ -17,7 +18,7 @@ object ThreadPageStateMapper {
         postEntities: List<PostEntity>
     ) {
         val effectiveThreadId = uiState.threadId.takeIf { it != 0L } ?: routeThreadId
-        val displayThread = repositoryThread?.proto?.wrapImmutable() ?: uiState.threadInfo
+        val displayThread = repositoryThread?.toThreadDetail()?.wrapImmutable() ?: uiState.threadDetail
         val threadMeta = repositoryThread?.meta
             ?: uiState.initMeta
             ?: buildThreadMetaFromThread(displayThread)
@@ -29,8 +30,13 @@ object ThreadPageStateMapper {
         val hasThreadAgreed = threadMeta.hasAgree == 1
         val threadAgreeNum = threadMeta.agreeNum
         val threadTitle = displayThread?.get { title } ?: uiState.title
-        val forumId = uiState.forum?.get { id } ?: routeForumId ?: state.curForumId
-        val forumName = uiState.forum?.get { name } ?: state.curForumName
+        val forumId = uiState.forum?.get { id }
+            ?: displayThread?.get { forumId }
+            ?: routeForumId
+            ?: state.curForumId
+        val forumName = uiState.forum?.get { name }
+            ?: displayThread?.get { forumName }
+            ?: state.curForumName
         val tbs = uiState.anti?.get { tbs }
         val isEmpty = uiState.data.isEmpty() && uiState.firstPost == null
 
@@ -72,12 +78,12 @@ object ThreadPageStateMapper {
         state.curTbs = tbs
     }
 
-    private fun buildThreadMetaFromThread(thread: ImmutableHolder<ThreadInfo>?): ThreadMeta {
+    private fun buildThreadMetaFromThread(thread: ImmutableHolder<ThreadDetail>?): ThreadMeta {
         if (thread == null) return ThreadMeta()
-        val agreeNum = thread.get { agreeNum } ?: 0
-        val hasAgree = thread.get { agree?.hasAgree } ?: 0
+        val agreeNum = thread.get { agree?.agreeNum?.toInt() ?: 0 } ?: 0
+        val hasAgree = thread.get { agree?.hasAgree ?: 0 } ?: 0
         val collectStatus = thread.get { collectStatus } ?: 0
-        val collectMarkPid = thread.get { collectMarkPid.toLongOrNull() ?: 0L } ?: 0L
+        val collectMarkPid = thread.get { collectMarkPid } ?: 0L
         return ThreadMeta(
             hasAgree = hasAgree,
             agreeNum = agreeNum,

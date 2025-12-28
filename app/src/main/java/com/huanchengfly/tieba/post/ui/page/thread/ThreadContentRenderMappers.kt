@@ -1,80 +1,44 @@
-package com.huanchengfly.tieba.post.api.models.protos
+package com.huanchengfly.tieba.post.ui.page.thread
 
 import android.util.Log
-import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
+import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.ui.text.font.FontWeight
+import com.huanchengfly.tieba.core.common.thread.ThreadContentItem
+import com.huanchengfly.tieba.core.common.thread.ThreadPost
+import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
+import com.huanchengfly.tieba.core.ui.photoview.LoadPicPageData
+import com.huanchengfly.tieba.core.ui.photoview.PhotoViewData
+import com.huanchengfly.tieba.core.ui.photoview.PicItem
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.BuildConfig
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.post.ui.common.PicContentRender
 import com.huanchengfly.tieba.post.ui.common.TextContentRender.Companion.appendText
 import com.huanchengfly.tieba.post.ui.common.VideoContentRender
 import com.huanchengfly.tieba.post.ui.common.VoiceContentRender
-import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
-import com.huanchengfly.tieba.post.ui.page.thread.SubPostItemData
-import com.huanchengfly.tieba.post.models.mappers.toThreadSubPost
-import com.huanchengfly.tieba.post.ui.page.thread.getContentText
-import com.huanchengfly.tieba.core.ui.photoview.LoadPicPageData
-import com.huanchengfly.tieba.core.ui.photoview.PhotoViewData
-import com.huanchengfly.tieba.core.ui.photoview.PicItem
 import com.huanchengfly.tieba.post.utils.EmoticonManager
 import com.huanchengfly.tieba.post.utils.EmoticonUtil.emoticonString
 import com.huanchengfly.tieba.post.utils.ImageUtil
 import com.huanchengfly.tieba.post.utils.StringUtil
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
-val List<Abstract>.abstractText: String
-    get() = joinToString(separator = "") {
-        when (it.type) {
-            0 -> it.text.replace(Regex(" {2,}"), " ")
-            4 -> it.text
+private const val DEFAULT_VIDEO_WIDTH = 16
+private const val DEFAULT_VIDEO_HEIGHT = 9
 
-            else -> ""
-        }
-    }
+private val VIDEO_STREAM_HINTS = listOf(".mp4", ".m3u8", ".mpd", ".flv", ".mov")
+private val IMAGE_HINTS = listOf(".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp")
 
-@OptIn(ExperimentalTextApi::class)
-val ThreadInfo.abstractText: String
-    get() = richAbstract.joinToString(separator = "") {
-        when (it.type) {
-            0,40 -> it.text.replace(Regex(" {2,}"), " ")
-            2 -> {
-                EmoticonManager.registerEmoticon(it.text, it.c)
-                "#(${it.c})"
-            }
-            else -> ""
-        }
-    }
-
-val PostInfoList.abstractText: String
-    get() = rich_abstract.joinToString(separator = "") {
-        when (it.type) {
-            0 -> it.text.replace(Regex(" {2,}"), " ")
-            2 -> {
-                EmoticonManager.registerEmoticon(it.text, it.c)
-                "#(${it.c})"
-            }
-
-            else -> ""
-        }
-    }
-
-val ThreadInfo.hasAbstract: Boolean
-    get() = richAbstract.any { (it.type == 0 && it.text.isNotBlank()) || it.type == 2 }
-
-
-private val PbContent.picUrl: String
+private val ThreadContentItem.picUrl: String
     get() =
         ImageUtil.getUrl(
             App.INSTANCE,
@@ -82,13 +46,13 @@ private val PbContent.picUrl: String
             originSrc,
             bigCdnSrc,
             bigSrc,
-            dynamic_,
+            dynamicUrl,
             cdnSrc,
             cdnSrcActive,
             src
         )
 
-private fun PbContent.parseMediaSize(): Pair<Int, Int> {
+private fun ThreadContentItem.parseMediaSize(): Pair<Int, Int> {
     val parts = bsize.split(",")
     val parsedWidth = parts.getOrNull(0)?.toIntOrNull()
     val parsedHeight = parts.getOrNull(1)?.toIntOrNull()
@@ -123,20 +87,13 @@ private fun String?.isLikelyImageUrl(): Boolean {
     return IMAGE_HINTS.any { normalized.contains(it) }
 }
 
-private const val DEFAULT_VIDEO_WIDTH = 16
-private const val DEFAULT_VIDEO_HEIGHT = 9
-
-private val VIDEO_STREAM_HINTS = listOf(".mp4", ".m3u8", ".mpd", ".flv", ".mov")
-private val IMAGE_HINTS = listOf(".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp")
-
-val List<PbContent>.plainText: String
+val List<ThreadContentItem>.plainText: String
     get() = renders.joinToString("\n") { it.toString() }
 
 @OptIn(ExperimentalTextApi::class)
-val List<PbContent>.renders: ImmutableList<PbContentRender>
+val List<ThreadContentItem>.renders: ImmutableList<PbContentRender>
     get() {
         val renders = mutableListOf<PbContentRender>()
-
         forEach {
             when (it.type) {
                 0, 9, 27, 35, 40 -> {
@@ -171,8 +128,7 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
                 }
 
                 3 -> {
-                    val width = it.bsize.split(",")[0].toInt()
-                    val height = it.bsize.split(",")[1].toInt()
+                    val (width, height) = it.parseMediaSize()
                     renders.add(
                         PicContentRender(
                             picUrl = it.picUrl,
@@ -189,13 +145,13 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
                 4 -> {
                     val text = buildAnnotatedString {
                         withAnnotation(tag = "user", annotation = "${it.uid}") {
-                                withStyle(
-                                    SpanStyle(
-                                        color = Color(
-                                            ThemeColorResolver.primaryColor(App.INSTANCE)
-                                        )
+                            withStyle(
+                                SpanStyle(
+                                    color = Color(
+                                        ThemeColorResolver.primaryColor(App.INSTANCE)
                                     )
-                                ) {
+                                )
+                            ) {
                                 append(it.text)
                             }
                         }
@@ -206,7 +162,7 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
                 5 -> {
                     val candidateVideoUrls = sequenceOf(
                         it.link,
-                        it.dynamic_,
+                        it.dynamicUrl,
                         it.originSrc,
                         it.cdnSrcActive,
                         it.cdnSrc,
@@ -219,7 +175,7 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
                     if (BuildConfig.DEBUG) {
                         Log.d(
                             "ThreadVideo",
-                            "Parsed video candidate -> url=" + (videoUrl ?: "null") + ", link=" + it.link + ", src=" + it.src + ", dynamic=" + it.dynamic_ + ", origin=" + it.originSrc
+                            "Parsed video candidate -> url=" + (videoUrl ?: "null") + ", link=" + it.link + ", src=" + it.src + ", dynamic=" + it.dynamicUrl + ", origin=" + it.originSrc
                         )
                     }
 
@@ -271,12 +227,11 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
                 }
 
                 10 -> {
-                    renders.add(VoiceContentRender(it.voiceMD5, it.duringTime))
+                    renders.add(VoiceContentRender(it.voiceMd5, it.duringTime))
                 }
 
                 20 -> {
-                    val width = it.bsize.split(",")[0].toInt()
-                    val height = it.bsize.split(",")[1].toInt()
+                    val (width, height) = it.parseMediaSize()
                     renders.add(
                         PicContentRender(
                             picUrl = it.src,
@@ -295,10 +250,9 @@ val List<PbContent>.renders: ImmutableList<PbContentRender>
         return renders.toImmutableList()
     }
 
-val Post.contentRenders: ImmutableList<PbContentRender>
+val ThreadPost.contentRenders: ImmutableList<PbContentRender>
     get() {
         val renders = content.renders
-
         return renders.map {
             if (it is PicContentRender) {
                 it.copy(
@@ -316,7 +270,7 @@ val Post.contentRenders: ImmutableList<PbContentRender>
     }
 
 private fun getPhotoViewData(
-    post: Post,
+    post: ThreadPost,
     picId: String,
     picUrl: String,
     originUrl: String,
@@ -324,12 +278,12 @@ private fun getPhotoViewData(
     originSize: Int,
     seeLz: Boolean = false
 ): PhotoViewData? {
-    val forum = post.from_forum ?: return null
+    val forum = post.forum ?: return null
     return PhotoViewData(
         data = LoadPicPageData(
             forumId = forum.id,
             forumName = forum.name,
-            threadId = post.tid,
+            threadId = post.threadId,
             postId = post.id,
             objType = "pb",
             picId = picId,
@@ -337,7 +291,7 @@ private fun getPhotoViewData(
             seeLz = seeLz,
             originUrl = originUrl,
         ),
-        picItems = persistentListOf(
+        picItems = listOf(
             PicItem(
                 picId = picId,
                 picIndex = 1,
@@ -347,33 +301,14 @@ private fun getPhotoViewData(
                 originSize = originSize,
                 postId = post.id
             )
-        )
+        ).toImmutableList()
     )
 }
 
-val User.bawuType: String?
-    get() = if (is_bawu == 1) {
-        if (bawu_type == "manager") "吧主" else "小吧主"
-    } else null
-
-val Post.subPostContents: ImmutableList<AnnotatedString>
-    get() = sub_post_list?.sub_post_list?.map { it.getContentText(origin_thread_info?.author?.id) }
-        ?.toImmutableList()
-        ?: persistentListOf()
-
-val Post.subPosts: ImmutableList<SubPostItemData>
-    get() = sub_post_list?.sub_post_list?.map {
-        val subPost = it.toThreadSubPost()
-        SubPostItemData(
-            subPost.wrapImmutable(),
-            subPost.getContentText(origin_thread_info?.author?.id)
-        )
-    }?.toImmutableList() ?: persistentListOf()
-
 @OptIn(ExperimentalTextApi::class)
-fun SubPostList.getContentText(threadAuthorId: Long? = null): AnnotatedString {
+fun ThreadSubPost.getContentText(threadAuthorId: Long? = null): AnnotatedString {
     val context = App.INSTANCE
-val accentColor = Color(ThemeColorResolver.primaryColor(context))
+    val accentColor = Color(ThemeColorResolver.primaryColor(context))
 
     val userNameString = buildAnnotatedString {
         withAnnotation("user", "${author?.id}") {
@@ -399,6 +334,5 @@ val accentColor = Color(ThemeColorResolver.primaryColor(context))
     }
 
     val contentStrings = content.renders.map { it.toAnnotationString() }
-
-    return userNameString + contentStrings.reduce { acc, annotatedString -> acc + annotatedString }
+    return contentStrings.fold(userNameString) { acc, annotatedString -> acc + annotatedString }
 }

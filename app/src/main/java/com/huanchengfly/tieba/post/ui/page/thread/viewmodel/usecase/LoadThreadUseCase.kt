@@ -1,13 +1,11 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
-import com.huanchengfly.tieba.core.mvi.wrapImmutable
-import com.huanchengfly.tieba.post.api.models.protos.Post
-import com.huanchengfly.tieba.post.api.models.protos.User
-import com.huanchengfly.tieba.post.api.models.protos.renders
-import com.huanchengfly.tieba.post.api.models.protos.contentRenders
-import com.huanchengfly.tieba.post.api.models.protos.pbPage.PbPageResponse
-import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
-import com.huanchengfly.tieba.post.models.mappers.ThreadMapper
+import com.huanchengfly.tieba.core.common.thread.ThreadUser
+import com.huanchengfly.tieba.post.models.mappers.toThreadAnti
+import com.huanchengfly.tieba.post.models.mappers.toThreadDetail
+import com.huanchengfly.tieba.post.models.mappers.toThreadForum
+import com.huanchengfly.tieba.post.models.mappers.toThreadPost
+import com.huanchengfly.tieba.post.models.mappers.toThreadUser
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.ThreadPageFrom
 import com.huanchengfly.tieba.post.ui.page.thread.mapper.ThreadPostMapper
@@ -27,14 +25,21 @@ class ThreadInitUseCase @Inject constructor() : ThreadIntentUseCase<ThreadUiInte
         flow<ThreadPartialChange> {
             emit(
                 ThreadPartialChange.Init.Success(
-                    intent.threadInfo?.title.orEmpty(),
-                    intent.threadInfo?.author,
-                    intent.threadInfo,
-                    intent.threadInfo?.firstPostContent?.renders ?: emptyList(),
+                    intent.threadDetail?.title.orEmpty(),
+                    intent.threadDetail?.author,
+                    intent.threadDetail,
+                    emptyList(),
                     intent.postId,
                     intent.seeLz,
                     intent.sortType,
-                    sanitizedMeta = intent.threadInfo?.let { ThreadMapper.fromProto(it).meta }
+                    sanitizedMeta = intent.threadDetail?.let {
+                        com.huanchengfly.tieba.post.models.ThreadMeta(
+                            hasAgree = it.agree?.hasAgree ?: 0,
+                            agreeNum = it.agree?.agreeNum?.toInt() ?: 0,
+                            collectStatus = it.collectStatus,
+                            collectMarkPid = it.collectMarkPid
+                        )
+                    }
                 )
             )
         }.catch { emit(ThreadPartialChange.Init.Failure(it)) }
@@ -54,30 +59,34 @@ class LoadThreadUseCase @Inject constructor(
             intent.sortType,
             from = intent.from.takeIf { it == ThreadPageFrom.FROM_STORE }.orEmpty()
         )
-            .map<PbPageResponse, ThreadPartialChange> { response ->
-                val data = response.data_ ?: throw TiebaUnknownException
-                val page = data.page ?: throw TiebaUnknownException
-                val thread = data.thread ?: throw TiebaUnknownException
-                val author = thread.author ?: throw TiebaUnknownException
-                val forum = data.forum ?: throw TiebaUnknownException
-                val anti = data.anti ?: throw TiebaUnknownException
+            .map { response ->
+                val data = requireNotNull(response.data_) { "pbPage data is null" }
+                val page = requireNotNull(data.page) { "pbPage page is null" }
+                val thread = requireNotNull(data.thread) { "pbPage thread is null" }
+                val author = requireNotNull(thread.author) { "pbPage author is null" }
+                val forum = requireNotNull(data.forum) { "pbPage forum is null" }
+                val anti = requireNotNull(data.anti) { "pbPage anti is null" }
                 val postList = data.post_list
-                val firstPost = data.first_floor_post
+                val firstPost = data.first_floor_post?.toThreadPost()
                 val notFirstPosts = postList.filterNot { it.floor == 1 }
+                    .map { it.toThreadPost() }
                 val allPosts = listOfNotNull(firstPost) + notFirstPosts
+                val threadDetail = thread.toThreadDetail()
+                val currentUser = data.user?.toThreadUser() ?: ThreadUser()
+                val threadAuthorId = threadDetail.author?.id
                 ThreadPartialChange.Load.Success(
                     thread.title,
-                    author,
-                    data.user ?: User(),
+                    author.toThreadUser(),
+                    currentUser,
                     firstPost,
-                    ThreadPostMapper.mapPosts(notFirstPosts),
-                    thread,
-                    forum,
-                    anti,
+                    ThreadPostMapper.mapPosts(notFirstPosts, threadAuthorId),
+                    threadDetail,
+                    forum.toThreadForum(),
+                    anti.toThreadAnti(),
                     page.current_page,
                     page.new_total_page,
                     page.has_more != 0,
-                    thread.nextPagePostId(
+                    threadDetail.nextPagePostId(
                         postList.map { it.id },
                         intent.sortType
                     ),
@@ -88,7 +97,7 @@ class LoadThreadUseCase @Inject constructor(
                     intent.sortType,
                     threadId = intent.threadId,
                     postIds = allPosts.map { it.id }.toImmutableList(),
-                )
+                ) as ThreadPartialChange
             }
             .onStart { emit(ThreadPartialChange.Load.Start) }
             .catch { emit(ThreadPartialChange.Load.Failure(it)) }

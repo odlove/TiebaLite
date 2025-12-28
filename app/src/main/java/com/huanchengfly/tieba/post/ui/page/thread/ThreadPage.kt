@@ -83,8 +83,6 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.BlockableContent
 import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.protos.Post
-import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.models.PostEntity
 import com.huanchengfly.tieba.post.models.ThreadHistoryInfoBean
 import com.huanchengfly.tieba.post.models.ThreadMeta

@@ -222,8 +222,8 @@ fun rememberSubPostsCallbacks(
     return remember(viewModel, navigator, forumId, threadId, postId, onNavigateUp, onReply, onShowDeleteDialog) {
         SubPostsCallbacks(
             onBack = onNavigateUp,
-            onUserClick = { user ->
-                navigator.navigate(UserProfilePageDestination(user.id))
+            onUserClick = { userId ->
+                navigator.navigate(UserProfilePageDestination(userId))
             },
             onReplyClick = onReply,
             onAgree = { subPost ->

@@ -1,10 +1,9 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
-import com.huanchengfly.tieba.post.api.models.AgreeBean
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.common.repository.UserInteractionFacade
+import com.huanchengfly.tieba.core.network.error.getErrorCode
+import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.post.repository.PbPageRepository
-import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +13,7 @@ import kotlinx.coroutines.flow.onStart
 
 @ViewModelScoped
 class AgreeThreadUseCase @Inject constructor(
-    private val userInteractionRepository: UserInteractionRepository,
+    private val userInteractionRepository: UserInteractionFacade,
     private val pbPageRepository: PbPageRepository
 ) : ThreadIntentUseCase<ThreadUiIntent.AgreeThread> {
     override fun execute(intent: ThreadUiIntent.AgreeThread): Flow<ThreadPartialChange> {
@@ -27,9 +26,7 @@ class AgreeThreadUseCase @Inject constructor(
                 hasAgree = if (intent.agree) 0 else 1,
                 objType = 3
             )
-            .map<AgreeBean, ThreadPartialChange.AgreeThread> {
-                ThreadPartialChange.AgreeThread.Success(intent.agree)
-            }
+            .map { ThreadPartialChange.AgreeThread.Success(intent.agree) as ThreadPartialChange }
             .catch {
                 pbPageRepository.updateThreadMeta(intent.threadId) { meta ->
                     meta.copy(
@@ -64,7 +61,7 @@ class AgreeThreadUseCase @Inject constructor(
 
 @ViewModelScoped
 class AgreePostUseCase @Inject constructor(
-    private val userInteractionRepository: UserInteractionRepository,
+    private val userInteractionRepository: UserInteractionFacade,
     private val pbPageRepository: PbPageRepository
 ) : ThreadIntentUseCase<ThreadUiIntent.AgreePost> {
     override fun execute(intent: ThreadUiIntent.AgreePost): Flow<ThreadPartialChange> {
@@ -77,9 +74,7 @@ class AgreePostUseCase @Inject constructor(
                 hasAgree = if (intent.agree) 0 else 1,
                 objType = 1
             )
-            .map<AgreeBean, ThreadPartialChange.AgreePost> {
-                ThreadPartialChange.AgreePost.Success(intent.postId, intent.agree)
-            }
+            .map { ThreadPartialChange.AgreePost.Success(intent.postId, intent.agree) as ThreadPartialChange }
             .catch {
                 pbPageRepository.updatePostMeta(intent.threadId, intent.postId) { meta ->
                     meta.copy(

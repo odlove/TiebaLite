@@ -53,7 +53,7 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.core.ui.widgets.compose.Button
 import com.huanchengfly.tieba.core.ui.widgets.compose.TipScreen
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.protos.Post
+import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import com.huanchengfly.tieba.post.ui.page.destinations.CopyTextDialogPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ReplyPageDestination
@@ -65,13 +65,8 @@ import com.huanchengfly.tieba.post.ui.page.thread.ThreadSortType
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadViewModel
 import com.huanchengfly.tieba.post.ui.page.thread.PostCard
 import com.huanchengfly.tieba.post.ui.page.thread.components.ThreadInfoHeader
-import com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo
 import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
 import com.huanchengfly.tieba.core.ui.widgets.compose.LoadMoreLayout
-import com.huanchengfly.tieba.core.common.feed.OriginThreadCard as OriginThreadCardModel
-import com.huanchengfly.tieba.core.common.feed.RichTextSegment
-import com.huanchengfly.tieba.core.common.feed.ThreadMediaItem
-import com.huanchengfly.tieba.core.common.feed.ThreadVideoInfo
 import com.huanchengfly.tieba.post.ui.widgets.compose.OriginThreadCard
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlin.math.max
@@ -86,7 +81,7 @@ fun ThreadPostList(
     forumId: Long?,
     lazyListState: LazyListState,
     pullRefreshState: PullRefreshState,
-    deletePostState: MutableState<ImmutableHolder<Post>?>,
+    deletePostState: MutableState<ImmutableHolder<ThreadPost>?>,
     confirmDeleteDialogState: DialogState,
     modifier: Modifier = Modifier
 ) {
@@ -156,43 +151,6 @@ fun ThreadPostList(
     }
 }
 
-private fun OriginThreadInfo.toOriginThreadCard(): OriginThreadCardModel {
-    val abstractSegments = _abstract.map {
-        RichTextSegment(
-            type = it.type,
-            text = it.text
-        )
-    }
-    val medias = media.map {
-        ThreadMediaItem(
-            originPic = it.originPic,
-            bigPic = it.bigPic,
-            dynamicPic = it.dynamicPic,
-            srcPic = it.srcPic,
-            postId = it.postId,
-            showOriginalBtn = it.showOriginalBtn,
-            originSize = it.originSize
-        )
-    }
-    val videoInfo = video_info?.let {
-        ThreadVideoInfo(
-            videoUrl = it.videoUrl,
-            thumbnailUrl = it.thumbnailUrl,
-            thumbnailWidth = it.thumbnailWidth,
-            thumbnailHeight = it.thumbnailHeight
-        )
-    }
-    return OriginThreadCardModel(
-        threadId = tid.toLongOrNull() ?: 0L,
-        forumId = fid,
-        forumName = fname,
-        title = title,
-        abstractSegments = abstractSegments,
-        medias = medias,
-        videoInfo = videoInfo
-    )
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 private fun LazyListScope.threadListContent(
     pageState: ThreadPageState,
@@ -200,7 +158,7 @@ private fun LazyListScope.threadListContent(
     actions: ThreadPageActions,
     viewModel: ThreadViewModel,
     forumId: Long?,
-    deletePostState: MutableState<ImmutableHolder<Post>?>,
+    deletePostState: MutableState<ImmutableHolder<ThreadPost>?>,
     confirmDeleteDialogState: DialogState,
     lazyListState: LazyListState,
 ) {
@@ -208,7 +166,7 @@ private fun LazyListScope.threadListContent(
     val authorId = pageState.author?.get { id } ?: 0L
     val curUserId = pageState.user.get { id }
 
-    fun onDeleteRequest(post: ImmutableHolder<Post>) {
+    fun onDeleteRequest(post: ImmutableHolder<ThreadPost>) {
         deletePostState.value = post
         confirmDeleteDialogState.show()
     }
@@ -225,7 +183,7 @@ private fun LazyListScope.threadListContent(
                         threadAuthorId = authorId,
                         postEntities = pageState.postEntities,
                         immersiveMode = pageState.isImmersiveMode,
-                        canDelete = { it.author_id == curUserId },
+                        canDelete = { it.authorId == curUserId },
                         isCollected = { pageState.threadMeta.collectStatus == 1 && it.id == pageState.threadMeta.collectMarkPid },
                         showSubPosts = false,
                         onUserClick = { navigatorInstance.navigate(UserProfilePageDestination(it.id)) },
@@ -257,10 +215,10 @@ private fun LazyListScope.threadListContent(
                         }
                     )
 
-                    pageState.displayThread?.getNullableImmutable { origin_thread_info }
-                        .takeIf { pageState.displayThread?.get { is_share_thread } == 1 }
+                    pageState.displayThread?.getNullableImmutable { originThread }
+                        .takeIf { pageState.displayThread?.get { isShareThread } == true }
                         ?.let { originThreadInfo ->
-                            val originThreadId = originThreadInfo.get { tid }.toLongOrNull()
+                            val originThreadId = originThreadInfo.get { threadId }.takeIf { it != 0L }
                             var originThreadModifier = Modifier
                                 .padding(horizontal = 16.dp)
                                 .padding(bottom = 16.dp)
@@ -271,16 +229,14 @@ private fun LazyListScope.threadListContent(
                                     navigatorInstance.navigate(
                                         ThreadPageDestination(
                                             originThreadId,
-                                            forumId = originThreadInfo.get { fid }
+                                            forumId = originThreadInfo.get { forumId }
                                         )
                                     )
                                 }
                             }
 
                             OriginThreadCard(
-                                originThread = originThreadInfo.get { this }
-                                    .toOriginThreadCard()
-                                    .wrapImmutable(),
+                                originThread = originThreadInfo,
                                 modifier = originThreadModifier.padding(16.dp)
                             )
                         }
@@ -414,7 +370,7 @@ private fun LazyListScope.threadListContent(
                     blocked = item.blocked,
                     postEntities = pageState.postEntities,
                     immersiveMode = pageState.isImmersiveMode,
-                    canDelete = { it.author_id == curUserId },
+                    canDelete = { it.authorId == curUserId },
                     isCollected = { pageState.threadMeta.collectStatus == 1 && it.id == pageState.threadMeta.collectMarkPid },
                     onUserClick = { navigatorInstance.navigate(UserProfilePageDestination(it.id)) },
                     onAgree = {
@@ -433,7 +389,7 @@ private fun LazyListScope.threadListContent(
                                 forumName = pageState.curForumName.orEmpty(),
                                 threadId = pageState.threadId,
                                 postId = post.id,
-                                replyUserId = post.author?.id ?: post.author_id,
+                                replyUserId = post.author?.id ?: post.authorId,
                                 replyUserName = post.author?.nameShow.takeIf { !it.isNullOrEmpty() } ?: post.author?.name,
                                 replyUserPortrait = post.author?.portrait,
                             )
@@ -447,7 +403,7 @@ private fun LazyListScope.threadListContent(
                                 threadId = pageState.threadId,
                                 postId = post.id,
                                 subPostId = subPost.id,
-                                replyUserId = subPost.author?.id ?: subPost.author_id,
+                                replyUserId = subPost.author?.id ?: subPost.authorId,
                                 replyUserName = subPost.author?.nameShow.takeIf { !it.isNullOrEmpty() } ?: subPost.author?.name,
                                 replyUserPortrait = subPost.author?.portrait,
                             )
@@ -515,7 +471,7 @@ private fun LazyListScope.latestPostsSection(
     actions: ThreadPageActions,
     navigator: DestinationsNavigator,
     viewModel: ThreadViewModel,
-    deletePostState: MutableState<ImmutableHolder<Post>?>,
+    deletePostState: MutableState<ImmutableHolder<ThreadPost>?>,
     confirmDeleteDialogState: DialogState,
 ) {
     if (pageState.latestPosts.isEmpty()) return
@@ -545,7 +501,7 @@ private fun LazyListScope.latestPostsSection(
                 blocked = item.blocked,
                 postEntities = pageState.postEntities,
                 immersiveMode = pageState.isImmersiveMode,
-                canDelete = { it.author_id == pageState.user.get { id } },
+                canDelete = { it.authorId == pageState.user.get { id } },
                 isCollected = { pageState.threadMeta.collectStatus == 1 && it.id == pageState.threadMeta.collectMarkPid },
                 onUserClick = { navigator.navigate(UserProfilePageDestination(it.id)) },
                 onAgree = {
@@ -564,7 +520,7 @@ private fun LazyListScope.latestPostsSection(
                             forumName = pageState.curForumName.orEmpty(),
                             threadId = pageState.threadId,
                             postId = targetPost.id,
-                            replyUserId = targetPost.author?.id ?: targetPost.author_id,
+                            replyUserId = targetPost.author?.id ?: targetPost.authorId,
                             replyUserName = targetPost.author?.nameShow.takeIf { !it.isNullOrEmpty() } ?: targetPost.author?.name,
                             replyUserPortrait = targetPost.author?.portrait,
                         )
@@ -578,7 +534,7 @@ private fun LazyListScope.latestPostsSection(
                             threadId = pageState.threadId,
                             postId = parent.id,
                             subPostId = subPost.id,
-                            replyUserId = subPost.author?.id ?: subPost.author_id,
+                            replyUserId = subPost.author?.id ?: subPost.authorId,
                             replyUserName = subPost.author?.nameShow.takeIf { !it.isNullOrEmpty() } ?: subPost.author?.name,
                             replyUserPortrait = subPost.author?.portrait,
                         )

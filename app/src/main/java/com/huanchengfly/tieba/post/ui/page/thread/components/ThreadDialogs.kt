@@ -7,7 +7,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.protos.Post
+import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageActions
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageState
 import com.huanchengfly.tieba.core.ui.widgets.compose.ConfirmDialog
@@ -47,7 +47,7 @@ fun ThreadCollectMarkDialog(
 fun ThreadDeleteDialog(
     dialogState: DialogState,
     pageState: ThreadPageState,
-    deletePostState: MutableState<ImmutableHolder<Post>?>,
+    deletePostState: MutableState<ImmutableHolder<ThreadPost>?>,
     actions: ThreadPageActions
 ) {
     ConfirmDialog(
@@ -65,7 +65,7 @@ fun ThreadDeleteDialog(
                     tbs = pageState.curTbs
                 )
             } else {
-                val isSelfPost = deletePost.get { author_id } == pageState.user.get { id }
+                val isSelfPost = deletePost.get { authorId } == pageState.user.get { id }
                 actions.deletePost(
                     forumId = forumIdValue,
                     forumName = pageState.curForumName.orEmpty(),

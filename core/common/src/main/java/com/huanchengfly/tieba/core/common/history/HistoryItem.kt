@@ -9,4 +9,5 @@ data class HistoryItem(
     val extras: String? = null,
     val avatar: String? = null,
     val username: String? = null,
+    val id: Long = 0L,
 )

@@ -88,7 +88,6 @@ import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.models.PostEntity
 import com.huanchengfly.tieba.post.models.ThreadHistoryInfoBean
 import com.huanchengfly.tieba.post.models.ThreadMeta
-import com.huanchengfly.tieba.post.models.database.History
 import com.huanchengfly.tieba.post.repository.ThreadPageFrom
 import com.huanchengfly.tieba.post.toJson
 import com.huanchengfly.tieba.post.toastShort
@@ -108,9 +107,10 @@ import com.huanchengfly.tieba.post.ui.page.thread.components.ThreadJumpToPageDia
 import com.huanchengfly.tieba.post.ui.page.thread.components.ThreadMenuSheetContent
 import com.huanchengfly.tieba.post.ui.page.thread.components.ThreadPageTopBar
 import com.huanchengfly.tieba.post.ui.page.thread.components.ThreadPostList
-import com.huanchengfly.tieba.post.utils.HistoryUtil
 import com.huanchengfly.tieba.post.utils.StringUtil
 import com.huanchengfly.tieba.core.common.utils.getShortNumString
+import com.huanchengfly.tieba.post.di.entrypoints.HistoryRepositoryEntryPoint
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlin.math.max
@@ -188,6 +188,12 @@ fun ThreadPageLayout(
     }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val historyRepository = remember(context) {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            HistoryRepositoryEntryPoint::class.java
+        ).historyRepository()
+    }
     val openBottomSheet = {
         coroutineScope.launch {
             bottomSheetState.show()
@@ -317,6 +323,7 @@ fun ThreadPageLayout(
     }
 
     rememberThreadHistorySaver(
+        historyRepository = historyRepository,
         routeThreadId = threadId,
         pageState = pageState,
         lastVisibilityPostId = lastVisibilityPostId,

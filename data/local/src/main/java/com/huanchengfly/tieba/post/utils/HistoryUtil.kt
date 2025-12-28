@@ -1,5 +1,6 @@
 package com.huanchengfly.tieba.post.utils
 
+import com.huanchengfly.tieba.core.common.history.HistoryRepository
 import com.huanchengfly.tieba.post.models.database.History
 import com.huanchengfly.tieba.post.utils.extension.findFlow
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +12,6 @@ import org.litepal.extension.findAsync
 import org.litepal.extension.findFirstAsync
 
 object HistoryUtil {
-    const val PAGE_SIZE = 100
     const val TYPE_FORUM = 1
     const val TYPE_THREAD = 2
     fun deleteAll() {
@@ -28,17 +28,19 @@ object HistoryUtil {
     }
 
     val all: List<History>
-        get() = LitePal.order("timestamp desc, count desc").limit(100).find<History>()
+        get() = LitePal.order("timestamp desc, count desc")
+            .limit(HistoryRepository.PAGE_SIZE)
+            .find<History>()
 
     fun getAll(type: Int): List<History> {
         return LitePal.order("timestamp desc, count desc").where("type = ?", type.toString())
-            .limit(PAGE_SIZE)
+            .limit(HistoryRepository.PAGE_SIZE)
             .find<History>()
     }
 
     fun getAllAsync(type: Int): FindMultiExecutor<History> {
         return LitePal.order("timestamp desc, count desc").where("type = ?", type.toString())
-            .limit(PAGE_SIZE)
+            .limit(HistoryRepository.PAGE_SIZE)
             .findAsync<History>()
     }
 
@@ -48,8 +50,8 @@ object HistoryUtil {
     ): Flow<List<History>> {
         return LitePal.where("type = ?", "$type")
             .order("timestamp desc, count desc")
-            .limit(PAGE_SIZE)
-            .offset(page * 100)
+            .limit(HistoryRepository.PAGE_SIZE)
+            .offset(page * HistoryRepository.PAGE_SIZE)
             .findFlow()
     }
 

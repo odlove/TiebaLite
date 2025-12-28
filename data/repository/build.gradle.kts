@@ -32,7 +32,7 @@ dependencies {
     implementation(project(":core:mvi"))
     implementation(project(":core:network"))
     implementation(project(":core:runtime"))
-    implementation(project(":data:remote"))
+    api(project(":data:remote"))
     implementation(project(":data:local"))
 
     implementation(libs.kotlinx.coroutines.core)

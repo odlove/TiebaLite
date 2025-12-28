@@ -93,7 +93,8 @@ import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.dataStore
 import com.huanchengfly.tieba.post.getInt
 import com.huanchengfly.tieba.post.models.ForumHistoryExtra
-import com.huanchengfly.tieba.post.models.database.History
+import com.huanchengfly.tieba.core.common.history.HistoryItem
+import com.huanchengfly.tieba.core.common.history.HistoryRepository
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabSelectedColor
@@ -128,7 +129,7 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
-import com.huanchengfly.tieba.post.utils.HistoryUtil
+import com.huanchengfly.tieba.post.di.entrypoints.HistoryRepositoryEntryPoint
 import com.huanchengfly.tieba.core.common.utils.getShortNumString
 import com.huanchengfly.tieba.post.utils.TiebaUtil
 import com.huanchengfly.tieba.post.preferences.appPreferences
@@ -136,6 +137,7 @@ import com.huanchengfly.tieba.post.utils.requestPinShortcut
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -476,16 +478,22 @@ fun ForumPage(
     }
 
     val unlikeDialogState = rememberDialogState()
+    val historyRepository = remember(context) {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            HistoryRepositoryEntryPoint::class.java
+        ).historyRepository()
+    }
 
     LaunchedEffect(forumInfo) {
         if (forumInfo != null) {
             val (forum) = forumInfo as ImmutableHolder<ForumInfo>
-            HistoryUtil.saveHistory(
-                History(
+            historyRepository.saveHistory(
+                HistoryItem(
                     title = context.getString(R.string.title_forum, forum.name),
                     timestamp = System.currentTimeMillis(),
                     avatar = forum.avatar,
-                    type = HistoryUtil.TYPE_FORUM,
+                    type = HistoryRepository.TYPE_FORUM,
                     data = forum.name,
                     extras = Json.encodeToString(ForumHistoryExtra(forum.id))
                 ),

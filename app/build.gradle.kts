@@ -228,9 +228,7 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:runtime"))
     implementation(project(":core:ui"))
-    implementation(project(":data:remote"))
     implementation(project(":data:repository"))
-    implementation(project(":data:local"))
     implementation(project(":feature:home"))
 
     //Local Files

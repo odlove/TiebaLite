@@ -26,7 +26,8 @@ import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.fromJson
 import com.huanchengfly.tieba.post.models.ThreadHistoryInfoBean
-import com.huanchengfly.tieba.post.models.database.History
+import com.huanchengfly.tieba.core.common.history.HistoryItem
+import com.huanchengfly.tieba.core.common.history.HistoryRepository
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
@@ -44,13 +45,12 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.core.ui.widgets.compose.UserHeader
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.core.common.utils.DateTimeUtils
-import com.huanchengfly.tieba.post.utils.HistoryUtil
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HistoryListPage(
     type: Int,
-    viewModel: HistoryListViewModel = if (type == HistoryUtil.TYPE_THREAD) pageViewModel<ThreadHistoryListViewModel>() else pageViewModel<ForumHistoryListViewModel>()
+    viewModel: HistoryListViewModel = if (type == HistoryRepository.TYPE_THREAD) pageViewModel<ThreadHistoryListViewModel>() else pageViewModel<ForumHistoryListViewModel>()
 ) {
     LazyLoad(loaded = viewModel.initialized) {
         viewModel.send(HistoryListUiIntent.Refresh)
@@ -129,18 +129,18 @@ fun HistoryListPage(
                         items = todayHistoryData,
                         key = { it.id }
                     ) { info ->
-                        HistoryItem(
+                        HistoryListItem(
                             info,
                             onDelete = {
                                 viewModel.send(HistoryListUiIntent.Delete(it.id))
                             },
                             onClick = {
                                 when (it.type) {
-                                    HistoryUtil.TYPE_FORUM -> {
+                                    HistoryRepository.TYPE_FORUM -> {
                                         navigator.navigate(ForumPageDestination(it.data))
                                     }
 
-                                    HistoryUtil.TYPE_THREAD -> {
+                                    HistoryRepository.TYPE_THREAD -> {
                                         val extrasJson = it.extras
                                         val extra = extrasJson?.fromJson<ThreadHistoryInfoBean>()
                                         navigator.navigate(
@@ -172,18 +172,18 @@ fun HistoryListPage(
                         items = beforeHistoryData,
                         key = { it.id }
                     ) { info ->
-                        HistoryItem(
+                        HistoryListItem(
                             info,
                             onDelete = {
                                 viewModel.send(HistoryListUiIntent.Delete(it.id))
                             },
                             onClick = {
                                 when (it.type) {
-                                    HistoryUtil.TYPE_FORUM -> {
+                                    HistoryRepository.TYPE_FORUM -> {
                                         navigator.navigate(ForumPageDestination(it.data))
                                     }
 
-                                    HistoryUtil.TYPE_THREAD -> {
+                                    HistoryRepository.TYPE_THREAD -> {
                                         val extrasJson = it.extras
                                         val extra = extrasJson?.fromJson<ThreadHistoryInfoBean>()
                                         navigator.navigate(
@@ -206,11 +206,11 @@ fun HistoryListPage(
 }
 
 @Composable
-private fun HistoryItem(
-    info: History,
+private fun HistoryListItem(
+    info: HistoryItem,
     modifier: Modifier = Modifier,
-    onClick: (History) -> Unit = {},
-    onDelete: (History) -> Unit = {},
+    onClick: (HistoryItem) -> Unit = {},
+    onDelete: (HistoryItem) -> Unit = {},
 ) {
     val menuState = rememberMenuState()
     LongClickMenu(
@@ -245,7 +245,7 @@ private fun HistoryItem(
                     },
                     name = {
                         Text(
-                            text = (if (info.type == HistoryUtil.TYPE_THREAD) info.username else info.title)
+                            text = (if (info.type == HistoryRepository.TYPE_THREAD) info.username else info.title)
                                 ?: ""
                         )
                     },
@@ -259,7 +259,7 @@ private fun HistoryItem(
                         color = ExtendedTheme.colors.text,
                     )
                 }
-                if (info.type == HistoryUtil.TYPE_THREAD) {
+                if (info.type == HistoryRepository.TYPE_THREAD) {
                     Text(
                         text = info.title,
                         fontSize = 15.sp,

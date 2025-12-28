@@ -18,6 +18,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,10 +44,12 @@ import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
 import com.huanchengfly.tieba.core.ui.compose.TabRow
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
-import com.huanchengfly.tieba.post.utils.HistoryUtil
+import com.huanchengfly.tieba.core.common.history.HistoryRepository
+import com.huanchengfly.tieba.post.di.entrypoints.HistoryRepositoryEntryPoint
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -65,6 +68,12 @@ fun HistoryPage(
     val globalEventBus = LocalGlobalEventBus.current
 
     val context = LocalContext.current
+    val historyRepository = remember(context) {
+        EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            HistoryRepositoryEntryPoint::class.java
+        ).historyRepository()
+    }
 
     SnackbarScaffold(
         backgroundColor = Color.Transparent,
@@ -92,7 +101,7 @@ fun HistoryPage(
                     actions = {
                         IconButton(onClick = {
                             coroutineScope.launch {
-                                HistoryUtil.deleteAll()
+                                historyRepository.deleteAll()
                                 globalEventBus.emitGlobalEvent(HistoryListUiEvent.DeleteAll)
                                 snackbarState.showSnackbar(
                                     context.getString(R.string.toast_clear_success)
@@ -168,9 +177,9 @@ fun HistoryPage(
                 userScrollEnabled = true,
             ) {
                 if (it == 0) {
-                    HistoryListPage(type = HistoryUtil.TYPE_THREAD)
+                    HistoryListPage(type = HistoryRepository.TYPE_THREAD)
                 } else {
-                    HistoryListPage(type = HistoryUtil.TYPE_FORUM)
+                    HistoryListPage(type = HistoryRepository.TYPE_FORUM)
                 }
             }
         }

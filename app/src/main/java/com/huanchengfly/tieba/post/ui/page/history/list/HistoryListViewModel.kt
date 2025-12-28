@@ -9,9 +9,9 @@ import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
 import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
-import com.huanchengfly.tieba.post.models.database.History
+import com.huanchengfly.tieba.core.common.history.HistoryItem
+import com.huanchengfly.tieba.core.common.history.HistoryRepository
 import com.huanchengfly.tieba.core.common.utils.DateTimeUtils
-import com.huanchengfly.tieba.post.utils.HistoryUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,12 +25,11 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
-import org.litepal.LitePal
-import org.litepal.extension.deleteAll
 import javax.inject.Inject
 
 abstract class HistoryListViewModel(
-    dispatcherProvider: DispatcherProvider
+    dispatcherProvider: DispatcherProvider,
+    protected val historyRepository: HistoryRepository
 ) :
     BaseViewModel<HistoryListUiIntent, HistoryListPartialChange, HistoryListUiState, HistoryListUiEvent>(dispatcherProvider) {
     override fun createInitialState(): HistoryListUiState = HistoryListUiState()
@@ -50,22 +49,27 @@ abstract class HistoryListViewModel(
 @Stable
 @HiltViewModel
 class ThreadHistoryListViewModel @Inject constructor(
-    dispatcherProvider: DispatcherProvider
-) : HistoryListViewModel(dispatcherProvider) {
+    dispatcherProvider: DispatcherProvider,
+    historyRepository: HistoryRepository
+) : HistoryListViewModel(dispatcherProvider, historyRepository) {
     override fun createPartialChangeProducer(): PartialChangeProducer<HistoryListUiIntent, HistoryListPartialChange, HistoryListUiState> =
-        HistoryListPartialChangeProducer(HistoryUtil.TYPE_THREAD)
+        HistoryListPartialChangeProducer(historyRepository, HistoryRepository.TYPE_THREAD)
 }
 
 @Stable
 @HiltViewModel
 class ForumHistoryListViewModel @Inject constructor(
-    dispatcherProvider: DispatcherProvider
-) : HistoryListViewModel(dispatcherProvider) {
+    dispatcherProvider: DispatcherProvider,
+    historyRepository: HistoryRepository
+) : HistoryListViewModel(dispatcherProvider, historyRepository) {
     override fun createPartialChangeProducer(): PartialChangeProducer<HistoryListUiIntent, HistoryListPartialChange, HistoryListUiState> =
-        HistoryListPartialChangeProducer(HistoryUtil.TYPE_FORUM)
+        HistoryListPartialChangeProducer(historyRepository, HistoryRepository.TYPE_FORUM)
 }
 
-private class HistoryListPartialChangeProducer(val type: Int) :
+private class HistoryListPartialChangeProducer(
+    private val historyRepository: HistoryRepository,
+    private val type: Int
+) :
     PartialChangeProducer<HistoryListUiIntent, HistoryListPartialChange, HistoryListUiState> {
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun toPartialChangeFlow(intentFlow: Flow<HistoryListUiIntent>): Flow<HistoryListPartialChange> =
@@ -83,23 +87,23 @@ private class HistoryListPartialChangeProducer(val type: Int) :
     private fun produceDeleteAllPartialChange() = flowOf(HistoryListPartialChange.DeleteAll)
 
     private fun produceRefreshPartialChange() =
-        HistoryUtil.getFlow(type, 0)
-            .map<List<History>, HistoryListPartialChange.Refresh> { histories ->
+        historyRepository.observe(type, 0)
+            .map<List<HistoryItem>, HistoryListPartialChange.Refresh> { histories ->
                 HistoryListPartialChange.Refresh.Success(
                     histories.filter { DateTimeUtils.isToday(it.timestamp) },
                     histories.filterNot { DateTimeUtils.isToday(it.timestamp) },
-                    histories.size == HistoryUtil.PAGE_SIZE,
+                    histories.size == HistoryRepository.PAGE_SIZE,
                 )
             }
             .catch { HistoryListPartialChange.Refresh.Failure(it) }
 
     private fun HistoryListUiIntent.LoadMore.producePartialChange() =
-        HistoryUtil.getFlow(type, page)
-            .map<List<History>, HistoryListPartialChange.LoadMore> { histories ->
+        historyRepository.observe(type, page)
+            .map<List<HistoryItem>, HistoryListPartialChange.LoadMore> { histories ->
                 HistoryListPartialChange.LoadMore.Success(
                     histories.filter { DateTimeUtils.isToday(it.timestamp) },
                     histories.filterNot { DateTimeUtils.isToday(it.timestamp) },
-                    histories.size == HistoryUtil.PAGE_SIZE,
+                    histories.size == HistoryRepository.PAGE_SIZE,
                     page
                 )
             }
@@ -107,10 +111,10 @@ private class HistoryListPartialChangeProducer(val type: Int) :
             .catch { HistoryListPartialChange.LoadMore.Failure(it) }
 
     private fun HistoryListUiIntent.Delete.producePartialChange() =
-        flow { emit(LitePal.deleteAll<History>("id = ?", "$id")) }
+        flow { emit(historyRepository.delete(id)) }
             .flowOn(Dispatchers.IO)
             .map {
-                if (it > 0) HistoryListPartialChange.Delete.Success(id)
+                if (it) HistoryListPartialChange.Delete.Success(id)
                 else HistoryListPartialChange.Delete.Failure(IllegalStateException("未知错误"))
             }
             .catch { emit(HistoryListPartialChange.Delete.Failure(it)) }
@@ -150,8 +154,8 @@ sealed interface HistoryListPartialChange : PartialChange<HistoryListUiState> {
         }
 
         data class Success(
-            val todayHistoryData: List<History>,
-            val beforeHistoryData: List<History>,
+            val todayHistoryData: List<HistoryItem>,
+            val beforeHistoryData: List<HistoryItem>,
             val hasMore: Boolean
         ) : Refresh()
 
@@ -176,8 +180,8 @@ sealed interface HistoryListPartialChange : PartialChange<HistoryListUiState> {
         object Start : LoadMore()
 
         data class Success(
-            val todayHistoryData: List<History>,
-            val beforeHistoryData: List<History>,
+            val todayHistoryData: List<HistoryItem>,
+            val beforeHistoryData: List<HistoryItem>,
             val hasMore: Boolean,
             val currentPage: Int
         ) : LoadMore()
@@ -210,8 +214,8 @@ data class HistoryListUiState(
     val isLoadingMore: Boolean = false,
     val hasMore: Boolean = true,
     val currentPage: Int = 0,
-    val todayHistoryData: List<History> = emptyList(),
-    val beforeHistoryData: List<History> = emptyList(),
+    val todayHistoryData: List<HistoryItem> = emptyList(),
+    val beforeHistoryData: List<HistoryItem> = emptyList(),
 ) : UiState
 
 sealed interface HistoryListUiEvent : UiEvent {

@@ -8,11 +8,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.huanchengfly.tieba.core.common.history.HistoryItem
+import com.huanchengfly.tieba.core.common.history.HistoryRepository
 import com.huanchengfly.tieba.post.models.PostEntity
 import com.huanchengfly.tieba.post.models.ThreadEntity
 import com.huanchengfly.tieba.post.models.ThreadHistoryInfoBean
-import com.huanchengfly.tieba.post.models.database.History
-import com.huanchengfly.tieba.post.utils.HistoryUtil
 import com.huanchengfly.tieba.post.utils.StringUtil
 import com.huanchengfly.tieba.post.toJson
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
@@ -64,6 +64,7 @@ fun rememberThreadFeeds(
 
 @Composable
 fun rememberThreadHistorySaver(
+    historyRepository: HistoryRepository,
     routeThreadId: Long,
     pageState: ThreadPageState,
     lastVisibilityPostId: Long,
@@ -89,10 +90,10 @@ fun rememberThreadHistorySaver(
 
         delay(HISTORY_SAVE_DEBOUNCE_MS)
 
-        val history = History(
+        val history = HistoryItem(
             title = pageState.threadTitle,
             data = effectiveThreadId.toString(),
-            type = HistoryUtil.TYPE_THREAD,
+            type = HistoryRepository.TYPE_THREAD,
             extras = ThreadHistoryInfoBean(
                 isSeeLz = pageState.isSeeLz,
                 pid = lastVisibilityPostId.takeIf { it != 0L }?.toString(),
@@ -106,7 +107,7 @@ fun rememberThreadHistorySaver(
 
         try {
             withContext(Dispatchers.IO) {
-                HistoryUtil.saveHistory(history, async = false)
+                historyRepository.saveHistory(history, async = false)
             }
             savedHistory = true
             lastSavedPostId = lastVisibilityPostId

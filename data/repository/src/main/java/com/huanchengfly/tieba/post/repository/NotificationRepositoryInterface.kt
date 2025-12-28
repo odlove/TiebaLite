@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.models.MessageListBean
+import com.huanchengfly.tieba.core.common.notification.NotificationPage
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -15,7 +15,7 @@ interface NotificationRepository {
      * @param page 页码（默认为1）
      * @return 回复我的消息数据流
      */
-    fun replyMe(page: Int = 1): Flow<MessageListBean>
+    fun replyMe(page: Int = 1): Flow<NotificationPage>
 
     /**
      * 获取@我的消息列表
@@ -23,5 +23,5 @@ interface NotificationRepository {
      * @param page 页码（默认为1）
      * @return @我的消息数据流
      */
-    fun atMe(page: Int = 1): Flow<MessageListBean>
+    fun atMe(page: Int = 1): Flow<NotificationPage>
 }

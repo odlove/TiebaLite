@@ -1,10 +1,9 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.core.common.forum.ForumLikeResult
 import com.huanchengfly.tieba.core.common.forum.ForumSignResult
 import com.huanchengfly.tieba.core.network.model.CommonResponse
-import com.huanchengfly.tieba.post.api.models.protos.userLike.UserLikeResponse
+import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.models.mappers.toForumLikeResult
 import com.huanchengfly.tieba.post.models.mappers.toForumSignResult
 import kotlinx.coroutines.flow.Flow
@@ -42,10 +41,4 @@ class ForumOperationRepositoryImpl @Inject constructor(
     ): Flow<CommonResponse> =
         api.unlikeForumFlow(forumId, forumName, tbs)
 
-    override fun userLike(
-        pageTag: String,
-        lastRequestUnix: Long,
-        loadType: Int
-    ): Flow<UserLikeResponse> =
-        api.userLikeFlow(pageTag, lastRequestUnix, loadType)
 }

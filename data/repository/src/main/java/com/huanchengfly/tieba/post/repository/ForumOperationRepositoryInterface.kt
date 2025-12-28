@@ -3,7 +3,6 @@ package com.huanchengfly.tieba.post.repository
 import com.huanchengfly.tieba.core.common.forum.ForumLikeResult
 import com.huanchengfly.tieba.core.common.forum.ForumSignResult
 import com.huanchengfly.tieba.core.network.model.CommonResponse
-import com.huanchengfly.tieba.post.api.models.protos.userLike.UserLikeResponse
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -54,17 +53,4 @@ interface ForumOperationRepository {
         tbs: String
     ): Flow<CommonResponse>
 
-    /**
-     * 获取用户关注的贴吧列表
-     *
-     * @param pageTag 分页标识（首次为空字符串）
-     * @param lastRequestUnix 上次请求时间戳
-     * @param loadType 加载类型（1-刷新，2-加载更多）
-     * @return 用户关注列表数据流
-     */
-    fun userLike(
-        pageTag: String,
-        lastRequestUnix: Long,
-        loadType: Int
-    ): Flow<UserLikeResponse>
 }

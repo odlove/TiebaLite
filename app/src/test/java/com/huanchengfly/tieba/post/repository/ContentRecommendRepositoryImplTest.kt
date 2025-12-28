@@ -2,6 +2,8 @@ package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.forumRecommend.ForumRecommendResponse
+import com.huanchengfly.tieba.post.api.models.protos.forumRecommend.ForumRecommendResponseData
+import com.huanchengfly.tieba.post.api.models.protos.forumRecommend.LikeForum
 import com.huanchengfly.tieba.post.api.models.protos.hotThreadList.HotThreadListResponse
 import com.huanchengfly.tieba.post.api.models.protos.topicList.TopicListResponse
 import io.mockk.every
@@ -55,12 +57,22 @@ class ContentRecommendRepositoryImplTest {
     }
 
     private fun createMockForumRecommendResponse(): ForumRecommendResponse {
+        val forum = mockk<LikeForum>(relaxed = true) {
+            every { forum_id } returns 123L
+            every { forum_name } returns "TestForum"
+            every { avatar } returns "avatar"
+            every { is_sign } returns 1
+            every { level_id } returns 3
+        }
+        val data = mockk<ForumRecommendResponseData>(relaxed = true) {
+            every { like_forum } returns listOf(forum)
+        }
         return mockk<ForumRecommendResponse> {
             every { error } returns mockk {
                 every { error_code } returns 0
                 every { error_msg } returns "success"
             }
-            every { data_ } returns mockk()
+            every { data_ } returns data
         }
     }
 
@@ -188,8 +200,9 @@ class ContentRecommendRepositoryImplTest {
         val result = repository.forumRecommend().first()
 
         // Then: Verify the result matches expected data
-        assertNotNull(result)
-        assertNotNull(result.error)
+        assertEquals(1, result.forums.size)
+        assertEquals("123", result.forums.first().forumId)
+        assertEquals("TestForum", result.forums.first().forumName)
         verify(exactly = 1) {
             mockApi.forumRecommendNewFlow()
         }
@@ -226,7 +239,7 @@ class ContentRecommendRepositoryImplTest {
         val result = repository.forumRecommend().first()
 
         // Then: Verify API is called correctly
-        assertNotNull(result)
+        assertEquals(1, result.forums.size)
         verify(exactly = 1) {
             mockApi.forumRecommendNewFlow()
         }

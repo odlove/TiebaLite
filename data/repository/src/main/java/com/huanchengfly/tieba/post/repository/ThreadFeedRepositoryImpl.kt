@@ -30,7 +30,6 @@ import javax.inject.Singleton
 class ThreadFeedRepositoryImpl @Inject constructor(
     private val contentRecommendRepository: ContentRecommendRepository,
     private val personalizedRepository: PersonalizedRepository,
-    private val forumOperationRepository: ForumOperationRepository,
     private val pbPageRepository: PbPageRepository,
     private val api: ITiebaApi,
     private val forumPreferences: ForumPreferences,
@@ -153,7 +152,7 @@ class ThreadFeedRepositoryImpl @Inject constructor(
             .catch { throw it }
 
     override fun userLikeThreads(lastRequestUnix: Long, page: Int): Flow<ThreadFeedPage> =
-        forumOperationRepository.userLike("", lastRequestUnix, page)
+        api.userLikeFlow("", lastRequestUnix, page)
             .onEach { response ->
                 // ✅ 写入 PbPageRepository 缓存：转换 Proto -> Entity
                 val threadProtos = response.data_?.threadInfo?.mapNotNull { it.threadList } ?: emptyList()

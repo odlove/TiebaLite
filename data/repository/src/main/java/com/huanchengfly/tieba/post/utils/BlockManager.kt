@@ -1,6 +1,5 @@
 package com.huanchengfly.tieba.post.utils
 
-import com.huanchengfly.tieba.post.api.models.MessageListBean
 import com.huanchengfly.tieba.post.api.models.protos.Post
 import com.huanchengfly.tieba.post.api.models.protos.PbContent
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
@@ -92,11 +91,6 @@ object BlockManager {
     fun ThreadSubPost.shouldBlock(): Boolean =
         shouldBlock(content.blockingPlainTextForThreadContent()) || shouldBlock(authorId, author?.name)
 
-    fun MessageListBean.MessageInfoBean.shouldBlock(): Boolean =
-        shouldBlock(content.orEmpty()) || shouldBlock(
-            this.replyer?.id?.toLongOrNull() ?: -1,
-            this.replyer?.name.orEmpty()
-        )
 }
 
 private fun ThreadInfo.blockingAbstractText(): String =

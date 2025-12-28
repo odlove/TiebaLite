@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.onStart
 class ThreadFeedFacadeImpl @Inject constructor(
     private val contentRecommendRepository: ContentRecommendRepository,
     private val personalizedRepository: PersonalizedRepository,
-    private val forumOperationRepository: ForumOperationRepository,
     private val pbPageRepository: PbPageRepository,
     private val api: ITiebaApi,
     private val forumPreferences: ForumPreferences,
@@ -142,7 +141,7 @@ class ThreadFeedFacadeImpl @Inject constructor(
             .catch { throw it }
 
     override fun userLikeThreads(lastRequestUnix: Long, page: Int): Flow<ThreadFeedPage> =
-        forumOperationRepository.userLike("", lastRequestUnix, page)
+        api.userLikeFlow("", lastRequestUnix, page)
             .onEach { response ->
                 val threadProtos = response.data_?.threadInfo?.mapNotNull { it.threadList } ?: emptyList()
                 val entities = threadProtos.map { ThreadMapper.fromProto(it) }

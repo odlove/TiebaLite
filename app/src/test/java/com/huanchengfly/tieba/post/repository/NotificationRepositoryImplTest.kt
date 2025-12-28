@@ -42,20 +42,30 @@ class NotificationRepositoryImplTest {
 
     // ========== Helper Functions ==========
 
-    private fun createMockMessageListBean(errorCode: String = "0"): MessageListBean {
+    private fun createMockMessageListBean(
+        errorCode: String = "0",
+        hasMore: String = "0",
+        replyList: List<MessageListBean.MessageInfoBean> = emptyList(),
+        atList: List<MessageListBean.MessageInfoBean> = emptyList(),
+    ): MessageListBean {
         val mockPage = mockk<MessageListBean.PageInfoBean> {
-            every { currentPage } returns "1"
-            every { hasMore } returns "0"
+            every { this@mockk.currentPage } returns "1"
+            every { this@mockk.hasMore } returns hasMore
         }
 
         return mockk<MessageListBean> {
             every { this@mockk.errorCode } returns errorCode
             every { time } returns System.currentTimeMillis()
-            every { replyList } returns emptyList()
-            every { atList } returns emptyList()
+            every { this@mockk.replyList } returns replyList
+            every { this@mockk.atList } returns atList
             every { page } returns mockPage
         }
     }
+
+    private fun createMockMessageInfo(content: String = "content"): MessageListBean.MessageInfoBean =
+        mockk(relaxed = true) {
+            every { this@mockk.content } returns content
+        }
 
     // ========== replyMe Tests ==========
 
@@ -63,7 +73,11 @@ class NotificationRepositoryImplTest {
     fun `replyMe should return success flow when API call succeeds`() = runTest {
         // Given: Mock API returns successful MessageListBean
         val page = 1
-        val expectedBean = createMockMessageListBean("0")
+        val expectedBean = createMockMessageListBean(
+            errorCode = "0",
+            hasMore = "1",
+            replyList = listOf(createMockMessageInfo())
+        )
 
         every {
             mockApi.replyMeFlow(page)
@@ -73,8 +87,8 @@ class NotificationRepositoryImplTest {
         val result = repository.replyMe(page).first()
 
         // Then: Verify the result matches expected data
-        assertEquals("0", result.errorCode)
-        assertNotNull(result.page)
+        assertEquals(1, result.items.size)
+        assertEquals(true, result.hasMore)
         verify(exactly = 1) {
             mockApi.replyMeFlow(page)
         }
@@ -102,7 +116,7 @@ class NotificationRepositoryImplTest {
     @Test
     fun `replyMe should use default page 1 when not specified`() = runTest {
         // Given: Mock API with default page 1
-        val expectedBean = createMockMessageListBean()
+        val expectedBean = createMockMessageListBean(replyList = listOf(createMockMessageInfo()))
 
         every {
             mockApi.replyMeFlow(1)
@@ -112,7 +126,7 @@ class NotificationRepositoryImplTest {
         val result = repository.replyMe().first()
 
         // Then: Verify API is called with default page 1
-        assertNotNull(result)
+        assertEquals(1, result.items.size)
         verify(exactly = 1) {
             mockApi.replyMeFlow(1)
         }
@@ -121,12 +135,12 @@ class NotificationRepositoryImplTest {
     @Test
     fun `replyMe should handle pagination correctly`() = runTest {
         // Given: Different pages
-        val page1Bean = createMockMessageListBean()
+        val page1Bean = createMockMessageListBean(replyList = listOf(createMockMessageInfo()))
         every {
             mockApi.replyMeFlow(1)
         } returns flowOf(page1Bean)
 
-        val page2Bean = createMockMessageListBean()
+        val page2Bean = createMockMessageListBean(replyList = listOf(createMockMessageInfo()))
         every {
             mockApi.replyMeFlow(2)
         } returns flowOf(page2Bean)
@@ -136,8 +150,8 @@ class NotificationRepositoryImplTest {
         val result2 = repository.replyMe(2).first()
 
         // Then: Verify both pages were called correctly
-        assertEquals("0", result1.errorCode)
-        assertEquals("0", result2.errorCode)
+        assertEquals(1, result1.items.size)
+        assertEquals(1, result2.items.size)
         verify(exactly = 1) { mockApi.replyMeFlow(1) }
         verify(exactly = 1) { mockApi.replyMeFlow(2) }
     }
@@ -148,7 +162,11 @@ class NotificationRepositoryImplTest {
     fun `atMe should return success flow when API call succeeds`() = runTest {
         // Given: Mock API returns successful MessageListBean
         val page = 1
-        val expectedBean = createMockMessageListBean("0")
+        val expectedBean = createMockMessageListBean(
+            errorCode = "0",
+            hasMore = "1",
+            atList = listOf(createMockMessageInfo())
+        )
 
         every {
             mockApi.atMeFlow(page)
@@ -158,8 +176,8 @@ class NotificationRepositoryImplTest {
         val result = repository.atMe(page).first()
 
         // Then: Verify the result matches expected data
-        assertEquals("0", result.errorCode)
-        assertNotNull(result.page)
+        assertEquals(1, result.items.size)
+        assertEquals(true, result.hasMore)
         verify(exactly = 1) {
             mockApi.atMeFlow(page)
         }
@@ -187,7 +205,7 @@ class NotificationRepositoryImplTest {
     @Test
     fun `atMe should use default page 1 when not specified`() = runTest {
         // Given: Mock API with default page 1
-        val expectedBean = createMockMessageListBean()
+        val expectedBean = createMockMessageListBean(atList = listOf(createMockMessageInfo()))
 
         every {
             mockApi.atMeFlow(1)
@@ -197,7 +215,7 @@ class NotificationRepositoryImplTest {
         val result = repository.atMe().first()
 
         // Then: Verify API is called with default page 1
-        assertNotNull(result)
+        assertEquals(1, result.items.size)
         verify(exactly = 1) {
             mockApi.atMeFlow(1)
         }
@@ -206,12 +224,12 @@ class NotificationRepositoryImplTest {
     @Test
     fun `atMe should handle pagination correctly`() = runTest {
         // Given: Different pages
-        val page1Bean = createMockMessageListBean()
+        val page1Bean = createMockMessageListBean(atList = listOf(createMockMessageInfo()))
         every {
             mockApi.atMeFlow(1)
         } returns flowOf(page1Bean)
 
-        val page2Bean = createMockMessageListBean()
+        val page2Bean = createMockMessageListBean(atList = listOf(createMockMessageInfo()))
         every {
             mockApi.atMeFlow(2)
         } returns flowOf(page2Bean)
@@ -221,8 +239,8 @@ class NotificationRepositoryImplTest {
         val result2 = repository.atMe(2).first()
 
         // Then: Verify both pages were called correctly
-        assertEquals("0", result1.errorCode)
-        assertEquals("0", result2.errorCode)
+        assertEquals(1, result1.items.size)
+        assertEquals(1, result2.items.size)
         verify(exactly = 1) { mockApi.atMeFlow(1) }
         verify(exactly = 1) { mockApi.atMeFlow(2) }
     }

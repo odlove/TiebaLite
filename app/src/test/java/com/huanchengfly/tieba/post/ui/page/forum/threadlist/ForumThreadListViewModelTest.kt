@@ -195,8 +195,7 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
 
     @Test
     fun latest_agree_requestsUserInteractionRepo() = runTest(testDispatcher) {
-        val agreeBean = TestFixtures.fakeAgreeBean()
-        every { mockUserRepo.opAgree(threadId = "1", postId = "2", hasAgree = 0, objType = 3) } returns flowOf(agreeBean)
+        every { mockUserRepo.opAgree(threadId = "1", postId = "2", hasAgree = 0, objType = 3) } returns flowOf(Unit)
 
         val viewModel = LatestThreadListViewModel(
             mockFrsRepo,

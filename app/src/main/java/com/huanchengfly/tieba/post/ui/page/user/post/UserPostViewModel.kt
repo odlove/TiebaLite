@@ -2,12 +2,10 @@ package com.huanchengfly.tieba.post.ui.page.user.post
 
 import androidx.compose.runtime.Immutable
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.AgreeBean
-import com.huanchengfly.tieba.post.api.models.protos.PostInfoList
-import com.huanchengfly.tieba.post.api.models.protos.abstractText
-import com.huanchengfly.tieba.post.api.models.protos.updateAgreeStatus
-import com.huanchengfly.tieba.post.api.models.protos.userPost.UserPostResponse
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.common.user.UserPostContent
+import com.huanchengfly.tieba.core.common.user.UserPostItem
+import com.huanchengfly.tieba.core.common.user.UserPostPageResult
+import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
@@ -79,14 +77,13 @@ class UserPostViewModel @Inject constructor(
         private fun UserPostUiIntent.Refresh.toPartialChangeFlow(): Flow<UserPostPartialChange> =
             userContentRepository
                 .userPost(uid, 1, isThread)
-                .map<UserPostResponse, UserPostPartialChange.Refresh> {
-                    val data = checkNotNull(it.data_)
-                    val postList = data.post_list
+                .map<UserPostPageResult, UserPostPartialChange.Refresh> {
+                    val postList = it.posts
                     UserPostPartialChange.Refresh.Success(
                         currentPage = 1,
                         hasMore = postList.isNotEmpty(),
                         posts = postList,
-                        hidePost = data.hide_post == 1
+                        hidePost = it.hidePost
                     )
                 }
                 .onStart { emit(UserPostPartialChange.Refresh.Start) }
@@ -95,9 +92,8 @@ class UserPostViewModel @Inject constructor(
         private fun UserPostUiIntent.LoadMore.toPartialChangeFlow(): Flow<UserPostPartialChange> =
             userContentRepository
                 .userPost(uid, page + 1, isThread)
-                .map<UserPostResponse, UserPostPartialChange.LoadMore> {
-                    val data = checkNotNull(it.data_)
-                    val postList = data.post_list
+                .map<UserPostPageResult, UserPostPartialChange.LoadMore> {
+                    val postList = it.posts
                     UserPostPartialChange.LoadMore.Success(
                         currentPage = page + 1,
                         hasMore = postList.isNotEmpty(),
@@ -112,7 +108,7 @@ class UserPostViewModel @Inject constructor(
                 .opAgree(
                     threadId.toString(), postId.toString(), hasAgree, objType = 3
                 )
-                .map<AgreeBean, UserPostPartialChange.Agree> {
+                .map<Unit, UserPostPartialChange.Agree> {
                     UserPostPartialChange.Agree.Success(threadId, postId, hasAgree xor 1)
                 }
                 .onStart {
@@ -156,7 +152,7 @@ sealed interface UserPostPartialChange : PartialChange<UserPostUiState> {
 
             is Success -> {
                 val uniquePosts = posts.distinctBy {
-                    "${it.thread_id}_${it.post_id}"
+                    "${it.threadId}_${it.postId}"
                 }.toData()
                 oldState.copy(
                     isRefreshing = false,
@@ -179,7 +175,7 @@ sealed interface UserPostPartialChange : PartialChange<UserPostUiState> {
         data class Success(
             val currentPage: Int,
             val hasMore: Boolean,
-            val posts: List<PostInfoList>,
+            val posts: List<UserPostItem>,
             val hidePost: Boolean,
         ) : Refresh()
 
@@ -196,7 +192,7 @@ sealed interface UserPostPartialChange : PartialChange<UserPostUiState> {
 
             is Success -> {
                 val uniquePosts = (oldState.posts + posts.toData()).distinctBy {
-                    "${it.data.get { thread_id }}_${it.data.get { post_id }}"
+                    "${it.data.get { threadId }}_${it.data.get { postId }}"
                 }.toImmutableList()
                 oldState.copy(
                     isLoadingMore = false,
@@ -218,7 +214,7 @@ sealed interface UserPostPartialChange : PartialChange<UserPostUiState> {
         data class Success(
             val currentPage: Int,
             val hasMore: Boolean,
-            val posts: List<PostInfoList>,
+            val posts: List<UserPostItem>,
         ) : LoadMore()
 
         data class Failure(
@@ -235,7 +231,7 @@ sealed interface UserPostPartialChange : PartialChange<UserPostUiState> {
             return map {
                 val (postInfo) = it
                 it.copy(
-                    data = if (postInfo.get { thread_id } == threadId && postInfo.get { post_id } == postId) {
+                    data = if (postInfo.get { threadId } == threadId && postInfo.get { postId } == postId) {
                         postInfo.getImmutable { updateAgreeStatus(hasAgree) }
                     } else {
                         postInfo
@@ -309,34 +305,28 @@ data class UserPostUiState(
     val hidePost: Boolean = false,
 ) : UiState
 
-private fun List<PostInfoList>.toData(): ImmutableList<PostListItemData> {
+private fun List<UserPostItem>.toData(): ImmutableList<PostListItemData> {
     return map { postInfo ->
         PostListItemData(
             data = postInfo.wrapImmutable(),
-            contents = postInfo.content.map {
-                PostContentData(
-                    contentText = it.post_content.abstractText,
-                    createTime = it.create_time,
-                    postId = it.post_id,
-                    isSubPost = (it.post_type == 1L),
-                )
-            }.toImmutableList()
+            contents = postInfo.contents.toImmutableList(),
         )
     }.toImmutableList()
 }
 
-@Immutable
-data class PostListItemData(
-    val data: ImmutableHolder<PostInfoList>,
-//    val blocked: Boolean,
-    val isThread: Boolean = data.get { is_thread } == 1,
-    val contents: ImmutableList<PostContentData> = persistentListOf(),
-)
+private fun UserPostItem.updateAgreeStatus(hasAgree: Int): UserPostItem {
+    if (this.hasAgree == hasAgree) return this
+    val delta = if (hasAgree == 1) 1 else -1
+    return copy(
+        hasAgree = hasAgree,
+        agreeNum = (agreeNum + delta).coerceAtLeast(0)
+    )
+}
 
 @Immutable
-data class PostContentData(
-    val contentText: String,
-    val createTime: Long,
-    val postId: Long,
-    val isSubPost: Boolean,
+data class PostListItemData(
+    val data: ImmutableHolder<UserPostItem>,
+//    val blocked: Boolean,
+    val isThread: Boolean = data.get { this.isThread },
+    val contents: ImmutableList<UserPostContent> = persistentListOf(),
 )

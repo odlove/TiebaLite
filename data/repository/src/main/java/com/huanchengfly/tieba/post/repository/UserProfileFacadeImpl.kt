@@ -12,23 +12,22 @@ class UserProfileFacadeImpl @Inject constructor(
     private val userProfileRepository: UserProfileRepository
 ) : UserProfileFacade {
     override fun userProfile(uid: Long): Flow<UserProfileInfo> =
-        userProfileRepository.userProfile(uid).map { profile ->
-            val user = checkNotNull(profile.data_?.user)
+        userProfileRepository.userProfile(uid).map { user ->
             UserProfileInfo(
                 nameShow = user.nameShow,
                 portrait = user.portrait,
                 intro = user.intro,
                 sex = user.sex.toString(),
-                fansNum = user.fans_num.toString(),
-                postNum = user.post_num.toString(),
-                threadNum = user.thread_num.toString(),
-                concernNum = user.concern_num.toString(),
-                tbAge = user.tb_age,
-                age = user.birthday_info?.age?.toString(),
-                birthdayShowStatus = user.birthday_info?.birthday_show_status?.toString(),
-                birthdayTime = user.birthday_info?.birthday_time?.toString(),
-                constellation = user.birthday_info?.constellation,
-                tiebaUid = user.tieba_uid,
+                fansNum = user.fansNum.toString(),
+                postNum = user.postNum.toString(),
+                threadNum = user.threadNum.toString(),
+                concernNum = user.concernNum.toString(),
+                tbAge = user.tbAge,
+                age = user.birthdayInfo?.age?.toString(),
+                birthdayShowStatus = user.birthdayInfo?.birthdayShowStatus?.toString(),
+                birthdayTime = user.birthdayInfo?.birthdayTime?.toString(),
+                constellation = user.birthdayInfo?.constellation,
+                tiebaUid = user.tiebaUid,
             )
         }
 }

@@ -1,6 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.subposts
 
 import com.huanchengfly.tieba.post.TestFixtures
+import com.huanchengfly.tieba.post.models.mappers.toThreadSubPost
+import com.huanchengfly.tieba.post.models.mappers.toThreadUser
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -173,17 +175,16 @@ class SubPostsUtilsTest {
     @Test
     fun `buildReplyArgs should include subPost info when provided`() {
         // Given: A target sub-post with author info
-        val subPostAuthor = TestFixtures.fakeUser(
-            id = 555L,
-            name = "subPostAuthor",
-            nameShow = "Sub Post Author",
-            portrait = "sub_portrait"
-        )
         val targetSubPost = TestFixtures.fakeSubPostList(
             id = 777L,
             authorId = 555L,
-            author = subPostAuthor
-        )
+            author = TestFixtures.fakeUser(
+                id = 555L,
+                name = "subPostAuthor",
+                nameShow = "Sub Post Author",
+                portrait = "sub_portrait"
+            )
+        ).toThreadSubPost()
 
         val forumIdFromApi = 123L
         val fallbackForumId = 456L
@@ -224,7 +225,7 @@ class SubPostsUtilsTest {
             name = "replyUser",
             nameShow = "Reply User",
             portrait = "reply_portrait"
-        )
+        ).toThreadUser()
 
         val subPostAuthor = TestFixtures.fakeUser(
             id = 555L,
@@ -236,7 +237,7 @@ class SubPostsUtilsTest {
             id = 777L,
             authorId = 555L,
             author = subPostAuthor
-        )
+        ).toThreadSubPost()
 
         val forumIdFromApi = 123L
         val fallbackForumId = 456L
@@ -316,7 +317,7 @@ class SubPostsUtilsTest {
             name = "normalUser",
             nameShow = "Normal User",
             portrait = "normal_portrait"
-        )
+        ).toThreadUser()
 
         val forumIdFromApi = 123L
         val fallbackForumId = 456L
@@ -356,7 +357,7 @@ class SubPostsUtilsTest {
             id = 777L,
             authorId = 666L,  // author_id is present
             author = null  // But author object is null
-        )
+        ).toThreadSubPost()
 
         val forumIdFromApi = 123L
         val fallbackForumId = 456L

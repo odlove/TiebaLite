@@ -1,11 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.user
 
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.network.model.CommonResponse
-import com.huanchengfly.tieba.post.api.models.FollowBean
-import com.huanchengfly.tieba.post.api.models.protos.User
-import com.huanchengfly.tieba.post.api.models.protos.profile.ProfileResponse
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.common.user.UserProfile
+import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
@@ -82,10 +79,8 @@ class UserProfileViewModel @Inject constructor(
         private fun UserProfileUiIntent.Refresh.producePartialChange(): Flow<UserProfilePartialChange.Refresh> =
             userProfileRepository
                 .userProfile(uid)
-                .map<ProfileResponse, UserProfilePartialChange.Refresh> {
-                    val data = checkNotNull(it.data_)
-                    val user = checkNotNull(data.user)
-                    UserProfilePartialChange.Refresh.Success(user)
+                .map<UserProfile, UserProfilePartialChange.Refresh> {
+                    UserProfilePartialChange.Refresh.Success(it)
                 }
                 .onStart { emit(UserProfilePartialChange.Refresh.Start) }
                 .catch { emit(UserProfilePartialChange.Refresh.Failure(it)) }
@@ -93,7 +88,7 @@ class UserProfileViewModel @Inject constructor(
         private fun UserProfileUiIntent.Follow.producePartialChange(): Flow<UserProfilePartialChange.Follow> =
             userSocialRepository
                 .follow(portrait, tbs)
-                .map<FollowBean, UserProfilePartialChange.Follow> {
+                .map<Unit, UserProfilePartialChange.Follow> {
                     UserProfilePartialChange.Follow.Success
                 }
                 .onStart { emit(UserProfilePartialChange.Follow.Start) }
@@ -102,7 +97,7 @@ class UserProfileViewModel @Inject constructor(
         private fun UserProfileUiIntent.Unfollow.producePartialChange(): Flow<UserProfilePartialChange.Unfollow> =
             userSocialRepository
                 .unfollow(portrait, tbs)
-                .map<CommonResponse, UserProfilePartialChange.Unfollow> {
+                .map<Unit, UserProfilePartialChange.Unfollow> {
                     UserProfilePartialChange.Unfollow.Success
                 }
                 .onStart { emit(UserProfilePartialChange.Unfollow.Start) }
@@ -148,7 +143,7 @@ sealed interface UserProfilePartialChange : PartialChange<UserProfileUiState> {
         data object Start : Refresh()
 
         data class Success(
-            val user: User,
+            val user: UserProfile,
         ) : Refresh()
 
         data class Failure(
@@ -160,21 +155,21 @@ sealed interface UserProfilePartialChange : PartialChange<UserProfileUiState> {
         override fun reduce(oldState: UserProfileUiState): UserProfileUiState = when (this) {
             is Start -> oldState.copy(
                 user = oldState.user.getOrNull()?.copy(
-                    has_concerned = 1
+                    hasConcerned = 1
                 )?.wrapImmutable(),
                 disableButton = true
             )
 
             is Success -> oldState.copy(
                 user = oldState.user.getOrNull()?.copy(
-                    has_concerned = 1
+                    hasConcerned = 1
                 )?.wrapImmutable(),
                 disableButton = false
             )
 
             is Failure -> oldState.copy(
                 user = oldState.user.getOrNull()?.copy(
-                    has_concerned = 0
+                    hasConcerned = 0
                 )?.wrapImmutable(),
                 disableButton = false
             )
@@ -193,21 +188,21 @@ sealed interface UserProfilePartialChange : PartialChange<UserProfileUiState> {
         override fun reduce(oldState: UserProfileUiState): UserProfileUiState = when (this) {
             is Start -> oldState.copy(
                 user = oldState.user.getOrNull()?.copy(
-                    has_concerned = 0
+                    hasConcerned = 0
                 )?.wrapImmutable(),
                 disableButton = true
             )
 
             is Success -> oldState.copy(
                 user = oldState.user.getOrNull()?.copy(
-                    has_concerned = 0
+                    hasConcerned = 0
                 )?.wrapImmutable(),
                 disableButton = false
             )
 
             is Failure -> oldState.copy(
                 user = oldState.user.getOrNull()?.copy(
-                    has_concerned = 1
+                    hasConcerned = 1
                 )?.wrapImmutable(),
                 disableButton = false
             )
@@ -228,5 +223,5 @@ data class UserProfileUiState(
     val error: ImmutableHolder<Throwable>? = null,
 
     val disableButton: Boolean = false,
-    val user: ImmutableHolder<User>? = null,
+    val user: ImmutableHolder<UserProfile>? = null,
 ) : UiState

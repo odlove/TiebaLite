@@ -1,8 +1,6 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.core.network.model.CommonResponse
-import com.huanchengfly.tieba.post.api.models.FollowBean
-import com.huanchengfly.tieba.post.api.models.UserLikeForumBean
+import com.huanchengfly.tieba.core.common.user.UserLikeForumResult
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -18,7 +16,7 @@ interface UserSocialRepository {
      * @param tbs 防伪参数
      * @return 关注结果数据流
      */
-    fun follow(portrait: String, tbs: String): Flow<FollowBean>
+    fun follow(portrait: String, tbs: String): Flow<Unit>
 
     /**
      * 取关用户
@@ -27,7 +25,7 @@ interface UserSocialRepository {
      * @param tbs 防伪参数
      * @return 操作结果数据流
      */
-    fun unfollow(portrait: String, tbs: String): Flow<CommonResponse>
+    fun unfollow(portrait: String, tbs: String): Flow<Unit>
 
     /**
      * 查看用户关注的吧列表
@@ -36,5 +34,5 @@ interface UserSocialRepository {
      * @param page 分页页码（从 1 开始）
      * @return 关注的吧列表数据流
      */
-    fun userLikeForum(uid: String, page: Int = 1): Flow<UserLikeForumBean>
+    fun userLikeForum(uid: String, page: Int = 1): Flow<UserLikeForumResult>
 }

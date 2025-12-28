@@ -2,6 +2,7 @@ package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.pbFloor.PbFloorResponse
+import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
@@ -41,20 +42,58 @@ class SubPostsRepositoryImplTest {
 
     // ========== Helper Functions ==========
 
-    private fun createMockPbFloorResponse(): PbFloorResponse =
+    private fun createMockPbFloorResponse(
+        threadId: Long = 123L,
+        postId: Long = 456L,
+        forumId: Long = 789L,
+        forumName: String = "Test Forum",
+        currentPage: Int = 1,
+        totalPage: Int = 1,
+        totalCount: Int = 0
+    ): PbFloorResponse =
         mockk<PbFloorResponse> {
-            every { error } returns
-                mockk {
-                    every { error_code } returns 0
-                    every { error_msg } returns "success"
-                }
             every { data_ } returns
                 mockk {
-                    every { post } returns mockk()
-                    every { page } returns mockk()
-                    every { forum } returns mockk()
-                    every { thread } returns mockk()
-                    every { anti } returns mockk()
+                    every { post } returns
+                        mockk(relaxed = true) {
+                            every { id } returns postId
+                            every { tid } returns threadId
+                            every { author_id } returns 0L
+                            every { floor } returns 1
+                            every { title } returns ""
+                            every { is_ntitle } returns 0
+                            every { time } returns 0
+                            every { content } returns emptyList()
+                        }
+                    every { page } returns
+                        mockk(relaxed = true) {
+                            every { current_page } returns currentPage
+                            every { total_page } returns totalPage
+                            every { total_count } returns totalCount
+                            every { has_more } returns 0
+                            every { has_prev } returns 0
+                        }
+                    every { forum } returns
+                        mockk(relaxed = true) {
+                            every { id } returns forumId
+                            every { name } returns forumName
+                            every { avatar } returns ""
+                        }
+                    every { thread } returns
+                        mockk<ThreadInfo>(relaxed = true) {
+                            every { id } returns threadId
+                            every { firstPostId } returns 0L
+                            every { title } returns ""
+                            every { replyNum } returns 0
+                            every { this@mockk.forumId } returns forumId
+                            every { this@mockk.forumName } returns forumName
+                            every { is_share_thread } returns 0
+                            every { agreeNum } returns 0
+                            every { pids } returns ""
+                            every { collectStatus } returns 0
+                            every { collectMarkPid } returns "0"
+                        }
+                    every { anti } returns mockk(relaxed = true)
                     every { subpost_list } returns emptyList()
                 }
         }
@@ -70,7 +109,12 @@ class SubPostsRepositoryImplTest {
             val forumId = 1L
             val page = 1
             val subPostId = 0L
-            val expectedResponse = createMockPbFloorResponse()
+            val expectedResponse = createMockPbFloorResponse(
+                threadId = threadId,
+                postId = postId,
+                forumId = forumId,
+                currentPage = page
+            )
 
             every {
                 mockApi.pbFloorFlow(threadId, postId, forumId, page, subPostId)
@@ -81,8 +125,9 @@ class SubPostsRepositoryImplTest {
 
             // Then: Verify the result matches expected data
             assertNotNull(result)
-            assertNotNull(result.data_)
-            assertEquals(0, result.error?.error_code ?: -1)
+            assertEquals(threadId, result.thread.threadId)
+            assertEquals(postId, result.post.id)
+            assertEquals(page, result.page.currentPage)
             verify(exactly = 1) {
                 mockApi.pbFloorFlow(threadId, postId, forumId, page, subPostId)
             }
@@ -145,22 +190,22 @@ class SubPostsRepositoryImplTest {
             val subPostId = 0L
 
             // Test page 1
-            val page1Response = createMockPbFloorResponse()
+            val page1Response = createMockPbFloorResponse(currentPage = 1)
             every {
                 mockApi.pbFloorFlow(threadId, postId, forumId, 1, subPostId)
             } returns flowOf(page1Response)
 
             val result1 = repository.pbFloor(threadId, postId, forumId, 1, subPostId).first()
-            assertEquals(0, result1.error?.error_code ?: -1)
+            assertEquals(1, result1.page.currentPage)
 
             // Test page 2
-            val page2Response = createMockPbFloorResponse()
+            val page2Response = createMockPbFloorResponse(currentPage = 2)
             every {
                 mockApi.pbFloorFlow(threadId, postId, forumId, 2, subPostId)
             } returns flowOf(page2Response)
 
             val result2 = repository.pbFloor(threadId, postId, forumId, 2, subPostId).first()
-            assertEquals(0, result2.error?.error_code ?: -1)
+            assertEquals(2, result2.page.currentPage)
 
             // Verify both pages were called
             verify(exactly = 1) { mockApi.pbFloorFlow(threadId, postId, forumId, 1, subPostId) }

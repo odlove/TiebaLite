@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.core.network.model.CommonResponse
-import com.huanchengfly.tieba.post.api.models.protos.profile.ProfileResponse
+import com.huanchengfly.tieba.core.common.user.UserProfile
 import kotlinx.coroutines.flow.Flow
 import java.io.File
 
@@ -17,7 +17,7 @@ interface UserProfileRepository {
      * @param uid 用户 ID
      * @return 用户资料数据流
      */
-    fun userProfile(uid: Long): Flow<ProfileResponse>
+    fun userProfile(uid: Long): Flow<UserProfile>
 
     /**
      * 修改个人资料

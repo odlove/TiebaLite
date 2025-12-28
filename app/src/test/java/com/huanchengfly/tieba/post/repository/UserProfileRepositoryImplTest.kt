@@ -2,7 +2,9 @@ package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.core.network.model.CommonResponse
+import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.post.api.models.protos.profile.ProfileResponse
+import com.huanchengfly.tieba.post.api.models.protos.profile.ProfileResponseData
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
@@ -44,13 +46,30 @@ class UserProfileRepositoryImplTest {
 
     // ========== Helper Functions ==========
 
-    private fun createMockProfileResponse(): ProfileResponse {
-        return mockk<ProfileResponse> {
-            every { error } returns mockk {
-                every { error_code } returns 0
-                every { error_msg } returns "success"
-            }
-            every { data_ } returns mockk()
+    private fun createMockProfileResponse(userId: Long = 123456L): ProfileResponse {
+        val mockUser = mockk<User>(relaxed = true) {
+            every { id } returns userId
+            every { name } returns "TestUser"
+            every { nameShow } returns "TestUserShow"
+            every { portrait } returns "portrait"
+            every { intro } returns "intro"
+            every { sex } returns 1
+            every { fans_num } returns 10
+            every { post_num } returns 20
+            every { thread_num } returns 30
+            every { concern_num } returns 40
+            every { my_like_num } returns 5
+            every { total_agree_num } returns 99
+            every { has_concerned } returns 1
+            every { tb_age } returns "3.5"
+            every { tieba_uid } returns "tieba_uid"
+            every { ip_address } returns "IP"
+        }
+        val mockData = mockk<ProfileResponseData>(relaxed = true) {
+            every { user } returns mockUser
+        }
+        return mockk(relaxed = true) {
+            every { data_ } returns mockData
         }
     }
 
@@ -78,7 +97,7 @@ class UserProfileRepositoryImplTest {
 
         // Then: Verify the result matches expected data
         assertNotNull(result)
-        assertEquals(0, result.error?.error_code ?: -1)
+        assertEquals(uid, result.id)
         verify(exactly = 1) {
             mockApi.userProfileFlow(uid)
         }
@@ -107,22 +126,24 @@ class UserProfileRepositoryImplTest {
     fun `userProfile should handle different uid values`() = runTest {
         // Given: Different user IDs
         // Test uid 1
-        val uid1Response = createMockProfileResponse()
+        val uid1Response = createMockProfileResponse(111L)
         every {
             mockApi.userProfileFlow(111L)
         } returns flowOf(uid1Response)
 
         val result1 = repository.userProfile(111L).first()
         assertNotNull(result1)
+        assertEquals(111L, result1.id)
 
         // Test uid 2
-        val uid2Response = createMockProfileResponse()
+        val uid2Response = createMockProfileResponse(222L)
         every {
             mockApi.userProfileFlow(222L)
         } returns flowOf(uid2Response)
 
         val result2 = repository.userProfile(222L).first()
         assertNotNull(result2)
+        assertEquals(222L, result2.id)
 
         // Verify both uids were called
         verify(exactly = 1) { mockApi.userProfileFlow(111L) }

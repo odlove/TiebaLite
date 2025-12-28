@@ -58,13 +58,12 @@ class SearchRepositoryImplTest {
         }
     }
 
-    private fun createMockSearchSugResponse(): SearchSugResponse {
+    private fun createMockSearchSugResponse(suggestions: List<String> = listOf("a", "b")): SearchSugResponse {
         return mockk<SearchSugResponse> {
-            every { error } returns mockk {
-                every { error_code } returns 0
-                every { error_msg } returns "success"
-            }
-            every { data_ } returns mockk()
+            every { data_ } returns
+                mockk(relaxed = true) {
+                    every { list } returns suggestions
+                }
         }
     }
 
@@ -199,7 +198,8 @@ class SearchRepositoryImplTest {
     fun `searchSuggestions should return success flow when API call succeeds`() = runTest {
         // Given: Mock API returns successful SearchSugResponse
         val keyword = "test"
-        val expectedResponse = createMockSearchSugResponse()
+        val expectedSuggestions = listOf("foo", "bar")
+        val expectedResponse = createMockSearchSugResponse(expectedSuggestions)
 
         every {
             mockApi.searchSuggestionsFlow(keyword)
@@ -209,7 +209,7 @@ class SearchRepositoryImplTest {
         val result = repository.searchSuggestions(keyword).first()
 
         // Then: Verify the result matches expected data
-        assertNotNull(result)
+        assertEquals(expectedSuggestions, result)
         verify(exactly = 1) {
             mockApi.searchSuggestionsFlow(keyword)
         }
@@ -238,7 +238,8 @@ class SearchRepositoryImplTest {
     fun `searchSuggestions should handle empty keyword parameter`() = runTest {
         // Given: Empty keyword
         val keyword = ""
-        val expectedResponse = createMockSearchSugResponse()
+        val expectedSuggestions = listOf("foo", "bar")
+        val expectedResponse = createMockSearchSugResponse(expectedSuggestions)
 
         every {
             mockApi.searchSuggestionsFlow(keyword)
@@ -248,7 +249,7 @@ class SearchRepositoryImplTest {
         val result = repository.searchSuggestions(keyword).first()
 
         // Then: Verify API is called (parameter validation is API's responsibility)
-        assertNotNull(result)
+        assertEquals(expectedSuggestions, result)
         verify(exactly = 1) {
             mockApi.searchSuggestionsFlow("")
         }
@@ -258,7 +259,8 @@ class SearchRepositoryImplTest {
     fun `searchSuggestions should handle blank keyword parameter`() = runTest {
         // Given: Blank keyword (spaces)
         val keyword = "   "
-        val expectedResponse = createMockSearchSugResponse()
+        val expectedSuggestions = listOf("foo", "bar")
+        val expectedResponse = createMockSearchSugResponse(expectedSuggestions)
 
         every {
             mockApi.searchSuggestionsFlow(keyword)
@@ -268,7 +270,7 @@ class SearchRepositoryImplTest {
         val result = repository.searchSuggestions(keyword).first()
 
         // Then: Verify API is called with the blank string as-is
-        assertNotNull(result)
+        assertEquals(expectedSuggestions, result)
         verify(exactly = 1) {
             mockApi.searchSuggestionsFlow("   ")
         }
@@ -330,7 +332,24 @@ class SearchRepositoryImplTest {
     fun `searchForum should return success flow when API call succeeds`() = runTest {
         // Given
         val keyword = "test"
-        val expectedBean = mockk<SearchForumBean>(relaxed = true)
+        val expectedBean = SearchForumBean(
+            data =
+                SearchForumBean.DataBean(
+                    exactMatch = SearchForumBean.ForumInfoBean(
+                        forumName = "exact_forum",
+                        forumNameShow = "Exact Forum",
+                        avatar = "avatar_exact",
+                        intro = "intro_exact",
+                        slogan = "slogan_exact"
+                    ),
+                    fuzzyMatch = listOf(
+                        SearchForumBean.ForumInfoBean(
+                            forumName = "fuzzy_forum",
+                            forumNameShow = "Fuzzy Forum"
+                        )
+                    )
+                )
+        )
 
         every {
             mockApi.searchForumFlow(keyword)
@@ -340,7 +359,10 @@ class SearchRepositoryImplTest {
         val result = repository.searchForum(keyword).first()
 
         // Then
-        assertEquals(expectedBean, result)
+        assertEquals("exact_forum", result.exactMatch?.name)
+        assertEquals("Exact Forum", result.exactMatch?.nameShow)
+        assertEquals(1, result.fuzzyMatch.size)
+        assertEquals("fuzzy_forum", result.fuzzyMatch.first().name)
         verify(exactly = 1) {
             mockApi.searchForumFlow(keyword)
         }
@@ -371,7 +393,25 @@ class SearchRepositoryImplTest {
     fun `searchUser should return success flow when API call succeeds`() = runTest {
         // Given
         val keyword = "test"
-        val expectedBean = mockk<SearchUserBean>(relaxed = true)
+        val expectedBean = SearchUserBean(
+            data =
+                SearchUserBean.SearchUserDataBean(
+                    exactMatch = SearchUserBean.UserBean(
+                        id = "user_exact",
+                        name = "Exact User",
+                        showNickname = "Exact Nick",
+                        portrait = "portrait_exact",
+                        intro = "intro_exact"
+                    ),
+                    fuzzyMatch = listOf(
+                        SearchUserBean.UserBean(
+                            id = "user_fuzzy",
+                            name = "Fuzzy User",
+                            showNickname = "Fuzzy Nick"
+                        )
+                    )
+                )
+        )
 
         every {
             mockApi.searchUserFlow(keyword)
@@ -381,7 +421,11 @@ class SearchRepositoryImplTest {
         val result = repository.searchUser(keyword).first()
 
         // Then
-        assertEquals(expectedBean, result)
+        assertEquals("user_exact", result.exactMatch?.userId)
+        assertEquals("Exact User", result.exactMatch?.userName)
+        assertEquals("Exact Nick", result.exactMatch?.showNickname)
+        assertEquals(1, result.fuzzyMatch.size)
+        assertEquals("user_fuzzy", result.fuzzyMatch.first().userId)
         verify(exactly = 1) {
             mockApi.searchUserFlow(keyword)
         }

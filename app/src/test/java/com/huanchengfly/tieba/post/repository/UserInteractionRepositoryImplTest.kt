@@ -15,8 +15,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 
@@ -90,11 +88,7 @@ class UserInteractionRepositoryImplTest {
         } returns flowOf(expectedBean)
 
         // When: Call repository method
-        val result = repository.opAgree(threadId, postId, hasAgree, objType).first()
-
-        // Then: Verify the result matches expected data
-        assertEquals("0", result.errorCode)
-        assertNotNull(result.data)
+        repository.opAgree(threadId, postId, hasAgree, objType).first()
         verify(exactly = 1) {
             mockApi.opAgreeFlow(threadId, postId, hasAgree, objType)
         }
@@ -136,7 +130,7 @@ class UserInteractionRepositoryImplTest {
         } returns flowOf(expectedBean)
 
         // When: Call repository with empty threadId
-        val result = repository.opAgree(threadId, postId, hasAgree, objType).first()
+        repository.opAgree(threadId, postId, hasAgree, objType).first()
 
         // Then: Verify API is called with empty string (parameter validation is API's responsibility)
         verify(exactly = 1) {
@@ -157,8 +151,7 @@ class UserInteractionRepositoryImplTest {
             mockApi.opAgreeFlow(threadId, postId, 0, objType)
         } returns flowOf(agreeBean)
 
-        val agreeResult = repository.opAgree(threadId, postId, 0, objType).first()
-        assertEquals("0", agreeResult.errorCode)
+        repository.opAgree(threadId, postId, 0, objType).first()
 
         // Test disagree action
         val disagreeBean = createMockAgreeBean(score = "0")
@@ -166,8 +159,7 @@ class UserInteractionRepositoryImplTest {
             mockApi.opAgreeFlow(threadId, postId, 1, objType)
         } returns flowOf(disagreeBean)
 
-        val disagreeResult = repository.opAgree(threadId, postId, 1, objType).first()
-        assertEquals("0", disagreeResult.errorCode)
+        repository.opAgree(threadId, postId, 1, objType).first()
     }
 
     // ========== submitDislike Tests ==========

@@ -1,10 +1,10 @@
 package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
-import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.core.network.model.CommonResponse
 import com.huanchengfly.tieba.post.models.DislikeBean
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,8 +20,8 @@ class UserInteractionRepositoryImpl @Inject constructor(
         postId: String,
         hasAgree: Int,
         objType: Int
-    ): Flow<AgreeBean> =
-        api.opAgreeFlow(threadId, postId, hasAgree, objType)
+    ): Flow<Unit> =
+        api.opAgreeFlow(threadId, postId, hasAgree, objType).map { }
 
     override fun submitDislike(
         dislikeBean: DislikeBean

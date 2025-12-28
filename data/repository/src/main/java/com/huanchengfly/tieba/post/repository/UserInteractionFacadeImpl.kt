@@ -18,7 +18,7 @@ class UserInteractionFacadeImpl @Inject constructor(
         hasAgree: Int,
         objType: Int
     ): Flow<Unit> =
-        userInteractionRepository.opAgree(threadId, postId, hasAgree, objType).map { }
+        userInteractionRepository.opAgree(threadId, postId, hasAgree, objType)
 
     override fun submitDislike(request: DislikeRequest): Flow<Unit> =
         userInteractionRepository.submitDislike(

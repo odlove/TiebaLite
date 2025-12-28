@@ -24,7 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.huanchengfly.tieba.post.api.models.UserLikeForumBean
+import com.huanchengfly.tieba.core.common.user.UserLikeForumItem
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.getOrNull
@@ -131,8 +131,8 @@ fun UserLikeForumPage(
                     data = forums,
                     fluid = fluid,
                     onClickForum = { forumBean ->
-                        forumBean.name?.let {
-                            navigator.navigate(ForumPageDestination(it))
+                        if (forumBean.name.isNotEmpty()) {
+                            navigator.navigate(ForumPageDestination(forumBean.name))
                         }
                     },
                     lazyListState = lazyListState
@@ -152,8 +152,8 @@ fun UserLikeForumPage(
 
 @Composable
 private fun UserLikeForumList(
-    data: ImmutableList<UserLikeForumBean.ForumBean>,
-    onClickForum: (UserLikeForumBean.ForumBean) -> Unit,
+    data: ImmutableList<UserLikeForumItem>,
+    onClickForum: (UserLikeForumItem) -> Unit,
     fluid: Boolean = false,
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
@@ -179,7 +179,7 @@ private fun UserLikeForumList(
 
 @Composable
 private fun UserLikeForumItem(
-    item: UserLikeForumBean.ForumBean,
+    item: UserLikeForumItem,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -204,11 +204,11 @@ private fun UserLikeForumItem(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = item.name.orEmpty(),
+                    text = item.name,
                     style = MaterialTheme.typography.subtitle1,
                     color = ExtendedTheme.colors.text
                 )
-                item.slogan.takeUnless { it.isNullOrEmpty() }?.let {
+                item.slogan?.takeUnless { it.isEmpty() }?.let {
                     Text(
                         text = it,
                         style = MaterialTheme.typography.body2,

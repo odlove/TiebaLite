@@ -1,9 +1,9 @@
 package com.huanchengfly.tieba.post.ui.page.user.edit
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.models.protos.profile.ProfileResponse
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.common.user.UserProfile
+import com.huanchengfly.tieba.core.network.error.getErrorCode
+import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import com.huanchengfly.tieba.core.mvi.PartialChange
@@ -65,24 +65,23 @@ class EditProfileViewModel @Inject constructor(
             } else {
                 userProfileRepository
                     .userProfile(account.uid.toLong())
-                    .map<ProfileResponse, EditProfilePartialChange.Init> { profile ->
-                        val user = checkNotNull(profile.data_?.user)
+                    .map<UserProfile, EditProfilePartialChange.Init> { user ->
                         account.apply {
                             nameShow = user.nameShow
-                            portrait = user.portrait
+                            portrait = user.portrait.orEmpty()
                             intro = user.intro
                             sex = user.sex.toString()
-                            fansNum = user.fans_num.toString()
-                            postNum = user.post_num.toString()
-                            threadNum = user.thread_num.toString()
-                            concernNum = user.concern_num.toString()
-                            tbAge = user.tb_age
-                            age = user.birthday_info?.age?.toString()
+                            fansNum = user.fansNum.toString()
+                            postNum = user.postNum.toString()
+                            threadNum = user.threadNum.toString()
+                            concernNum = user.concernNum.toString()
+                            tbAge = user.tbAge
+                            age = user.birthdayInfo?.age?.toString()
                             birthdayShowStatus =
-                                user.birthday_info?.birthday_show_status?.toString()
-                            birthdayTime = user.birthday_info?.birthday_time?.toString()
-                            constellation = user.birthday_info?.constellation
-                            tiebaUid = user.tieba_uid
+                                user.birthdayInfo?.birthdayShowStatus?.toString()
+                            birthdayTime = user.birthdayInfo?.birthdayTime?.toString()
+                            constellation = user.birthdayInfo?.constellation
+                            tiebaUid = user.tiebaUid
                             loadSuccess = true
                             updateAll("uid = ?", uid)
                         }

@@ -39,13 +39,10 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
-import com.huanchengfly.tieba.post.api.models.protos.PostInfoList
 import com.huanchengfly.tieba.core.common.feed.OriginThreadCard
-import com.huanchengfly.tieba.core.common.feed.RichTextSegment
 import com.huanchengfly.tieba.core.common.feed.ThreadAuthor
 import com.huanchengfly.tieba.core.common.feed.ThreadCard
-import com.huanchengfly.tieba.core.common.feed.ThreadMediaItem
-import com.huanchengfly.tieba.core.common.feed.ThreadVideoInfo
+import com.huanchengfly.tieba.core.common.user.UserPostItem
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.getOrNull
@@ -260,17 +257,17 @@ fun UserPostPage(
                     onAgreeItem = {
                         viewModel.send(
                             UserPostUiIntent.Agree(
-                                it.thread_id,
-                                it.post_id,
-                                it.agree?.hasAgree ?: 0
+                                it.threadId,
+                                it.postId,
+                                it.hasAgree
                             )
                         )
                     },
                     onClickReply = {
                         navigator.navigate(
                             ThreadPageDestination(
-                                it.thread_id,
-                                it.forum_id,
+                                it.threadId,
+                                it.forumId,
                                 scrollToReply = true
                             )
                         )
@@ -304,8 +301,8 @@ private fun UserPostList(
     fluid: Boolean = false,
     lazyListState: LazyListState = rememberLazyListState(),
     onClickItem: (threadId: Long, postId: Long?, isSubPost: Boolean) -> Unit = { _, _, _ -> },
-    onAgreeItem: (PostInfoList) -> Unit = {},
-    onClickReply: (PostInfoList) -> Unit = {},
+    onAgreeItem: (UserPostItem) -> Unit = {},
+    onClickReply: (UserPostItem) -> Unit = {},
     onClickUser: (id: Long) -> Unit = {},
     onClickForum: (name: String) -> Unit = {},
     onClickOriginThread: (threadId: Long) -> Unit = {},
@@ -314,7 +311,7 @@ private fun UserPostList(
         items(
             items = data,
             key = {
-                "${it.data.get { thread_id }}_${it.data.get { post_id }}"
+                "${it.data.get { threadId }}_${it.data.get { postId }}"
             }
         ) { itemData ->
             Container(fluid = fluid) {
@@ -335,10 +332,10 @@ private fun UserPostList(
 @Composable
 fun UserPostItem(
     post: PostListItemData,
-    onAgree: (PostInfoList) -> Unit,
+    onAgree: (UserPostItem) -> Unit,
     modifier: Modifier = Modifier,
     onClick: (threadId: Long, postId: Long?, isSubPost: Boolean) -> Unit = { _, _, _ -> },
-    onClickReply: (PostInfoList) -> Unit = {},
+    onClickReply: (UserPostItem) -> Unit = {},
     onClickUser: (id: Long) -> Unit = {},
     onClickForum: (name: String) -> Unit = {},
     onClickOriginThread: (threadId: Long) -> Unit = {},
@@ -366,11 +363,11 @@ fun UserPostItem(
         FilledCard(
             header = {
                 UserHeader(
-                    nameProvider = { item.get { user_name } },
-                    nameShowProvider = { item.get { name_show } },
-                    portraitProvider = { item.get { user_portrait } },
+                    nameProvider = { item.get { userName } },
+                    nameShowProvider = { item.get { nameShow }.orEmpty() },
+                    portraitProvider = { item.get { userPortrait }.orEmpty() },
                     onClick = {
-                        onClickUser(item.get { user_id })
+                        onClickUser(item.get { userId })
                     },
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
@@ -384,7 +381,7 @@ fun UserPostItem(
                                 .fillMaxWidth()
                                 .clickable {
                                     onClick(
-                                        item.get { thread_id },
+                                        item.get { threadId },
                                         it.postId,
                                         it.isSubPost
                                     )
@@ -417,7 +414,7 @@ fun UserPostItem(
                         .clip(RoundedCornerShape(6.dp))
                         .background(ExtendedTheme.colors.floorCard)
                         .clickable {
-                            onClickOriginThread(item.get { thread_id })
+                            onClickOriginThread(item.get { threadId })
                         }
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     style = MaterialTheme.typography.body2,
@@ -429,65 +426,29 @@ fun UserPostItem(
     }
 }
 
-private fun PostInfoList.toThreadCard(): ThreadCard {
+private fun UserPostItem.toThreadCard(): ThreadCard {
     val author = ThreadAuthor(
-        id = user_id,
-        name = user_name,
-        nameShow = name_show,
-        portrait = user_portrait
+        id = userId,
+        name = userName,
+        nameShow = nameShow,
+        portrait = userPortrait
     )
-    val abstractSegments = if (rich_abstract.isNotEmpty()) {
-        rich_abstract.map {
-            RichTextSegment(
-                type = it.type,
-                text = it.text,
-                c = it.c
-            )
-        }
-    } else {
-        abstract_thread.map {
-            RichTextSegment(
-                type = it.type,
-                text = it.text
-            )
-        }
-    }
-    val medias = media.map {
-        ThreadMediaItem(
-            originPic = it.originPic,
-            bigPic = it.bigPic,
-            dynamicPic = it.dynamicPic,
-            srcPic = it.srcPic,
-            postId = it.postId,
-            showOriginalBtn = it.showOriginalBtn,
-            originSize = it.originSize
-        )
-    }
-    val videoInfo = video_info?.let {
-        ThreadVideoInfo(
-            videoUrl = it.videoUrl,
-            thumbnailUrl = it.thumbnailUrl,
-            thumbnailWidth = it.thumbnailWidth,
-            thumbnailHeight = it.thumbnailHeight
-        )
-    }
-    val originThread = origin_thread_info?.toOriginThreadCard()
     return ThreadCard(
-        threadId = thread_id,
-        firstPostId = post_id,
-        forumId = forum_id,
-        forumName = forum_name,
+        threadId = threadId,
+        firstPostId = postId,
+        forumId = forumId,
+        forumName = forumName,
         title = title,
         tabName = "",
-        isNoTitle = is_ntitle == 1,
-        isGood = good_types > 0,
-        isShareThread = is_share_thread == 1,
-        lastTimeInt = create_time.toInt(),
-        shareNum = share_num.toInt(),
-        replyNum = reply_num.toInt(),
+        isNoTitle = isNoTitle,
+        isGood = isGood,
+        isShareThread = isShareThread,
+        lastTimeInt = createTime.toInt(),
+        shareNum = shareNum,
+        replyNum = replyNum,
         hotNum = 0,
-        agreeNum = agree_num,
-        hasAgree = agree?.hasAgree ?: 0,
+        agreeNum = agreeNum,
+        hasAgree = hasAgree,
         collectStatus = 0,
         collectMarkPid = 0L,
         author = author,
@@ -497,43 +458,6 @@ private fun PostInfoList.toThreadCard(): ThreadCard {
         videoInfo = videoInfo,
         hasOriginThreadInfo = originThread != null,
         originThreadPayload = originThread,
-        authorId = user_id,
-    )
-}
-
-private fun com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo.toOriginThreadCard(): OriginThreadCard {
-    val abstractSegments = _abstract.map {
-        RichTextSegment(
-            type = it.type,
-            text = it.text
-        )
-    }
-    val medias = media.map {
-        ThreadMediaItem(
-            originPic = it.originPic,
-            bigPic = it.bigPic,
-            dynamicPic = it.dynamicPic,
-            srcPic = it.srcPic,
-            postId = it.postId,
-            showOriginalBtn = it.showOriginalBtn,
-            originSize = it.originSize
-        )
-    }
-    val videoInfo = video_info?.let {
-        ThreadVideoInfo(
-            videoUrl = it.videoUrl,
-            thumbnailUrl = it.thumbnailUrl,
-            thumbnailWidth = it.thumbnailWidth,
-            thumbnailHeight = it.thumbnailHeight
-        )
-    }
-    return OriginThreadCard(
-        threadId = tid.toLongOrNull() ?: 0L,
-        forumId = fid,
-        forumName = fname,
-        title = title,
-        abstractSegments = abstractSegments,
-        medias = medias,
-        videoInfo = videoInfo
+        authorId = userId,
     )
 }

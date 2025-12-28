@@ -2,7 +2,6 @@ package com.huanchengfly.tieba.post.ui.page.subposts
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.core.network.model.CommonResponse
 import com.huanchengfly.tieba.core.common.thread.ThreadAnti
 import com.huanchengfly.tieba.core.common.thread.ThreadDetail
@@ -142,7 +141,7 @@ class SubPostsViewModel
                         (subPostId ?: postId).toString(),
                         if (agree) 0 else 1,
                         objType = if (subPostId == null) 1 else 2,
-                    ).map<AgreeBean, SubPostsPartialChange.Agree> {
+                    ).map<Unit, SubPostsPartialChange.Agree> {
                         SubPostsPartialChange.Agree.Success(subPostId, agree)
                     }.onStart { emit(SubPostsPartialChange.Agree.Start(subPostId, agree)) }
                     .catch { emit(SubPostsPartialChange.Agree.Failure(subPostId, !agree, it)) }

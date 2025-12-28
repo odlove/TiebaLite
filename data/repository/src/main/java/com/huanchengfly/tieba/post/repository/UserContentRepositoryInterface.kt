@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.models.protos.userPost.UserPostResponse
+import com.huanchengfly.tieba.core.common.user.UserPostPageResult
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -21,5 +21,5 @@ interface UserContentRepository {
         uid: Long,
         page: Int = 1,
         isThread: Boolean = true
-    ): Flow<UserPostResponse>
+    ): Flow<UserPostPageResult>
 }

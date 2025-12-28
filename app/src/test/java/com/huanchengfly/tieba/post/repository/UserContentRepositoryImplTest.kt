@@ -1,7 +1,9 @@
 package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
+import com.huanchengfly.tieba.post.api.models.protos.PostInfoList
 import com.huanchengfly.tieba.post.api.models.protos.userPost.UserPostResponse
+import com.huanchengfly.tieba.post.api.models.protos.userPost.UserPostResponseData
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
@@ -43,12 +45,25 @@ class UserContentRepositoryImplTest {
     // ========== Helper Functions ==========
 
     private fun createMockUserPostResponse(): UserPostResponse {
-        return mockk<UserPostResponse> {
-            every { error } returns mockk {
-                every { error_code } returns 0
-                every { error_msg } returns "success"
-            }
-            every { data_ } returns mockk()
+        val mockPost = mockk<PostInfoList>(relaxed = true) {
+            every { thread_id } returns 123L
+            every { post_id } returns 456L
+            every { forum_id } returns 1L
+            every { forum_name } returns "forum"
+            every { title } returns "title"
+            every { user_id } returns 10L
+            every { user_name } returns "user"
+            every { content } returns emptyList()
+            every { media } returns emptyList()
+            every { abstract_thread } returns emptyList()
+            every { rich_abstract } returns emptyList()
+        }
+        val mockData = mockk<UserPostResponseData>(relaxed = true) {
+            every { post_list } returns listOf(mockPost)
+            every { hide_post } returns 0
+        }
+        return mockk(relaxed = true) {
+            every { data_ } returns mockData
         }
     }
 
@@ -71,7 +86,7 @@ class UserContentRepositoryImplTest {
 
         // Then: Verify the result matches expected data
         assertNotNull(result)
-        assertEquals(0, result.error?.error_code ?: -1)
+        assertEquals(1, result.posts.size)
         verify(exactly = 1) {
             mockApi.userPostFlow(uid, page, isThread)
         }
@@ -131,7 +146,7 @@ class UserContentRepositoryImplTest {
         } returns flowOf(page1Response)
 
         val result1 = repository.userPost(uid, 1, isThread).first()
-        assertEquals(0, result1.error?.error_code ?: -1)
+        assertEquals(1, result1.posts.size)
 
         // Test page 2
         val page2Response = createMockUserPostResponse()
@@ -140,7 +155,7 @@ class UserContentRepositoryImplTest {
         } returns flowOf(page2Response)
 
         val result2 = repository.userPost(uid, 2, isThread).first()
-        assertEquals(0, result2.error?.error_code ?: -1)
+        assertEquals(1, result2.posts.size)
 
         // Verify both pages were called
         verify(exactly = 1) { mockApi.userPostFlow(uid, 1, isThread) }

@@ -1,11 +1,11 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
 import com.huanchengfly.tieba.core.common.ResourceProvider
+import com.huanchengfly.tieba.core.common.repository.UserInteractionFacade
 import com.huanchengfly.tieba.post.TestFixtures
 import com.huanchengfly.tieba.post.models.PostMeta
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
-import com.huanchengfly.tieba.post.repository.UserInteractionRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
 import io.mockk.clearMocks
 import io.mockk.every
@@ -50,7 +50,7 @@ import javax.inject.Provider
 class ThreadViewModelTest : BaseViewModelTest() {
 
     private lateinit var mockPbPageRepo: PbPageRepository
-    private lateinit var mockUserInteractionRepo: UserInteractionRepository
+    private lateinit var mockUserInteractionRepo: UserInteractionFacade
     private lateinit var mockThreadOperationRepo: ThreadOperationRepository
     private lateinit var mockContentModerationRepo: com.huanchengfly.tieba.post.repository.ContentModerationRepository
     private lateinit var mockResourceProvider: ResourceProvider
@@ -157,7 +157,6 @@ class ThreadViewModelTest : BaseViewModelTest() {
     @Test
     fun `AgreePost should call repository with correct parameters`() = runTest(testDispatcher) {
         // Given: Mock repository returns success
-        val agreeBean = TestFixtures.fakeMockAgreeBean(errorCode = "0", errorMsg = "", score = "1")
         every {
             mockUserInteractionRepo.opAgree(
                 threadId = "123",
@@ -165,7 +164,7 @@ class ThreadViewModelTest : BaseViewModelTest() {
                 hasAgree = 0,  // agree=true means current state is not agreed, so hasAgree=0 to toggle
                 objType = 1     // objType=1 for post
             )
-        } returns flowOf(agreeBean)
+        } returns flowOf(Unit)
         val fakePostEntity = mockk<com.huanchengfly.tieba.post.models.PostEntity>(relaxed = true) {
             every { meta } returns PostMeta(hasAgree = 0, agreeNum = 0)
         }

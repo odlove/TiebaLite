@@ -70,7 +70,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
-import com.huanchengfly.tieba.post.api.models.protos.User
+import com.huanchengfly.tieba.core.common.user.UserProfile
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
@@ -186,7 +186,7 @@ fun UserProfilePage(
                         account?.let { acc ->
                             viewModel.send(
                                 UserProfileUiIntent.Follow(
-                                    it.get { portrait },
+                                    it.get { portrait }.orEmpty(),
                                     acc.tbs,
                                 )
                             )
@@ -196,7 +196,7 @@ fun UserProfilePage(
                         account?.let { acc ->
                             viewModel.send(
                                 UserProfileUiIntent.Unfollow(
-                                    it.get { portrait },
+                                    it.get { portrait }.orEmpty(),
                                     acc.tbs,
                                 )
                             )
@@ -210,7 +210,7 @@ fun UserProfilePage(
 
 @Composable
 private fun UserProfileContent(
-    user: ImmutableHolder<User>,
+    user: ImmutableHolder<UserProfile>,
     showActionBtn: Boolean,
     disableButton: Boolean,
     isSelf: Boolean,
@@ -247,7 +247,7 @@ private fun UserProfileContent(
 
 @Composable
 private fun UserProfileToolbar(
-    user: ImmutableHolder<User>,
+    user: ImmutableHolder<UserProfile>,
     isSelf: Boolean,
     showTitle: Boolean,
     onBack: () -> Unit,
@@ -324,7 +324,7 @@ private fun UserProfileToolbar(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun UserProfileContentNormal(
-    user: ImmutableHolder<User>,
+    user: ImmutableHolder<UserProfile>,
     showActionBtn: Boolean,
     disableButton: Boolean,
     isSelf: Boolean,
@@ -432,7 +432,7 @@ private fun UserProfileContentNormal(
                                 title = {
                                     stringResource(
                                         id = R.string.title_profile_threads_tab,
-                                        it.get { thread_num }.getShortNumString()
+                                        it.get { threadNum }.getShortNumString()
                                     )
                                 },
                                 content = { user, fluid ->
@@ -448,7 +448,7 @@ private fun UserProfileContentNormal(
                                 title = {
                                     stringResource(
                                         id = R.string.title_profile_posts_tab,
-                                        it.get { post_num }.getShortNumString()
+                                        it.get { postNum }.getShortNumString()
                                     )
                                 },
                                 content = { user, fluid ->
@@ -464,7 +464,7 @@ private fun UserProfileContentNormal(
                                 title = {
                                     stringResource(
                                         id = R.string.title_profile_concern_forums_tab,
-                                        it.get { my_like_num }.toString()
+                                        it.get { myLikeNum }.toString()
                                     )
                                 },
                                 content = { user, fluid ->
@@ -515,7 +515,7 @@ private fun UserProfileContentNormal(
                                     }
                                     if (isSelf) {
                                         context.goToActivity<EditProfileActivity>()
-                                    } else if (user.get { has_concerned } == 0) {
+                                    } else if (user.get { hasConcerned } == 0) {
                                         onFollow()
                                     } else {
                                         onUnfollow()
@@ -554,7 +554,7 @@ private fun UserProfileContentNormal(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun UserProfileContentExpanded(
-    user: ImmutableHolder<User>,
+    user: ImmutableHolder<UserProfile>,
     showActionBtn: Boolean,
     disableButton: Boolean,
     isSelf: Boolean,
@@ -597,7 +597,7 @@ private fun UserProfileContentExpanded(
                                 title = {
                                     stringResource(
                                         id = R.string.title_profile_threads_tab,
-                                        it.get { thread_num }.getShortNumString()
+                                        it.get { threadNum }.getShortNumString()
                                     )
                                 },
                                 content = { user, expanded ->
@@ -614,7 +614,7 @@ private fun UserProfileContentExpanded(
                                 title = {
                                     stringResource(
                                         id = R.string.title_profile_posts_tab,
-                                        it.get { post_num }.getShortNumString()
+                                        it.get { postNum }.getShortNumString()
                                     )
                                 },
                                 content = { user, expanded ->
@@ -631,7 +631,7 @@ private fun UserProfileContentExpanded(
                                 title = {
                                     stringResource(
                                         id = R.string.title_profile_concern_forums_tab,
-                                        it.get { my_like_num }.toString()
+                                        it.get { myLikeNum }.toString()
                                     )
                                 },
                                 content = { user, expanded ->
@@ -660,7 +660,7 @@ private fun UserProfileContentExpanded(
                             }
                             if (isSelf) {
                                 context.goToActivity<EditProfileActivity>()
-                            } else if (user.get { has_concerned } == 0) {
+                            } else if (user.get { hasConcerned } == 0) {
                                 onFollow()
                             } else {
                                 onUnfollow()
@@ -700,14 +700,14 @@ private fun UserProfileContentExpanded(
 @Immutable
 data class UserProfilePageData(
     val id: String,
-    val title: @Composable (ImmutableHolder<User>) -> String,
-    val content: @Composable (ImmutableHolder<User>, Boolean) -> Unit,
+    val title: @Composable (ImmutableHolder<UserProfile>) -> String,
+    val content: @Composable (ImmutableHolder<UserProfile>, Boolean) -> Unit,
 )
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun UserProfileTabRow(
-    user: ImmutableHolder<User>,
+    user: ImmutableHolder<UserProfile>,
     pages: ImmutableList<UserProfilePageData>,
     pagerState: PagerState,
     modifier: Modifier = Modifier,
@@ -763,7 +763,7 @@ private fun UserProfileTabRow(
 
 @Composable
 private fun ToolbarUserTitle(
-    user: ImmutableHolder<User>,
+    user: ImmutableHolder<UserProfile>,
     modifier: Modifier = Modifier,
 ) {
     UserHeader(
@@ -791,7 +791,7 @@ private fun ToolbarUserTitle(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun UserProfileDetail(
-    user: ImmutableHolder<User>,
+    user: ImmutableHolder<UserProfile>,
     modifier: Modifier = Modifier,
     showBtn: Boolean = true,
     isSelf: Boolean = false,
@@ -815,7 +815,7 @@ private fun UserProfileDetail(
             )
             Spacer(modifier = Modifier.weight(1f))
             if (showBtn) {
-                val needsFilledButton = isSelf || user.get { has_concerned } == 0
+                val needsFilledButton = isSelf || user.get { hasConcerned } == 0
                 if (needsFilledButton) {
                     Button(
                         onClick = onBtnClick,
@@ -879,7 +879,7 @@ private fun UserProfileDetail(
                             color = ExtendedTheme.colors.textSecondary
                         )
                         Text(
-                            text = user.get { concern_num }.getShortNumString(),
+                    text = user.get { concernNum }.getShortNumString(),
                             color = ExtendedTheme.colors.text,
                             fontWeight = FontWeight.Bold
                         )
@@ -894,7 +894,7 @@ private fun UserProfileDetail(
                             color = ExtendedTheme.colors.textSecondary
                         )
                         Text(
-                            text = user.get { fans_num }.getShortNumString(),
+                    text = user.get { fansNum }.getShortNumString(),
                             color = ExtendedTheme.colors.text,
                             fontWeight = FontWeight.Bold
                         )
@@ -909,7 +909,7 @@ private fun UserProfileDetail(
                             color = ExtendedTheme.colors.textSecondary
                         )
                         Text(
-                            text = user.get { total_agree_num }.getShortNumString(),
+                    text = user.get { totalAgreeNum }.getShortNumString(),
                             color = ExtendedTheme.colors.text,
                             fontWeight = FontWeight.Bold
                         )
@@ -924,7 +924,7 @@ private fun UserProfileDetail(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        user.getNullableImmutable { bazhu_grade }?.let {
+        user.getNullableImmutable { bazhuGrade }?.let {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -941,7 +941,7 @@ private fun UserProfileDetail(
                     color = ExtendedTheme.colors.primary,
                 )
             }
-        } ?: user.getNullableImmutable { new_god_data }
+        } ?: user.getNullableImmutable { newGodData }
             ?.takeIf { it.get { status } != 0 }
             ?.let {
                 Row(
@@ -955,7 +955,7 @@ private fun UserProfileDetail(
                         tint = ExtendedTheme.colors.primary,
                     )
                     Text(
-                        text = stringResource(id = R.string.text_god_verify, it.get { field_name }),
+                        text = stringResource(id = R.string.text_god_verify, it.get { fieldName }),
                         style = MaterialTheme.typography.body2,
                         color = ExtendedTheme.colors.primary,
                     )
@@ -974,7 +974,7 @@ private fun UserProfileDetail(
             Chip(
                 text = stringResource(
                     id = R.string.text_profile_user_id,
-                    user.get { tieba_uid }.toString()
+                    user.get { tiebaUid }
                 ),
                 appendIcon = {
                     Icon(
@@ -984,18 +984,18 @@ private fun UserProfileDetail(
                 },
                 onClick = onCopyIdClick
             )
-            if (user.get { ip_address }.isNotEmpty()) {
+            if (user.get { ipAddress }.isNotEmpty()) {
                 Chip(
                     text = stringResource(
                         id = R.string.text_profile_ip_location,
-                        user.get { ip_address }
+                        user.get { ipAddress }
                     ),
                 )
             }
             Chip(
                 text = stringResource(
                     id = R.string.text_profile_tb_age,
-                    user.get { tb_age }
+                    user.get { tbAge }
                 )
             )
         }

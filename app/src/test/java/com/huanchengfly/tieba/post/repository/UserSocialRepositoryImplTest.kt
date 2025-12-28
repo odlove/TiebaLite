@@ -59,10 +59,24 @@ class UserSocialRepositoryImplTest {
     }
 
     private fun createMockUserLikeForumBean(): UserLikeForumBean {
-        return mockk<UserLikeForumBean>(relaxed = true) {
-            every { errorCode } returns "0"
-            every { errorMsg } returns "success"
-        }
+        return UserLikeForumBean(
+            errorCode = "0",
+            errorMsg = "success",
+            hasMore = "0",
+            forumList =
+                UserLikeForumBean.ForumListBean(
+                    forumList = listOf(
+                        UserLikeForumBean.ForumBean(
+                            id = "1",
+                            name = "Test Forum",
+                            levelId = "1",
+                            levelName = "Lv1",
+                            avatar = "avatar",
+                            slogan = "slogan"
+                        )
+                    )
+                )
+        )
     }
 
     // ========== follow Tests ==========
@@ -79,11 +93,7 @@ class UserSocialRepositoryImplTest {
         } returns flowOf(expectedResponse)
 
         // When: Call repository method
-        val result = repository.follow(portrait, tbs).first()
-
-        // Then: Verify the result matches expected data
-        assertNotNull(result)
-        assertEquals(0, result.errorCode)
+        repository.follow(portrait, tbs).first()
         verify(exactly = 1) {
             mockApi.followFlow(portrait, tbs)
         }
@@ -123,11 +133,7 @@ class UserSocialRepositoryImplTest {
         } returns flowOf(expectedResponse)
 
         // When: Call repository method
-        val result = repository.unfollow(portrait, tbs).first()
-
-        // Then: Verify the result matches expected data
-        assertNotNull(result)
-        assertEquals(0, result.errorCode)
+        repository.unfollow(portrait, tbs).first()
         verify(exactly = 1) {
             mockApi.unfollowFlow(portrait, tbs)
         }
@@ -171,7 +177,8 @@ class UserSocialRepositoryImplTest {
 
         // Then: Verify the result matches expected data
         assertNotNull(result)
-        assertEquals("0", result.errorCode)
+        assertEquals(false, result.hasMore)
+        assertEquals(1, result.forums.size)
         verify(exactly = 1) {
             mockApi.userLikeForumFlow(uid, page)
         }
@@ -229,7 +236,7 @@ class UserSocialRepositoryImplTest {
         } returns flowOf(page1Bean)
 
         val result1 = repository.userLikeForum(uid, 1).first()
-        assertEquals("0", result1.errorCode)
+        assertEquals(false, result1.hasMore)
 
         // Test page 2
         val page2Bean = createMockUserLikeForumBean()
@@ -238,7 +245,7 @@ class UserSocialRepositoryImplTest {
         } returns flowOf(page2Bean)
 
         val result2 = repository.userLikeForum(uid, 2).first()
-        assertEquals("0", result2.errorCode)
+        assertEquals(false, result2.hasMore)
 
         // Verify both pages were called
         verify(exactly = 1) { mockApi.userLikeForumFlow(uid, 1) }

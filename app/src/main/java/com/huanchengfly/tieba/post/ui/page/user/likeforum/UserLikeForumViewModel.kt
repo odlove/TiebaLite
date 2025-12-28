@@ -1,7 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.user.likeforum
 
 import androidx.compose.runtime.Immutable
-import com.huanchengfly.tieba.post.api.models.UserLikeForumBean
+import com.huanchengfly.tieba.core.common.user.UserLikeForumItem
+import com.huanchengfly.tieba.core.common.user.UserLikeForumResult
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
@@ -53,11 +54,11 @@ class UserLikeForumViewModel @Inject constructor(
         private fun UserLikeForumUiIntent.Refresh.toPartialChangeFlow(): Flow<UserLikeForumPartialChange.Refresh> =
             userSocialRepository
                 .userLikeForum(uid.toString())
-                .map<UserLikeForumBean, UserLikeForumPartialChange.Refresh> {
+                .map<UserLikeForumResult, UserLikeForumPartialChange.Refresh> {
                     UserLikeForumPartialChange.Refresh.Success(
                         page = 1,
-                        hasMore = it.hasMore == "1",
-                        forums = it.forumList.forumList,
+                        hasMore = it.hasMore,
+                        forums = it.forums,
                     )
                 }
                 .onStart { emit(UserLikeForumPartialChange.Refresh.Start) }
@@ -66,11 +67,11 @@ class UserLikeForumViewModel @Inject constructor(
         private fun UserLikeForumUiIntent.LoadMore.toPartialChangeFlow(): Flow<UserLikeForumPartialChange.LoadMore> =
             userSocialRepository
                 .userLikeForum(uid.toString(), page + 1)
-                .map<UserLikeForumBean, UserLikeForumPartialChange.LoadMore> {
+                .map<UserLikeForumResult, UserLikeForumPartialChange.LoadMore> {
                     UserLikeForumPartialChange.LoadMore.Success(
                         page = page + 1,
-                        hasMore = it.hasMore == "1",
-                        forums = it.forumList.forumList,
+                        hasMore = it.hasMore,
+                        forums = it.forums,
                     )
                 }
                 .onStart { emit(UserLikeForumPartialChange.LoadMore.Start) }
@@ -118,7 +119,7 @@ sealed interface UserLikeForumPartialChange : PartialChange<UserLikeForumUiState
         data class Success(
             val page: Int,
             val hasMore: Boolean,
-            val forums: List<UserLikeForumBean.ForumBean>,
+            val forums: List<UserLikeForumItem>,
         ) : Refresh()
 
         data class Failure(val error: Throwable) : Refresh()
@@ -156,7 +157,7 @@ sealed interface UserLikeForumPartialChange : PartialChange<UserLikeForumUiState
         data class Success(
             val page: Int,
             val hasMore: Boolean,
-            val forums: List<UserLikeForumBean.ForumBean>,
+            val forums: List<UserLikeForumItem>,
         ) : LoadMore()
 
         data class Failure(val error: Throwable) : LoadMore()
@@ -170,5 +171,5 @@ data class UserLikeForumUiState(
     val error: ImmutableHolder<Throwable>? = null,
     val currentPage: Int = 1,
     val hasMore: Boolean = false,
-    val forums: ImmutableList<UserLikeForumBean.ForumBean> = persistentListOf(),
+    val forums: ImmutableList<UserLikeForumItem> = persistentListOf(),
 ) : UiState

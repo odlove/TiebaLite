@@ -1,6 +1,5 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.models.AgreeBean
 import com.huanchengfly.tieba.core.network.model.CommonResponse
 import com.huanchengfly.tieba.post.models.DislikeBean
 import kotlinx.coroutines.flow.Flow
@@ -28,15 +27,13 @@ interface UserInteractionRepository {
      * @param hasAgree 当前点赞状态（0=未点赞，1=已点赞）**注意：传入当前状态，API 会自动切换**
      * @param objType 对象类型：1=Post(楼层), 2=SubPost(楼中楼), 3=Thread(主题)
      * @return 点赞操作响应数据流
-     *
-     * @see com.huanchengfly.tieba.post.api.models.AgreeBean
      */
     fun opAgree(
         threadId: String,
         postId: String,
         hasAgree: Int,
         objType: Int
-    ): Flow<AgreeBean>
+    ): Flow<Unit>
 
     /**
      * 提交不喜欢反馈

@@ -1,9 +1,11 @@
 package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
+import com.huanchengfly.tieba.core.common.user.UserProfile
 import com.huanchengfly.tieba.core.network.model.CommonResponse
-import com.huanchengfly.tieba.post.api.models.protos.profile.ProfileResponse
+import com.huanchengfly.tieba.post.models.mappers.toUserProfile
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,8 +17,8 @@ import javax.inject.Singleton
 class UserProfileRepositoryImpl @Inject constructor(
     private val api: ITiebaApi
 ) : UserProfileRepository {
-    override fun userProfile(uid: Long): Flow<ProfileResponse> =
-        api.userProfileFlow(uid)
+    override fun userProfile(uid: Long): Flow<UserProfile> =
+        api.userProfileFlow(uid).map { it.toUserProfile() }
 
     override fun profileModify(
         birthdayShowStatus: Boolean,

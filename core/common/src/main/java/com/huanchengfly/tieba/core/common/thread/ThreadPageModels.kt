@@ -108,3 +108,20 @@ data class ThreadPageData(
     val posts: List<ThreadPost> = emptyList(),
     val firstPost: ThreadPost? = null,
 )
+
+data class SubPostsPageInfo(
+    val currentPage: Int = 0,
+    val totalPage: Int = 0,
+    val totalCount: Int = 0,
+    val hasMore: Boolean = false,
+    val hasPrev: Boolean = false,
+)
+
+data class SubPostsPageData(
+    val thread: ThreadDetail,
+    val forum: ThreadForum,
+    val post: ThreadPost,
+    val anti: ThreadAnti,
+    val page: SubPostsPageInfo,
+    val subPosts: List<ThreadSubPost> = emptyList(),
+)

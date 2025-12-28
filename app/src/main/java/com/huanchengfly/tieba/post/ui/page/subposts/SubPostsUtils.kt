@@ -3,12 +3,12 @@ package com.huanchengfly.tieba.post.ui.page.subposts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import com.huanchengfly.tieba.post.api.models.protos.Anti
-import com.huanchengfly.tieba.post.api.models.protos.Post
-import com.huanchengfly.tieba.post.api.models.protos.SimpleForum
-import com.huanchengfly.tieba.post.api.models.protos.SubPostList
-import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
-import com.huanchengfly.tieba.post.api.models.protos.User
+import com.huanchengfly.tieba.core.common.thread.ThreadAnti
+import com.huanchengfly.tieba.core.common.thread.ThreadDetail
+import com.huanchengfly.tieba.core.common.thread.ThreadForum
+import com.huanchengfly.tieba.core.common.thread.ThreadPost
+import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
+import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.common.account.AccountInfo
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
@@ -46,8 +46,8 @@ fun buildReplyArgs(
     threadId: Long,
     postIdFromApi: Long?,
     fallbackPostId: Long,
-    targetSubPost: SubPostList? = null,
-    replyUser: User? = null,
+    targetSubPost: ThreadSubPost? = null,
+    replyUser: ThreadUser? = null,
     postAuthorIdFallback: Long? = null,
 ): ReplyArgs? {
     // 1. 获取 forumId，优先使用 API 数据
@@ -74,7 +74,7 @@ fun buildReplyArgs(
         replyUserId =
             replyUser?.id
                 ?: postAuthorIdFallback
-                ?: targetSubPost?.author_id
+                ?: targetSubPost?.authorId
                 ?: targetSubPost?.author?.id,
         replyUserName =
             replyUser?.nameShow?.takeIf { it.isNotEmpty() }
@@ -102,13 +102,13 @@ fun buildReplyArgs(
  * @param onFailure 构建失败回调（论坛信息未加载完成）
  */
 fun handleReplyAction(
-    forum: ImmutableHolder<SimpleForum>?,
+    forum: ImmutableHolder<ThreadForum>?,
     fallbackForumId: Long,
     threadId: Long,
-    post: ImmutableHolder<Post>?,
+    post: ImmutableHolder<ThreadPost>?,
     fallbackPostId: Long,
-    targetSubPost: SubPostList? = null,
-    replyUser: User? = null,
+    targetSubPost: ThreadSubPost? = null,
+    replyUser: ThreadUser? = null,
     postAuthorIdFallback: Long? = null,
     onSuccess: (ReplyArgs) -> Unit,
     onFailure: () -> Unit,
@@ -145,10 +145,10 @@ fun handleReplyAction(
  */
 @Composable
 fun rememberSubPostsUiProps(
-    forum: ImmutableHolder<SimpleForum>?,
-    thread: ImmutableHolder<ThreadInfo>?,
-    post: ImmutableHolder<Post>?,
-    anti: ImmutableHolder<Anti>?,
+    forum: ImmutableHolder<ThreadForum>?,
+    thread: ImmutableHolder<ThreadDetail>?,
+    post: ImmutableHolder<ThreadPost>?,
+    anti: ImmutableHolder<ThreadAnti>?,
     postContentRenders: ImmutableList<PbContentRender>,
     subPosts: ImmutableList<SubPostItemData>,
     isLoading: Boolean,
@@ -163,10 +163,10 @@ fun rememberSubPostsUiProps(
             thread?.get { author?.id }
         }
 
-    val canDelete: (SubPostList) -> Boolean =
+    val canDelete: (ThreadSubPost) -> Boolean =
         remember(currentAccount) {
-            { subPost: SubPostList ->
-                subPost.author_id == currentAccount?.uid?.toLongOrNull()
+            { subPost: ThreadSubPost ->
+                subPost.authorId == currentAccount?.uid?.toLongOrNull()
             }
         }
 
@@ -216,8 +216,8 @@ fun rememberSubPostsCallbacks(
     threadId: Long,
     postId: Long,
     onNavigateUp: () -> Unit,
-    onReply: (SubPostList?) -> Unit,
-    onShowDeleteDialog: (SubPostList?) -> Unit,
+    onReply: (ThreadSubPost?) -> Unit,
+    onShowDeleteDialog: (ThreadSubPost?) -> Unit,
 ): SubPostsCallbacks {
     return remember(viewModel, navigator, forumId, threadId, postId, onNavigateUp, onReply, onShowDeleteDialog) {
         SubPostsCallbacks(

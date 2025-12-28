@@ -1,8 +1,10 @@
 package com.huanchengfly.tieba.post.repository
 
+import com.huanchengfly.tieba.core.common.thread.SubPostsPageData
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
-import com.huanchengfly.tieba.post.api.models.protos.pbFloor.PbFloorResponse
+import com.huanchengfly.tieba.post.models.mappers.toSubPostsPageData
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -21,5 +23,7 @@ class SubPostsRepositoryImpl
             forumId: Long,
             page: Int,
             subPostId: Long,
-        ): Flow<PbFloorResponse> = api.pbFloorFlow(threadId, postId, forumId, page, subPostId)
+        ): Flow<SubPostsPageData> =
+            api.pbFloorFlow(threadId, postId, forumId, page, subPostId)
+                .map { it.toSubPostsPageData() }
     }

@@ -8,7 +8,7 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogPrimaryButtonC
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogSecondaryButtonColors
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeDialog
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.protos.SubPostList
+import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
 import com.huanchengfly.tieba.core.ui.widgets.compose.TextButton
@@ -25,7 +25,7 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.TextButton
 fun SubPostsDeleteDialog(
     dialogState: DialogState,
     postFloor: Int?,
-    subPost: ImmutableHolder<SubPostList>?,
+    subPost: ImmutableHolder<ThreadSubPost>?,
     onConfirm: () -> Unit,
 ) {
     if (!dialogState.show) return

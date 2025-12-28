@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.subposts
 
-import com.huanchengfly.tieba.post.api.models.protos.SubPostList
+import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
 
 /**
  * SubPostsPage 的回调函数封装
@@ -21,11 +21,11 @@ data class SubPostsCallbacks(
     // 用户交互
     val onBack: () -> Unit,
     val onUserClick: (Long) -> Unit,
-    val onReplyClick: (SubPostList?) -> Unit,
-    val onAgree: (SubPostList) -> Unit,
+    val onReplyClick: (ThreadSubPost?) -> Unit,
+    val onAgree: (ThreadSubPost) -> Unit,
     // 菜单操作
     val onMenuCopy: (String) -> Unit,
-    val onMenuDelete: (SubPostList?) -> Unit,
+    val onMenuDelete: (ThreadSubPost?) -> Unit,
     // 数据加载
     val onRefresh: () -> Unit,
     val onLoadMore: () -> Unit,

@@ -14,9 +14,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.protos.SubPostList
-import com.huanchengfly.tieba.post.api.models.protos.User
-import com.huanchengfly.tieba.post.api.models.protos.bawuType
+import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
+import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.subposts.SubPostItemData
@@ -50,13 +49,13 @@ import com.huanchengfly.tieba.post.preferences.appPreferences
 fun SubPostItem(
     item: SubPostItemData,
     threadAuthorId: Long? = null,
-    canDelete: (SubPostList) -> Boolean = { false },
+    canDelete: (ThreadSubPost) -> Boolean = { false },
     onUserClick: (Long) -> Unit = {},
-    onAgree: (SubPostList) -> Unit = {},
-    onReplyClick: (SubPostList) -> Unit = {},
+    onAgree: (ThreadSubPost) -> Unit = {},
+    onReplyClick: (ThreadSubPost) -> Unit = {},
     onMenuCopyClick: ((String) -> Unit)? = null,
     onReportClick: (String) -> Unit = {},
-    onMenuDeleteClick: ((SubPostList) -> Unit)? = null,
+    onMenuDeleteClick: ((ThreadSubPost) -> Unit)? = null,
 ) {
     val (subPost, contentRenders, blocked) = item
     val context = LocalContext.current
@@ -147,7 +146,7 @@ fun SubPostItem(
                                             author.get { name },
                                             author.get { nameShow },
                                         ),
-                                    userLevel = author.get { level_id },
+                                    userLevel = author.get { levelId },
                                     isLz = author.get { id } == threadAuthorId,
                                     bawuType = author.get { bawuType },
                                 )

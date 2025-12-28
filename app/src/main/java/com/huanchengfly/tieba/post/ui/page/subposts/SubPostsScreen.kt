@@ -24,7 +24,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.page.subposts.components.SubPostItem
 import com.huanchengfly.tieba.post.ui.page.subposts.components.SubPostsBottomBar
@@ -38,7 +37,6 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.utils.StringUtil
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
-import com.huanchengfly.tieba.post.models.mappers.toThreadPost
 
 /**
  * SubPostsScreen - 纯 UI 组件
@@ -157,11 +155,8 @@ import com.huanchengfly.tieba.post.models.mappers.toThreadPost
                     item(key = "Post$postId") {
                         props.post?.let {
                             Column {
-                                val threadPostHolder = remember(it) {
-                                    it.get { toThreadPost() }.wrapImmutable()
-                                }
                                 PostCard(
-                                    postHolder = threadPostHolder,
+                                    postHolder = it,
                                     contentRenders = props.postContentRenders,
                                     canDelete = { post -> post.authorId == props.currentAccount?.uid?.toLongOrNull() },
                                     showSubPosts = false,

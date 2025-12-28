@@ -12,6 +12,8 @@ import com.huanchengfly.tieba.core.common.thread.ThreadForum
 import com.huanchengfly.tieba.core.common.thread.ThreadPageData
 import com.huanchengfly.tieba.core.common.thread.ThreadPageInfo
 import com.huanchengfly.tieba.core.common.thread.ThreadPost
+import com.huanchengfly.tieba.core.common.thread.SubPostsPageData
+import com.huanchengfly.tieba.core.common.thread.SubPostsPageInfo
 import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
 import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import com.huanchengfly.tieba.post.api.models.protos.Agree
@@ -24,6 +26,7 @@ import com.huanchengfly.tieba.post.api.models.protos.SubPostList
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.post.api.models.protos.pbPage.PbPageResponse
+import com.huanchengfly.tieba.post.api.models.protos.pbFloor.PbFloorResponse
 import com.huanchengfly.tieba.post.models.ThreadEntity
 
 fun User.toThreadUser(): ThreadUser {
@@ -224,5 +227,28 @@ fun PbPageResponse.toThreadPageData(): ThreadPageData {
         page = page,
         posts = posts,
         firstPost = firstPost,
+    )
+}
+
+fun PbFloorResponse.toSubPostsPageData(): SubPostsPageData {
+    val data = checkNotNull(data_) { "pbFloor data is null" }
+    val page = checkNotNull(data.page) { "pbFloor page is null" }
+    val thread = checkNotNull(data.thread) { "pbFloor thread is null" }
+    val forum = checkNotNull(data.forum) { "pbFloor forum is null" }
+    val post = checkNotNull(data.post) { "pbFloor post is null" }
+    val anti = checkNotNull(data.anti) { "pbFloor anti is null" }
+    return SubPostsPageData(
+        thread = thread.toThreadDetail(),
+        forum = forum.toThreadForum(),
+        post = post.toThreadPost(),
+        anti = anti.toThreadAnti(),
+        page = SubPostsPageInfo(
+            currentPage = page.current_page,
+            totalPage = page.total_page,
+            totalCount = page.total_count,
+            hasMore = page.has_more != 0 || page.current_page < page.total_page,
+            hasPrev = page.has_prev != 0 || page.current_page > 1,
+        ),
+        subPosts = data.subpost_list.map { it.toThreadSubPost() },
     )
 }

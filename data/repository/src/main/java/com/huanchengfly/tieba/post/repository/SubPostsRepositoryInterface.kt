@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.models.protos.pbFloor.PbFloorResponse
+import com.huanchengfly.tieba.core.common.thread.SubPostsPageData
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -25,5 +25,5 @@ interface SubPostsRepository {
         forumId: Long,
         page: Int = 1,
         subPostId: Long = 0L,
-    ): Flow<PbFloorResponse>
+    ): Flow<SubPostsPageData>
 }

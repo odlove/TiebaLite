@@ -10,7 +10,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.protos.SubPostList
+import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
 import com.huanchengfly.tieba.core.network.retrofit.doIfFailure
 import com.huanchengfly.tieba.core.network.retrofit.doIfSuccess
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
@@ -179,18 +179,18 @@ internal fun SubPostsContent(
     }
 
     val confirmDeleteDialogState = rememberDialogState()
-    var deleteSubPost by remember { mutableStateOf<ImmutableHolder<SubPostList>?>(null) }
+    var deleteSubPost by remember { mutableStateOf<ImmutableHolder<ThreadSubPost>?>(null) }
 
     SubPostsDeleteDialog(
         dialogState = confirmDeleteDialogState,
-        postFloor = post?.get { floor } as? Int,
+        postFloor = post?.get { floor },
         subPost = deleteSubPost,
         onConfirm = {
             if (deleteSubPost == null) {
-                val isSelfPost = post?.get { author_id } == account?.uid?.toLongOrNull()
+                val isSelfPost = post?.get { authorId } == account?.uid?.toLongOrNull()
                 viewModel.send(
                     SubPostsUiIntent.DeletePost(
-                        forumId = (forum?.get { id } as? Long) ?: forumId,
+                        forumId = forum?.get { id } ?: forumId,
                         forumName = forum?.get { name }.orEmpty(),
                         threadId = threadId,
                         postId = effectivePostId,
@@ -200,10 +200,10 @@ internal fun SubPostsContent(
                 )
             } else {
                 deleteSubPost?.let { subPost ->
-                    val isSelfSubPost = subPost.get { author_id } == account?.uid?.toLongOrNull()
+                    val isSelfSubPost = subPost.get { authorId } == account?.uid?.toLongOrNull()
                     viewModel.send(
                         SubPostsUiIntent.DeletePost(
-                            forumId = (forum?.get { id } as? Long) ?: forumId,
+                            forumId = forum?.get { id } ?: forumId,
                             forumName = forum?.get { name }.orEmpty(),
                             threadId = threadId,
                             postId = effectivePostId,
@@ -263,7 +263,7 @@ internal fun SubPostsContent(
                     fallbackPostId = effectivePostId,
                     targetSubPost = subPost,
                     replyUser = subPost?.author,
-                    postAuthorIdFallback = post?.get { author_id },
+                    postAuthorIdFallback = post?.get { authorId },
                     onSuccess = ::showReplyDialog,
                     onFailure = { context.toastShort(R.string.toast_forum_info_loading) },
                 )
@@ -298,7 +298,7 @@ internal fun SubPostsContent(
                 threadId = threadId,
                 post = post,
                 fallbackPostId = effectivePostId,
-                postAuthorIdFallback = post?.get { author_id },
+                postAuthorIdFallback = post?.get { authorId },
                 onSuccess = ::showReplyDialog,
                 onFailure = { context.toastShort(R.string.toast_forum_info_loading) },
             )
@@ -336,7 +336,7 @@ internal fun SubPostsContent(
                 post = post,
                 fallbackPostId = effectivePostId,
                 replyUser = post?.get { author },
-                postAuthorIdFallback = post?.get { author_id },
+                postAuthorIdFallback = post?.get { authorId },
                 onSuccess = ::showReplyDialog,
                 onFailure = { context.toastShort(R.string.toast_forum_info_loading) },
             )

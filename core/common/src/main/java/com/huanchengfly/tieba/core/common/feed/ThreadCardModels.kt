@@ -63,5 +63,6 @@ data class ThreadCard(
     val abstractSegments: List<RichTextSegment> = emptyList(),
     val medias: List<ThreadMediaItem> = emptyList(),
     val videoInfo: ThreadVideoInfo? = null,
+    val hasOriginThreadInfo: Boolean = false,
     val originThreadPayload: Any? = null,
 )

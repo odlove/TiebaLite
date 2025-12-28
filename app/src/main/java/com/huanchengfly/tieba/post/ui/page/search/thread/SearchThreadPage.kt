@@ -29,8 +29,10 @@ import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.widgets.compose.LoadMoreLayout
 import com.huanchengfly.tieba.core.ui.compose.LocalShouldLoad
 import com.huanchengfly.tieba.core.ui.widgets.compose.SearchThreadList
+import com.huanchengfly.tieba.post.ui.page.search.mapper.toSearchThreadItem
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -97,8 +99,9 @@ fun SearchThreadPage(
     )
     val lazyListState = rememberLazyListState()
 
+    val mappedData = remember(data) { data.map { it.toSearchThreadItem() }.toImmutableList() }
     val isEmpty by remember {
-        derivedStateOf { data.isEmpty() }
+        derivedStateOf { mappedData.isEmpty() }
     }
 
     onGlobalEvent<SearchUiEvent.KeywordChanged> {
@@ -134,12 +137,12 @@ fun SearchThreadPage(
                 lazyListState = lazyListState,
             ) {
                 SearchThreadList(
-                    data = data,
+                    data = mappedData,
                     lazyListState = lazyListState,
                     onItemClick = {
                         navigator.navigate(
                             ThreadPageDestination(
-                                threadId = it.tid.toLong()
+                                threadId = it.threadId.toLong()
                             )
                         )
                     },
@@ -149,7 +152,7 @@ fun SearchThreadPage(
                     onItemForumClick = {
                         navigator.navigate(
                             ForumPageDestination(
-                                it.forumName
+                                it.name
                             )
                         )
                     },

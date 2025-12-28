@@ -9,7 +9,6 @@ import androidx.navigation.NavOptionsBuilder
 import com.huanchengfly.tieba.core.common.thread.ThreadPreview
 import com.huanchengfly.tieba.core.ui.navigation.HomeNavigationActions
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
-import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.ui.page.destinations.AboutPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.AppThemePageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
@@ -84,7 +83,6 @@ fun ProvideHomeNavigationActions(
                 seeLz: Boolean,
                 sortType: Int,
                 from: String,
-                threadInfo: ThreadInfo?,
                 threadPreview: ThreadPreview?,
                 scrollToReply: Boolean,
             ) {
@@ -96,7 +94,6 @@ fun ProvideHomeNavigationActions(
                         seeLz = seeLz,
                         sortType = sortType,
                         from = from,
-                        threadInfo = threadInfo,
                         threadPreview = threadPreview,
                         scrollToReply = scrollToReply
                     )

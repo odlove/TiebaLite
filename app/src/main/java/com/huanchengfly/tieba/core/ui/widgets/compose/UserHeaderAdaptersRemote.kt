@@ -7,26 +7,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.huanchengfly.tieba.core.common.utils.DateTimeUtils
+import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
+import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.post.preferences.appPreferences
 
 @Composable
 fun UserHeader(
-    nameProvider: () -> String,
-    nameShowProvider: () -> String,
-    portraitProvider: () -> String,
+    userProvider: () -> ImmutableHolder<User>,
+    timeProvider: () -> Int,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    timeProvider: (() -> Int)? = null,
     content: @Composable RowScope.() -> Unit = {},
 ) {
     val context = LocalContext.current
+    val user = userProvider()
+    val time = timeProvider()
     val showBoth = context.appPreferences.showBothUsernameAndNickname
 
     UserHeader(
         avatar = {
             Avatar(
-                data = StringFormatUtils.getAvatarUrl(portraitProvider()),
+                data = StringFormatUtils.getAvatarUrl(user.get { portrait }),
                 size = Sizes.Small,
                 contentDescription = null
             )
@@ -35,8 +37,8 @@ fun UserHeader(
             Text(
                 text = StringFormatUtils.formatUsernameAnnotated(
                     showBoth,
-                    nameProvider(),
-                    nameShowProvider(),
+                    user.get { name },
+                    user.get { nameShow },
                     LocalContentColor.current
                 ),
                 color = LocalContentColor.current
@@ -44,15 +46,13 @@ fun UserHeader(
         },
         modifier = modifier,
         onClick = onClick,
-        desc = timeProvider?.let {
-            @Composable {
-                Text(
-                    text = DateTimeUtils.getRelativeTimeString(
-                        context,
-                        it().toString()
-                    )
+        desc = {
+            Text(
+                text = DateTimeUtils.getRelativeTimeString(
+                    context,
+                    time.toString()
                 )
-            }
+            )
         },
         content = content
     )

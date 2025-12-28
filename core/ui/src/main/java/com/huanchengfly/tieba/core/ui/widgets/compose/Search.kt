@@ -65,7 +65,12 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
-import com.huanchengfly.tieba.post.api.models.SearchThreadBean
+import com.huanchengfly.tieba.core.common.search.SearchForum
+import com.huanchengfly.tieba.core.common.search.SearchMainPost
+import com.huanchengfly.tieba.core.common.search.SearchMedia
+import com.huanchengfly.tieba.core.common.search.SearchPost
+import com.huanchengfly.tieba.core.common.search.SearchThreadItem
+import com.huanchengfly.tieba.core.common.search.SearchUser
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import kotlinx.collections.immutable.ImmutableList
@@ -75,11 +80,11 @@ import kotlin.math.min
 
 @Composable
 fun QuotePostCard(
-    quotePostInfo: SearchThreadBean.PostInfo,
-    mainPost: SearchThreadBean.MainPost,
-    onMainPostClick: (SearchThreadBean.MainPost) -> Unit,
+    quotePostInfo: SearchPost,
+    mainPost: SearchMainPost,
+    onMainPostClick: (SearchMainPost) -> Unit,
     modifier: Modifier = Modifier,
-    medias: ImmutableList<SearchThreadBean.MediaInfo> = persistentListOf(),
+    medias: ImmutableList<SearchMedia> = persistentListOf(),
     keyword: String? = null,
 ) {
     val context = LocalContext.current
@@ -127,9 +132,9 @@ fun QuotePostCard(
 
 @Composable
 fun MainPostCard(
-    mainPost: SearchThreadBean.MainPost,
+    mainPost: SearchMainPost,
     modifier: Modifier = Modifier,
-    medias: ImmutableList<SearchThreadBean.MediaInfo> = persistentListOf(),
+    medias: ImmutableList<SearchMedia> = persistentListOf(),
     keyword: String? = null,
 ) {
     val context = LocalContext.current
@@ -177,14 +182,14 @@ fun MainPostCard(
 
 @Composable
 fun SearchThreadList(
-    data: ImmutableList<SearchThreadBean.ThreadInfoBean>,
+    data: ImmutableList<SearchThreadItem>,
     lazyListState: LazyListState,
-    onItemClick: (SearchThreadBean.ThreadInfoBean) -> Unit,
-    onItemUserClick: (SearchThreadBean.UserInfoBean) -> Unit,
-    onItemForumClick: (SearchThreadBean.ForumInfo) -> Unit,
+    onItemClick: (SearchThreadItem) -> Unit,
+    onItemUserClick: (SearchUser) -> Unit,
+    onItemForumClick: (SearchForum) -> Unit,
     modifier: Modifier = Modifier,
-    onQuotePostClick: (SearchThreadBean.PostInfo) -> Unit = {},
-    onMainPostClick: (SearchThreadBean.MainPost) -> Unit = {},
+    onQuotePostClick: (SearchPost) -> Unit = {},
+    onMainPostClick: (SearchMainPost) -> Unit = {},
     hideForum: Boolean = false,
     searchKeyword: String? = null,
     header: LazyListScope.() -> Unit = {},
@@ -214,7 +219,7 @@ fun SearchThreadList(
 
 @Composable
 fun SearchThreadUserHeader(
-    user: SearchThreadBean.UserInfoBean,
+    user: SearchUser,
     time: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -252,13 +257,13 @@ fun SearchThreadUserHeader(
 
 @Composable
 fun SearchThreadItem(
-    item: SearchThreadBean.ThreadInfoBean,
-    onClick: (SearchThreadBean.ThreadInfoBean) -> Unit,
-    onUserClick: (SearchThreadBean.UserInfoBean) -> Unit,
-    onForumClick: (SearchThreadBean.ForumInfo) -> Unit,
+    item: SearchThreadItem,
+    onClick: (SearchThreadItem) -> Unit,
+    onUserClick: (SearchUser) -> Unit,
+    onForumClick: (SearchForum) -> Unit,
     modifier: Modifier = Modifier,
-    onQuotePostClick: (SearchThreadBean.PostInfo) -> Unit = {},
-    onMainPostClick: (SearchThreadBean.MainPost) -> Unit = {},
+    onQuotePostClick: (SearchPost) -> Unit = {},
+    onMainPostClick: (SearchMainPost) -> Unit = {},
     hideForum: Boolean = false,
     searchKeyword: String? = null,
 ) {
@@ -281,7 +286,7 @@ fun SearchThreadItem(
                 highlightKeywords = (searchKeyword?.split(" ") ?: emptyList()).toImmutableList(),
             )
             val mainPost = item.mainPost
-            val postInfo = item.postInfo
+            val postInfo = item.quotePost
             if (mainPost != null) {
                 if (postInfo != null) {
                     QuotePostCard(
@@ -316,11 +321,12 @@ fun SearchThreadItem(
                 SearchMedia(medias = item.media.toImmutableList())
             }
             if (!hideForum && item.forumName.isNotEmpty()) {
+                val forumInfo = item.forumInfo ?: SearchForum(name = item.forumName)
                 ForumInfoChip(
-                    imageUriProvider = { item.forumInfo.avatar },
+                    imageUriProvider = { forumInfo.avatar },
                     nameProvider = { item.forumName }
                 ) {
-                    onForumClick(item.forumInfo)
+                    onForumClick(forumInfo)
                 }
             }
         },
@@ -352,7 +358,7 @@ fun SearchThreadItem(
 
 @Composable
 fun SearchMedia(
-    medias: ImmutableList<SearchThreadBean.MediaInfo>,
+    medias: ImmutableList<SearchMedia>,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current

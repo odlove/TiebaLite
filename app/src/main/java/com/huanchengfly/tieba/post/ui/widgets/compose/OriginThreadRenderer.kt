@@ -16,11 +16,14 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.ThreadMedia
 import com.huanchengfly.tieba.post.api.models.protos.renders
 import kotlinx.collections.immutable.toImmutableList
 
-val AppOriginThreadRenderer: OriginThreadRenderer = { originThreadInfo, modifier, onClick ->
-    OriginThreadCard(
-        originThreadInfo = originThreadInfo,
-        modifier = modifier.clickable(onClick = onClick)
-    )
+val AppOriginThreadRenderer: OriginThreadRenderer = { originThreadPayload, modifier, onClick ->
+    val originThreadInfo = originThreadPayload.item as? OriginThreadInfo
+    if (originThreadInfo != null) {
+        OriginThreadCard(
+            originThreadInfo = originThreadInfo.wrapImmutable(),
+            modifier = modifier.clickable(onClick = onClick)
+        )
+    }
 }
 
 @Composable

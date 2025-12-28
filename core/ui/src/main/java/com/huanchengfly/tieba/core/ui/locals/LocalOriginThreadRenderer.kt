@@ -4,10 +4,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
-import com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo
-
 typealias OriginThreadRenderer = @Composable (
-    originThreadInfo: ImmutableHolder<OriginThreadInfo>,
+    originThreadPayload: ImmutableHolder<*>,
     modifier: Modifier,
     onClick: () -> Unit
 ) -> Unit

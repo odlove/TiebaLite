@@ -89,6 +89,7 @@ object ThreadCardMapper {
             abstractSegments = abstractSegments,
             medias = medias,
             videoInfo = videoInfo,
+            hasOriginThreadInfo = proto.origin_thread_info != null,
             originThreadPayload = proto.origin_thread_info,
         )
     }

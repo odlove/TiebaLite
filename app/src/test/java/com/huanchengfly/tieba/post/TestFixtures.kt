@@ -18,11 +18,11 @@ import com.huanchengfly.tieba.post.api.models.protos.Post
 import com.huanchengfly.tieba.post.api.models.protos.SubPostList
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.User
-import com.huanchengfly.tieba.post.api.models.protos.addPost.AddPostResponse
+import com.huanchengfly.tieba.core.common.reply.AddPostResult
 import com.huanchengfly.tieba.post.api.models.protos.hotThreadList.HotThreadListResponse
 import com.huanchengfly.tieba.post.api.models.protos.personalized.PersonalizedResponse
 import com.huanchengfly.tieba.post.api.models.protos.searchSug.SearchSugResponse
-import com.huanchengfly.tieba.post.api.models.protos.topicList.TopicListResponse
+import com.huanchengfly.tieba.core.common.hottopic.HotTopicItem
 import com.huanchengfly.tieba.post.api.models.protos.userLike.UserLikeResponse
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
 import com.huanchengfly.tieba.post.repository.ForumOperationRepository
@@ -106,19 +106,16 @@ object TestFixtures {
         every { atList } returns emptyList()
     }
 
-    fun fakeAddPostResponse(
-        tid: String = "123456",
-        pid: String = "789012",
+    fun fakeAddPostResult(
+        threadId: Long = 123456L,
+        postId: Long = 789012L,
         expInc: String = "10"
-    ): AddPostResponse = mockk(relaxed = true) {
-        every { data_ } returns mockk(relaxed = true) {
-            every { this@mockk.tid } returns tid
-            every { this@mockk.pid } returns pid
-            every { exp } returns mockk(relaxed = true) {
-                every { inc } returns expInc
-            }
-        }
-    }
+    ): AddPostResult =
+        AddPostResult(
+            threadId = threadId,
+            postId = postId,
+            expInc = expInc
+        )
 
     fun fakePersonalizedResponse(): PersonalizedResponse = mockk(relaxed = true) {
         every { data_ } returns mockk(relaxed = true) {
@@ -166,11 +163,17 @@ object TestFixtures {
             hasMore = true
         )
 
-    fun fakeTopicListResponse(): TopicListResponse = mockk(relaxed = true) {
-        every { data_ } returns mockk(relaxed = true) {
-            every { topic_list } returns emptyList()
-        }
-    }
+    fun fakeHotTopicList(): List<HotTopicItem> =
+        listOf(
+            HotTopicItem(
+                topicId = 1L,
+                topicName = "Hot Topic",
+                topicDesc = "Hot Topic Desc",
+                discussNum = 100L,
+                topicImage = "https://example.com/topic.jpg",
+                topicTag = 2
+            )
+        )
 
     /**
      * Creates a mock PbPageResponse for testing

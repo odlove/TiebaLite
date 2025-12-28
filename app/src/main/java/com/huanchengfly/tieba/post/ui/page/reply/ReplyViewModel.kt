@@ -4,11 +4,10 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Stable
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.UploadPictureResultBean
-import com.huanchengfly.tieba.post.api.models.protos.addPost.AddPostResponse
-import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.common.reply.AddPostResult
+import com.huanchengfly.tieba.core.common.reply.UploadImageResult
+import com.huanchengfly.tieba.core.network.error.getErrorCode
+import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
@@ -124,7 +123,7 @@ class ReplyViewModel @Inject constructor(
                     replyUserId = replyUserId
                 )
                 .onEach { response ->
-                    val newPostId = checkNotNull(response.data_?.pid?.toLongOrNull())
+                    val newPostId = response.postId
                     globalEventBus.emitGlobalEventSuspend(
                         if (postId != null) {
                             GlobalEvent.ReplySuccess(
@@ -139,12 +138,11 @@ class ReplyViewModel @Inject constructor(
                         }
                     )
                 }
-                .map<AddPostResponse, ReplyPartialChange.Send> {
-                    val data = it.data_ ?: throw TiebaUnknownException
+                .map<AddPostResult, ReplyPartialChange.Send> {
                     ReplyPartialChange.Send.Success(
-                        threadId = data.tid,
-                        postId = data.pid,
-                        expInc = data.exp?.inc.orEmpty()
+                        threadId = it.threadId,
+                        postId = it.postId,
+                        expInc = it.expInc
                     )
                 }
                 .onStart { emit(ReplyPartialChange.Send.Start) }
@@ -166,7 +164,7 @@ class ReplyViewModel @Inject constructor(
                     },
                     isOriginImage
                 )
-                .map<List<UploadPictureResultBean>, ReplyPartialChange.UploadImages> {
+                .map<List<UploadImageResult>, ReplyPartialChange.UploadImages> {
                     ReplyPartialChange.UploadImages.Success(it)
                 }
                 .onStart { emit(ReplyPartialChange.UploadImages.Start) }
@@ -235,7 +233,7 @@ sealed interface ReplyPartialChange : PartialChange<ReplyUiState> {
 
         object Start : UploadImages()
 
-        data class Success(val resultList: List<UploadPictureResultBean>) : UploadImages()
+        data class Success(val resultList: List<UploadImageResult>) : UploadImages()
 
         data class Failure(
             val errorCode: Int,
@@ -255,8 +253,8 @@ sealed interface ReplyPartialChange : PartialChange<ReplyUiState> {
         object Start : Send()
 
         data class Success(
-            val threadId: String,
-            val postId: String,
+            val threadId: Long,
+            val postId: Long,
             val expInc: String
         ) : Send()
 
@@ -295,15 +293,15 @@ data class ReplyUiState(
     val isUploading: Boolean = false,
     val isOriginImage: Boolean = false,
     val selectedImageList: ImmutableList<String> = persistentListOf(),
-    val uploadImageResultList: ImmutableList<UploadPictureResultBean> = persistentListOf(),
+    val uploadImageResultList: ImmutableList<UploadImageResult> = persistentListOf(),
 ) : UiState
 
 sealed interface ReplyUiEvent : UiEvent {
-    data class UploadSuccess(val resultList: List<UploadPictureResultBean>) : ReplyUiEvent
+    data class UploadSuccess(val resultList: List<UploadImageResult>) : ReplyUiEvent
 
     data class ReplySuccess(
-        val threadId: String,
-        val postId: String,
+        val threadId: Long,
+        val postId: Long,
         val expInc: String
     ) : ReplyUiEvent
 }

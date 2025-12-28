@@ -39,7 +39,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.ThreadStoreBean
+import com.huanchengfly.tieba.core.common.threadstore.ThreadStoreItem
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
@@ -189,7 +189,7 @@ fun ThreadStorePage(
                             StoreItem(
                                 info = info,
                                 onUserClick = {
-                                    info.author.lzUid?.let {
+                                    info.author.id?.let {
                                         navigator.navigate(UserProfilePageDestination(it.toLong()))
                                     }
                                 },
@@ -235,7 +235,7 @@ fun ThreadStorePage(
 @OptIn(ExperimentalTextApi::class)
 @Composable
 private fun StoreItem(
-    info: ThreadStoreBean.ThreadStoreInfo,
+    info: ThreadStoreItem,
     onUserClick: () -> Unit,
     onDelete: () -> Unit,
     onClick: () -> Unit,
@@ -260,7 +260,7 @@ private fun StoreItem(
             UserHeader(
                 avatar = {
                     Avatar(
-                        data = StringUtil.getAvatarUrl(info.author.userPortrait),
+                        data = StringUtil.getAvatarUrl(info.author.portrait),
                         size = Sizes.Small,
                         contentDescription = null
                     )

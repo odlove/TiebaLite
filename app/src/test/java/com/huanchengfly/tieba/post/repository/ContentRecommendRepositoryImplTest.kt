@@ -70,7 +70,20 @@ class ContentRecommendRepositoryImplTest {
                 every { error_code } returns 0
                 every { error_msg } returns "success"
             }
-            every { data_ } returns mockk()
+            every { data_ } returns
+                mockk(relaxed = true) {
+                    every { topic_list } returns
+                        listOf(
+                            mockk(relaxed = true) {
+                                every { topic_id } returns 1L
+                                every { topic_name } returns "Hot Topic"
+                                every { topic_desc } returns "Hot Desc"
+                                every { discuss_num } returns 100L
+                                every { topic_image } returns "https://example.com/topic.jpg"
+                                every { topic_tag } returns 2
+                            }
+                        )
+                }
         }
     }
 
@@ -235,7 +248,7 @@ class ContentRecommendRepositoryImplTest {
 
         // Then: Verify the result matches expected data
         assertNotNull(result)
-        assertNotNull(result.error)
+        assertEquals(1, result.size)
         verify(exactly = 1) {
             mockApi.topicListFlow()
         }

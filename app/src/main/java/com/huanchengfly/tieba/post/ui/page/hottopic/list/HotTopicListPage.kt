@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.Scaffold
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.protos.topicList.NewTopicList
+import com.huanchengfly.tieba.core.common.hottopic.HotTopicItem
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
@@ -110,15 +110,15 @@ private fun TopicImage(
 @Composable
 private fun TopicBody(
     index: Int,
-    item: NewTopicList
+    item: HotTopicItem
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = item.topic_name, style = MaterialTheme.typography.subtitle1)
-            when (item.topic_tag) {
+            Text(text = item.topicName, style = MaterialTheme.typography.subtitle1)
+            when (item.topicTag) {
                 2 -> Text(
                     text = stringResource(id = R.string.topic_tag_hot),
                     fontSize = 10.sp,
@@ -141,13 +141,13 @@ private fun TopicBody(
             }
         }
         Text(
-            text = item.topic_desc,
+            text = item.topicDesc,
             maxLines = if (index < 3) 3 else 1,
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.body2
         )
         Text(
-            text = stringResource(id = R.string.hot_num, item.discuss_num.getShortNumString()),
+            text = stringResource(id = R.string.hot_num, item.discussNum.getShortNumString()),
             style = MaterialTheme.typography.caption,
             color = ExtendedTheme.colors.textSecondary
         )
@@ -207,14 +207,14 @@ fun HotTopicListPage(
             ) {
                 itemsIndexed(
                     items = topicList,
-                    key = { _, item -> item.topic_id },
+                    key = { _, item -> item.topicId },
                 ) { index, item ->
                     if (index < 3) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            TopicImage(index = index, imageUri = item.topic_image)
+                            TopicImage(index = index, imageUri = item.topicImage)
                             TopicBody(index = index, item = item)
                         }
                     } else {
@@ -223,7 +223,7 @@ fun HotTopicListPage(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            TopicImage(index = index, imageUri = item.topic_image)
+                            TopicImage(index = index, imageUri = item.topicImage)
                             TopicBody(index = index, item = item)
                         }
                     }

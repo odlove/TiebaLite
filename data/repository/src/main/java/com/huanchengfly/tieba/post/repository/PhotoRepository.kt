@@ -1,10 +1,12 @@
 package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
-import com.huanchengfly.tieba.post.api.models.PicPageBean
+import com.huanchengfly.tieba.core.common.photoview.PicPageResult
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.huanchengfly.tieba.post.models.mappers.toPicPageResult
 
 /**
  * 图片数据仓库实现
@@ -22,7 +24,7 @@ class PhotoRepositoryImpl @Inject constructor(
         picIndex: String,
         objType: String,
         prev: Boolean
-    ): Flow<PicPageBean> =
+    ): Flow<PicPageResult> =
         api.picPageFlow(
             forumId,
             forumName,
@@ -33,4 +35,5 @@ class PhotoRepositoryImpl @Inject constructor(
             objType,
             prev
         )
+            .map { it.toPicPageResult() }
 }

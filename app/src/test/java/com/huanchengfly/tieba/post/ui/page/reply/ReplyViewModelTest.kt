@@ -70,7 +70,7 @@ class ReplyViewModelTest : BaseViewModelTest() {
     fun `Send new post reply should call addPostRepository addPost with correct parameters`() =
         runTest(testDispatcher) {
             // Given: Mock repository returns success
-            val response = TestFixtures.fakeAddPostResponse(tid = "123", pid = "456", expInc = "10")
+            val response = TestFixtures.fakeAddPostResult(threadId = 123L, postId = 456L, expInc = "10")
             every {
                 mockAddPostRepo.addPost(
                     content = "Test reply content",
@@ -129,7 +129,7 @@ class ReplyViewModelTest : BaseViewModelTest() {
     fun `Send sub-post reply should call addPostRepository addPost with postId and subPostId`() =
         runTest(testDispatcher) {
             // Given: Mock repository returns success
-            val response = TestFixtures.fakeAddPostResponse(tid = "123", pid = "789", expInc = "5")
+            val response = TestFixtures.fakeAddPostResult(threadId = 123L, postId = 789L, expInc = "5")
             every {
                 mockAddPostRepo.addPost(
                     content = "Test sub-reply",

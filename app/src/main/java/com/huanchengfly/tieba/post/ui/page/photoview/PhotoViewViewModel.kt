@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.photoview
 
-import com.huanchengfly.tieba.post.api.models.PicPageBean
+import com.huanchengfly.tieba.core.common.photoview.PicPageItem
+import com.huanchengfly.tieba.core.common.photoview.PicPageResult
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import com.huanchengfly.tieba.core.mvi.PartialChange
@@ -50,14 +51,14 @@ class PhotoViewViewModel @Inject constructor(
                     .flatMapConcat { it.producePartialChange() },
             )
 
-        private fun List<PicPageBean.PicBean>.toPhotoViewItems(): List<PhotoViewItem> =
+        private fun List<PicPageItem>.toPhotoViewItems(): List<PhotoViewItem> =
             map {
                 PhotoViewItem(
-                    picId = it.img.original.id,
-                    originUrl = it.img.original.originalSrc,
-                    url = if (it.showOriginalBtn) it.img.original.bigCdnSrc else null,
-                    overallIndex = it.overAllIndex.toInt(),
-                    postId = it.postId?.toLongOrNull()
+                    picId = it.picId,
+                    originUrl = it.originUrl,
+                    url = if (it.showOriginalBtn) it.bigUrl else null,
+                    overallIndex = it.overallIndex,
+                    postId = it.postId
                 )
             }
 
@@ -73,8 +74,8 @@ class PhotoViewViewModel @Inject constructor(
                     objType = data.objType,
                     prev = true
                 )
-                .map<PicPageBean, PhotoViewPartialChange.LoadPrev> { picPageBean ->
-                    val items = picPageBean.picList.toPhotoViewItems()
+                .map<PicPageResult, PhotoViewPartialChange.LoadPrev> { picPageResult ->
+                    val items = picPageResult.items.toPhotoViewItems()
                     val hasPrev = items.first().overallIndex > 1
                     PhotoViewPartialChange.LoadPrev.Success(
                         hasPrev = hasPrev,
@@ -99,9 +100,9 @@ class PhotoViewViewModel @Inject constructor(
                     objType = data.objType,
                     prev = false
                 )
-                .map<PicPageBean, PhotoViewPartialChange.LoadMore> { picPageBean ->
-                    val items = picPageBean.picList.toPhotoViewItems()
-                    val hasNext = items.last().overallIndex < picPageBean.picAmount.toInt()
+                .map<PicPageResult, PhotoViewPartialChange.LoadMore> { picPageResult ->
+                    val items = picPageResult.items.toPhotoViewItems()
+                    val hasNext = items.last().overallIndex < picPageResult.totalAmount
                     PhotoViewPartialChange.LoadMore.Success(
                         hasNext = hasNext,
                         items = items
@@ -145,9 +146,9 @@ class PhotoViewViewModel @Inject constructor(
                         objType = loadData.objType,
                         prev = false
                     )
-                    .map<PicPageBean, PhotoViewPartialChange.Init> { picPageBean ->
-                        val picAmount = picPageBean.picAmount.toInt()
-                        val fetchedItems = picPageBean.picList.toPhotoViewItems()
+                    .map<PicPageResult, PhotoViewPartialChange.Init> { picPageResult ->
+                        val picAmount = picPageResult.totalAmount
+                        val fetchedItems = picPageResult.items.toPhotoViewItems()
                         val firstItemIndex = fetchedItems.first().overallIndex
                         val localItems =
                             if (loadData.picIndex == 1) emptyList() else data.picItems.subList(

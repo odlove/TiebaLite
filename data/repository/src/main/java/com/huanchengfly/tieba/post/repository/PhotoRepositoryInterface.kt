@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.models.PicPageBean
+import com.huanchengfly.tieba.core.common.photoview.PicPageResult
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -31,5 +31,5 @@ interface PhotoRepository {
         picIndex: String,
         objType: String,
         prev: Boolean
-    ): Flow<PicPageBean>
+    ): Flow<PicPageResult>
 }

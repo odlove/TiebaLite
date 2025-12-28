@@ -48,6 +48,13 @@ class AddPostRepositoryImplTest {
                 every { error_code } returns 0
                 every { error_msg } returns "success"
             }
+            every { data_ } returns mockk(relaxed = true) {
+                every { tid } returns "123"
+                every { pid } returns "456"
+                every { exp } returns mockk(relaxed = true) {
+                    every { inc } returns "10"
+                }
+            }
         }
     }
 
@@ -88,6 +95,8 @@ class AddPostRepositoryImplTest {
 
         // Then
         assertNotNull(result)
+        assertEquals(123L, result.threadId)
+        assertEquals(456L, result.postId)
         verify(exactly = 1) {
             mockApi.addPostFlow(
                 content,
@@ -133,6 +142,8 @@ class AddPostRepositoryImplTest {
 
         // Then
         assertNotNull(result)
+        assertEquals(123L, result.threadId)
+        assertEquals(456L, result.postId)
         verify(exactly = 1) {
             mockApi.addPostFlow(
                 content,
@@ -181,6 +192,8 @@ class AddPostRepositoryImplTest {
 
         // Then
         assertNotNull(result)
+        assertEquals(123L, result.threadId)
+        assertEquals(456L, result.postId)
         verify(exactly = 1) {
             mockApi.addPostFlow(
                 content,

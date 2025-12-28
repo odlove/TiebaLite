@@ -6,8 +6,8 @@ import com.huanchengfly.tieba.core.common.account.AccountInfo
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.MSignBean
 import com.huanchengfly.tieba.post.api.models.SignResultBean
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.network.error.getErrorCode
+import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.post.data.account.AccountService
 import com.huanchengfly.tieba.post.models.SignDataBean
 import com.huanchengfly.tieba.post.preferences.appPreferences

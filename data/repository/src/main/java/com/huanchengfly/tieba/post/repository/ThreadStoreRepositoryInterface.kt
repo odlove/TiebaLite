@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.models.ThreadStoreBean
+import com.huanchengfly.tieba.core.common.threadstore.ThreadStoreResult
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -17,5 +17,5 @@ interface ThreadStoreRepository {
      */
     fun threadStore(
         page: Int = 1
-    ): Flow<ThreadStoreBean>
+    ): Flow<ThreadStoreResult>
 }

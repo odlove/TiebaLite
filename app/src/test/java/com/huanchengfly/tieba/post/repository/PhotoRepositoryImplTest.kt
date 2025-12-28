@@ -44,12 +44,47 @@ class PhotoRepositoryImplTest {
 
     private fun createMockPicPageBean(
         picAmount: String = "10",
-        picList: List<PicPageBean.PicBean> = emptyList()
+        picList: List<PicPageBean.PicBean> = listOf(createMockPicBean())
     ): PicPageBean {
-        return mockk<PicPageBean>(relaxed = true) {
-            every { this@mockk.picAmount } returns picAmount
-            every { this@mockk.picList } returns picList
-        }
+        return PicPageBean(
+            errorCode = "0",
+            forum = PicPageBean.ForumBean(name = "Test Forum", id = "1"),
+            picAmount = picAmount,
+            picList = picList
+        )
+    }
+
+    private fun createMockPicBean(
+        overallIndex: String = "1",
+        picId: String = "pic_1",
+        postId: String? = "10"
+    ): PicPageBean.PicBean {
+        return PicPageBean.PicBean(
+            overAllIndex = overallIndex,
+            isLongPic = false,
+            showOriginalBtn = true,
+            isBlockedPic = false,
+            img =
+                PicPageBean.ImgBean(
+                    original =
+                        PicPageBean.ImgInfoBean(
+                            id = picId,
+                            width = "100",
+                            height = "100",
+                            size = "1",
+                            format = "jpg",
+                            waterUrl = "",
+                            bigCdnSrc = "https://example.com/big.jpg",
+                            url = "https://example.com/url.jpg",
+                            originalSrc = "https://example.com/origin.jpg"
+                        ),
+                    medium = null,
+                    screen = null
+                ),
+            postId = postId,
+            userId = "100",
+            userName = "user"
+        )
     }
 
     // ========== picPage Tests ==========
@@ -75,7 +110,9 @@ class PhotoRepositoryImplTest {
         val result = repository.picPage(forumId, forumName, threadId, seeLz, picId, picIndex, objType, prev).first()
 
         // Then
-        assertEquals(expectedBean, result)
+        assertNotNull(result)
+        assertEquals(10, result.totalAmount)
+        assertEquals(1, result.items.size)
         verify(exactly = 1) {
             mockApi.picPageFlow(forumId, forumName, threadId, seeLz, picId, picIndex, objType, prev)
         }
@@ -102,7 +139,9 @@ class PhotoRepositoryImplTest {
         val result = repository.picPage(forumId, forumName, threadId, seeLz, picId, picIndex, objType, prev).first()
 
         // Then
-        assertEquals(expectedBean, result)
+        assertNotNull(result)
+        assertEquals(10, result.totalAmount)
+        assertEquals(1, result.items.size)
         verify(exactly = 1) {
             mockApi.picPageFlow(forumId, forumName, threadId, seeLz, picId, picIndex, objType, true)
         }
@@ -129,7 +168,9 @@ class PhotoRepositoryImplTest {
         val result = repository.picPage(forumId, forumName, threadId, seeLz, picId, picIndex, objType, prev).first()
 
         // Then
-        assertEquals(expectedBean, result)
+        assertNotNull(result)
+        assertEquals(10, result.totalAmount)
+        assertEquals(1, result.items.size)
         verify(exactly = 1) {
             mockApi.picPageFlow(forumId, forumName, threadId, true, picId, picIndex, objType, prev)
         }
@@ -156,7 +197,9 @@ class PhotoRepositoryImplTest {
         val result = repository.picPage(forumId, forumName, threadId, seeLz, picId, picIndex, objType, prev).first()
 
         // Then
-        assertEquals(expectedBean, result)
+        assertNotNull(result)
+        assertEquals(10, result.totalAmount)
+        assertEquals(1, result.items.size)
         verify(exactly = 1) {
             mockApi.picPageFlow(forumId, forumName, threadId, false, picId, picIndex, objType, prev)
         }
@@ -184,7 +227,7 @@ class PhotoRepositoryImplTest {
 
         // Then
         assertNotNull(result)
-        assertEquals("20", result.picAmount)
+        assertEquals(20, result.totalAmount)
         verify(exactly = 1) {
             mockApi.picPageFlow(forumId, forumName, threadId, seeLz, picId, picIndex, objType, prev)
         }
@@ -237,7 +280,9 @@ class PhotoRepositoryImplTest {
         val result = repository.picPage(forumId, forumName, threadId, seeLz, picId, picIndex, objType, prev).first()
 
         // Then
-        assertEquals(expectedBean, result)
+        assertNotNull(result)
+        assertEquals(10, result.totalAmount)
+        assertEquals(1, result.items.size)
         verify(exactly = 1) {
             mockApi.picPageFlow(forumId, forumName, threadId, seeLz, picId, picIndex, "post", prev)
         }
@@ -264,7 +309,9 @@ class PhotoRepositoryImplTest {
         val result = repository.picPage(forumId, forumName, threadId, seeLz, picId, picIndex, objType, prev).first()
 
         // Then
-        assertEquals(expectedBean, result)
+        assertNotNull(result)
+        assertEquals(10, result.totalAmount)
+        assertEquals(1, result.items.size)
         verify(exactly = 1) {
             mockApi.picPageFlow(forumId, "", threadId, seeLz, picId, picIndex, objType, prev)
         }

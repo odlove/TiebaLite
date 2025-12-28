@@ -43,11 +43,37 @@ class ThreadStoreRepositoryImplTest {
     // ========== Helper Functions ==========
 
     private fun createMockThreadStoreBean(): ThreadStoreBean {
-        return mockk<ThreadStoreBean> {
-            every { errorCode } returns "0"
-            every { error } returns null
-            every { storeThread } returns emptyList()
-        }
+        return ThreadStoreBean(
+            errorCode = "0",
+            error = null,
+            storeThread =
+                listOf(
+                    ThreadStoreBean.ThreadStoreInfo(
+                        threadId = "123",
+                        title = "Test Title",
+                        forumName = "Test Forum",
+                        author =
+                            ThreadStoreBean.AuthorInfo(
+                                lzUid = "42",
+                                name = "Test User",
+                                nameShow = "Test User Show",
+                                userPortrait = "portrait"
+                            ),
+                        media = emptyList(),
+                        isDeleted = "0",
+                        lastTime = "0",
+                        type = "0",
+                        status = "0",
+                        maxPid = "1",
+                        minPid = "1",
+                        markPid = "1",
+                        markStatus = "0",
+                        postNo = "1",
+                        postNoMsg = "",
+                        count = "0"
+                    )
+                )
+        )
     }
 
     // ========== threadStore Tests ==========
@@ -67,7 +93,7 @@ class ThreadStoreRepositoryImplTest {
 
         // Then: Verify the result matches expected data
         assertNotNull(result)
-        assertEquals("0", result.errorCode)
+        assertEquals(1, result.items?.size)
         verify(exactly = 1) {
             mockApi.threadStoreFlow(page)
         }
@@ -121,7 +147,7 @@ class ThreadStoreRepositoryImplTest {
         } returns flowOf(page1Bean)
 
         val result1 = repository.threadStore(1).first()
-        assertEquals("0", result1.errorCode)
+        assertEquals(1, result1.items?.size)
 
         // Test page 2
         val page2Bean = createMockThreadStoreBean()
@@ -130,7 +156,7 @@ class ThreadStoreRepositoryImplTest {
         } returns flowOf(page2Bean)
 
         val result2 = repository.threadStore(2).first()
-        assertEquals("0", result2.errorCode)
+        assertEquals(1, result2.items?.size)
 
         // Verify both pages were called
         verify(exactly = 1) { mockApi.threadStoreFlow(1) }

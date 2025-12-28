@@ -1,10 +1,10 @@
 package com.huanchengfly.tieba.post.ui.page.threadstore
 
 import androidx.compose.runtime.Stable
+import com.huanchengfly.tieba.core.common.threadstore.ThreadStoreItem
 import com.huanchengfly.tieba.core.network.model.CommonResponse
-import com.huanchengfly.tieba.post.api.models.ThreadStoreBean
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.network.error.getErrorCode
+import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
@@ -75,7 +75,7 @@ class ThreadStoreViewModel @Inject constructor(
             threadStoreRepository
                 .threadStore()
                 .map {
-                    val storeThread = it.storeThread
+                    val storeThread = it.items
                     if (storeThread != null) ThreadStorePartialChange.Refresh.Success(
                         storeThread,
                         storeThread.isNotEmpty()
@@ -89,7 +89,7 @@ class ThreadStoreViewModel @Inject constructor(
             threadStoreRepository
                 .threadStore(page)
                 .map {
-                    val storeThread = it.storeThread
+                    val storeThread = it.items
                     if (storeThread != null) ThreadStorePartialChange.LoadMore.Success(
                         storeThread,
                         storeThread.isNotEmpty(),
@@ -135,7 +135,7 @@ sealed interface ThreadStorePartialChange : PartialChange<ThreadStoreUiState> {
         object Start : Refresh()
 
         data class Success(
-            val data: List<ThreadStoreBean.ThreadStoreInfo>,
+            val data: List<ThreadStoreItem>,
             val hasMore: Boolean
         ) : Refresh()
 
@@ -159,7 +159,7 @@ sealed interface ThreadStorePartialChange : PartialChange<ThreadStoreUiState> {
         object Start : LoadMore()
 
         data class Success(
-            val data: List<ThreadStoreBean.ThreadStoreInfo>,
+            val data: List<ThreadStoreItem>,
             val hasMore: Boolean,
             val currentPage: Int
         ) : LoadMore()
@@ -190,7 +190,7 @@ data class ThreadStoreUiState(
     val isLoadingMore: Boolean = false,
     val hasMore: Boolean = true,
     val currentPage: Int = 1,
-    val data: List<ThreadStoreBean.ThreadStoreInfo> = emptyList(),
+    val data: List<ThreadStoreItem> = emptyList(),
     val error: ImmutableHolder<Throwable>? = null
 ) : UiState
 

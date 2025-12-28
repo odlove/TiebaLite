@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.models.protos.topicList.TopicListResponse
+import com.huanchengfly.tieba.core.common.hottopic.HotTopicItem
 import com.huanchengfly.tieba.post.api.models.protos.hotThreadList.HotThreadListResponse
 import com.huanchengfly.tieba.post.api.models.protos.forumRecommend.ForumRecommendResponse
 import kotlinx.coroutines.flow.Flow
@@ -33,5 +33,5 @@ interface ContentRecommendRepository {
      *
      * @return 话题列表数据流
      */
-    fun topicList(): Flow<TopicListResponse>
+    fun topicList(): Flow<List<HotTopicItem>>
 }

@@ -1,8 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.hottopic.list
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.models.protos.topicList.NewTopicList
-import com.huanchengfly.tieba.post.api.models.protos.topicList.TopicListResponse
+import com.huanchengfly.tieba.core.common.hottopic.HotTopicItem
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import com.huanchengfly.tieba.core.mvi.PartialChange
@@ -45,8 +44,8 @@ class HotTopicListViewModel @Inject constructor(
 
         private fun produceLoadPartialChange(): Flow<HotTopicListPartialChange.Load> =
             contentRecommendRepository.topicList()
-                .map<TopicListResponse, HotTopicListPartialChange.Load> {
-                    HotTopicListPartialChange.Load.Success(it.data_?.topic_list ?: emptyList())
+                .map<List<HotTopicItem>, HotTopicListPartialChange.Load> {
+                    HotTopicListPartialChange.Load.Success(it)
                 }
                 .onStart { emit(HotTopicListPartialChange.Load.Start) }
                 .catch { emit(HotTopicListPartialChange.Load.Failure(it)) }
@@ -68,7 +67,7 @@ sealed interface HotTopicListPartialChange : PartialChange<HotTopicListUiState> 
         object Start : Load()
 
         data class Success(
-            val topicList: List<NewTopicList>
+            val topicList: List<HotTopicItem>
         ) : Load()
 
         data class Failure(
@@ -79,5 +78,5 @@ sealed interface HotTopicListPartialChange : PartialChange<HotTopicListUiState> 
 
 data class HotTopicListUiState(
     val isRefreshing: Boolean = true,
-    val topicList: List<NewTopicList> = emptyList()
+    val topicList: List<HotTopicItem> = emptyList()
 ) : UiState

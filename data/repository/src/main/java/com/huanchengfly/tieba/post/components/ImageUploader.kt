@@ -8,11 +8,12 @@ import com.huanchengfly.tieba.core.network.http.multipart.MyMultipartBody
 import com.huanchengfly.tieba.core.network.http.multipart.buildMultipartBody
 import com.huanchengfly.tieba.post.api.BOUNDARY
 import com.huanchengfly.tieba.post.api.booleanToString
-import com.huanchengfly.tieba.post.api.models.UploadPictureResultBean
+import com.huanchengfly.tieba.core.common.reply.UploadImageResult
 import com.huanchengfly.tieba.post.api.retrofit.RetrofitTiebaApi
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.network.error.getErrorCode
+import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.post.utils.MD5Util
+import com.huanchengfly.tieba.post.models.mappers.toUploadImageResult
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.RandomAccessFile
@@ -49,12 +50,12 @@ class ImageUploader(
     fun uploadImages(
         filePaths: List<String>,
         isOriginImage: Boolean = false,
-    ): Flow<List<UploadPictureResultBean>> {
+    ): Flow<List<UploadImageResult>> {
         return filePaths.asFlow()
             .map { filePath ->
                 uploadSinglePicture(filePath, isOriginImage)
             }
-            .runningFold<UploadPictureResultBean, MutableList<UploadPictureResultBean>>(initial = mutableListOf()) { list, result ->
+            .runningFold<UploadImageResult, MutableList<UploadImageResult>>(initial = mutableListOf()) { list, result ->
                 list.add(result)
                 list
             }
@@ -103,7 +104,7 @@ class ImageUploader(
     suspend fun uploadSinglePicture(
         filePath: String,
         isOriginImage: Boolean = false,
-    ): UploadPictureResultBean {
+    ): UploadImageResult {
         val option = BitmapFactory.Options().apply {
             inJustDecodeBounds = true
         }
@@ -167,6 +168,7 @@ class ImageUploader(
                 }
             }
             .last()
+            .toUploadImageResult()
     }
 }
 

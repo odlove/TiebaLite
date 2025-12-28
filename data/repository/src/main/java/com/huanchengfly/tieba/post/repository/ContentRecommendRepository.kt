@@ -1,10 +1,12 @@
 package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
-import com.huanchengfly.tieba.post.api.models.protos.topicList.TopicListResponse
 import com.huanchengfly.tieba.post.api.models.protos.hotThreadList.HotThreadListResponse
 import com.huanchengfly.tieba.post.api.models.protos.forumRecommend.ForumRecommendResponse
+import com.huanchengfly.tieba.core.common.hottopic.HotTopicItem
+import com.huanchengfly.tieba.post.models.mappers.toHotTopicItems
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,6 +25,7 @@ class ContentRecommendRepositoryImpl @Inject constructor(
     override fun forumRecommend(): Flow<ForumRecommendResponse> =
         api.forumRecommendNewFlow()
 
-    override fun topicList(): Flow<TopicListResponse> =
+    override fun topicList(): Flow<List<HotTopicItem>> =
         api.topicListFlow()
+            .map { it.toHotTopicItems() }
 }

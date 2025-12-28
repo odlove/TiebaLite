@@ -51,7 +51,7 @@ class HotTopicListViewModelTest : BaseViewModelTest() {
     fun `Load should call contentRecommendRepository topicList`() =
         runTest(testDispatcher) {
             // Given: Mock repository returns topic list
-            val response = TestFixtures.fakeTopicListResponse()
+            val response = TestFixtures.fakeHotTopicList()
             every {
                 mockContentRecommendRepo.topicList()
             } returns flowOf(response)

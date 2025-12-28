@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.models.protos.addPost.AddPostResponse
+import com.huanchengfly.tieba.core.common.reply.AddPostResult
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -31,5 +31,5 @@ interface AddPostRepository {
         postId: Long? = null,
         subPostId: Long? = null,
         replyUserId: Long? = null
-    ): Flow<AddPostResponse>
+    ): Flow<AddPostResult>
 }

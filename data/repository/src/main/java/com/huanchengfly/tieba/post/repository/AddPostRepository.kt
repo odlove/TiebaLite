@@ -1,10 +1,12 @@
 package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
-import com.huanchengfly.tieba.post.api.models.protos.addPost.AddPostResponse
+import com.huanchengfly.tieba.core.common.reply.AddPostResult
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.huanchengfly.tieba.post.models.mappers.toAddPostResult
 
 /**
  * 发帖/回帖数据仓库实现
@@ -23,7 +25,7 @@ class AddPostRepositoryImpl @Inject constructor(
         postId: Long?,
         subPostId: Long?,
         replyUserId: Long?
-    ): Flow<AddPostResponse> =
+    ): Flow<AddPostResult> =
         api.addPostFlow(
             content,
             forumId.toString(),
@@ -35,4 +37,5 @@ class AddPostRepositoryImpl @Inject constructor(
             subPostId?.toString(),
             replyUserId?.toString()
         )
+            .map { it.toAddPostResult() }
 }

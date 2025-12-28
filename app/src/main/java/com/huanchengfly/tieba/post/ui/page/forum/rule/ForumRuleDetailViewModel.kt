@@ -1,10 +1,9 @@
 package com.huanchengfly.tieba.post.ui.page.forum.rule
 
 import androidx.compose.runtime.Immutable
-import com.huanchengfly.tieba.post.api.models.protos.BawuRoleInfoPub
-import com.huanchengfly.tieba.post.api.models.protos.ForumRule
-import com.huanchengfly.tieba.post.api.models.protos.forumRuleDetail.ForumRuleDetailResponse
-import com.huanchengfly.tieba.post.api.models.protos.renders
+import com.huanchengfly.tieba.core.common.forum.ForumRuleAuthor
+import com.huanchengfly.tieba.core.common.forum.ForumRuleDetail
+import com.huanchengfly.tieba.core.common.forum.ForumRuleItem
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
@@ -16,6 +15,7 @@ import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.repository.ForumInfoRepository
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
+import com.huanchengfly.tieba.post.ui.page.thread.renders
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -54,15 +54,13 @@ class ForumRuleDetailViewModel @Inject constructor(
         private fun ForumRuleDetailUiIntent.Load.producePartialChange(): Flow<ForumRuleDetailPartialChange.Load> =
             forumInfoRepository
                 .forumRuleDetail(forumId)
-                .map<ForumRuleDetailResponse, ForumRuleDetailPartialChange.Load> { response ->
-                    val data = checkNotNull(response.data_)
-                    val bazhu = checkNotNull(data.bazhu)
+                .map<ForumRuleDetail, ForumRuleDetailPartialChange.Load> { data ->
                     ForumRuleDetailPartialChange.Load.Success(
                         title = data.title,
-                        publishTime = data.publish_time,
+                        publishTime = data.publishTime,
                         preface = data.preface,
                         data = data.rules.map { it.toData() }.toImmutableList(),
-                        author = bazhu
+                        author = data.author
                     )
                 }
                 .onStart { emit(ForumRuleDetailPartialChange.Load.Start) }
@@ -89,7 +87,7 @@ sealed interface ForumRuleDetailPartialChange : PartialChange<ForumRuleDetailUiS
                     publishTime = publishTime,
                     preface = preface,
                     data = data,
-                    author = author.wrapImmutable()
+                    author = author?.wrapImmutable()
                 )
 
                 is Failure -> oldState.copy(
@@ -105,7 +103,7 @@ sealed interface ForumRuleDetailPartialChange : PartialChange<ForumRuleDetailUiS
             val publishTime: String,
             val preface: String,
             val data: ImmutableList<ForumRuleItemData>,
-            val author: BawuRoleInfoPub,
+            val author: ForumRuleAuthor?,
         ) : Load()
 
         data class Failure(val error: Throwable) : Load()
@@ -120,7 +118,7 @@ data class ForumRuleDetailUiState(
     val publishTime: String = "",
     val preface: String = "",
     val data: ImmutableList<ForumRuleItemData> = persistentListOf(),
-    val author: ImmutableHolder<BawuRoleInfoPub>? = null,
+    val author: ImmutableHolder<ForumRuleAuthor>? = null,
 ) : UiState
 
 @Immutable
@@ -129,7 +127,8 @@ data class ForumRuleItemData(
     val contentRenders: ImmutableList<PbContentRender>,
 )
 
-private fun ForumRule.toData(): ForumRuleItemData = ForumRuleItemData(
-    title,
-    content.renders
-)
+private fun ForumRuleItem.toData(): ForumRuleItemData =
+    ForumRuleItemData(
+        title = title,
+        contentRenders = content.renders
+    )

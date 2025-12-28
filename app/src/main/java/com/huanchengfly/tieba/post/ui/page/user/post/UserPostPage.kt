@@ -497,6 +497,7 @@ private fun PostInfoList.toThreadCard(): ThreadCard {
         videoInfo = videoInfo,
         hasOriginThreadInfo = originThread != null,
         originThreadPayload = originThread,
+        authorId = user_id,
     )
 }
 

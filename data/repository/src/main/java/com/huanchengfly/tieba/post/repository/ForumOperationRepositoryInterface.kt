@@ -1,8 +1,8 @@
 package com.huanchengfly.tieba.post.repository
 
+import com.huanchengfly.tieba.core.common.forum.ForumLikeResult
+import com.huanchengfly.tieba.core.common.forum.ForumSignResult
 import com.huanchengfly.tieba.core.network.model.CommonResponse
-import com.huanchengfly.tieba.post.api.models.LikeForumResultBean
-import com.huanchengfly.tieba.post.api.models.SignResultBean
 import com.huanchengfly.tieba.post.api.models.protos.userLike.UserLikeResponse
 import kotlinx.coroutines.flow.Flow
 
@@ -24,7 +24,7 @@ interface ForumOperationRepository {
         forumId: String,
         forumName: String,
         tbs: String
-    ): Flow<SignResultBean>
+    ): Flow<ForumSignResult>
 
     /**
      * 关注贴吧
@@ -38,7 +38,7 @@ interface ForumOperationRepository {
         forumId: String,
         forumName: String,
         tbs: String
-    ): Flow<LikeForumResultBean>
+    ): Flow<ForumLikeResult>
 
     /**
      * 取消关注贴吧

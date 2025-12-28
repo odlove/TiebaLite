@@ -1,11 +1,16 @@
 package com.huanchengfly.tieba.post
 
 import com.huanchengfly.tieba.post.api.models.AgreeBean
+import com.huanchengfly.tieba.core.common.feed.ThreadCard
+import com.huanchengfly.tieba.core.common.forum.ForumInfo
+import com.huanchengfly.tieba.core.common.forum.ForumLikeResult
+import com.huanchengfly.tieba.core.common.forum.ForumPageData
+import com.huanchengfly.tieba.core.common.forum.ForumPageInfo
+import com.huanchengfly.tieba.core.common.forum.ForumSignResult
+import com.huanchengfly.tieba.core.common.search.SearchThreadResult
 import com.huanchengfly.tieba.core.network.model.CommonResponse
-import com.huanchengfly.tieba.post.api.models.LikeForumResultBean
 import com.huanchengfly.tieba.post.api.models.MessageListBean
 import com.huanchengfly.tieba.post.api.models.SearchThreadBean
-import com.huanchengfly.tieba.post.api.models.SignResultBean
 import com.huanchengfly.tieba.post.api.models.protos.Abstract
 import com.huanchengfly.tieba.post.api.models.protos.Media
 import com.huanchengfly.tieba.post.api.models.protos.PbContent
@@ -14,11 +19,9 @@ import com.huanchengfly.tieba.post.api.models.protos.SubPostList
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.post.api.models.protos.addPost.AddPostResponse
-import com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse
 import com.huanchengfly.tieba.post.api.models.protos.hotThreadList.HotThreadListResponse
 import com.huanchengfly.tieba.post.api.models.protos.personalized.PersonalizedResponse
 import com.huanchengfly.tieba.post.api.models.protos.searchSug.SearchSugResponse
-import com.huanchengfly.tieba.post.api.models.protos.threadList.ThreadListResponse
 import com.huanchengfly.tieba.post.api.models.protos.topicList.TopicListResponse
 import com.huanchengfly.tieba.post.api.models.protos.userLike.UserLikeResponse
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
@@ -39,9 +42,15 @@ import kotlinx.coroutines.flow.flowOf
  */
 object TestFixtures {
 
-    fun fakeFrsPageResponse(): FrsPageResponse = mockk(relaxed = true)
+    fun fakeFrsPageResponse(): ForumPageData =
+        ForumPageData(
+            forum = ForumInfo(),
+            page = ForumPageInfo(hasMore = true),
+            threadList = emptyList(),
+            threadIdList = emptyList()
+        )
 
-    fun fakeThreadListResponse(): ThreadListResponse = mockk(relaxed = true)
+    fun fakeThreadListResponse(): List<ThreadCard> = emptyList()
 
     fun fakeCommonResponse(errorCode: Int = 0, errorMsg: String = "success") =
         CommonResponse(errorCode = errorCode, errorMsg = errorMsg)
@@ -69,38 +78,25 @@ object TestFixtures {
         score: String = "0"
     ): AgreeBean = fakeAgreeBean(errorCode, errorMsg, score)
 
-    fun fakeSignResultBean(
-        errorCode: String = "0",
-        errorMsg: String = "success"
-    ): SignResultBean = SignResultBean(errorCode = errorCode, errorMsg = errorMsg)
-
-    fun fakeLikeForumResultBean(
-        errorCode: String = "0",
-        errno: String = "0",
-        errmsg: String = "",
-        usermsg: String = "",
-        curScore: String = "",
-        levelUpScore: String = "",
-        levelId: String = "",
-        levelName: String = "",
-        memberSum: String = "",
-        permLevelId: String = "",
-        permLevelName: String = ""
-    ): LikeForumResultBean = LikeForumResultBean(
-        errorCode = errorCode,
-        error = LikeForumResultBean.ErrorInfo(errno = errno, errmsg = errmsg, usermsg = usermsg),
-        info = LikeForumResultBean.Info(
-            curScore = curScore,
-            levelUpScore = levelUpScore,
-            levelId = levelId,
-            levelName = levelName,
-            memberSum = memberSum
-        ),
-        userPerm = LikeForumResultBean.UserPermInfo(
-            levelId = permLevelId,
-            levelName = permLevelName
+    fun fakeForumSignResult(): ForumSignResult =
+        ForumSignResult(
+            signBonusPoint = 10,
+            levelUpScore = 100,
+            contSignNum = 1,
+            userSignRank = 1,
+            isSignIn = 1,
+            level = 1,
+            levelName = "Lv1"
         )
-    )
+
+    fun fakeForumLikeResult(): ForumLikeResult =
+        ForumLikeResult(
+            memberSum = "0",
+            curScore = 0,
+            levelUpScore = 0,
+            levelId = 0,
+            levelName = ""
+        )
 
     fun fakeMessageListBean(): MessageListBean = mockk(relaxed = true) {
         every { page } returns mockk(relaxed = true) {
@@ -155,12 +151,20 @@ object TestFixtures {
         }
     }
 
+    fun fakeSearchSuggestions(): List<String> = emptyList()
+
     fun fakeSearchThreadBean(): SearchThreadBean = mockk(relaxed = true) {
         every { data } returns mockk(relaxed = true) {
             every { postList } returns emptyList()
             every { hasMore } returns 1
         }
     }
+
+    fun fakeSearchThreadResult(): SearchThreadResult =
+        SearchThreadResult(
+            items = emptyList(),
+            hasMore = true
+        )
 
     fun fakeTopicListResponse(): TopicListResponse = mockk(relaxed = true) {
         every { data_ } returns mockk(relaxed = true) {
@@ -215,8 +219,8 @@ object TestFixtures {
 
     fun mockFrsPageSuccess(
         repo: FrsPageRepository,
-        response: FrsPageResponse = fakeFrsPageResponse()
-    ): Flow<FrsPageResponse> {
+        response: ForumPageData = fakeFrsPageResponse()
+    ): Flow<ForumPageData> {
         val flow = flowOf(response)
         every { repo.frsPage(any(), any(), any(), any(), any(), any()) } returns flow
         return flow
@@ -224,8 +228,8 @@ object TestFixtures {
 
     fun mockThreadListSuccess(
         repo: FrsPageRepository,
-        response: ThreadListResponse = fakeThreadListResponse()
-    ): Flow<ThreadListResponse> {
+        response: List<ThreadCard> = fakeThreadListResponse()
+    ): Flow<List<ThreadCard>> {
         val flow = flowOf(response)
         every { repo.threadList(any(), any(), any(), any(), any()) } returns flow
         return flow
@@ -236,8 +240,8 @@ object TestFixtures {
         forumId: String,
         forumName: String,
         tbs: String,
-        response: SignResultBean = fakeSignResultBean()
-    ): Flow<SignResultBean> {
+        response: ForumSignResult = fakeForumSignResult()
+    ): Flow<ForumSignResult> {
         val flow = flowOf(response)
         every { repo.sign(forumId, forumName, tbs) } returns flow
         return flow
@@ -248,8 +252,8 @@ object TestFixtures {
         forumId: String,
         forumName: String,
         tbs: String,
-        response: LikeForumResultBean = fakeLikeForumResultBean()
-    ): Flow<LikeForumResultBean> {
+        response: ForumLikeResult = fakeForumLikeResult()
+    ): Flow<ForumLikeResult> {
         val flow = flowOf(response)
         every { repo.likeForum(forumId, forumName, tbs) } returns flow
         return flow

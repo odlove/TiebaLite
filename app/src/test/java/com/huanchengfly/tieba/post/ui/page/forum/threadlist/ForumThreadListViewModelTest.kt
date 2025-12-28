@@ -1,7 +1,10 @@
 package com.huanchengfly.tieba.post.ui.page.forum.threadlist
 
 import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
-import com.huanchengfly.tieba.post.TestFixtures
+import com.huanchengfly.tieba.core.common.feed.ThreadCard
+import com.huanchengfly.tieba.core.common.forum.ForumInfo
+import com.huanchengfly.tieba.core.common.forum.ForumPageData
+import com.huanchengfly.tieba.core.common.forum.ForumPageInfo
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
@@ -53,26 +56,19 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
         clearMocks(mockFrsRepo, mockUserRepo, mockPbPageRepo, mockAppPreferences)
     }
 
-    private fun createFrsPageResponseForList(): com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse {
-        val response = TestFixtures.fakeFrsPageResponse()
-        every { response.data_ } returns mockk(relaxed = true) {
-            every { page } returns mockk(relaxed = true) {
-                every { has_more } returns 1
-            }
-            every { thread_list } returns emptyList()
-            every { thread_id_list } returns emptyList()
-            every { forum } returns mockk(relaxed = true) {
-                every { good_classify } returns emptyList()
-            }
-        }
-        return response
-    }
+    private fun createForumPageDataForList(): ForumPageData =
+        ForumPageData(
+            forum = ForumInfo(),
+            page = ForumPageInfo(hasMore = true),
+            threadList = emptyList(),
+            threadIdList = emptyList()
+        )
 
     // region LatestThreadListViewModel
 
     @Test
     fun latest_firstLoad_requestsFrsPage() = runTest(testDispatcher) {
-        val response = createFrsPageResponseForList()
+        val response = createForumPageDataForList()
         var callCount = 0
         val callSignal = CompletableDeferred<Unit>()
         every {
@@ -112,11 +108,7 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
 
     @Test
     fun latest_loadMore_withIds_requestsThreadList() = runTest(testDispatcher) {
-        val threadListResponse = TestFixtures.fakeThreadListResponse().also {
-            every { it.data_ } returns mockk(relaxed = true) {
-                every { thread_list } returns emptyList()
-            }
-        }
+        val threadListResponse = emptyList<ThreadCard>()
         var callCount = 0
         val callSignal = CompletableDeferred<Unit>()
         every { mockFrsRepo.threadList(any(), any(), any(), any(), any()) } answers {
@@ -155,7 +147,7 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
 
     @Test
     fun latest_loadMore_withoutIds_requestsNextPage() = runTest(testDispatcher) {
-        val response = createFrsPageResponseForList()
+        val response = createForumPageDataForList()
         var callCount = 0
         val callSignal = CompletableDeferred<Unit>()
         every {
@@ -229,7 +221,7 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
 
     @Test
     fun good_firstLoad_passesGoodClassifyId() = runTest(testDispatcher) {
-        val response = createFrsPageResponseForList()
+        val response = createForumPageDataForList()
         var callCount = 0
         val capturedGoodClassifyId = CompletableDeferred<Int?>()
         every {
@@ -275,7 +267,7 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
 
     @Test
     fun good_loadMore_withoutIds_requestsNextGoodPage() = runTest(testDispatcher) {
-        val response = createFrsPageResponseForList()
+        val response = createForumPageDataForList()
         var callCount = 0
         val capturedGoodClassifyId = CompletableDeferred<Int?>()
         every {

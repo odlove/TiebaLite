@@ -5,6 +5,8 @@ import com.huanchengfly.tieba.post.api.models.protos.Post
 import com.huanchengfly.tieba.post.api.models.protos.PbContent
 import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.SubPostList
+import com.huanchengfly.tieba.core.common.feed.ThreadCard
+import com.huanchengfly.tieba.core.common.feed.RichTextSegment
 import com.huanchengfly.tieba.core.common.thread.ThreadContentItem
 import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
@@ -73,6 +75,11 @@ object BlockManager {
     fun ThreadInfo.shouldBlock(): Boolean =
         shouldBlock(title) || shouldBlock(blockingAbstractText()) || shouldBlock(authorId, author?.name)
 
+    fun ThreadCard.shouldBlock(): Boolean =
+        shouldBlock(title) ||
+            shouldBlock(abstractSegments.blockingAbstractTextForFeed()) ||
+            shouldBlock(authorId.takeIf { it != 0L } ?: author?.id ?: 0L, author?.nameShow ?: author?.name)
+
     fun Post.shouldBlock(): Boolean =
         shouldBlock(content.blockingPlainText()) || shouldBlock(author_id, author?.name)
 
@@ -99,10 +106,19 @@ private fun ThreadInfo.blockingAbstractText(): String =
         _abstract.joinToString(separator = "") { it.text.replace(Regex(" {2,}"), " ") }
     }
 
+private fun List<RichTextSegment>.blockingAbstractTextForFeed(): String =
+    joinToString(separator = "") { it.toPlainSegment() }
+
 private fun List<PbContent>.blockingPlainText(): String =
     joinToString(separator = "") { it.toPlainSegment() }
 
 private fun PbContent.toPlainSegment(): String = when (type) {
+    0, 4 -> text.replace(Regex(" {2,}"), " ")
+    2 -> if (c.isNullOrBlank()) "" else "#($c)"
+    else -> text
+}
+
+private fun RichTextSegment.toPlainSegment(): String = when (type) {
     0, 4 -> text.replace(Regex(" {2,}"), " ")
     2 -> if (c.isNullOrBlank()) "" else "#($c)"
     else -> text

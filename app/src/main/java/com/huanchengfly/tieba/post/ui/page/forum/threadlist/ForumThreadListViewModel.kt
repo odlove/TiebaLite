@@ -1,11 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.forum.threadlist
 
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.api.models.AgreeBean
-import com.huanchengfly.tieba.post.api.models.protos.frsPage.Classify
-import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorCode
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.network.error.getErrorCode
+import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
@@ -16,16 +13,9 @@ import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
-import com.huanchengfly.tieba.core.common.feed.RichTextSegment
-import com.huanchengfly.tieba.core.common.feed.ThreadAuthor
-import com.huanchengfly.tieba.core.common.feed.ThreadCard
-import com.huanchengfly.tieba.core.common.feed.ThreadForumInfo
-import com.huanchengfly.tieba.core.common.feed.ThreadMediaItem
-import com.huanchengfly.tieba.core.common.feed.ThreadVideoInfo
-import com.huanchengfly.tieba.core.common.feed.OriginThreadCard
+import com.huanchengfly.tieba.core.common.forum.ForumClassify
+import com.huanchengfly.tieba.core.common.forum.ForumPageData
 import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
-import com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse
-import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
@@ -43,7 +33,6 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 import kotlin.math.min
@@ -145,27 +134,25 @@ private class ForumThreadListPartialChangeProducer(
             sortType.takeIf { type == ForumThreadListType.Latest } ?: -1,
             goodClassifyId.takeIf { type == ForumThreadListType.Good }
         )
-            .map<FrsPageResponse, ForumThreadListPartialChange.FirstLoad> { response ->
-                val data = response.data_ ?: throw TiebaUnknownException
-                val page = data.page ?: throw TiebaUnknownException
-                val threadList = data.thread_list.map { threadInfo ->
+            .map<ForumPageData, ForumThreadListPartialChange.FirstLoad> { data ->
+                val threadList = data.threadList.map { thread ->
                     ThreadItemData(
-                        thread = threadInfo.toThreadCard().wrapImmutable(),
+                        thread = thread.wrapImmutable(),
                         hideBlockedContent = appPreferences.hideBlockedContent,
-                        blocked = threadInfo.shouldBlock(),
-                        isTop = threadInfo.isTop == 1
+                        blocked = thread.shouldBlock(),
+                        isTop = thread.isTop
                     )
                 }
-                val forumRule = data.forum_rule
+                val forumRule = data.forumRule
                 ForumThreadListPartialChange.FirstLoad.Success(
                     forumRule?.title.takeIf {
-                        type == ForumThreadListType.Latest && forumRule?.has_forum_rule == 1
+                        type == ForumThreadListType.Latest && forumRule?.hasForumRule == true
                     },
                     threadList.map { it.wrapImmutable() },
-                    data.thread_id_list,
-                    (data.forum?.good_classify ?: emptyList()).wrapImmutable(),
+                    data.threadIdList.toImmutableList(),
+                    data.forum.goodClassify.wrapImmutable(),
                     goodClassifyId.takeIf { type == ForumThreadListType.Good },
-                    page.has_more == 1
+                    data.page?.hasMore ?: false
                 )
             }
             .onStart { emit(ForumThreadListPartialChange.FirstLoad.Start) }
@@ -180,23 +167,21 @@ private class ForumThreadListPartialChangeProducer(
             goodClassifyId.takeIf { type == ForumThreadListType.Good },
             forceNew = true
         )
-            .map<FrsPageResponse, ForumThreadListPartialChange.Refresh> { response ->
-                val data = response.data_ ?: throw TiebaUnknownException
-                val page = data.page ?: throw TiebaUnknownException
-                val threadList = data.thread_list.map { threadInfo ->
+            .map<ForumPageData, ForumThreadListPartialChange.Refresh> { data ->
+                val threadList = data.threadList.map { thread ->
                     ThreadItemData(
-                        thread = threadInfo.toThreadCard().wrapImmutable(),
+                        thread = thread.wrapImmutable(),
                         hideBlockedContent = appPreferences.hideBlockedContent,
-                        blocked = threadInfo.shouldBlock(),
-                        isTop = threadInfo.isTop == 1
+                        blocked = thread.shouldBlock(),
+                        isTop = thread.isTop
                     )
                 }
                 ForumThreadListPartialChange.Refresh.Success(
                     threadList.map { it.wrapImmutable() },
-                    data.thread_id_list,
-                    (data.forum?.good_classify ?: emptyList()).wrapImmutable(),
+                    data.threadIdList.toImmutableList(),
+                    data.forum.goodClassify.wrapImmutable(),
                     goodClassifyId.takeIf { type == ForumThreadListType.Good },
-                    page.has_more == 1
+                    data.page?.hasMore ?: false
                 )
             }
             .onStart { emit(ForumThreadListPartialChange.Refresh.Start) }
@@ -212,20 +197,19 @@ private class ForumThreadListPartialChangeProducer(
                 sortType,
                 threadListIds.subList(0, size).joinToString(separator = ",") { "$it" }
             ).map { response ->
-                val data = response.data_ ?: throw TiebaUnknownException
-                val threadList = data.thread_list.map { threadInfo ->
+                val threadList = response.map { thread ->
                     ThreadItemData(
-                        thread = threadInfo.toThreadCard().wrapImmutable(),
+                        thread = thread.wrapImmutable(),
                         hideBlockedContent = appPreferences.hideBlockedContent,
-                        blocked = threadInfo.shouldBlock(),
-                        isTop = threadInfo.isTop == 1
+                        blocked = thread.shouldBlock(),
+                        isTop = thread.isTop
                     )
                 }
                 ForumThreadListPartialChange.LoadMore.Success(
                     threadList = threadList.map { it.wrapImmutable() },
                     threadListIds = threadListIds.drop(size),
                     currentPage = currentPage,
-                    hasMore = data.thread_list.isNotEmpty()
+                    hasMore = response.isNotEmpty()
                 )
             }
         } else {
@@ -236,22 +220,20 @@ private class ForumThreadListPartialChangeProducer(
                 sortType.takeIf { type == ForumThreadListType.Latest } ?: -1,
                 goodClassifyId.takeIf { type == ForumThreadListType.Good }
             )
-                .map<FrsPageResponse, ForumThreadListPartialChange.LoadMore> { response ->
-                    val data = response.data_ ?: throw TiebaUnknownException
-                    val page = data.page ?: throw TiebaUnknownException
-                    val threadList = data.thread_list.map {
+                .map<ForumPageData, ForumThreadListPartialChange.LoadMore> { data ->
+                    val threadList = data.threadList.map {
                         ThreadItemData(
-                            thread = it.toThreadCard().wrapImmutable(),
+                            thread = it.wrapImmutable(),
                             hideBlockedContent = appPreferences.hideBlockedContent,
                             blocked = it.shouldBlock(),
-                            isTop = it.isTop == 1
+                            isTop = it.isTop
                         )
                     }
                     ForumThreadListPartialChange.LoadMore.Success(
                         threadList = threadList.map { it.wrapImmutable() },
-                        threadListIds = data.thread_id_list,
+                        threadListIds = data.threadIdList.toImmutableList(),
                         currentPage = currentPage + 1,
-                        hasMore = page.has_more == 1
+                        hasMore = data.page?.hasMore ?: false
                     )
                 }
         }
@@ -272,11 +254,11 @@ private class ForumThreadListPartialChangeProducer(
             hasAgree,
             objType = 3
         )
-            .map<AgreeBean, ForumThreadListPartialChange.Agree> {
+            .map {
                 ForumThreadListPartialChange.Agree.Success(
                     threadId,
                     hasAgree xor 1
-                )
+                ) as ForumThreadListPartialChange.Agree
             }
             .catch {
                 // ✅ 失败时恢复原始值
@@ -374,7 +356,7 @@ sealed interface ForumThreadListPartialChange : PartialChange<ForumThreadListUiS
             val forumRuleTitle: String?,
             val threadList: List<ImmutableHolder<ThreadItemData>>,
             val threadListIds: List<Long>,
-            val goodClassifies: List<ImmutableHolder<Classify>>,
+            val goodClassifies: List<ImmutableHolder<ForumClassify>>,
             val goodClassifyId: Int?,
             val hasMore: Boolean,
         ) : FirstLoad()
@@ -406,7 +388,7 @@ sealed interface ForumThreadListPartialChange : PartialChange<ForumThreadListUiS
         data class Success(
             val threadList: List<ImmutableHolder<ThreadItemData>>,
             val threadListIds: List<Long>,
-            val goodClassifies: List<ImmutableHolder<Classify>>,
+            val goodClassifies: List<ImmutableHolder<ForumClassify>>,
             val goodClassifyId: Int? = null,
             val hasMore: Boolean,
         ) : Refresh()
@@ -478,7 +460,7 @@ data class ForumThreadListUiState(
     val forumRuleTitle: String? = null,
     val threadList: ImmutableList<ImmutableHolder<ThreadItemData>> = persistentListOf(),
     val threadListIds: ImmutableList<Long> = persistentListOf(),
-    val goodClassifies: ImmutableList<ImmutableHolder<Classify>> = persistentListOf(),
+    val goodClassifies: ImmutableList<ImmutableHolder<ForumClassify>> = persistentListOf(),
     val currentPage: Int = 1,
     val hasMore: Boolean = true,
 ) : UiState
@@ -500,120 +482,4 @@ sealed interface ForumThreadListUiEvent : UiEvent {
     data class BackToTop(
         val isGood: Boolean
     ) : ForumThreadListUiEvent
-}
-
-private fun ThreadInfo.toThreadCard(): ThreadCard {
-    val author = author?.let {
-        ThreadAuthor(
-            id = it.id,
-            name = it.name,
-            nameShow = it.nameShow,
-            portrait = it.portrait
-        )
-    }
-    val forumInfo = forumInfo?.let {
-        ThreadForumInfo(
-            name = it.name,
-            avatar = it.avatar
-        )
-    }
-    val abstractSegments = if (richAbstract.isNotEmpty()) {
-        richAbstract.map {
-            RichTextSegment(
-                type = it.type,
-                text = it.text,
-                c = it.c
-            )
-        }
-    } else {
-        _abstract.map {
-            RichTextSegment(
-                type = it.type,
-                text = it.text
-            )
-        }
-    }
-    val medias = media.map {
-        ThreadMediaItem(
-            originPic = it.originPic,
-            bigPic = it.bigPic,
-            dynamicPic = it.dynamicPic,
-            srcPic = it.srcPic,
-            postId = it.postId,
-            showOriginalBtn = it.showOriginalBtn,
-            originSize = it.originSize
-        )
-    }
-    val videoInfo = videoInfo?.let {
-        ThreadVideoInfo(
-            videoUrl = it.videoUrl,
-            thumbnailUrl = it.thumbnailUrl,
-            thumbnailWidth = it.thumbnailWidth,
-            thumbnailHeight = it.thumbnailHeight
-        )
-    }
-    val originThread = origin_thread_info?.toOriginThreadCard()
-    return ThreadCard(
-        threadId = threadId.takeIf { it != 0L } ?: id,
-        firstPostId = firstPostId,
-        forumId = forumId,
-        forumName = forumName,
-        title = title,
-        tabName = tabName,
-        isNoTitle = isNoTitle == 1,
-        isGood = isGood == 1,
-        isShareThread = is_share_thread == 1,
-        lastTimeInt = lastTimeInt,
-        shareNum = shareNum.toInt(),
-        replyNum = replyNum,
-        hotNum = hotNum,
-        agreeNum = agreeNum,
-        hasAgree = agree?.hasAgree ?: 0,
-        collectStatus = collectStatus,
-        collectMarkPid = collectMarkPid.toLongOrNull() ?: 0L,
-        author = author,
-        forumInfo = forumInfo,
-        abstractSegments = abstractSegments,
-        medias = medias,
-        videoInfo = videoInfo,
-        hasOriginThreadInfo = originThread != null,
-        originThreadPayload = originThread,
-    )
-}
-
-private fun com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo.toOriginThreadCard(): OriginThreadCard {
-    val abstractSegments = _abstract.map {
-        RichTextSegment(
-            type = it.type,
-            text = it.text
-        )
-    }
-    val medias = media.map {
-        ThreadMediaItem(
-            originPic = it.originPic,
-            bigPic = it.bigPic,
-            dynamicPic = it.dynamicPic,
-            srcPic = it.srcPic,
-            postId = it.postId,
-            showOriginalBtn = it.showOriginalBtn,
-            originSize = it.originSize
-        )
-    }
-    val videoInfo = video_info?.let {
-        ThreadVideoInfo(
-            videoUrl = it.videoUrl,
-            thumbnailUrl = it.thumbnailUrl,
-            thumbnailWidth = it.thumbnailWidth,
-            thumbnailHeight = it.thumbnailHeight
-        )
-    }
-    return OriginThreadCard(
-        threadId = tid.toLongOrNull() ?: 0L,
-        forumId = fid,
-        forumName = fname,
-        title = title,
-        abstractSegments = abstractSegments,
-        medias = medias,
-        videoInfo = videoInfo
-    )
 }

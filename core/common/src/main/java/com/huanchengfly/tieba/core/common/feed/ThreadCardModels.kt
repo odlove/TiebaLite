@@ -59,6 +59,7 @@ data class ThreadCard(
     val tabName: String,
     val isNoTitle: Boolean,
     val isGood: Boolean,
+    val isTop: Boolean = false,
     val isShareThread: Boolean,
     val lastTimeInt: Int,
     val shareNum: Int,
@@ -75,4 +76,5 @@ data class ThreadCard(
     val videoInfo: ThreadVideoInfo? = null,
     val hasOriginThreadInfo: Boolean = false,
     val originThreadPayload: Any? = null,
+    val authorId: Long = 0L,
 )

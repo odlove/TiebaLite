@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse
-import com.huanchengfly.tieba.post.api.models.protos.threadList.ThreadListResponse
+import com.huanchengfly.tieba.core.common.feed.ThreadCard
+import com.huanchengfly.tieba.core.common.forum.ForumPageData
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -26,7 +26,7 @@ interface FrsPageRepository {
         sortType: Int,
         goodClassifyId: Int? = null,
         forceNew: Boolean = false,
-    ): Flow<FrsPageResponse>
+    ): Flow<ForumPageData>
 
     /**
      * 获取主题列表数据
@@ -44,5 +44,5 @@ interface FrsPageRepository {
         page: Int,
         sortType: Int,
         threadIds: String = "",
-    ): Flow<ThreadListResponse>
+    ): Flow<List<ThreadCard>>
 }

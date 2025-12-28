@@ -1,8 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.forum.detail
 
 import androidx.compose.runtime.Immutable
-import com.huanchengfly.tieba.post.api.models.protos.RecommendForumInfo
-import com.huanchengfly.tieba.post.api.models.protos.getForumDetail.GetForumDetailResponse
+import com.huanchengfly.tieba.core.common.forum.ForumDetailInfo
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
@@ -48,12 +47,8 @@ class ForumDetailViewModel @Inject constructor(
         private fun ForumDetailUiIntent.Load.producePartialChange(): Flow<ForumDetailPartialChange.Load> =
             forumInfoRepository
                 .getForumDetail(forumId)
-                .map<GetForumDetailResponse, ForumDetailPartialChange.Load> {
-                    val forumInfo = it.data_?.forum_info
-                    checkNotNull(forumInfo) { "forumInfo is null" }
-                    ForumDetailPartialChange.Load.Success(
-                        forumInfo
-                    )
+                .map<ForumDetailInfo, ForumDetailPartialChange.Load> { forumInfo ->
+                    ForumDetailPartialChange.Load.Success(forumInfo)
                 }
                 .onStart { emit(ForumDetailPartialChange.Load.Start) }
                 .catch { emit(ForumDetailPartialChange.Load.Failure(it)) }
@@ -85,7 +80,7 @@ sealed interface ForumDetailPartialChange : PartialChange<ForumDetailUiState> {
 
         data object Start : Load()
 
-        data class Success(val forumInfo: RecommendForumInfo) : Load()
+        data class Success(val forumInfo: ForumDetailInfo) : Load()
 
         data class Failure(val error: Throwable) : Load()
     }
@@ -96,5 +91,5 @@ data class ForumDetailUiState(
     val isLoading: Boolean = true,
     val error: ImmutableHolder<Throwable>? = null,
 
-    val forumInfo: ImmutableHolder<RecommendForumInfo>? = null,
+    val forumInfo: ImmutableHolder<ForumDetailInfo>? = null,
 ) : UiState

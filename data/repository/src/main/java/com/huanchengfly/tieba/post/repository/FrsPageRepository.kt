@@ -1,9 +1,11 @@
 package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
-import com.huanchengfly.tieba.post.api.models.protos.frsPage.FrsPageResponse
-import com.huanchengfly.tieba.post.api.models.protos.threadList.ThreadListResponse
+import com.huanchengfly.tieba.core.common.feed.ThreadCard
+import com.huanchengfly.tieba.core.common.forum.ForumPageData
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
+import com.huanchengfly.tieba.post.models.mappers.toForumPageData
+import com.huanchengfly.tieba.post.models.mappers.toThreadCard
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -21,7 +23,7 @@ class FrsPageRepositoryImpl @Inject constructor(
 ) : FrsPageRepository {
     // 缓存最后一次请求的数据，用于避免重复请求
     private var lastHash: String = ""
-    private var lastResponse: FrsPageResponse? = null
+    private var lastResponse: ForumPageData? = null
 
     override fun frsPage(
         forumName: String,
@@ -30,7 +32,7 @@ class FrsPageRepositoryImpl @Inject constructor(
         sortType: Int,
         goodClassifyId: Int?,
         forceNew: Boolean,
-    ): Flow<FrsPageResponse> {
+    ): Flow<ForumPageData> {
         val hash = "${forumName}_${page}_${loadType}_${sortType}_${goodClassifyId}"
         val cachedResponse = lastResponse
         if (!forceNew && cachedResponse != null && lastHash == hash) {
@@ -49,6 +51,7 @@ class FrsPageRepositoryImpl @Inject constructor(
                     .filter { it.ala_info == null } // 去他妈的直播
                 response.copy(data_ = data.copy(thread_list = threadList))
             }
+            .map { it.toForumPageData() }
             .onEach { lastResponse = it }
     }
 
@@ -58,17 +61,17 @@ class FrsPageRepositoryImpl @Inject constructor(
         page: Int,
         sortType: Int,
         threadIds: String,
-    ): Flow<ThreadListResponse> =
+    ): Flow<List<ThreadCard>> =
         api.threadList(forumId, forumName, page, sortType, threadIds)
             .map { response ->
                 val data = response.data_ ?: throw TiebaUnknownException
                 val userList = data.user_list
-                val threadList = data.thread_list
+                data.thread_list
                     .map { threadInfo ->
                         threadInfo.copy(author = userList.find { it.id == threadInfo.authorId })
                     }
                     .filter { !forumPreferences.blockVideo || it.videoInfo == null }
                     .filter { it.ala_info == null } // 去他妈的直播
-                response.copy(data_ = data.copy(thread_list = threadList))
+                    .map { it.toThreadCard() }
             }
 }

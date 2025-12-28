@@ -32,9 +32,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.protos.PbContent
-import com.huanchengfly.tieba.post.api.models.protos.RecommendForumInfo
-import com.huanchengfly.tieba.post.api.models.protos.plainText
+import com.huanchengfly.tieba.core.common.forum.ForumDetailInfo
+import com.huanchengfly.tieba.core.common.thread.ThreadContentItem
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.getOrNull
@@ -56,6 +55,7 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.core.common.utils.getShortNumString
+import com.huanchengfly.tieba.post.ui.page.thread.plainText
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -140,11 +140,11 @@ fun ForumDetailPage(
 
 @Composable
 private fun ForumDetailContent(
-    forumInfo: ImmutableHolder<RecommendForumInfo>,
+    forumInfo: ImmutableHolder<ForumDetailInfo>,
     modifier: Modifier = Modifier,
 ) {
     val intro = remember(forumInfo) {
-        forumInfo.get { content.plainText }
+        forumInfo.get { intro.plainText }
     }
     Column(
         modifier = modifier
@@ -162,7 +162,7 @@ private fun ForumDetailContent(
                 contentDescription = null,
             )
             Text(
-                text = stringResource(id = R.string.title_forum, forumInfo.get { forum_name }),
+                text = stringResource(id = R.string.title_forum, forumInfo.get { forumName }),
                 style = MaterialTheme.typography.h6
             )
         }
@@ -174,12 +174,12 @@ private fun ForumDetailContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             StatCardItem(
-                statNum = forumInfo.get { member_count },
+                statNum = forumInfo.get { memberCount },
                 statText = stringResource(id = R.string.text_stat_follow)
             )
             HorizontalDivider(color = Color(if (ExtendedTheme.colors.isNightMode) 0xFF808080 else 0xFFDEDEDE))
             StatCardItem(
-                statNum = forumInfo.get { thread_count },
+                statNum = forumInfo.get { threadCount },
                 statText = stringResource(id = R.string.text_stat_threads)
             )
         }
@@ -228,17 +228,18 @@ private fun RowScope.StatCardItem(
 fun PreviewForumDetailPage() {
     PreviewTheme {
         ForumDetailContent(
-            forumInfo = RecommendForumInfo(
-                forum_name = "minecraft",
+            forumInfo = ForumDetailInfo(
+                forumId = 1L,
+                forumName = "minecraft",
                 slogan = "位于百度贴吧的像素点之家",
-                content = listOf(
-                    PbContent(
+                intro = listOf(
+                    ThreadContentItem(
                         type = 0,
                         text = "minecraft……",
                     )
                 ),
-                member_count = 2520287,
-                thread_count = 31531580
+                memberCount = 2520287,
+                threadCount = 31531580
             ).wrapImmutable(),
             modifier = Modifier.fillMaxWidth()
         )

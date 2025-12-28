@@ -85,7 +85,6 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.LoadMoreLayout
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.widgets.compose.SearchThreadList
-import com.huanchengfly.tieba.post.models.mappers.toSearchThreadItem
 import com.huanchengfly.tieba.core.ui.widgets.compose.picker.ListSinglePicker
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
@@ -259,9 +258,8 @@ fun ForumSearchPostPage(
         initial = persistentListOf()
     )
 
-    val mappedData = remember(data) { data.map { it.toSearchThreadItem() }.toImmutableList() }
     val isEmpty by remember {
-        derivedStateOf { mappedData.isEmpty() }
+        derivedStateOf { data.isEmpty() }
     }
     val isError by remember {
         derivedStateOf { error != null }
@@ -408,7 +406,7 @@ fun ForumSearchPostPage(
                                 lazyListState = lazyListState,
                             ) {
                                 SearchThreadList(
-                                    data = mappedData,
+                                    data = data,
                                     lazyListState = lazyListState,
                                     onItemClick = {
                                         if (it.quotePost != null) {

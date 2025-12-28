@@ -9,6 +9,7 @@ import com.huanchengfly.tieba.core.common.feed.PersonalizedInfo
 import com.huanchengfly.tieba.core.common.feed.PersonalizedMetadata
 import com.huanchengfly.tieba.core.common.feed.ThreadFeedPage
 import com.huanchengfly.tieba.core.common.repository.ThreadFeedFacade
+import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
 import com.huanchengfly.tieba.post.models.mappers.ThreadMapper
 import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
@@ -26,9 +27,10 @@ import kotlinx.coroutines.flow.onStart
 class ThreadFeedFacadeImpl @Inject constructor(
     private val contentRecommendRepository: ContentRecommendRepository,
     private val personalizedRepository: PersonalizedRepository,
-    private val frsPageRepository: FrsPageRepository,
     private val forumOperationRepository: ForumOperationRepository,
     private val pbPageRepository: PbPageRepository,
+    private val api: ITiebaApi,
+    private val forumPreferences: ForumPreferences,
 ) : ThreadFeedFacade {
 
     override fun hotThreadList(tabCode: String): Flow<ThreadFeedPage> =
@@ -116,12 +118,13 @@ class ThreadFeedFacadeImpl @Inject constructor(
             .catch { throw it }
 
     override fun concernThreads(pageTag: String, page: Int): Flow<ThreadFeedPage> =
-        frsPageRepository.frsPage(
+        api.frsPage(
             forumName = pageTag,
             page = page,
             loadType = 1,
             sortType = -1
         )
+            .map { it.filterThreadList(forumPreferences) }
             .onEach { response ->
                 val threadProtos = response.data_?.thread_list ?: emptyList()
                 val entities = threadProtos.map { ThreadMapper.fromProto(it) }

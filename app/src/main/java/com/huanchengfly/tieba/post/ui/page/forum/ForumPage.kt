@@ -82,7 +82,7 @@ import com.eygraber.compose.placeholder.PlaceholderHighlight
 import com.eygraber.compose.placeholder.material.fade
 import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.protos.frsPage.ForumInfo
+import com.huanchengfly.tieba.core.common.forum.ForumInfo
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
@@ -257,14 +257,14 @@ private fun ForumHeader(
 //                        modifier = Modifier.size(16.dp)
 //                    )
                 }
-                AnimatedVisibility(visible = forum.is_like == 1) {
+                AnimatedVisibility(visible = forum.isLike == 1) {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         LinearProgressIndicator(
                             progress = max(
                                 0F,
                                 min(
                                     1F,
-                                    forum.cur_score * 1.0F / (max(1.0F, forum.levelup_score * 1.0F))
+                                    forum.curScore * 1.0F / (max(1.0F, forum.levelupScore * 1.0F))
                                 )
                             ),
                             modifier = Modifier
@@ -276,8 +276,8 @@ private fun ForumHeader(
                         Text(
                             text = stringResource(
                                 id = R.string.tip_forum_header_liked,
-                                forum.user_level.toString(),
-                                forum.level_name
+                                forum.userLevel.toString(),
+                                forum.levelName
                             ),
                             style = MaterialTheme.typography.caption,
                             color = ExtendedTheme.colors.textSecondary,
@@ -286,10 +286,10 @@ private fun ForumHeader(
                     }
                 }
             }
-            val signInfo = forum.sign_in_info
-            val signUser = signInfo?.user_info
+            val signInfo = forum.signInfo
+            val signUser = signInfo?.userInfo
             val btnEnabled =
-                (forum.is_like != 1) || (signUser?.is_sign_in != 1)
+                (forum.isLike != 1) || (signUser?.isSignIn != 1)
             if (LocalAccount.current != null) {
                 Button(
                     onClick = onBtnClick,
@@ -303,10 +303,10 @@ private fun ForumHeader(
                     enabled = btnEnabled
                 ) {
                     val text = when {
-                        forum.is_like != 1 -> stringResource(id = R.string.button_follow)
-                        signUser?.is_sign_in == 1 -> stringResource(
+                        forum.isLike != 1 -> stringResource(id = R.string.button_follow)
+                        signUser?.isSignIn == 1 -> stringResource(
                             id = R.string.button_signed_in,
-                            signUser.cont_sign_num
+                            signUser.contSignNum
                         )
 
                         else -> stringResource(id = R.string.button_sign_in)
@@ -323,17 +323,17 @@ private fun ForumHeader(
 //            verticalAlignment = Alignment.CenterVertically,
 //        ) {
 //            StatCardItem(
-//                statNum = forum.member_num,
+//                statNum = forum.memberNum,
 //                statText = stringResource(id = R.string.text_stat_follow)
 //            )
 //            HorizontalDivider(color = Color(if (ExtendedTheme.colors.isNightMode) 0xFF808080 else 0xFFDEDEDE))
 //            StatCardItem(
-//                statNum = forum.thread_num,
+//                statNum = forum.threadNum,
 //                statText = stringResource(id = R.string.text_stat_threads)
 //            )
 //            HorizontalDivider(color = Color(if (ExtendedTheme.colors.isNightMode) 0xFF808080 else 0xFFDEDEDE))
 //            StatCardItem(
-//                statNum = forum.post_num,
+//                statNum = forum.postNum,
 //                statText = stringResource(id = R.string.title_stat_posts_num)
 //            )
 //        }
@@ -357,7 +357,7 @@ private suspend fun sendToDesktop(
     requestPinShortcut(
         context,
         "forum_${forum.id}",
-        forum.avatar,
+        forum.avatar.orEmpty(),
         context.getString(R.string.title_forum, forum.name),
         Intent(Intent.ACTION_VIEW).setData(Uri.parse("tblite://forum/${forum.name}")),
         onSuccess = onSuccess,
@@ -763,7 +763,7 @@ fun ForumPage(
                                                 val (forum) = holder
                                                 val fallbackTbs = tbs ?: account?.tbs.orEmpty()
                                                 when {
-                                                    forum.is_like != 1 -> viewModel.send(
+                                                    forum.isLike != 1 -> viewModel.send(
                                                         ForumUiIntent.Like(
                                                             forum.id,
                                                             forum.name,
@@ -771,7 +771,7 @@ fun ForumPage(
                                                         )
                                                     )
 
-                                                    forum.sign_in_info?.user_info?.is_sign_in != 1 -> {
+                                                    forum.signInfo?.userInfo?.isSignIn != 1 -> {
                                                         viewModel.send(
                                                             ForumUiIntent.SignIn(
                                                                 forum.id,

@@ -40,11 +40,11 @@ class QuickPreviewRepositoryImpl @Inject constructor(
             loadType = 1,
             sortType = sortType,
         ).map { response ->
-            val forum = response.data_?.forum
+            val forum = response.forum
             ForumPreviewData(
-                name = forum?.name ?: forumName,
-                slogan = forum?.slogan,
-                avatar = forum?.avatar,
+                name = forum.name.ifBlank { forumName },
+                slogan = forum.slogan,
+                avatar = forum.avatar,
             )
         }
 

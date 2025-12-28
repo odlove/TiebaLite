@@ -135,8 +135,8 @@ fun ForumRuleDetailPage(
                                 Text(
                                     text = StringUtil.getUsernameAnnotatedString(
                                         LocalContext.current,
-                                        it.get { user_name },
-                                        it.get { name_show },
+                                        it.get { userName },
+                                        it.get { nameShow },
                                         LocalContentColor.current
                                     )
                                 )

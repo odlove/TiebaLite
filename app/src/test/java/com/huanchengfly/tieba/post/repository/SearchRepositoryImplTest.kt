@@ -17,6 +17,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -85,8 +86,8 @@ class SearchRepositoryImplTest {
         val result = repository.searchThread(keyword, page, sortType).first()
 
         // Then: Verify the result matches expected data
-        assertEquals(0, result.errorCode)
-        assertNotNull(result.data)
+        assertTrue(result.hasMore)
+        assertTrue(result.items.isEmpty())
         verify(exactly = 1) {
             mockApi.searchThreadFlow(keyword, page, sortType)
         }
@@ -147,7 +148,7 @@ class SearchRepositoryImplTest {
         } returns flowOf(page1Bean)
 
         val result1 = repository.searchThread(keyword, 1, sortType).first()
-        assertEquals(0, result1.errorCode)
+        assertTrue(result1.hasMore)
 
         // Test page 2
         val page2Bean = createMockSearchThreadBean()
@@ -156,7 +157,7 @@ class SearchRepositoryImplTest {
         } returns flowOf(page2Bean)
 
         val result2 = repository.searchThread(keyword, 2, sortType).first()
-        assertEquals(0, result2.errorCode)
+        assertTrue(result2.hasMore)
 
         // Verify both pages were called
         verify(exactly = 1) { mockApi.searchThreadFlow(keyword, 1, sortType) }
@@ -176,7 +177,7 @@ class SearchRepositoryImplTest {
         } returns flowOf(relevanceBean)
 
         val resultRelevance = repository.searchThread(keyword, page, 0).first()
-        assertEquals(0, resultRelevance.errorCode)
+        assertTrue(resultRelevance.hasMore)
 
         // Test sortType 1 (time)
         val timeBean = createMockSearchThreadBean()
@@ -185,7 +186,7 @@ class SearchRepositoryImplTest {
         } returns flowOf(timeBean)
 
         val resultTime = repository.searchThread(keyword, page, 1).first()
-        assertEquals(0, resultTime.errorCode)
+        assertTrue(resultTime.hasMore)
 
         // Verify both sort types were called
         verify(exactly = 1) { mockApi.searchThreadFlow(keyword, page, 0) }
@@ -209,7 +210,6 @@ class SearchRepositoryImplTest {
 
         // Then: Verify the result matches expected data
         assertNotNull(result)
-        assertNotNull(result.error)
         verify(exactly = 1) {
             mockApi.searchSuggestionsFlow(keyword)
         }
@@ -292,7 +292,7 @@ class SearchRepositoryImplTest {
         val result = repository.searchPost(keyword, forumName, forumId).first()
 
         // Then
-        assertEquals(0, result.errorCode)
+        assertTrue(result.hasMore)
         verify(exactly = 1) {
             mockApi.searchPostFlow(keyword, forumName, forumId, 1, 1, 1, 20)
         }
@@ -318,7 +318,7 @@ class SearchRepositoryImplTest {
         val result = repository.searchPost(keyword, forumName, forumId, sortType, filterType, page, pageSize).first()
 
         // Then
-        assertEquals(0, result.errorCode)
+        assertTrue(result.hasMore)
         verify(exactly = 1) {
             mockApi.searchPostFlow(keyword, forumName, forumId, sortType, filterType, page, pageSize)
         }

@@ -1,9 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.forum.searchpost
 
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.SearchThreadBean
 import com.huanchengfly.tieba.post.repository.SearchRepository
-import com.huanchengfly.tieba.post.api.retrofit.exception.getErrorMessage
+import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.DispatcherProvider
@@ -16,6 +15,8 @@ import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.models.database.SearchPostHistory
 import com.huanchengfly.tieba.core.common.ResourceProvider
+import com.huanchengfly.tieba.core.common.search.SearchThreadItem
+import com.huanchengfly.tieba.core.common.search.SearchThreadResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -115,12 +116,12 @@ class ForumSearchPostViewModel @Inject constructor(
                     searchRepository
                         .searchPost(it, forumName, forumId, sortType, filterType)
                 }
-                .map<SearchThreadBean, ForumSearchPostPartialChange.Refresh> {
-                    val postList = it.data.postList.toImmutableList()
+                .map<SearchThreadResult, ForumSearchPostPartialChange.Refresh> { result ->
+                    val postList = result.items.toImmutableList()
                     ForumSearchPostPartialChange.Refresh.Success(
                         keyword = keyword,
                         data = postList,
-                        hasMore = it.data.hasMore == 1,
+                        hasMore = result.hasMore,
                         sortType = sortType,
                         filterType = filterType,
                     )
@@ -141,12 +142,12 @@ class ForumSearchPostViewModel @Inject constructor(
         private fun ForumSearchPostUiIntent.LoadMore.producePartialChange(): Flow<ForumSearchPostPartialChange.LoadMore> =
             searchRepository
                 .searchPost(keyword, forumName, forumId, sortType, filterType, page + 1)
-                .map<SearchThreadBean, ForumSearchPostPartialChange.LoadMore> {
-                    val postList = it.data.postList.toImmutableList()
+                .map<SearchThreadResult, ForumSearchPostPartialChange.LoadMore> { result ->
+                    val postList = result.items.toImmutableList()
                     ForumSearchPostPartialChange.LoadMore.Success(
                         keyword = keyword,
                         data = postList,
-                        hasMore = it.data.hasMore == 1,
+                        hasMore = result.hasMore,
                         page = page + 1,
                         sortType = sortType,
                         filterType = filterType,
@@ -267,7 +268,7 @@ sealed interface ForumSearchPostPartialChange : PartialChange<ForumSearchPostUiS
 
         data class Success(
             val keyword: String,
-            val data: ImmutableList<SearchThreadBean.ThreadInfoBean>,
+            val data: ImmutableList<SearchThreadItem>,
             val hasMore: Boolean,
             val sortType: Int,
             val filterType: Int,
@@ -307,7 +308,7 @@ sealed interface ForumSearchPostPartialChange : PartialChange<ForumSearchPostUiS
 
         data class Success(
             val keyword: String,
-            val data: ImmutableList<SearchThreadBean.ThreadInfoBean>,
+            val data: ImmutableList<SearchThreadItem>,
             val hasMore: Boolean,
             val page: Int,
             val sortType: Int,
@@ -363,7 +364,7 @@ data class ForumSearchPostUiState(
     val currentPage: Int = 1,
     val hasMore: Boolean = true,
     val keyword: String = "",
-    val data: ImmutableList<SearchThreadBean.ThreadInfoBean> = persistentListOf(),
+    val data: ImmutableList<SearchThreadItem> = persistentListOf(),
     val sortType: Int = ForumSearchPostSortType.NEWEST,
     val filterType: Int = ForumSearchPostFilterType.ALL,
 ) : UiState

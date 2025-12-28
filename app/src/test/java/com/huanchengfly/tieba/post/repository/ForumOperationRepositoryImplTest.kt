@@ -45,30 +45,47 @@ class ForumOperationRepositoryImplTest {
 
     // ========== Helper Functions ==========
 
-    private fun createMockSignResultBean(errorCode: String = "0"): SignResultBean {
-        return mockk<SignResultBean> {
-            every { this@mockk.errorCode } returns errorCode
-            every { errorMsg } returns "success"
-            every { userInfo } returns mockk {
-                every { isSignIn } returns "1"
-                every { contSignNum } returns "7"
-            }
-        }
-    }
+    private fun createMockSignResultBean(errorCode: String = "0"): SignResultBean =
+        SignResultBean(
+            userInfo = SignResultBean.UserInfo(
+                isSignIn = "1",
+                contSignNum = "7",
+                userSignRank = "5",
+                signBonusPoint = "10",
+                levelUpScore = "100",
+                levelName = "Lv1",
+                allLevelInfo = listOf(
+                    SignResultBean.UserInfo.AllLevelInfo(
+                        id = "1",
+                        name = "Lv1",
+                        score = "0"
+                    )
+                )
+            ),
+            errorCode = errorCode,
+            errorMsg = "success"
+        )
 
-    private fun createMockLikeForumResultBean(errorCode: String = "0"): LikeForumResultBean {
-        return mockk<LikeForumResultBean> {
-            every { this@mockk.errorCode } returns errorCode
-            every { error } returns mockk {
-                every { errno } returns "0"
-                every { errmsg } returns "success"
-            }
-            every { info } returns mockk {
-                every { memberSum } returns "12345"
-                every { levelName } returns "Level 5"
-            }
-        }
-    }
+    private fun createMockLikeForumResultBean(errorCode: String = "0"): LikeForumResultBean =
+        LikeForumResultBean(
+            errorCode = errorCode,
+            error = LikeForumResultBean.ErrorInfo(
+                errno = "0",
+                errmsg = "success",
+                usermsg = ""
+            ),
+            info = LikeForumResultBean.Info(
+                curScore = "12",
+                levelUpScore = "100",
+                levelId = "3",
+                levelName = "Level 5",
+                memberSum = "12345"
+            ),
+            userPerm = LikeForumResultBean.UserPermInfo(
+                levelId = "3",
+                levelName = "Level 5"
+            )
+        )
 
     private fun createMockCommonResponse(errorCode: Int = 0): CommonResponse {
         return CommonResponse(
@@ -104,8 +121,8 @@ class ForumOperationRepositoryImplTest {
         val result = repository.sign(forumId, forumName, tbs).first()
 
         // Then: Verify the result matches expected data
-        assertEquals("0", result.errorCode)
-        assertNotNull(result.userInfo)
+        assertEquals(10, result.signBonusPoint)
+        assertEquals(7, result.contSignNum)
         verify(exactly = 1) {
             mockApi.signFlow(forumId, forumName, tbs)
         }
@@ -145,7 +162,7 @@ class ForumOperationRepositoryImplTest {
         } returns flowOf(expectedBean)
 
         // When: Call repository with empty tbs
-        val result = repository.sign(forumId, forumName, tbs).first()
+        repository.sign(forumId, forumName, tbs).first()
 
         // Then: Verify API is called (parameter validation is API's responsibility)
         verify(exactly = 1) {
@@ -171,8 +188,8 @@ class ForumOperationRepositoryImplTest {
         val result = repository.likeForum(forumId, forumName, tbs).first()
 
         // Then: Verify the result matches expected data
-        assertEquals("0", result.errorCode)
-        assertNotNull(result.info)
+        assertEquals("12345", result.memberSum)
+        assertEquals("Level 5", result.levelName)
         verify(exactly = 1) {
             mockApi.likeForumFlow(forumId, forumName, tbs)
         }

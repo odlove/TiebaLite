@@ -4,7 +4,6 @@ import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.core.common.search.SearchForumResult
 import com.huanchengfly.tieba.core.common.search.SearchThreadResult
 import com.huanchengfly.tieba.core.common.search.SearchUserResult
-import com.huanchengfly.tieba.post.api.models.SearchThreadBean
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import com.huanchengfly.tieba.post.models.mappers.toSearchForumResult
@@ -43,8 +42,9 @@ class SearchRepositoryImpl @Inject constructor(
         filterType: Int,
         page: Int,
         pageSize: Int
-    ): Flow<SearchThreadBean> =
+    ): Flow<SearchThreadResult> =
         api.searchPostFlow(keyword, forumName, forumId, sortType, filterType, page, pageSize)
+            .map { it.toSearchThreadResult() }
 
     override fun searchForum(
         keyword: String

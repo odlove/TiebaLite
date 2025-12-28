@@ -3,7 +3,6 @@ package com.huanchengfly.tieba.post.repository
 import com.huanchengfly.tieba.core.common.search.SearchForumResult
 import com.huanchengfly.tieba.core.common.search.SearchThreadResult
 import com.huanchengfly.tieba.core.common.search.SearchUserResult
-import com.huanchengfly.tieba.post.api.models.SearchThreadBean
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -56,7 +55,7 @@ interface SearchRepository {
         filterType: Int = 1,
         page: Int = 1,
         pageSize: Int = 20,
-    ): Flow<SearchThreadBean>
+    ): Flow<SearchThreadResult>
 
     /**
      * 搜索论坛

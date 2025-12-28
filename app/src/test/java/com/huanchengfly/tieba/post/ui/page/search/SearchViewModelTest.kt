@@ -59,7 +59,7 @@ class SearchViewModelTest : BaseViewModelTest() {
     fun `KeywordInputChanged should call searchRepository searchSuggestions with correct keyword`() =
         runTest(testDispatcher) {
             // Given: Mock repository returns search suggestions
-            val response = TestFixtures.fakeSearchSugResponse()
+            val response = TestFixtures.fakeSearchSuggestions()
             every {
                 mockSearchRepo.searchSuggestions("test keyword")
             } returns flowOf(response)

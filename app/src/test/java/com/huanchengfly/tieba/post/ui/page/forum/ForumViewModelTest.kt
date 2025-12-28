@@ -5,7 +5,6 @@ import com.huanchengfly.tieba.post.repository.ForumOperationRepository
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
 import io.mockk.clearMocks
-import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -172,14 +171,7 @@ class ForumViewModelTest : BaseViewModelTest() {
     @Test
     fun `Load should call FrsPageRepository frsPage with correct parameters`() = runTest {
         // Given: Mock repository returns success
-        val response = TestFixtures.fakeFrsPageResponse().apply {
-            every { data_ } returns mockk(relaxed = true) {
-                every { forum } returns mockk(relaxed = true)
-                every { anti } returns mockk(relaxed = true) {
-                    every { tbs } returns "tbs_from_response"
-                }
-            }
-        }
+        val response = TestFixtures.fakeFrsPageResponse()
         TestFixtures.mockFrsPageSuccess(mockFrsPageRepo, response)
 
         // When: Create ViewModel and send Load intent

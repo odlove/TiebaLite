@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.models.protos.forumRuleDetail.ForumRuleDetailResponse
-import com.huanchengfly.tieba.post.api.models.protos.getForumDetail.GetForumDetailResponse
+import com.huanchengfly.tieba.core.common.forum.ForumDetailInfo
+import com.huanchengfly.tieba.core.common.forum.ForumRuleDetail
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -14,15 +14,15 @@ interface ForumInfoRepository {
      * 获取论坛详细信息
      *
      * @param forumId 论坛ID
-     * @return Flow<GetForumDetailResponse>
+     * @return Flow<ForumDetailInfo>
      */
-    fun getForumDetail(forumId: Long): Flow<GetForumDetailResponse>
+    fun getForumDetail(forumId: Long): Flow<ForumDetailInfo>
 
     /**
      * 获取论坛规则详情
      *
      * @param forumId 论坛ID
-     * @return Flow<ForumRuleDetailResponse>
+     * @return Flow<ForumRuleDetail>
      */
-    fun forumRuleDetail(forumId: Long): Flow<ForumRuleDetailResponse>
+    fun forumRuleDetail(forumId: Long): Flow<ForumRuleDetail>
 }

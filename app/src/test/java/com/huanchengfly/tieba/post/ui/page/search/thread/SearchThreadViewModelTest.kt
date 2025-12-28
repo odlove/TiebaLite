@@ -52,7 +52,7 @@ class SearchThreadViewModelTest : BaseViewModelTest() {
     fun `Refresh should call searchRepository searchThread with correct parameters`() =
         runTest(testDispatcher) {
             // Given: Mock repository returns search results
-            val response = TestFixtures.fakeSearchThreadBean()
+            val response = TestFixtures.fakeSearchThreadResult()
             every {
                 mockSearchRepo.searchThread("test keyword", 1, SearchThreadSortType.SORT_TYPE_NEWEST)
             } returns flowOf(response)
@@ -77,7 +77,7 @@ class SearchThreadViewModelTest : BaseViewModelTest() {
     fun `LoadMore should call searchRepository searchThread with correct page number`() =
         runTest(testDispatcher) {
             // Given: Mock repository returns search results
-            val response = TestFixtures.fakeSearchThreadBean()
+            val response = TestFixtures.fakeSearchThreadResult()
             every {
                 mockSearchRepo.searchThread("test keyword", 3, SearchThreadSortType.SORT_TYPE_RELATIVE)
             } returns flowOf(response)

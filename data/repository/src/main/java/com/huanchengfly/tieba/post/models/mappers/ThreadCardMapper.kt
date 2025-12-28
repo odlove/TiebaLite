@@ -128,6 +128,7 @@ object ThreadCardMapper {
             videoInfo = videoInfo,
             hasOriginThreadInfo = originThread != null,
             originThreadPayload = originThread,
+            authorId = entity.authorId,
         )
     }
 }

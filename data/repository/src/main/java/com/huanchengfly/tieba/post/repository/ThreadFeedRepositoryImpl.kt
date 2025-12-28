@@ -1,15 +1,12 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.models.protos.threadList.ThreadListResponse
+import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
 import com.huanchengfly.tieba.post.models.ThreadFeedPage
 import com.huanchengfly.tieba.post.models.FeedMetadata
 import com.huanchengfly.tieba.post.models.ConcernMetadata
 import com.huanchengfly.tieba.post.models.PersonalizedMetadata
 import com.huanchengfly.tieba.post.models.mappers.ThreadMapper
-import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.flow.Flow
@@ -33,9 +30,10 @@ import javax.inject.Singleton
 class ThreadFeedRepositoryImpl @Inject constructor(
     private val contentRecommendRepository: ContentRecommendRepository,
     private val personalizedRepository: PersonalizedRepository,
-    private val frsPageRepository: FrsPageRepository,
     private val forumOperationRepository: ForumOperationRepository,
     private val pbPageRepository: PbPageRepository,
+    private val api: ITiebaApi,
+    private val forumPreferences: ForumPreferences,
 ) : ThreadFeedRepository {
 
     override fun hotThreadList(tabCode: String): Flow<ThreadFeedPage> =
@@ -92,12 +90,13 @@ class ThreadFeedRepositoryImpl @Inject constructor(
             .catch { throw it }
 
     override fun concernThreads(pageTag: String, page: Int): Flow<ThreadFeedPage> =
-        frsPageRepository.frsPage(
+        api.frsPage(
             forumName = pageTag,
             page = page,
             loadType = 1,
             sortType = -1
         )
+            .map { it.filterThreadList(forumPreferences) }
             .onEach { response ->
                 // ✅ 写入 PbPageRepository 缓存
                 val threadProtos = response.data_?.thread_list ?: emptyList()
@@ -125,13 +124,14 @@ class ThreadFeedRepositoryImpl @Inject constructor(
         sortType: Int,
         goodClassifyId: Int?
     ): Flow<ThreadFeedPage> =
-        frsPageRepository.frsPage(
+        api.frsPage(
             forumName = forumName,
             page = page,
             loadType = loadType,
             sortType = sortType,
             goodClassifyId = goodClassifyId
         )
+            .map { it.filterThreadList(forumPreferences) }
             .onEach { response ->
                 // ✅ 写入 PbPageRepository 缓存
                 val threadProtos = response.data_?.thread_list ?: emptyList()

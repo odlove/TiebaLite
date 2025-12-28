@@ -36,9 +36,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.api.models.protos.frsPage.Classify
 import com.huanchengfly.tieba.core.common.feed.OriginThreadCard
 import com.huanchengfly.tieba.core.common.feed.ThreadCard
+import com.huanchengfly.tieba.core.common.forum.ForumClassify
 import com.huanchengfly.tieba.core.common.thread.toThreadPreview
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
@@ -113,7 +113,7 @@ private enum class ItemType {
 
 @Composable
 private fun GoodClassifyTabs(
-    goodClassifyHolders: ImmutableList<ImmutableHolder<Classify>>,
+    goodClassifyHolders: ImmutableList<ImmutableHolder<ForumClassify>>,
     selectedItem: Int?,
     onSelected: (Int) -> Unit,
 ) {
@@ -123,12 +123,12 @@ private fun GoodClassifyTabs(
     ) {
         items(
             items = goodClassifyHolders,
-            key = { it.get { "${class_id}_$class_name" } }
+            key = { it.get { "${classId}_$className" } }
         ) { holder ->
             Chip(
-                text = holder.get { class_name },
-                invertColor = selectedItem == holder.get { class_id },
-                onClick = { onSelected(holder.get { class_id }) }
+                text = holder.get { className },
+                invertColor = selectedItem == holder.get { classId },
+                onClick = { onSelected(holder.get { classId }) }
             )
         }
     }

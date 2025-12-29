@@ -231,6 +231,7 @@ dependencies {
     implementation(project(":data:repository"))
     implementation(project(":feature:home"))
     implementation(project(":feature:webview"))
+    implementation(project(":feature:photoview"))
 
     //Local Files
 //    implementation fileTree(include: ["*.jar"], dir: "libs")

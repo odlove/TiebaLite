@@ -1,10 +1,15 @@
 package com.huanchengfly.tieba.post.ui.page.photoview
 
 import android.content.Intent
+import android.content.res.Resources
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.view.MotionEvent
+import android.widget.Toast
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -39,20 +44,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import com.github.panpf.sketch.compose.rememberAsyncImageState
 import com.github.panpf.sketch.request.LoadState
 import com.github.panpf.zoomimage.SketchZoomAsyncImage
 import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
+import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
 import dagger.hilt.android.AndroidEntryPoint
-import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.arch.BaseComposeActivityWithParcelable
+import com.huanchengfly.tieba.feature.photoview.R
 import com.huanchengfly.tieba.core.ui.photoview.PhotoViewData
-import com.huanchengfly.tieba.post.toastShort
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ApplySystemBars
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.compose.ProvideContentColor
-import com.huanchengfly.tieba.post.utils.ImageUtil
-import com.huanchengfly.tieba.post.utils.download
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ProvideThemeController
+import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
+import com.huanchengfly.tieba.post.preferences.appPreferences
 import kotlin.math.roundToInt
 
 @Composable
@@ -105,14 +112,49 @@ private fun ViewPhoto(
 }
 
 @AndroidEntryPoint
-class PhotoViewActivity : BaseComposeActivityWithParcelable<PhotoViewData>() {
+class PhotoViewActivity : AppCompatActivity() {
     private val viewModel: PhotoViewViewModel by viewModels()
 
-    override val dataExtraKey: String = EXTRA_PHOTO_VIEW_DATA
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        val data = readPhotoViewData() ?: run {
+            finish()
+            return
+        }
+
+        setContent {
+            ProvideThemeController {
+                TiebaLiteTheme {
+                    val systemUIBarsTweaker = rememberSystemUIBarsTweaker()
+                    val extendedColors = ExtendedTheme.colors
+                    ApplySystemBars(
+                        systemUIBarsTweaker = systemUIBarsTweaker,
+                        statusBarColor = extendedColors.topBar,
+                        navigationBarColor = extendedColors.bottomBar
+                    )
+                    LaunchedEffect(Unit) {
+                        onCreateContent(systemUIBarsTweaker)
+                    }
+                    PhotoViewContent(data = data)
+                }
+            }
+        }
+    }
+
+    private fun readPhotoViewData(): PhotoViewData? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(EXTRA_PHOTO_VIEW_DATA, PhotoViewData::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(EXTRA_PHOTO_VIEW_DATA)
+        }
+    }
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    override fun Content(data: PhotoViewData) {
+    private fun PhotoViewContent(data: PhotoViewData) {
         LazyLoad(loaded = viewModel.initialized) {
             viewModel.send(PhotoViewUiIntent.Init(data))
             viewModel.initialized = true
@@ -205,11 +247,14 @@ class PhotoViewActivity : BaseComposeActivityWithParcelable<PhotoViewData>() {
                                     Spacer(modifier = Modifier.weight(1f))
                                 }
                                 IconButton(onClick = {
-                                    toastShort(R.string.toast_preparing_share_pic)
-                                    ImageUtil.download(
+                                    Toast.makeText(
                                         this@PhotoViewActivity,
-                                        items[index].originUrl,
-                                        true
+                                        R.string.toast_preparing_share_pic,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    PhotoDownloadHelper.downloadForShare(
+                                        this@PhotoViewActivity,
+                                        items[index].originUrl
                                     ) { uri: Uri ->
                                         val chooser = Intent(Intent.ACTION_SEND).apply {
                                             type = Intent.normalizeMimeType("image/jpeg")
@@ -236,7 +281,7 @@ class PhotoViewActivity : BaseComposeActivityWithParcelable<PhotoViewData>() {
                                     )
                                 }
                                 IconButton(onClick = {
-                                    ImageUtil.download(
+                                    PhotoDownloadHelper.download(
                                         this@PhotoViewActivity,
                                         items[index].originUrl
                                     )
@@ -254,7 +299,7 @@ class PhotoViewActivity : BaseComposeActivityWithParcelable<PhotoViewData>() {
         }
     }
 
-    override fun onCreateContent(systemUIBarsTweaker: SystemUIBarsTweaker) {
+    private fun onCreateContent(systemUIBarsTweaker: SystemUIBarsTweaker) {
         systemUIBarsTweaker.tweakStatusBarVisibility(false)
         systemUIBarsTweaker.tweakNavigationBarVisibility(false)
     }
@@ -266,6 +311,17 @@ class PhotoViewActivity : BaseComposeActivityWithParcelable<PhotoViewData>() {
             e.printStackTrace()
             true
         }
+    }
+
+    override fun getResources(): Resources {
+        val fontScale = applicationContext.appPreferences.fontScale
+        val resources = super.getResources()
+        if (resources.configuration.fontScale != fontScale) {
+            val configuration = resources.configuration
+            configuration.fontScale = fontScale
+            resources.updateConfiguration(configuration, resources.displayMetrics)
+        }
+        return resources
     }
 
     companion object {

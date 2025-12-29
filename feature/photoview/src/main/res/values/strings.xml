@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tip_permission_storage">用于保存、上传图片，更换头像。</string>
+    <string name="toast_no_permission_save_photo">未授予「存储空间」权限，无法保存图片</string>
+    <string name="toast_photo_saved">图片保存在 %1$s</string>
+    <string name="title_share_pic">分享图片</string>
+    <string name="toast_preparing_share_pic">下载图片中…</string>
+    <string name="desc_download_pic">下载图片</string>
+</resources>

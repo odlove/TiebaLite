@@ -28,8 +28,6 @@ import com.huanchengfly.tieba.post.repository.FrsPageRepository
 import com.huanchengfly.tieba.post.repository.ForumOperationRepository
 import com.huanchengfly.tieba.post.models.PostEntity
 import com.huanchengfly.tieba.post.models.PostMeta
-import com.huanchengfly.tieba.post.models.ThreadEntity
-import com.huanchengfly.tieba.post.models.ThreadMeta
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
@@ -414,86 +412,6 @@ object TestFixtures {
             every { this@mockk.diffAgreeNum } returns diffAgreeNum
             every { agreeNum } returns diffAgreeNum
         }
-    }
-
-    /**
-     * Creates a ThreadEntity for testing
-     *
-     * @param threadId Thread ID (canonical)
-     * @param hasAgree Has user agreed
-     * @param agreeNum Agree count
-     * @return ThreadEntity instance
-     */
-    fun fakeThreadEntity(
-        threadId: Long = 123456L,
-        firstPostId: Long = 654321L,
-        title: String = "Test Thread",
-        replyNum: Int = 100,
-        viewNum: Int = 1000,
-        createTime: Int = 1609459200,
-        lastTimeInt: Int = 1609545600,
-        isTop: Int = 0,
-        isGood: Int = 0,
-        isDeleted: Int = 0,
-        author: User? = fakeUser(),
-        authorId: Long = 123456L,
-        forumId: Long = 789L,
-        forumName: String = "Test Forum",
-        hasAgree: Int = 0,
-        agreeNum: Int = 50,
-        collectStatus: Int = 0,
-        collectMarkPid: Long = 0,
-        timestamp: Long = 1000L
-    ): ThreadEntity {
-        val proto = fakeThreadInfo(
-            id = threadId,
-            threadId = threadId,
-            firstPostId = firstPostId,
-            title = title,
-            replyNum = replyNum,
-            viewNum = viewNum,
-            createTime = createTime,
-            lastTimeInt = lastTimeInt,
-            isTop = isTop,
-            isGood = isGood,
-            isDeleted = isDeleted,
-            author = author,
-            authorId = authorId,
-            forumId = forumId,
-            forumName = forumName,
-            agreeNum = agreeNum,
-            hasAgree = hasAgree,
-            collectStatus = collectStatus,
-            collectMarkPid = collectMarkPid.toString()
-        )
-
-        return ThreadEntity(
-            threadId = threadId,
-            firstPostId = firstPostId,
-            title = title,
-            replyNum = replyNum,
-            viewNum = viewNum,
-            createTime = createTime,
-            lastTimeInt = lastTimeInt,
-            isTop = isTop,
-            isGood = isGood,
-            isDeleted = isDeleted,
-            author = author,
-            authorId = authorId,
-            forumId = forumId,
-            forumName = forumName,
-            abstract = emptyList<Abstract>(),
-            media = emptyList<Media>(),
-            videoInfo = null,
-            meta = ThreadMeta(
-                hasAgree = hasAgree,
-                agreeNum = agreeNum,
-                collectStatus = collectStatus,
-                collectMarkPid = collectMarkPid
-            ),
-            proto = proto,
-            timestamp = timestamp
-        )
     }
 
     /**

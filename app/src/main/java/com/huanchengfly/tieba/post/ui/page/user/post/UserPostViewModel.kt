@@ -242,7 +242,9 @@ sealed interface UserPostPartialChange : PartialChange<UserPostUiState> {
 
         override fun reduce(oldState: UserPostUiState): UserPostUiState =
             when (this) {
-                is Start -> {
+                is Start -> oldState
+                is Failure -> oldState
+                is Success ->
                     oldState.copy(
                         posts = oldState.posts.updateAgreeStatus(
                             threadId,
@@ -250,27 +252,6 @@ sealed interface UserPostPartialChange : PartialChange<UserPostUiState> {
                             hasAgree
                         )
                     )
-                }
-
-                is Success -> {
-                    oldState.copy(
-                        posts = oldState.posts.updateAgreeStatus(
-                            threadId,
-                            postId,
-                            hasAgree
-                        )
-                    )
-                }
-
-                is Failure -> {
-                    oldState.copy(
-                        posts = oldState.posts.updateAgreeStatus(
-                            threadId,
-                            postId,
-                            hasAgree
-                        )
-                    )
-                }
             }
 
         data class Start(

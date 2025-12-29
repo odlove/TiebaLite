@@ -6,6 +6,9 @@ import com.huanchengfly.tieba.core.common.forum.ForumPageData
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
 import com.huanchengfly.tieba.post.models.mappers.toForumPageData
 import com.huanchengfly.tieba.post.models.mappers.toThreadCard
+import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
+import com.huanchengfly.tieba.post.models.mappers.resolveThreadId
+import com.huanchengfly.tieba.post.models.mappers.toThreadMeta
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -19,7 +22,8 @@ import javax.inject.Singleton
 @Singleton
 class FrsPageRepositoryImpl @Inject constructor(
     private val api: ITiebaApi,
-    private val forumPreferences: ForumPreferences
+    private val forumPreferences: ForumPreferences,
+    private val threadMetaStore: ThreadMetaStore
 ) : FrsPageRepository {
     // 缓存最后一次请求的数据，用于避免重复请求
     private var lastHash: String = ""
@@ -49,6 +53,10 @@ class FrsPageRepositoryImpl @Inject constructor(
                     }
                     .filter { !forumPreferences.blockVideo || it.videoInfo == null }
                     .filter { it.ala_info == null } // 去他妈的直播
+                val metaMap = threadList.associate { proto ->
+                    proto.resolveThreadId() to proto.toThreadMeta()
+                }
+                threadMetaStore.updateFromServer(metaMap)
                 response.copy(data_ = data.copy(thread_list = threadList))
             }
             .map { it.toForumPageData() }
@@ -66,12 +74,16 @@ class FrsPageRepositoryImpl @Inject constructor(
             .map { response ->
                 val data = response.data_ ?: throw TiebaUnknownException
                 val userList = data.user_list
-                data.thread_list
+                val threadList = data.thread_list
                     .map { threadInfo ->
                         threadInfo.copy(author = userList.find { it.id == threadInfo.authorId })
                     }
                     .filter { !forumPreferences.blockVideo || it.videoInfo == null }
                     .filter { it.ala_info == null } // 去他妈的直播
-                    .map { it.toThreadCard() }
+                val metaMap = threadList.associate { proto ->
+                    proto.resolveThreadId() to proto.toThreadMeta()
+                }
+                threadMetaStore.updateFromServer(metaMap)
+                threadList.map { it.toThreadCard() }
             }
 }

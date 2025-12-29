@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.repository
 
 import android.os.SystemClock
+import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.pbPage.PbPageResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
@@ -34,12 +35,14 @@ class PbPageRepositoryImplTest {
     private lateinit var repository: PbPageRepositoryImpl
     private lateinit var mockApi: ITiebaApi
     private lateinit var testScope: TestScope
+    private lateinit var mockThreadMetaStore: ThreadMetaStore
 
     @Before
     fun setup() {
         mockApi = mockk()
+        mockThreadMetaStore = mockk(relaxed = true)
         testScope = TestScope()
-        repository = PbPageRepositoryImpl(mockApi, testScope)
+        repository = PbPageRepositoryImpl(mockApi, mockThreadMetaStore, testScope)
         mockkStatic(SystemClock::class)
         every { SystemClock.elapsedRealtime() } returns 0L
     }

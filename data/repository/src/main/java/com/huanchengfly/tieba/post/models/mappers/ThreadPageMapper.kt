@@ -27,7 +27,6 @@ import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.User
 import com.huanchengfly.tieba.post.api.models.protos.pbPage.PbPageResponse
 import com.huanchengfly.tieba.post.api.models.protos.pbFloor.PbFloorResponse
-import com.huanchengfly.tieba.post.models.ThreadEntity
 
 fun User.toThreadUser(): ThreadUser {
     val bawuType = if (is_bawu == 1) {
@@ -87,29 +86,6 @@ fun ThreadInfo.toThreadDetail(): ThreadDetail {
         originThread = origin_thread_info?.toOriginThreadCard(),
     )
 }
-
-fun ThreadEntity.toThreadDetail(): ThreadDetail =
-    ThreadDetail(
-        threadId = threadId,
-        firstPostId = firstPostId,
-        title = title,
-        replyNum = replyNum,
-        forumId = forumId,
-        forumName = forumName,
-        isShareThread = proto.is_share_thread == 1,
-        author = author?.toThreadUser(),
-        agree = ThreadAgree(
-            hasAgree = meta.hasAgree,
-            agreeNum = meta.agreeNum.toLong(),
-            diffAgreeNum = proto.agree?.diffAgreeNum ?: 0L,
-        ),
-        collectStatus = meta.collectStatus,
-        collectMarkPid = meta.collectMarkPid,
-        postIds = proto.pids.split(",")
-            .filterNot { it.isBlank() }
-            .mapNotNull { it.toLongOrNull() },
-        originThread = proto.origin_thread_info?.toOriginThreadCard(),
-    )
 
 fun PbContent.toThreadContentItem(): ThreadContentItem =
     ThreadContentItem(

@@ -6,7 +6,10 @@ import com.huanchengfly.tieba.post.models.ThreadFeedPage
 import com.huanchengfly.tieba.post.models.FeedMetadata
 import com.huanchengfly.tieba.post.models.ConcernMetadata
 import com.huanchengfly.tieba.post.models.PersonalizedMetadata
-import com.huanchengfly.tieba.post.models.mappers.ThreadMapper
+import com.huanchengfly.tieba.post.models.mappers.resolveThreadId
+import com.huanchengfly.tieba.post.models.mappers.toThreadCard
+import com.huanchengfly.tieba.post.models.mappers.toThreadMeta
+import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.flow.Flow
@@ -22,7 +25,7 @@ import javax.inject.Singleton
  *
  * 职责：
  * - 调用不同的 API 仓库获取帖子数据
- * - 转换 Proto 数据为 ThreadEntity
+ * - 转换 Proto 数据为 ThreadCard
  * - 写入 PbPageRepository 缓存
  * - 产出聚合结果 (threadIds + metadata)
  */
@@ -31,6 +34,7 @@ class ThreadFeedRepositoryImpl @Inject constructor(
     private val contentRecommendRepository: ContentRecommendRepository,
     private val personalizedRepository: PersonalizedRepository,
     private val pbPageRepository: PbPageRepository,
+    private val threadMetaStore: ThreadMetaStore,
     private val api: ITiebaApi,
     private val forumPreferences: ForumPreferences,
 ) : ThreadFeedRepository {
@@ -40,8 +44,12 @@ class ThreadFeedRepositoryImpl @Inject constructor(
             .onEach { response ->
                 // ✅ 写入 PbPageRepository 缓存：转换 Proto -> Entity
                 val threadProtos = response.data_?.threadInfo ?: emptyList()
-                val entities = threadProtos.map { ThreadMapper.fromProto(it) }
-                pbPageRepository.upsertThreads(entities)
+                val threadCards = threadProtos.map { it.toThreadCard() }
+                pbPageRepository.upsertThreads(threadCards)
+                val metaMap = threadProtos.associate { proto ->
+                    proto.resolveThreadId() to proto.toThreadMeta()
+                }
+                threadMetaStore.updateFromServer(metaMap)
             }
             .map { response ->
                 // ✅ 构建返回结果
@@ -67,8 +75,12 @@ class ThreadFeedRepositoryImpl @Inject constructor(
             .onEach { response ->
                 // ✅ 写入 PbPageRepository 缓存
                 val threadProtos = response.data_?.thread_list ?: emptyList()
-                val entities = threadProtos.map { ThreadMapper.fromProto(it) }
-                pbPageRepository.upsertThreads(entities)
+                val threadCards = threadProtos.map { it.toThreadCard() }
+                pbPageRepository.upsertThreads(threadCards)
+                val metaMap = threadProtos.associate { proto ->
+                    proto.resolveThreadId() to proto.toThreadMeta()
+                }
+                threadMetaStore.updateFromServer(metaMap)
             }
             .map { response ->
                 // ✅ 构建返回结果
@@ -99,8 +111,12 @@ class ThreadFeedRepositoryImpl @Inject constructor(
             .onEach { response ->
                 // ✅ 写入 PbPageRepository 缓存
                 val threadProtos = response.data_?.thread_list ?: emptyList()
-                val entities = threadProtos.map { ThreadMapper.fromProto(it) }
-                pbPageRepository.upsertThreads(entities)
+                val threadCards = threadProtos.map { it.toThreadCard() }
+                pbPageRepository.upsertThreads(threadCards)
+                val metaMap = threadProtos.associate { proto ->
+                    proto.resolveThreadId() to proto.toThreadMeta()
+                }
+                threadMetaStore.updateFromServer(metaMap)
             }
             .map { response ->
                 // ✅ 构建返回结果
@@ -134,8 +150,12 @@ class ThreadFeedRepositoryImpl @Inject constructor(
             .onEach { response ->
                 // ✅ 写入 PbPageRepository 缓存
                 val threadProtos = response.data_?.thread_list ?: emptyList()
-                val entities = threadProtos.map { ThreadMapper.fromProto(it) }
-                pbPageRepository.upsertThreads(entities)
+                val threadCards = threadProtos.map { it.toThreadCard() }
+                pbPageRepository.upsertThreads(threadCards)
+                val metaMap = threadProtos.associate { proto ->
+                    proto.resolveThreadId() to proto.toThreadMeta()
+                }
+                threadMetaStore.updateFromServer(metaMap)
             }
             .map { response ->
                 // ✅ 构建返回结果
@@ -156,8 +176,12 @@ class ThreadFeedRepositoryImpl @Inject constructor(
             .onEach { response ->
                 // ✅ 写入 PbPageRepository 缓存：转换 Proto -> Entity
                 val threadProtos = response.data_?.threadInfo?.mapNotNull { it.threadList } ?: emptyList()
-                val entities = threadProtos.map { ThreadMapper.fromProto(it) }
-                pbPageRepository.upsertThreads(entities)
+                val threadCards = threadProtos.map { it.toThreadCard() }
+                pbPageRepository.upsertThreads(threadCards)
+                val metaMap = threadProtos.associate { proto ->
+                    proto.resolveThreadId() to proto.toThreadMeta()
+                }
+                threadMetaStore.updateFromServer(metaMap)
             }
             .map { response ->
                 // ✅ 构建返回结果

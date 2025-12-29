@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
 import com.huanchengfly.tieba.core.common.ResourceProvider
+import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
 import com.huanchengfly.tieba.core.common.repository.UserInteractionFacade
 import com.huanchengfly.tieba.post.TestFixtures
 import com.huanchengfly.tieba.post.models.PostMeta
@@ -50,6 +51,7 @@ import javax.inject.Provider
 class ThreadViewModelTest : BaseViewModelTest() {
 
     private lateinit var mockPbPageRepo: PbPageRepository
+    private lateinit var mockThreadMetaStore: ThreadMetaStore
     private lateinit var mockUserInteractionRepo: UserInteractionFacade
     private lateinit var mockThreadOperationRepo: ThreadOperationRepository
     private lateinit var mockContentModerationRepo: com.huanchengfly.tieba.post.repository.ContentModerationRepository
@@ -59,19 +61,19 @@ class ThreadViewModelTest : BaseViewModelTest() {
     override fun setup() {
         super.setup()
         mockPbPageRepo = mockk(relaxed = true)
+        mockThreadMetaStore = mockk(relaxed = true)
         mockUserInteractionRepo = mockk(relaxed = true)
         mockThreadOperationRepo = mockk(relaxed = true)
         mockContentModerationRepo = mockk(relaxed = true)
         mockResourceProvider = mockk(relaxed = true)
         every { mockResourceProvider.getString(any(), *anyVararg()) } returns ""
-        every { mockPbPageRepo.updateThreadMeta(any(), any()) } answers { }
         every { mockPbPageRepo.updatePostMeta(any(), any(), any()) } answers { }
     }
 
     @After
     override fun tearDown() {
         super.tearDown()
-        clearMocks(mockPbPageRepo, mockUserInteractionRepo, mockThreadOperationRepo)
+        clearMocks(mockPbPageRepo, mockThreadMetaStore, mockUserInteractionRepo, mockThreadOperationRepo)
     }
 
     private fun createViewModel(): ThreadViewModel {
@@ -79,6 +81,7 @@ class ThreadViewModelTest : BaseViewModelTest() {
         val registry = createUseCaseRegistry()
         return ThreadViewModel(
             mockPbPageRepo,
+            mockThreadMetaStore,
             mockContentModerationRepo,
             testDispatcherProvider,
             effectMapper,
@@ -101,10 +104,13 @@ class ThreadViewModelTest : BaseViewModelTest() {
         register(ThreadUiIntent.LoadLatestPosts::class.java, LoadLatestPostsUseCase(mockPbPageRepo))
         register(ThreadUiIntent.LoadMyLatestReply::class.java, LoadMyLatestReplyUseCase(mockPbPageRepo))
         register(ThreadUiIntent.ToggleImmersiveMode::class.java, ToggleImmersiveModeUseCase())
-        register(ThreadUiIntent.AddFavorite::class.java, AddFavoriteUseCase(mockThreadOperationRepo, mockPbPageRepo))
-        register(ThreadUiIntent.RemoveFavorite::class.java, RemoveFavoriteUseCase(mockThreadOperationRepo, mockPbPageRepo))
-        register(ThreadUiIntent.UpdateFavoriteMark::class.java, UpdateFavoriteMarkUseCase(mockThreadOperationRepo, mockPbPageRepo))
-        register(ThreadUiIntent.AgreeThread::class.java, AgreeThreadUseCase(mockUserInteractionRepo, mockPbPageRepo))
+        register(ThreadUiIntent.AddFavorite::class.java, AddFavoriteUseCase(mockThreadOperationRepo, mockThreadMetaStore))
+        register(ThreadUiIntent.RemoveFavorite::class.java, RemoveFavoriteUseCase(mockThreadOperationRepo, mockThreadMetaStore))
+        register(ThreadUiIntent.UpdateFavoriteMark::class.java, UpdateFavoriteMarkUseCase(mockThreadOperationRepo, mockThreadMetaStore))
+        register(
+            ThreadUiIntent.AgreeThread::class.java,
+            AgreeThreadUseCase(mockUserInteractionRepo, mockThreadMetaStore, mockPbPageRepo)
+        )
         register(ThreadUiIntent.AgreePost::class.java, AgreePostUseCase(mockUserInteractionRepo, mockPbPageRepo))
         register(ThreadUiIntent.DeletePost::class.java, DeletePostUseCase(mockThreadOperationRepo))
         register(ThreadUiIntent.DeleteThread::class.java, DeleteThreadUseCase(mockThreadOperationRepo))

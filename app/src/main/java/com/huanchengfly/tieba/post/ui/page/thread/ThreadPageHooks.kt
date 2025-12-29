@@ -10,8 +10,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.huanchengfly.tieba.core.common.history.HistoryItem
 import com.huanchengfly.tieba.core.common.history.HistoryRepository
+import com.huanchengfly.tieba.core.common.thread.ThreadMeta
 import com.huanchengfly.tieba.post.models.PostEntity
-import com.huanchengfly.tieba.post.models.ThreadEntity
 import com.huanchengfly.tieba.post.models.ThreadHistoryInfoBean
 import com.huanchengfly.tieba.post.utils.StringUtil
 import com.huanchengfly.tieba.post.toJson
@@ -27,7 +27,7 @@ private const val HISTORY_SAVE_DEBOUNCE_MS = 750L
 @Stable
 data class ThreadFeeds(
     val effectiveThreadId: Long,
-    val threadEntity: ThreadEntity?,
+    val threadMeta: ThreadMeta?,
     val postEntities: List<PostEntity>,
     val postIds: List<Long>
 )
@@ -39,10 +39,10 @@ fun rememberThreadFeeds(
     uiState: ThreadUiState
 ): ThreadFeeds {
     val effectiveThreadId = uiState.threadId.takeIf { it != 0L } ?: routeThreadId
-    val threadFlow = remember(viewModel, effectiveThreadId) {
-        viewModel.pbPageRepository.threadFlow(effectiveThreadId)
+    val threadMetaFlow = remember(viewModel, effectiveThreadId) {
+        viewModel.threadMetaStore.metaFlow(effectiveThreadId)
     }
-    val threadEntity by threadFlow.collectAsState(initial = null)
+    val threadMeta by threadMetaFlow.collectAsState(initial = null)
     val postIds = remember(uiState.postIds) { uiState.postIds.toList() }
     val postsFlow = remember(viewModel, effectiveThreadId, postIds) {
         viewModel.pbPageRepository.postsFlow(
@@ -52,10 +52,10 @@ fun rememberThreadFeeds(
     }
     val postEntities by postsFlow.collectAsState(initial = emptyList())
 
-    return remember(effectiveThreadId, threadEntity, postEntities, postIds) {
+    return remember(effectiveThreadId, threadMeta, postEntities, postIds) {
         ThreadFeeds(
             effectiveThreadId = effectiveThreadId,
-            threadEntity = threadEntity,
+            threadMeta = threadMeta,
             postEntities = postEntities,
             postIds = postIds
         )

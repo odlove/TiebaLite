@@ -309,39 +309,9 @@ sealed interface SubPostsPartialChange : PartialChange<SubPostsUiState> {
 
         override fun reduce(oldState: SubPostsUiState): SubPostsUiState =
             when (this) {
-                is Start ->
-                    oldState.copy(
-                        post =
-                            if (subPostId == null) {
-                                oldState.post?.getImmutable { updateAgreeStatus(if (hasAgreed) 1 else 0) }
-                            } else {
-                                oldState.post
-                            },
-                        subPosts =
-                            if (subPostId != null) {
-                                oldState.subPosts.updateAgreeStatus(subPostId, hasAgreed)
-                            } else {
-                                oldState.subPosts
-                            },
-                    )
-
+                is Start -> oldState
+                is Failure -> oldState
                 is Success ->
-                    oldState.copy(
-                        post =
-                            if (subPostId == null) {
-                                oldState.post?.getImmutable { updateAgreeStatus(if (hasAgreed) 1 else 0) }
-                            } else {
-                                oldState.post
-                            },
-                        subPosts =
-                            if (subPostId != null) {
-                                oldState.subPosts.updateAgreeStatus(subPostId, hasAgreed)
-                            } else {
-                                oldState.subPosts
-                            },
-                    )
-
-                is Failure ->
                     oldState.copy(
                         post =
                             if (subPostId == null) {

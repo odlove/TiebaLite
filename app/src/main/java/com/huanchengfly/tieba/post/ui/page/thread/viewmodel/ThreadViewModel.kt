@@ -7,6 +7,7 @@ import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
 import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.post.repository.ContentModerationRepository
 import com.huanchengfly.tieba.post.repository.PbPageRepository
+import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ThreadViewModel @Inject constructor(
     val pbPageRepository: PbPageRepository,
+    val threadMetaStore: ThreadMetaStore,
     private val contentModerationRepository: ContentModerationRepository,
     dispatcherProvider: DispatcherProvider,
     private val effectMapper: ThreadEffectMapper,

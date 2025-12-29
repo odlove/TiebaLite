@@ -35,7 +35,7 @@ object ProtoMergeUtils {
 
         return newProto.copy(
             // === 核心标识 ===
-            threadId = newProto.id,  // 直接使用 id（与 ThreadMapper 一致）
+            threadId = newProto.id,  // 直接使用 id
             id = newProto.id,
             firstPostId = newProto.firstPostId,
 

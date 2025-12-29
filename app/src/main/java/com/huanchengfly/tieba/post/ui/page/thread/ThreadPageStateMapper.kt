@@ -4,9 +4,7 @@ import com.huanchengfly.tieba.core.common.thread.ThreadDetail
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.models.PostEntity
-import com.huanchengfly.tieba.post.models.ThreadEntity
-import com.huanchengfly.tieba.post.models.ThreadMeta
-import com.huanchengfly.tieba.post.models.mappers.toThreadDetail
+import com.huanchengfly.tieba.core.common.thread.ThreadMeta
 
 object ThreadPageStateMapper {
     fun map(
@@ -14,20 +12,20 @@ object ThreadPageStateMapper {
         routeThreadId: Long,
         routeForumId: Long?,
         uiState: ThreadUiState,
-        repositoryThread: ThreadEntity?,
+        threadMetaFromStore: ThreadMeta?,
         postEntities: List<PostEntity>
     ) {
         val effectiveThreadId = uiState.threadId.takeIf { it != 0L } ?: routeThreadId
-        val displayThread = repositoryThread?.toThreadDetail()?.wrapImmutable() ?: uiState.threadDetail
-        val threadMeta = repositoryThread?.meta
+        val displayThread = uiState.threadDetail ?: state.displayThread
+        val threadMeta = threadMetaFromStore
             ?: uiState.initMeta
             ?: buildThreadMetaFromThread(displayThread)
 
         val enablePullRefresh = uiState.hasPrevious || uiState.sortType == ThreadSortType.SORT_TYPE_DESC
         val loadMoreEnd = !uiState.hasMore && uiState.sortType == ThreadSortType.SORT_TYPE_DESC
         val loadMorePreloadCount = if (uiState.hasMore) 1 else 0
-        val isCollected = threadMeta.collectStatus != 0
-        val hasThreadAgreed = threadMeta.hasAgree == 1
+        val isCollected = threadMeta.collectStatus
+        val hasThreadAgreed = threadMeta.hasAgree
         val threadAgreeNum = threadMeta.agreeNum
         val threadTitle = displayThread?.get { title } ?: uiState.title
         val forumId = uiState.forum?.get { id }
@@ -81,14 +79,16 @@ object ThreadPageStateMapper {
     private fun buildThreadMetaFromThread(thread: ImmutableHolder<ThreadDetail>?): ThreadMeta {
         if (thread == null) return ThreadMeta()
         val agreeNum = thread.get { agree?.agreeNum?.toInt() ?: 0 } ?: 0
-        val hasAgree = thread.get { agree?.hasAgree ?: 0 } ?: 0
-        val collectStatus = thread.get { collectStatus } ?: 0
+        val hasAgree = thread.get { agree?.hasAgree == 1 } ?: false
+        val collectStatus = thread.get { collectStatus == 1 } ?: false
         val collectMarkPid = thread.get { collectMarkPid } ?: 0L
+        val replyNum = thread.get { replyNum } ?: 0
         return ThreadMeta(
             hasAgree = hasAgree,
             agreeNum = agreeNum,
             collectStatus = collectStatus,
-            collectMarkPid = collectMarkPid
+            collectMarkPid = collectMarkPid,
+            replyNum = replyNum
         )
     }
 }

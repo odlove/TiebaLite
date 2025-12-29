@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.forum.threadlist
 
 import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
+import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
 import com.huanchengfly.tieba.core.common.feed.ThreadCard
 import com.huanchengfly.tieba.core.common.forum.ForumInfo
 import com.huanchengfly.tieba.core.common.forum.ForumPageData
@@ -37,6 +38,7 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
     private lateinit var mockUserRepo: UserInteractionRepository
     private lateinit var mockPbPageRepo: PbPageRepository
     private lateinit var mockAppPreferences: AppPreferencesDataSource
+    private lateinit var mockThreadMetaStore: ThreadMetaStore
 
     @Before
     override fun setup() {
@@ -48,12 +50,13 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
             every { upsertThreads(any()) } answers { }
         }
         mockAppPreferences = mockk(relaxed = true)
+        mockThreadMetaStore = mockk(relaxed = true)
     }
 
     @After
     override fun tearDown() {
         super.tearDown()
-        clearMocks(mockFrsRepo, mockUserRepo, mockPbPageRepo, mockAppPreferences)
+        clearMocks(mockFrsRepo, mockUserRepo, mockPbPageRepo, mockAppPreferences, mockThreadMetaStore)
     }
 
     private fun createForumPageDataForList(): ForumPageData =
@@ -93,7 +96,8 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
             mockUserRepo,
             mockPbPageRepo,
             testDispatcherProvider,
-            mockAppPreferences
+            mockAppPreferences,
+            mockThreadMetaStore
         )
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -124,7 +128,8 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
             mockUserRepo,
             mockPbPageRepo,
             testDispatcherProvider,
-            mockAppPreferences
+            mockAppPreferences,
+            mockThreadMetaStore
         )
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -172,7 +177,8 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
             mockUserRepo,
             mockPbPageRepo,
             testDispatcherProvider,
-            mockAppPreferences
+            mockAppPreferences,
+            mockThreadMetaStore
         )
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -202,7 +208,8 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
             mockUserRepo,
             mockPbPageRepo,
             testDispatcherProvider,
-            mockAppPreferences
+            mockAppPreferences,
+            mockThreadMetaStore
         )
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -245,7 +252,8 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
             mockUserRepo,
             mockPbPageRepo,
             testDispatcherProvider,
-            mockAppPreferences
+            mockAppPreferences,
+            mockThreadMetaStore
         )
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -291,7 +299,8 @@ class ForumThreadListViewModelTest : BaseViewModelTest() {
             mockUserRepo,
             mockPbPageRepo,
             testDispatcherProvider,
-            mockAppPreferences
+            mockAppPreferences,
+            mockThreadMetaStore
         )
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle()

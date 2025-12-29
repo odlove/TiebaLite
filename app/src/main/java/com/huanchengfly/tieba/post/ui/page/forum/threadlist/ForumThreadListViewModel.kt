@@ -16,6 +16,9 @@ import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.core.common.forum.ForumClassify
 import com.huanchengfly.tieba.core.common.forum.ForumPageData
 import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
+import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
+import com.huanchengfly.tieba.core.common.thread.ThreadMeta
+import com.huanchengfly.tieba.post.models.mappers.toThreadMeta
 import com.huanchengfly.tieba.post.repository.FrsPageRepository
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
@@ -74,7 +77,8 @@ class LatestThreadListViewModel @Inject constructor(
     private val userInteractionRepository: UserInteractionRepository,
     pbPageRepository: PbPageRepository,
     dispatcherProvider: DispatcherProvider,
-    private val appPreferences: AppPreferencesDataSource
+    private val appPreferences: AppPreferencesDataSource,
+    private val threadMetaStore: ThreadMetaStore
 ) : ForumThreadListViewModel(pbPageRepository, dispatcherProvider) {
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> =
         ForumThreadListPartialChangeProducer(
@@ -82,7 +86,8 @@ class LatestThreadListViewModel @Inject constructor(
             userInteractionRepository,
             pbPageRepository,
             ForumThreadListType.Latest,
-            appPreferences
+            appPreferences,
+            threadMetaStore
         )
 }
 
@@ -93,7 +98,8 @@ class GoodThreadListViewModel @Inject constructor(
     private val userInteractionRepository: UserInteractionRepository,
     pbPageRepository: PbPageRepository,
     dispatcherProvider: DispatcherProvider,
-    private val appPreferences: AppPreferencesDataSource
+    private val appPreferences: AppPreferencesDataSource,
+    private val threadMetaStore: ThreadMetaStore
 ) : ForumThreadListViewModel(pbPageRepository, dispatcherProvider) {
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> =
         ForumThreadListPartialChangeProducer(
@@ -101,7 +107,8 @@ class GoodThreadListViewModel @Inject constructor(
             userInteractionRepository,
             pbPageRepository,
             ForumThreadListType.Good,
-            appPreferences
+            appPreferences,
+            threadMetaStore
         )
 }
 
@@ -110,7 +117,8 @@ private class ForumThreadListPartialChangeProducer(
     private val userInteractionRepository: UserInteractionRepository,
     private val pbPageRepository: PbPageRepository,
     val type: ForumThreadListType,
-    private val appPreferences: AppPreferencesDataSource
+    private val appPreferences: AppPreferencesDataSource,
+    private val threadMetaStore: ThreadMetaStore
 ) :
     PartialChangeProducer<ForumThreadListUiIntent, ForumThreadListPartialChange, ForumThreadListUiState> {
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -243,11 +251,6 @@ private class ForumThreadListPartialChangeProducer(
     }
 
     private fun ForumThreadListUiIntent.Agree.producePartialChange(): Flow<ForumThreadListPartialChange.Agree> {
-        // ✅ 提前读取当前状态
-        val currentEntity = pbPageRepository.threadFlow(threadId).value
-        val previousHasAgree = currentEntity?.meta?.hasAgree ?: 0
-        val previousAgreeNum = currentEntity?.meta?.agreeNum ?: 0
-
         return userInteractionRepository.opAgree(
             threadId.toString(),
             postId.toString(),
@@ -255,25 +258,25 @@ private class ForumThreadListPartialChangeProducer(
             objType = 3
         )
             .map {
+                val fallback = pbPageRepository.threadFlow(threadId).value?.toThreadMeta()
+                val current = threadMetaStore.get(threadId)
+                    ?: fallback
+                    ?: ThreadMeta()
+                val nextHasAgree = hasAgree == 0
+                val nextAgreeNum = if (nextHasAgree) current.agreeNum + 1 else (current.agreeNum - 1).coerceAtLeast(0)
+                threadMetaStore.updateFromServer(
+                    threadId,
+                    current.copy(
+                        hasAgree = nextHasAgree,
+                        agreeNum = nextAgreeNum
+                    )
+                )
                 ForumThreadListPartialChange.Agree.Success(
                     threadId,
                     hasAgree xor 1
                 ) as ForumThreadListPartialChange.Agree
             }
             .catch {
-                // ✅ 失败时恢复原始值
-                currentEntity?.let { entity ->
-                    pbPageRepository.upsertThreads(
-                        listOf(
-                            entity.copy(
-                                meta = entity.meta.copy(
-                                    hasAgree = previousHasAgree,
-                                    agreeNum = previousAgreeNum
-                                )
-                            )
-                        )
-                    )
-                }
                 emit(
                     ForumThreadListPartialChange.Agree.Failure(
                         threadId,
@@ -284,19 +287,6 @@ private class ForumThreadListPartialChangeProducer(
                 )
             }
             .onStart {
-                // ✅ 乐观更新
-                currentEntity?.let { entity ->
-                    pbPageRepository.upsertThreads(
-                        listOf(
-                            entity.copy(
-                                meta = entity.meta.copy(
-                                    hasAgree = hasAgree xor 1,
-                                    agreeNum = if (hasAgree == 0) entity.meta.agreeNum + 1 else entity.meta.agreeNum - 1
-                                )
-                            )
-                        )
-                    )
-                }
                 emit(ForumThreadListPartialChange.Agree.Start(threadId, hasAgree xor 1))
             }
     }

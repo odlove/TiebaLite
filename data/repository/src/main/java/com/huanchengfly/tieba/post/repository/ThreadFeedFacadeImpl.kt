@@ -9,9 +9,12 @@ import com.huanchengfly.tieba.core.common.feed.PersonalizedInfo
 import com.huanchengfly.tieba.core.common.feed.PersonalizedMetadata
 import com.huanchengfly.tieba.core.common.feed.ThreadFeedPage
 import com.huanchengfly.tieba.core.common.repository.ThreadFeedFacade
+import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
-import com.huanchengfly.tieba.post.models.mappers.ThreadMapper
+import com.huanchengfly.tieba.post.models.mappers.resolveThreadId
+import com.huanchengfly.tieba.post.models.mappers.toThreadCard
+import com.huanchengfly.tieba.post.models.mappers.toThreadMeta
 import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,6 +31,7 @@ class ThreadFeedFacadeImpl @Inject constructor(
     private val contentRecommendRepository: ContentRecommendRepository,
     private val personalizedRepository: PersonalizedRepository,
     private val pbPageRepository: PbPageRepository,
+    private val threadMetaStore: ThreadMetaStore,
     private val api: ITiebaApi,
     private val forumPreferences: ForumPreferences,
 ) : ThreadFeedFacade {
@@ -36,8 +40,12 @@ class ThreadFeedFacadeImpl @Inject constructor(
         contentRecommendRepository.hotThreadList(tabCode)
             .onEach { response ->
                 val threadProtos = response.data_?.threadInfo ?: emptyList()
-                val entities = threadProtos.map { ThreadMapper.fromProto(it) }
-                pbPageRepository.upsertThreads(entities)
+                val threadCards = threadProtos.map { it.toThreadCard() }
+                pbPageRepository.upsertThreads(threadCards)
+                val metaMap = threadProtos.associate { proto ->
+                    proto.resolveThreadId() to proto.toThreadMeta()
+                }
+                threadMetaStore.updateFromServer(metaMap)
             }
             .map { response ->
                 val threadProtos = response.data_?.threadInfo ?: emptyList()
@@ -69,8 +77,12 @@ class ThreadFeedFacadeImpl @Inject constructor(
         personalizedRepository.personalizedFlow(1, page)
             .onEach { response ->
                 val threadProtos = response.data_?.thread_list ?: emptyList()
-                val entities = threadProtos.map { ThreadMapper.fromProto(it) }
-                pbPageRepository.upsertThreads(entities)
+                val threadCards = threadProtos.map { it.toThreadCard() }
+                pbPageRepository.upsertThreads(threadCards)
+                val metaMap = threadProtos.associate { proto ->
+                    proto.resolveThreadId() to proto.toThreadMeta()
+                }
+                threadMetaStore.updateFromServer(metaMap)
             }
             .map { response ->
                 val threadProtos = response.data_?.thread_list ?: emptyList()
@@ -126,8 +138,12 @@ class ThreadFeedFacadeImpl @Inject constructor(
             .map { it.filterThreadList(forumPreferences) }
             .onEach { response ->
                 val threadProtos = response.data_?.thread_list ?: emptyList()
-                val entities = threadProtos.map { ThreadMapper.fromProto(it) }
-                pbPageRepository.upsertThreads(entities)
+                val threadCards = threadProtos.map { it.toThreadCard() }
+                pbPageRepository.upsertThreads(threadCards)
+                val metaMap = threadProtos.associate { proto ->
+                    proto.resolveThreadId() to proto.toThreadMeta()
+                }
+                threadMetaStore.updateFromServer(metaMap)
             }
             .map { response ->
                 val threadProtos = response.data_?.thread_list ?: emptyList()
@@ -144,8 +160,12 @@ class ThreadFeedFacadeImpl @Inject constructor(
         api.userLikeFlow("", lastRequestUnix, page)
             .onEach { response ->
                 val threadProtos = response.data_?.threadInfo?.mapNotNull { it.threadList } ?: emptyList()
-                val entities = threadProtos.map { ThreadMapper.fromProto(it) }
-                pbPageRepository.upsertThreads(entities)
+                val threadCards = threadProtos.map { it.toThreadCard() }
+                pbPageRepository.upsertThreads(threadCards)
+                val metaMap = threadProtos.associate { proto ->
+                    proto.resolveThreadId() to proto.toThreadMeta()
+                }
+                threadMetaStore.updateFromServer(metaMap)
             }
             .map { response ->
                 val data = response.data_ ?: throw TiebaUnknownException

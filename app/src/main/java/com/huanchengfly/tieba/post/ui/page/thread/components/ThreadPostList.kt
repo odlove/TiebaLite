@@ -184,7 +184,7 @@ private fun LazyListScope.threadListContent(
                         postEntities = pageState.postEntities,
                         immersiveMode = pageState.isImmersiveMode,
                         canDelete = { it.authorId == curUserId },
-                        isCollected = { pageState.threadMeta.collectStatus == 1 && it.id == pageState.threadMeta.collectMarkPid },
+                        isCollected = { pageState.threadMeta.collectStatus && it.id == pageState.threadMeta.collectMarkPid },
                         showSubPosts = false,
                         onUserClick = { navigatorInstance.navigate(UserProfilePageDestination(it.id)) },
                         onAgree = {
@@ -371,7 +371,7 @@ private fun LazyListScope.threadListContent(
                     postEntities = pageState.postEntities,
                     immersiveMode = pageState.isImmersiveMode,
                     canDelete = { it.authorId == curUserId },
-                    isCollected = { pageState.threadMeta.collectStatus == 1 && it.id == pageState.threadMeta.collectMarkPid },
+                    isCollected = { pageState.threadMeta.collectStatus && it.id == pageState.threadMeta.collectMarkPid },
                     onUserClick = { navigatorInstance.navigate(UserProfilePageDestination(it.id)) },
                     onAgree = {
                         val meta = pageState.postEntities.find { entity -> entity.id == item.post.get { id } }?.meta
@@ -427,7 +427,7 @@ private fun LazyListScope.threadListContent(
                         navigatorInstance.navigate(CopyTextDialogPageDestination(text))
                     },
                     onMenuFavoriteClick = { post ->
-                        val isPostCollected = pageState.threadMeta.collectStatus == 1 && post.id == pageState.threadMeta.collectMarkPid
+                        val isPostCollected = pageState.threadMeta.collectStatus && post.id == pageState.threadMeta.collectMarkPid
                         val fid = pageState.curForumId ?: forumId
                         val tbs = pageState.curTbs
                         if (fid != null) {
@@ -502,7 +502,7 @@ private fun LazyListScope.latestPostsSection(
                 postEntities = pageState.postEntities,
                 immersiveMode = pageState.isImmersiveMode,
                 canDelete = { it.authorId == pageState.user.get { id } },
-                isCollected = { pageState.threadMeta.collectStatus == 1 && it.id == pageState.threadMeta.collectMarkPid },
+                isCollected = { pageState.threadMeta.collectStatus && it.id == pageState.threadMeta.collectMarkPid },
                 onUserClick = { navigator.navigate(UserProfilePageDestination(it.id)) },
                 onAgree = {
                     val meta = pageState.postEntities.find { entity -> entity.id == postHolder.get { id } }?.meta
@@ -556,7 +556,7 @@ private fun LazyListScope.latestPostsSection(
                 },
                 onMenuCopyClick = { text -> navigator.navigate(CopyTextDialogPageDestination(text)) },
                 onMenuFavoriteClick = { favouritePost ->
-                    val isPostCollected = pageState.threadMeta.collectStatus == 1 && favouritePost.id == pageState.threadMeta.collectMarkPid
+                    val isPostCollected = pageState.threadMeta.collectStatus && favouritePost.id == pageState.threadMeta.collectMarkPid
                     val fid = pageState.curForumId
                     val tbs = pageState.curTbs
                     if (fid != null) {

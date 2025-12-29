@@ -102,13 +102,13 @@ fun ThreadPageScreen(
     )
 
     val pageState = remember { ThreadPageState() }
-    LaunchedEffect(uiState, threadFeeds.threadEntity, threadFeeds.postEntities, threadId, forumId) {
+    LaunchedEffect(uiState, threadFeeds.threadMeta, threadFeeds.postEntities, threadId, forumId) {
         ThreadPageStateMapper.map(
             state = pageState,
             routeThreadId = threadId,
             routeForumId = forumId,
             uiState = uiState,
-            repositoryThread = threadFeeds.threadEntity,
+            threadMetaFromStore = threadFeeds.threadMeta,
             postEntities = threadFeeds.postEntities
         )
     }

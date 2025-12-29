@@ -39,6 +39,7 @@ import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ThreadStoreRepository
 import com.huanchengfly.tieba.post.repository.ThreadStoreRepositoryImpl
+import com.huanchengfly.tieba.post.repository.ThreadMetaStoreImpl
 import com.huanchengfly.tieba.post.repository.UserContentRepository
 import com.huanchengfly.tieba.post.repository.UserContentRepositoryImpl
 import com.huanchengfly.tieba.post.repository.UserInteractionRepository
@@ -48,6 +49,7 @@ import com.huanchengfly.tieba.post.repository.UserProfileRepositoryImpl
 import com.huanchengfly.tieba.post.repository.UserSocialRepository
 import com.huanchengfly.tieba.post.repository.UserSocialRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ZidProvider
+import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -164,6 +166,12 @@ abstract class RepositoryModule {
     abstract fun bindThreadStoreRepository(
         impl: ThreadStoreRepositoryImpl
     ): ThreadStoreRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindThreadMetaStore(
+        impl: ThreadMetaStoreImpl
+    ): ThreadMetaStore
 
     @Binds
     @Singleton

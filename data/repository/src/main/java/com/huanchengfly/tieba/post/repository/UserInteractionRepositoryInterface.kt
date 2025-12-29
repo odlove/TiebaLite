@@ -20,7 +20,7 @@ interface UserInteractionRepository {
      * **使用规范：**
      * - UI 层使用 Boolean 表示状态，调用时需转换为 Int
      * - ViewModel 中使用 `hasAgree xor 1` 计算操作后的新状态
-     * - 建议在 `.onStart {}` 中实现乐观更新，在 `.catch {}` 中实现回滚
+     * - 建议在成功回调后再同步 UI 状态
      *
      * @param threadId 主题ID（String 格式）
      * @param postId 帖子ID（String 格式）

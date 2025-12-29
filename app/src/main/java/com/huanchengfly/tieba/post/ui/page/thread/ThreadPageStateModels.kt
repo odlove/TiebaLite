@@ -23,7 +23,7 @@ import com.huanchengfly.tieba.core.common.thread.ThreadDetail
 import com.huanchengfly.tieba.core.common.thread.ThreadForum
 import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import com.huanchengfly.tieba.post.models.PostEntity
-import com.huanchengfly.tieba.post.models.ThreadMeta
+import com.huanchengfly.tieba.core.common.thread.ThreadMeta
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
 import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState

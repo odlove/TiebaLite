@@ -1,9 +1,12 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
+import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
 import com.huanchengfly.tieba.core.common.repository.UserInteractionFacade
+import com.huanchengfly.tieba.core.common.thread.ThreadMeta
 import com.huanchengfly.tieba.core.network.error.getErrorCode
 import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.post.repository.PbPageRepository
+import com.huanchengfly.tieba.post.models.mappers.toThreadMeta
 import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -14,11 +17,10 @@ import kotlinx.coroutines.flow.onStart
 @ViewModelScoped
 class AgreeThreadUseCase @Inject constructor(
     private val userInteractionRepository: UserInteractionFacade,
-    private val pbPageRepository: PbPageRepository
+    private val threadMetaStore: ThreadMetaStore,
+    private val pbPageRepository: PbPageRepository,
 ) : ThreadIntentUseCase<ThreadUiIntent.AgreeThread> {
     override fun execute(intent: ThreadUiIntent.AgreeThread): Flow<ThreadPartialChange> {
-        var previousHasAgree = 0
-        var previousAgreeNum = 0
         return userInteractionRepository
             .opAgree(
                 intent.threadId.toString(),
@@ -26,36 +28,31 @@ class AgreeThreadUseCase @Inject constructor(
                 hasAgree = if (intent.agree) 0 else 1,
                 objType = 3
             )
-            .map { ThreadPartialChange.AgreeThread.Success(intent.agree) as ThreadPartialChange }
-            .catch {
-                pbPageRepository.updateThreadMeta(intent.threadId) { meta ->
-                    meta.copy(
-                        hasAgree = previousHasAgree,
-                        agreeNum = previousAgreeNum
+            .map {
+                val fallback = pbPageRepository.threadFlow(intent.threadId).value?.toThreadMeta()
+                val current = threadMetaStore.get(intent.threadId)
+                    ?: fallback
+                    ?: ThreadMeta()
+                val nextAgreeNum = if (intent.agree) current.agreeNum + 1 else (current.agreeNum - 1).coerceAtLeast(0)
+                threadMetaStore.updateFromServer(
+                    intent.threadId,
+                    current.copy(
+                        hasAgree = intent.agree,
+                        agreeNum = nextAgreeNum
                     )
-                }
+                )
+                ThreadPartialChange.AgreeThread.Success(intent.agree) as ThreadPartialChange
+            }
+            .catch {
                 emit(
                     ThreadPartialChange.AgreeThread.Failure(
-                        !intent.agree,
+                        intent.agree,
                         it.getErrorCode(),
                         it.getErrorMessage()
                     )
                 )
             }
-            .onStart {
-                val currentEntity = pbPageRepository.threadFlow(intent.threadId).value
-                if (currentEntity != null) {
-                    previousHasAgree = currentEntity.meta.hasAgree
-                    previousAgreeNum = currentEntity.meta.agreeNum
-                    pbPageRepository.updateThreadMeta(intent.threadId) { meta ->
-                        meta.copy(
-                            hasAgree = if (intent.agree) 1 else 0,
-                            agreeNum = if (intent.agree) meta.agreeNum + 1 else meta.agreeNum - 1
-                        )
-                    }
-                }
-                emit(ThreadPartialChange.AgreeThread.Start(intent.agree))
-            }
+            .onStart { emit(ThreadPartialChange.AgreeThread.Start(intent.agree)) }
     }
 }
 
@@ -65,8 +62,6 @@ class AgreePostUseCase @Inject constructor(
     private val pbPageRepository: PbPageRepository
 ) : ThreadIntentUseCase<ThreadUiIntent.AgreePost> {
     override fun execute(intent: ThreadUiIntent.AgreePost): Flow<ThreadPartialChange> {
-        var previousHasAgree = 0
-        var previousAgreeNum = 0
         return userInteractionRepository
             .opAgree(
                 intent.threadId.toString(),
@@ -74,14 +69,18 @@ class AgreePostUseCase @Inject constructor(
                 hasAgree = if (intent.agree) 0 else 1,
                 objType = 1
             )
-            .map { ThreadPartialChange.AgreePost.Success(intent.postId, intent.agree) as ThreadPartialChange }
-            .catch {
+            .map {
                 pbPageRepository.updatePostMeta(intent.threadId, intent.postId) { meta ->
+                    val nextAgreeNum =
+                        if (intent.agree) meta.agreeNum + 1 else (meta.agreeNum - 1).coerceAtLeast(0)
                     meta.copy(
-                        hasAgree = previousHasAgree,
-                        agreeNum = previousAgreeNum
+                        hasAgree = if (intent.agree) 1 else 0,
+                        agreeNum = nextAgreeNum
                     )
                 }
+                ThreadPartialChange.AgreePost.Success(intent.postId, intent.agree) as ThreadPartialChange
+            }
+            .catch {
                 emit(
                     ThreadPartialChange.AgreePost.Failure(
                         intent.postId,
@@ -91,19 +90,6 @@ class AgreePostUseCase @Inject constructor(
                     )
                 )
             }
-            .onStart {
-                val currentPost = pbPageRepository.postFlow(intent.threadId, intent.postId).value
-                if (currentPost != null) {
-                    previousHasAgree = currentPost.meta.hasAgree
-                    previousAgreeNum = currentPost.meta.agreeNum
-                    pbPageRepository.updatePostMeta(intent.threadId, intent.postId) { meta ->
-                        meta.copy(
-                            hasAgree = if (intent.agree) 1 else 0,
-                            agreeNum = if (intent.agree) meta.agreeNum + 1 else meta.agreeNum - 1
-                        )
-                    }
-                }
-                emit(ThreadPartialChange.AgreePost.Start(intent.postId, intent.agree))
-            }
+            .onStart { emit(ThreadPartialChange.AgreePost.Start(intent.postId, intent.agree)) }
     }
 }

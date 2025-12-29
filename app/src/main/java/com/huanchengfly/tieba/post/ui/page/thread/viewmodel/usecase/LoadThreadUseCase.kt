@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
 import com.huanchengfly.tieba.core.common.thread.ThreadUser
+import com.huanchengfly.tieba.core.common.thread.ThreadMeta
 import com.huanchengfly.tieba.post.models.mappers.toThreadAnti
 import com.huanchengfly.tieba.post.models.mappers.toThreadDetail
 import com.huanchengfly.tieba.post.models.mappers.toThreadForum
@@ -33,11 +34,12 @@ class ThreadInitUseCase @Inject constructor() : ThreadIntentUseCase<ThreadUiInte
                     intent.seeLz,
                     intent.sortType,
                     sanitizedMeta = intent.threadDetail?.let {
-                        com.huanchengfly.tieba.post.models.ThreadMeta(
-                            hasAgree = it.agree?.hasAgree ?: 0,
+                        ThreadMeta(
+                            hasAgree = it.agree?.hasAgree == 1,
                             agreeNum = it.agree?.agreeNum?.toInt() ?: 0,
-                            collectStatus = it.collectStatus,
-                            collectMarkPid = it.collectMarkPid
+                            collectStatus = it.collectStatus == 1,
+                            collectMarkPid = it.collectMarkPid,
+                            replyNum = it.replyNum
                         )
                     }
                 )

@@ -7,6 +7,7 @@ import com.huanchengfly.tieba.core.common.thread.ThreadDetail
 import com.huanchengfly.tieba.core.common.thread.ThreadForum
 import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import com.huanchengfly.tieba.core.common.thread.ThreadUser
+import com.huanchengfly.tieba.core.common.thread.ThreadMeta
 import com.huanchengfly.tieba.post.removeAt
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import kotlinx.collections.immutable.ImmutableList
@@ -45,7 +46,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             val postId: Long = 0,
             val seeLz: Boolean = false,
             val sortType: Int = 0,
-            val sanitizedMeta: com.huanchengfly.tieba.post.models.ThreadMeta? = null,
+            val sanitizedMeta: ThreadMeta? = null,
         ) : Init()
 
         data class Failure(

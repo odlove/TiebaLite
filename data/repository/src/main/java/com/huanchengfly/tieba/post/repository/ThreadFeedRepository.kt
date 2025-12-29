@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
  *
  * 职责：
  * - 调用不同的 API 仓库获取帖子数据
- * - 转换 Proto 数据为 ThreadEntity
+ * - 转换 Proto 数据为 ThreadCard
  * - 写入 PbPageRepository 缓存
  * - 产出聚合结果 (threadIds + metadata)
  *

@@ -4,12 +4,12 @@ import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.pbPage.PbPageResponse
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
+import com.huanchengfly.tieba.core.common.feed.ThreadCard
+import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
 import com.huanchengfly.tieba.core.runtime.di.ApplicationScope
 import com.huanchengfly.tieba.post.models.PostEntity
-import com.huanchengfly.tieba.post.models.ProtoFieldTags
-import com.huanchengfly.tieba.post.models.ThreadEntity
 import com.huanchengfly.tieba.post.models.mappers.PostMapper
-import com.huanchengfly.tieba.post.models.mappers.ThreadMapper
+import com.huanchengfly.tieba.post.models.mappers.toThreadMeta
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.persistentListOf
@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.stateIn
 @Singleton
 class PbPageRepositoryImpl @Inject constructor(
     private val api: ITiebaApi,
+    private val threadMetaStore: ThreadMetaStore,
     @ApplicationScope private val applicationScope: CoroutineScope
 ) : PbPageRepository {
     companion object {
@@ -54,8 +55,8 @@ class PbPageRepositoryImpl @Inject constructor(
     // 这些内部缓存用于接收 API 调用结果和管理更新状态
     // 不直接暴露给外部，通过 stateIn() 转换为公开 StateFlow
 
-    // 帖子缓存：threadId -> ThreadEntity
-    private val _threadsCacheInternal = MutableStateFlow<Map<Long, ThreadEntity>>(emptyMap())
+    // 帖子缓存：threadId -> ThreadCard
+    private val _threadsCacheInternal = MutableStateFlow<Map<Long, ThreadCard>>(emptyMap())
 
     // 帖子更新状态：threadId -> 是否正在更新
     private val _updatingThreadsInternal = MutableStateFlow<Set<Long>>(emptySet())
@@ -69,7 +70,7 @@ class PbPageRepositoryImpl @Inject constructor(
     // ========== 公开 StateFlow（使用 WhileSubscribed() 自动管理生命周期） ==========
     // ✅ 当有订阅者时保留缓存，无订阅者时 5 秒后自动清理
 
-    private val threadsCache: StateFlow<Map<Long, ThreadEntity>> =
+    private val threadsCache: StateFlow<Map<Long, ThreadCard>> =
         _threadsCacheInternal.stateIn(
             scope = applicationScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -189,9 +190,8 @@ class PbPageRepositoryImpl @Inject constructor(
                     )
                 )
 
-                // ✅ API 调用成功时更新缓存
-                // ✅ 传入正确的 threadId（来自方法参数，而不是 proto.id）
-                updateThreadCache(threadId, thread, null)
+                // ✅ API 调用成功时更新 meta（无乐观更新）
+                threadMetaStore.updateFromServer(threadId, thread.toThreadMeta())
                 // 同时更新回复缓存
                 val originalPostList = data.post_list
                 val originalFirstPost = data.first_floor_post
@@ -203,7 +203,7 @@ class PbPageRepositoryImpl @Inject constructor(
                 finalResponse
             }
 
-    override fun threadFlow(threadId: Long): StateFlow<ThreadEntity?> =
+    override fun threadFlow(threadId: Long): StateFlow<ThreadCard?> =
         threadsCache.map { cache ->
             cache[threadId]
         }.stateIn(
@@ -212,7 +212,7 @@ class PbPageRepositoryImpl @Inject constructor(
             initialValue = threadsCache.value[threadId]
         )
 
-    override fun threadsFlow(threadIds: List<Long>): StateFlow<List<ThreadEntity>> =
+    override fun threadsFlow(threadIds: List<Long>): StateFlow<List<ThreadCard>> =
         threadsCache.map { cache ->
             threadIds.mapNotNull { cache[it] }
         }.stateIn(
@@ -223,52 +223,6 @@ class PbPageRepositoryImpl @Inject constructor(
 
     override fun isThreadUpdating(threadId: Long): Flow<Boolean> =
         updatingThreads.map { it.contains(threadId) }
-
-    // ✅ 私有方法：更新帖子缓存（使用合并策略）
-    // 当 pbPage API 调用时，调用 ThreadEntity.mergeWithDetail() 来合并数据
-    // 这样只更新 pbPage 真正提供的字段，保留来自 list API 的完整数据（abstract、media 等）
-    private fun updateThreadCache(
-        threadId: Long,  // ✅ 显式传入正确的 threadId，而不是从 proto.id 获取
-        threadProto: com.huanchengfly.tieba.post.api.models.protos.ThreadInfo,
-        presence: com.huanchengfly.tieba.post.models.FieldPresence? = null
-    ) {
-        val currentCache = _threadsCacheInternal.value.toMutableMap()
-        val existingEntity = currentCache[threadId]
-
-        val entityToCache = if (existingEntity != null) {
-            // ✅ 缓存中已存在：使用 Domain 层的合并逻辑
-            val detailPresence = presence ?: com.huanchengfly.tieba.post.models.FieldPresence()
-            val detailEntity = ThreadMapper.fromProtoWithPresence(
-                com.huanchengfly.tieba.post.models.ThreadInfoWithPresence(threadProto, detailPresence)
-            )
-            // 清晰简洁：调用 Domain 层的合并方法
-            existingEntity.mergeWithDetail(detailEntity)
-        } else {
-            // ✅ 缓存中不存在：首次加载，直接创建新 Entity
-            // ⚠️ Proto3 默认值问题：threadProto.id 可能为 0，需要强制校正为参数中的正确 threadId
-            val entity = if (presence != null) {
-                ThreadMapper.fromProtoWithPresence(
-                    com.huanchengfly.tieba.post.models.ThreadInfoWithPresence(threadProto, presence)
-                )
-            } else {
-                ThreadMapper.fromProto(threadProto)
-            }
-            // ✅ 强制校正 threadId，确保与缓存 key 一致
-            entity.copy(threadId = threadId)
-        }
-
-        currentCache[threadId] = entityToCache
-
-        // 如果超过容量限制，移除最旧的
-        if (currentCache.size > MAX_THREAD_CACHE_SIZE) {
-            val oldestKey = currentCache.minByOrNull { it.value.timestamp }?.key
-            if (oldestKey != null) {
-                currentCache.remove(oldestKey)
-            }
-        }
-
-        _threadsCacheInternal.value = currentCache
-    }
 
     // ✅ 私有方法：标记帖子开始更新
     internal fun markThreadUpdating(threadId: Long) {
@@ -351,7 +305,7 @@ class PbPageRepositoryImpl @Inject constructor(
      *
      * @param entities 要更新的帖子实体列表
      */
-    override fun upsertThreads(entities: List<ThreadEntity>) {
+    override fun upsertThreads(entities: List<ThreadCard>) {
         val currentCache = _threadsCacheInternal.value.toMutableMap()
 
         // 批量更新或添加
@@ -361,39 +315,16 @@ class PbPageRepositoryImpl @Inject constructor(
 
         // 如果超过容量限制，移除最旧的
         while (currentCache.size > MAX_THREAD_CACHE_SIZE) {
-            val oldestKey = currentCache.minByOrNull { it.value.timestamp }?.key
-            if (oldestKey != null) {
-                currentCache.remove(oldestKey)
-            }
+            val oldestKey = currentCache.keys.firstOrNull() ?: break
+            currentCache.remove(oldestKey)
         }
 
         _threadsCacheInternal.value = currentCache
     }
 
     /**
-     * 更新单个帖子的 meta 字段（用于乐观更新）
+     * 更新单个回复的 meta 字段
      *
-     * 供 ViewModel 层进行乐观更新和回滚，比如点赞状态变更。
-     * 调用此方法会立即触发 threadFlow 的所有订阅者重组。
-     *
-     * @param threadId 帖子 ID
-     * @param block 用于修改 meta 的函数，接收旧 meta 返回新 meta
-     */
-    override fun updateThreadMeta(threadId: Long, block: (com.huanchengfly.tieba.post.models.ThreadMeta) -> com.huanchengfly.tieba.post.models.ThreadMeta) {
-        val currentCache = _threadsCacheInternal.value.toMutableMap()
-        val entity = currentCache[threadId]
-
-        if (entity != null) {
-            val newMeta = block(entity.meta)
-            currentCache[threadId] = entity.copy(meta = newMeta)
-            _threadsCacheInternal.value = currentCache
-        }
-    }
-
-    /**
-     * 更新单个回复的 meta 字段（用于乐观更新）
-     *
-     * 供 ViewModel 层进行乐观更新和回滚，比如点赞状态变更。
      * 调用此方法会立即触发 postFlow 的所有订阅者重组。
      *
      * @param threadId 帖子 ID

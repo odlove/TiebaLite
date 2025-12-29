@@ -1,7 +1,8 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.models.protos.pbPage.PbPageResponse
 import com.huanchengfly.tieba.core.common.feed.ThreadCard
+import com.huanchengfly.tieba.core.common.thread.ThreadPageData
+import com.huanchengfly.tieba.core.common.thread.ThreadPostMeta
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -33,7 +34,7 @@ interface PbPageRepository {
         back: Boolean = false,
         from: String = "",
         lastPostId: Long? = null,
-    ): Flow<PbPageResponse>
+    ): Flow<ThreadPageData>
 
     /**
      * 订阅单个帖子的缓存数据
@@ -66,25 +67,7 @@ interface PbPageRepository {
      * @param postId 回复ID
      * @return 回复实体的 StateFlow（可能为 null）
      */
-    fun postFlow(threadId: Long, postId: Long): StateFlow<com.huanchengfly.tieba.post.models.PostEntity?>
-
-    /**
-     * 订阅多个回复的缓存数据
-     *
-     * @param threadId 帖子ID
-     * @param postIds 回复ID列表
-     * @return 回复实体列表的 StateFlow
-     */
-    fun postsFlow(threadId: Long, postIds: List<Long>): StateFlow<List<com.huanchengfly.tieba.post.models.PostEntity>>
-
-    /**
-     * 订阅回复是否正在更新
-     *
-     * @param threadId 帖子ID
-     * @param postId 回复ID
-     * @return 是否正在更新的 Flow
-     */
-    fun isPostUpdating(threadId: Long, postId: Long): Flow<Boolean>
+    fun postMetaFlow(threadId: Long, postIds: List<Long>): StateFlow<Map<Long, ThreadPostMeta>>
 
     /**
      * 批量更新或插入帖子到缓存（仅供 ThreadFeedRepository 使用）
@@ -96,11 +79,13 @@ interface PbPageRepository {
     /**
      * 更新单个回复的 meta 字段
      *
-     * 调用此方法会立即触发 postFlow 的所有订阅者重组。
-     *
      * @param threadId 帖子 ID
      * @param postId 回复 ID
-     * @param block 用于修改 meta 的函数，接收旧 meta 返回新 meta
+     * @param hasAgree 目标点赞状态
      */
-    fun updatePostMeta(threadId: Long, postId: Long, block: (com.huanchengfly.tieba.post.models.PostMeta) -> com.huanchengfly.tieba.post.models.PostMeta)
+    fun updatePostMeta(
+        threadId: Long,
+        postId: Long,
+        hasAgree: Boolean
+    )
 }

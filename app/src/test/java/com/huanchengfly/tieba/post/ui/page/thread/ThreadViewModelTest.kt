@@ -3,8 +3,10 @@ package com.huanchengfly.tieba.post.ui.page.thread
 import com.huanchengfly.tieba.core.common.ResourceProvider
 import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
 import com.huanchengfly.tieba.core.common.repository.UserInteractionFacade
+import com.huanchengfly.tieba.core.common.thread.ThreadDetail
+import com.huanchengfly.tieba.core.common.thread.ThreadPageData
+import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import com.huanchengfly.tieba.post.TestFixtures
-import com.huanchengfly.tieba.post.models.PostMeta
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
@@ -14,7 +16,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -67,7 +68,6 @@ class ThreadViewModelTest : BaseViewModelTest() {
         mockContentModerationRepo = mockk(relaxed = true)
         mockResourceProvider = mockk(relaxed = true)
         every { mockResourceProvider.getString(any(), *anyVararg()) } returns ""
-        every { mockPbPageRepo.updatePostMeta(any(), any(), any()) } answers { }
     }
 
     @After
@@ -171,11 +171,6 @@ class ThreadViewModelTest : BaseViewModelTest() {
                 objType = 1     // objType=1 for post
             )
         } returns flowOf(Unit)
-        val fakePostEntity = mockk<com.huanchengfly.tieba.post.models.PostEntity>(relaxed = true) {
-            every { meta } returns PostMeta(hasAgree = 0, agreeNum = 0)
-        }
-        every { mockPbPageRepo.postFlow(123L, 789L) } returns MutableStateFlow(fakePostEntity)
-
         // When: Create ViewModel and send AgreePost intent
         val viewModel = createViewModel()
         val job = collectUiState(viewModel)
@@ -265,20 +260,14 @@ class ThreadViewModelTest : BaseViewModelTest() {
 
     @Test
     fun `Load with threadId=0 should call pbPage and process response`() = runTest(testDispatcher) {
-        // Given: Mock response with threadId=0
-        val mockThread = TestFixtures.fakeThreadInfo(
-            id = 123L,
-            threadId = 0L  // ✅ threadId=0, implementation should use id as fallback
-        )
-        val mockFirstPost = TestFixtures.fakePost(id = 1L, threadId = 123L, floor = 1)
-        val mockPosts = listOf(
-            TestFixtures.fakePost(id = 2L, threadId = 123L, floor = 2),
-            TestFixtures.fakePost(id = 3L, threadId = 123L, floor = 3)
-        )
-        val mockResponse = TestFixtures.fakePbPageResponse(
-            thread = mockThread,
-            firstPost = mockFirstPost,
-            posts = mockPosts
+        // Given: Mock response
+        val mockResponse = ThreadPageData(
+            thread = ThreadDetail(threadId = 123L, title = "Test"),
+            posts = listOf(
+                ThreadPost(id = 2L, threadId = 123L, floor = 2),
+                ThreadPost(id = 3L, threadId = 123L, floor = 3)
+            ),
+            firstPost = ThreadPost(id = 1L, threadId = 123L, floor = 1)
         )
         every { mockPbPageRepo.pbPage(any(), any(), any(), any(), any(), any(), any(), any()) } returns flowOf(mockResponse)
 

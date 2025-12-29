@@ -139,7 +139,6 @@ class PbPageRepositoryImplTest {
 
         // Then
         assertNotNull(result)
-        assertEquals(0, result.error?.error_code)
         verify(exactly = 1) {
             mockApi.pbPageFlow(threadId, page, postId, seeLz, back, sortType, forumId, "", 0, lastPostId)
         }

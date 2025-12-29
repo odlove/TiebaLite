@@ -181,7 +181,7 @@ private fun LazyListScope.threadListContent(
                         viewModel = viewModel,
                         threadId = pageState.threadId,
                         threadAuthorId = authorId,
-                        postEntities = pageState.postEntities,
+                        postMetas = pageState.postMetas,
                         immersiveMode = pageState.isImmersiveMode,
                         canDelete = { it.authorId == curUserId },
                         isCollected = { pageState.threadMeta.collectStatus && it.id == pageState.threadMeta.collectMarkPid },
@@ -368,17 +368,18 @@ private fun LazyListScope.threadListContent(
                     subPosts = item.subPosts,
                     threadAuthorId = authorId,
                     blocked = item.blocked,
-                    postEntities = pageState.postEntities,
+                    postMetas = pageState.postMetas,
                     immersiveMode = pageState.isImmersiveMode,
                     canDelete = { it.authorId == curUserId },
                     isCollected = { pageState.threadMeta.collectStatus && it.id == pageState.threadMeta.collectMarkPid },
                     onUserClick = { navigatorInstance.navigate(UserProfilePageDestination(it.id)) },
                     onAgree = {
-                        val meta = pageState.postEntities.find { entity -> entity.id == item.post.get { id } }?.meta
-                        val postHasAgreed = meta?.hasAgree == 1 || item.post.get { agree?.hasAgree == 1 }
+                        val postId = item.post.get { id }
+                        val meta = pageState.postMetas[postId]
+                        val postHasAgreed = meta?.hasAgree == true || item.post.get { agree?.hasAgree == 1 }
                         actions.agreePost(
                             threadId = pageState.threadId,
-                            postId = item.post.get { id },
+                            postId = postId,
                             agree = !postHasAgreed
                         )
                     },
@@ -499,17 +500,18 @@ private fun LazyListScope.latestPostsSection(
                 subPosts = item.subPosts,
                 threadAuthorId = pageState.author?.get { id } ?: 0L,
                 blocked = item.blocked,
-                postEntities = pageState.postEntities,
+                postMetas = pageState.postMetas,
                 immersiveMode = pageState.isImmersiveMode,
                 canDelete = { it.authorId == pageState.user.get { id } },
                 isCollected = { pageState.threadMeta.collectStatus && it.id == pageState.threadMeta.collectMarkPid },
                 onUserClick = { navigator.navigate(UserProfilePageDestination(it.id)) },
                 onAgree = {
-                    val meta = pageState.postEntities.find { entity -> entity.id == postHolder.get { id } }?.meta
-                    val postHasAgreed = meta?.hasAgree == 1 || postHolder.get { agree?.hasAgree == 1 }
+                    val postId = postHolder.get { id }
+                    val meta = pageState.postMetas[postId]
+                    val postHasAgreed = meta?.hasAgree == true || postHolder.get { agree?.hasAgree == 1 }
                     actions.agreePost(
                         threadId = pageState.threadId,
-                        postId = postHolder.get { id },
+                        postId = postId,
                         agree = !postHasAgreed
                     )
                 },

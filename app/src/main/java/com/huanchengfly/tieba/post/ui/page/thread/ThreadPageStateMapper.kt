@@ -3,8 +3,8 @@ package com.huanchengfly.tieba.post.ui.page.thread
 import com.huanchengfly.tieba.core.common.thread.ThreadDetail
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
-import com.huanchengfly.tieba.post.models.PostEntity
 import com.huanchengfly.tieba.core.common.thread.ThreadMeta
+import com.huanchengfly.tieba.core.common.thread.ThreadPostMeta
 
 object ThreadPageStateMapper {
     fun map(
@@ -13,7 +13,7 @@ object ThreadPageStateMapper {
         routeForumId: Long?,
         uiState: ThreadUiState,
         threadMetaFromStore: ThreadMeta?,
-        postEntities: List<PostEntity>
+        postMetas: Map<Long, ThreadPostMeta>
     ) {
         val effectiveThreadId = uiState.threadId.takeIf { it != 0L } ?: routeThreadId
         val displayThread = uiState.threadDetail ?: state.displayThread
@@ -49,7 +49,7 @@ object ThreadPageStateMapper {
         state.user = uiState.user
         state.anti = uiState.anti
         state.threadMeta = threadMeta
-        state.postEntities = postEntities
+        state.postMetas = postMetas
         state.postIds = uiState.postIds
         state.nextPagePostId = uiState.nextPagePostId
         state.isRefreshing = uiState.isRefreshing

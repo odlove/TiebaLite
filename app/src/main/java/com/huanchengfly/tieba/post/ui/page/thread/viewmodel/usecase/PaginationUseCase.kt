@@ -2,9 +2,6 @@ package com.huanchengfly.tieba.post.ui.page.thread
 
 import com.huanchengfly.tieba.core.network.error.getErrorCode
 import com.huanchengfly.tieba.core.network.error.getErrorMessage
-import com.huanchengfly.tieba.post.models.mappers.toThreadDetail
-import com.huanchengfly.tieba.post.models.mappers.toThreadPost
-import com.huanchengfly.tieba.post.models.mappers.toThreadUser
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.ui.page.thread.mapper.ThreadPostMapper
 import com.huanchengfly.tieba.post.ui.page.thread.mapper.nextPagePostId
@@ -30,24 +27,21 @@ class LoadMoreUseCase @Inject constructor(
             intent.sortType
         )
             .map { response ->
-                val data = requireNotNull(response.data_) { "pbPage data is null" }
-                val page = requireNotNull(data.page) { "pbPage page is null" }
-                val thread = requireNotNull(data.thread) { "pbPage thread is null" }
-                val author = requireNotNull(thread.author) { "pbPage author is null" }
-                requireNotNull(data.forum) { "pbPage forum is null" }
-                requireNotNull(data.anti) { "pbPage anti is null" }
-                val postList = data.post_list
+                val page = requireNotNull(response.page) { "pbPage page is null" }
+                requireNotNull(response.forum) { "pbPage forum is null" }
+                requireNotNull(response.anti) { "pbPage anti is null" }
+                val threadDetail = response.thread
+                val author = requireNotNull(threadDetail.author) { "pbPage author is null" }
+                val postList = response.posts
                 val posts = postList.filterNot { it.floor == 1 || intent.postIds.contains(it.id) }
-                    .map { it.toThreadPost() }
-                val threadDetail = thread.toThreadDetail()
                 val threadAuthorId = threadDetail.author?.id
                 ThreadPartialChange.LoadMore.Success(
-                    author.toThreadUser(),
+                    author,
                     ThreadPostMapper.mapPosts(posts, threadAuthorId),
                     threadDetail,
-                    page.current_page,
-                    page.new_total_page,
-                    page.has_more != 0,
+                    page.currentPage,
+                    page.totalPage,
+                    page.hasMore,
                     threadDetail.nextPagePostId(
                         intent.postIds + posts.map { it.id },
                         intent.sortType
@@ -81,24 +75,21 @@ class LoadPreviousUseCase @Inject constructor(
             back = true
         )
             .map { response ->
-                val data = requireNotNull(response.data_) { "pbPage data is null" }
-                val page = requireNotNull(data.page) { "pbPage page is null" }
-                val thread = requireNotNull(data.thread) { "pbPage thread is null" }
-                val author = requireNotNull(thread.author) { "pbPage author is null" }
-                requireNotNull(data.forum) { "pbPage forum is null" }
-                requireNotNull(data.anti) { "pbPage anti is null" }
-                val postList = data.post_list
+                val page = requireNotNull(response.page) { "pbPage page is null" }
+                requireNotNull(response.forum) { "pbPage forum is null" }
+                requireNotNull(response.anti) { "pbPage anti is null" }
+                val threadDetail = response.thread
+                val author = requireNotNull(threadDetail.author) { "pbPage author is null" }
+                val postList = response.posts
                 val posts = postList.filterNot { it.floor == 1 || intent.postIds.contains(it.id) }
-                    .map { it.toThreadPost() }
-                val threadDetail = thread.toThreadDetail()
                 val threadAuthorId = threadDetail.author?.id
                 ThreadPartialChange.LoadPrevious.Success(
-                    author.toThreadUser(),
+                    author,
                     ThreadPostMapper.mapPosts(posts, threadAuthorId),
                     threadDetail,
-                    page.current_page,
-                    page.new_total_page,
-                    page.has_prev != 0,
+                    page.currentPage,
+                    page.totalPage,
+                    page.hasPrev,
                     newPostIds = posts.map { it.id }.toImmutableList(),
                 ) as ThreadPartialChange
             }

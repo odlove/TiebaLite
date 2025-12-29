@@ -2,13 +2,14 @@ package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.protos.OriginThreadInfo
-import com.huanchengfly.tieba.post.api.models.protos.pbPage.PbPageResponse
+import com.huanchengfly.tieba.post.api.models.protos.Post
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
 import com.huanchengfly.tieba.core.common.feed.ThreadCard
 import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
+import com.huanchengfly.tieba.core.common.thread.ThreadPageData
+import com.huanchengfly.tieba.core.common.thread.ThreadPostMeta
 import com.huanchengfly.tieba.core.runtime.di.ApplicationScope
-import com.huanchengfly.tieba.post.models.PostEntity
-import com.huanchengfly.tieba.post.models.mappers.PostMapper
+import com.huanchengfly.tieba.post.models.mappers.toThreadPageData
 import com.huanchengfly.tieba.post.models.mappers.toThreadMeta
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,7 +19,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
@@ -61,11 +61,8 @@ class PbPageRepositoryImpl @Inject constructor(
     // 帖子更新状态：threadId -> 是否正在更新
     private val _updatingThreadsInternal = MutableStateFlow<Set<Long>>(emptySet())
 
-    // 回复缓存：threadId -> (postId -> PostEntity)
-    private val _postsCacheInternal = MutableStateFlow<Map<Long, Map<Long, PostEntity>>>(emptyMap())
-
-    // 回复更新状态：(threadId, postId) 对集合
-    private val _updatingPostsInternal = MutableStateFlow<Set<Pair<Long, Long>>>(emptySet())
+    // 楼层元数据缓存：threadId -> (postId -> ThreadPostMeta)
+    private val _postMetaCacheInternal = MutableStateFlow<Map<Long, Map<Long, ThreadPostMeta>>>(emptyMap())
 
     // ========== 公开 StateFlow（使用 WhileSubscribed() 自动管理生命周期） ==========
     // ✅ 当有订阅者时保留缓存，无订阅者时 5 秒后自动清理
@@ -84,18 +81,11 @@ class PbPageRepositoryImpl @Inject constructor(
             initialValue = emptySet()
         )
 
-    private val postsCache: StateFlow<Map<Long, Map<Long, PostEntity>>> =
-        _postsCacheInternal.stateIn(
+    private val postMetaCache: StateFlow<Map<Long, Map<Long, ThreadPostMeta>>> =
+        _postMetaCacheInternal.stateIn(
             scope = applicationScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyMap()
-        )
-
-    private val updatingPosts: StateFlow<Set<Pair<Long, Long>>> =
-        _updatingPostsInternal.stateIn(
-            scope = applicationScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptySet()
         )
 
     override fun pbPage(
@@ -108,7 +98,7 @@ class PbPageRepositoryImpl @Inject constructor(
         back: Boolean,
         from: String,
         lastPostId: Long?,
-    ): Flow<PbPageResponse> =
+    ): Flow<ThreadPageData> =
         api.pbPageFlow(
                 threadId,
                 page,
@@ -191,16 +181,18 @@ class PbPageRepositoryImpl @Inject constructor(
                 )
 
                 // ✅ API 调用成功时更新 meta（无乐观更新）
-                threadMetaStore.updateFromServer(threadId, thread.toThreadMeta())
-                // 同时更新回复缓存
-                val originalPostList = data.post_list
-                val originalFirstPost = data.first_floor_post
-                val allPosts = listOfNotNull(originalFirstPost) + originalPostList.filterNot { it.floor == 1 }
+                val effectiveThreadId = thread.id.takeIf { it != 0L } ?: threadId
+                threadMetaStore.updateFromServer(effectiveThreadId, thread.toThreadMeta())
+                // 同时更新楼层 meta 缓存
+                val finalData = finalResponse.data_ ?: throw TiebaUnknownException
+                val finalPostList = finalData.post_list
+                val finalFirstPost = finalData.first_floor_post
+                val allPosts = listOfNotNull(finalFirstPost) + finalPostList.filterNot { it.floor == 1 }
                 if (allPosts.isNotEmpty()) {
-                    updatePostsCache(threadId, allPosts)
+                    updatePostMetaCache(effectiveThreadId, allPosts)
                 }
 
-                finalResponse
+                finalResponse.toThreadPageData()
             }
 
     override fun threadFlow(threadId: Long): StateFlow<ThreadCard?> =
@@ -234,68 +226,73 @@ class PbPageRepositoryImpl @Inject constructor(
         _updatingThreadsInternal.value = _updatingThreadsInternal.value - threadId
     }
 
-    // ========== PostEntity StateFlow ==========
+    // ========== Post Meta StateFlow ==========
 
-    override fun postFlow(threadId: Long, postId: Long): StateFlow<PostEntity?> =
-        postsCache.map { cache ->
-            cache[threadId]?.get(postId)
+    override fun postMetaFlow(threadId: Long, postIds: List<Long>): StateFlow<Map<Long, ThreadPostMeta>> =
+        postMetaCache.map { cache ->
+            val threadPosts = cache[threadId].orEmpty()
+            if (postIds.isEmpty()) {
+                emptyMap()
+            } else {
+                postIds.mapNotNull { id ->
+                    threadPosts[id]?.let { id to it }
+                }.toMap()
+            }
         }.stateIn(
             scope = applicationScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = postsCache.value[threadId]?.get(postId)
+            initialValue = emptyMap()
         )
 
-    override fun postsFlow(threadId: Long, postIds: List<Long>): StateFlow<List<PostEntity>> =
-        postsCache.map { cache ->
-            cache[threadId]?.let { threadPosts ->
-                postIds.mapNotNull { threadPosts[it] }
-            } ?: emptyList()
-        }.stateIn(
-            scope = applicationScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = postsCache.value[threadId]?.let { threadPosts ->
-                postIds.mapNotNull { threadPosts[it] }
-            } ?: emptyList()
+    private fun buildPostMeta(post: Post): ThreadPostMeta =
+        ThreadPostMeta(
+            hasAgree = post.agree?.hasAgree == 1,
+            agreeNum = (post.agree?.diffAgreeNum ?: 0L).toInt(),
+            subPostCount = post.sub_post_number
         )
 
-    override fun isPostUpdating(threadId: Long, postId: Long): Flow<Boolean> =
-        updatingPosts.map { it.contains(Pair(threadId, postId)) }
-
-    // ✅ 私有方法：更新回复缓存
-    private fun updatePostsCache(threadId: Long, posts: List<com.huanchengfly.tieba.post.api.models.protos.Post>) {
-        val entities = PostMapper.fromProtos(posts, threadId)
-        val currentCache = _postsCacheInternal.value.toMutableMap()
+    // ✅ 私有方法：更新楼层 meta 缓存
+    private fun updatePostMetaCache(threadId: Long, posts: List<Post>) {
+        val currentCache = _postMetaCacheInternal.value.toMutableMap()
         val threadPostsMap = (currentCache[threadId] ?: emptyMap()).toMutableMap()
 
-        // 更新或添加回复
-        entities.forEach { entity ->
-            threadPostsMap[entity.id] = entity
+        posts.forEach { post ->
+            threadPostsMap[post.id] = buildPostMeta(post)
         }
 
-        // 计算此线程的总回复数
-        val totalPostCount = threadPostsMap.size
-
-        // 如果此线程超过容量，移除该线程最旧的回复
-        if (totalPostCount > MAX_POST_CACHE_SIZE) {
-            val entriesToRemove = totalPostCount - MAX_POST_CACHE_SIZE
-            val sortedByTime = threadPostsMap.values.sortedBy { it.timestamp }.take(entriesToRemove)
-            sortedByTime.forEach { post ->
-                threadPostsMap.remove(post.id)
-            }
+        while (threadPostsMap.size > MAX_POST_CACHE_SIZE) {
+            val oldestKey = threadPostsMap.keys.firstOrNull() ?: break
+            threadPostsMap.remove(oldestKey)
         }
 
         currentCache[threadId] = threadPostsMap
-        _postsCacheInternal.value = currentCache
+        _postMetaCacheInternal.value = currentCache
     }
 
-    // ✅ 私有方法：标记回复开始更新
-    internal fun markPostUpdating(threadId: Long, postId: Long) {
-        _updatingPostsInternal.value = _updatingPostsInternal.value + Pair(threadId, postId)
-    }
-
-    // ✅ 私有方法：标记回复完成更新
-    internal fun markPostUpdated(threadId: Long, postId: Long) {
-        _updatingPostsInternal.value = _updatingPostsInternal.value - Pair(threadId, postId)
+    override fun updatePostMeta(
+        threadId: Long,
+        postId: Long,
+        hasAgree: Boolean
+    ) {
+        val currentCache = _postMetaCacheInternal.value.toMutableMap()
+        val threadPostsMap = (currentCache[threadId] ?: emptyMap()).toMutableMap()
+        val currentMeta = threadPostsMap[postId] ?: ThreadPostMeta()
+        val nextAgreeNum = when {
+            hasAgree && !currentMeta.hasAgree -> currentMeta.agreeNum + 1
+            !hasAgree && currentMeta.hasAgree -> (currentMeta.agreeNum - 1).coerceAtLeast(0)
+            else -> currentMeta.agreeNum
+        }
+        threadPostsMap.remove(postId)
+        threadPostsMap[postId] = currentMeta.copy(
+            hasAgree = hasAgree,
+            agreeNum = nextAgreeNum
+        )
+        while (threadPostsMap.size > MAX_POST_CACHE_SIZE) {
+            val oldestKey = threadPostsMap.keys.firstOrNull() ?: break
+            threadPostsMap.remove(oldestKey)
+        }
+        currentCache[threadId] = threadPostsMap
+        _postMetaCacheInternal.value = currentCache
     }
 
     // ========== 内部 API：供 ThreadFeedRepository 向缓存写入数据 ==========
@@ -320,28 +317,6 @@ class PbPageRepositoryImpl @Inject constructor(
         }
 
         _threadsCacheInternal.value = currentCache
-    }
-
-    /**
-     * 更新单个回复的 meta 字段
-     *
-     * 调用此方法会立即触发 postFlow 的所有订阅者重组。
-     *
-     * @param threadId 帖子 ID
-     * @param postId 回复 ID
-     * @param block 用于修改 meta 的函数，接收旧 meta 返回新 meta
-     */
-    override fun updatePostMeta(threadId: Long, postId: Long, block: (com.huanchengfly.tieba.post.models.PostMeta) -> com.huanchengfly.tieba.post.models.PostMeta) {
-        val currentCache = _postsCacheInternal.value.toMutableMap()
-        val threadPostsMap = (currentCache[threadId] ?: emptyMap()).toMutableMap()
-        val post = threadPostsMap[postId]
-
-        if (post != null) {
-            val newMeta = block(post.meta)
-            threadPostsMap[postId] = post.copy(meta = newMeta)
-            currentCache[threadId] = threadPostsMap
-            _postsCacheInternal.value = currentCache
-        }
     }
 
 }

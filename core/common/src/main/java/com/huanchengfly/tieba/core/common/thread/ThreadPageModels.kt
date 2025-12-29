@@ -76,6 +76,12 @@ data class ThreadPost(
     val forum: ThreadForum? = null,
 )
 
+data class ThreadPostMeta(
+    val hasAgree: Boolean = false,
+    val agreeNum: Int = 0,
+    val subPostCount: Int = 0,
+)
+
 data class ThreadDetail(
     val threadId: Long = 0L,
     val firstPostId: Long = 0L,

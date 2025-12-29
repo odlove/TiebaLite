@@ -22,8 +22,8 @@ import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
 import com.huanchengfly.tieba.core.common.thread.ThreadDetail
 import com.huanchengfly.tieba.core.common.thread.ThreadForum
 import com.huanchengfly.tieba.core.common.thread.ThreadUser
-import com.huanchengfly.tieba.post.models.PostEntity
 import com.huanchengfly.tieba.core.common.thread.ThreadMeta
+import com.huanchengfly.tieba.core.common.thread.ThreadPostMeta
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
 import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
@@ -58,7 +58,7 @@ class ThreadPageState(
     user: ImmutableHolder<ThreadUser> = com.huanchengfly.tieba.core.mvi.wrapImmutable(ThreadUser()),
     anti: ImmutableHolder<ThreadAnti>? = null,
     threadMeta: ThreadMeta = ThreadMeta(),
-    postEntities: List<PostEntity> = emptyList(),
+    postMetas: Map<Long, ThreadPostMeta> = emptyMap(),
     postIds: ImmutableList<Long> = persistentListOf(),
     nextPagePostId: Long = 0L,
     isRefreshing: Boolean = false,
@@ -106,7 +106,7 @@ class ThreadPageState(
         internal set
     var threadMeta by mutableStateOf(threadMeta)
         internal set
-    var postEntities by mutableStateOf(postEntities)
+    var postMetas by mutableStateOf(postMetas)
         internal set
     var postIds by mutableStateOf(postIds)
         internal set

@@ -5,8 +5,8 @@ import com.huanchengfly.tieba.core.common.repository.UserInteractionFacade
 import com.huanchengfly.tieba.core.common.thread.ThreadMeta
 import com.huanchengfly.tieba.core.network.error.getErrorCode
 import com.huanchengfly.tieba.core.network.error.getErrorMessage
-import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.models.mappers.toThreadMeta
+import com.huanchengfly.tieba.post.repository.PbPageRepository
 import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -70,14 +70,11 @@ class AgreePostUseCase @Inject constructor(
                 objType = 1
             )
             .map {
-                pbPageRepository.updatePostMeta(intent.threadId, intent.postId) { meta ->
-                    val nextAgreeNum =
-                        if (intent.agree) meta.agreeNum + 1 else (meta.agreeNum - 1).coerceAtLeast(0)
-                    meta.copy(
-                        hasAgree = if (intent.agree) 1 else 0,
-                        agreeNum = nextAgreeNum
-                    )
-                }
+                pbPageRepository.updatePostMeta(
+                    threadId = intent.threadId,
+                    postId = intent.postId,
+                    hasAgree = intent.agree
+                )
                 ThreadPartialChange.AgreePost.Success(intent.postId, intent.agree) as ThreadPartialChange
             }
             .catch {

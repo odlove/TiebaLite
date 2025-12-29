@@ -22,13 +22,12 @@ class QuickPreviewRepositoryImpl @Inject constructor(
     override fun observeThread(threadId: Long): Flow<ThreadPreviewData> =
         pbPageRepository.pbPage(threadId = threadId)
             .map { response ->
-                val data = response.data_ ?: throw TiebaUnknownException
-                val thread = data.thread ?: throw TiebaUnknownException
-                val forum = data.forum ?: throw TiebaUnknownException
+                val thread = response.thread
+                val forum = response.forum ?: throw TiebaUnknownException
                 ThreadPreviewData(
                     title = thread.title,
                     forumName = forum.name,
-                    replyNum = thread.replyNum?.toLong(),
+                    replyNum = thread.replyNum.toLong(),
                     authorPortrait = thread.author?.portrait,
                 )
             }

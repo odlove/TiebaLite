@@ -26,8 +26,8 @@ class ThreadFeedFacadeImpl @Inject constructor(
     private val personalizedRepository: PersonalizedRepository,
     private val pbPageRepository: PbPageRepository,
     private val threadMetaStore: ThreadMetaStore,
+    private val frsPageRepository: FrsPageRepository,
     private val api: ITiebaApi,
-    private val forumPreferences: ForumPreferences,
 ) : ThreadFeedFacade {
 
     override fun hotThreadList(tabCode: String): Flow<ThreadFeedPage> =
@@ -41,25 +41,23 @@ class ThreadFeedFacadeImpl @Inject constructor(
             .catch { throw it }
 
     override fun concernThreads(pageTag: String, page: Int): Flow<ThreadFeedPage> =
-        api.frsPage(
+        frsPageRepository.frsPage(
             forumName = pageTag,
             page = page,
             loadType = 1,
-            sortType = -1
+            sortType = -1,
+            forceNew = true
         )
-            .map { it.filterThreadList(forumPreferences) }
-            .onEach { response ->
-                val threadProtos = response.data_?.thread_list ?: emptyList()
-                val threadCards = threadProtos.map { it.toThreadCard() }
+            .onEach { data ->
+                val threadCards = data.threadList
                 pbPageRepository.upsertThreads(threadCards)
-                val metaMap = threadProtos.associate { proto ->
-                    proto.resolveThreadId() to proto.toThreadMeta()
+                val metaMap = threadCards.associate { card ->
+                    card.threadId to card.toThreadMeta()
                 }
                 threadMetaStore.updateFromServer(metaMap)
             }
-            .map { response ->
-                val threadProtos = response.data_?.thread_list ?: emptyList()
-                val threadIds = threadProtos.map { it.id }.toImmutableList()
+            .map { data ->
+                val threadIds = data.threadList.map { it.threadId }.toImmutableList()
                 ThreadFeedPage(
                     threadIds = threadIds,
                     metadata = threadIds.associateWith { ConcernMetadata() }.toPersistentMap()

@@ -2,11 +2,6 @@ package com.huanchengfly.tieba.post.ui.page.thread
 
 import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import com.huanchengfly.tieba.core.common.thread.ThreadMeta
-import com.huanchengfly.tieba.post.models.mappers.toThreadAnti
-import com.huanchengfly.tieba.post.models.mappers.toThreadDetail
-import com.huanchengfly.tieba.post.models.mappers.toThreadForum
-import com.huanchengfly.tieba.post.models.mappers.toThreadPost
-import com.huanchengfly.tieba.post.models.mappers.toThreadUser
 import com.huanchengfly.tieba.post.repository.PbPageRepository
 import com.huanchengfly.tieba.post.repository.ThreadPageFrom
 import com.huanchengfly.tieba.post.ui.page.thread.mapper.ThreadPostMapper
@@ -62,37 +57,34 @@ class LoadThreadUseCase @Inject constructor(
             from = intent.from.takeIf { it == ThreadPageFrom.FROM_STORE }.orEmpty()
         )
             .map { response ->
-                val data = requireNotNull(response.data_) { "pbPage data is null" }
-                val page = requireNotNull(data.page) { "pbPage page is null" }
-                val thread = requireNotNull(data.thread) { "pbPage thread is null" }
-                val author = requireNotNull(thread.author) { "pbPage author is null" }
-                val forum = requireNotNull(data.forum) { "pbPage forum is null" }
-                val anti = requireNotNull(data.anti) { "pbPage anti is null" }
-                val postList = data.post_list
-                val firstPost = data.first_floor_post?.toThreadPost()
+                val page = requireNotNull(response.page) { "pbPage page is null" }
+                val forum = requireNotNull(response.forum) { "pbPage forum is null" }
+                val anti = requireNotNull(response.anti) { "pbPage anti is null" }
+                val threadDetail = response.thread
+                val author = requireNotNull(threadDetail.author) { "pbPage author is null" }
+                val currentUser = response.user ?: ThreadUser()
+                val postList = response.posts
+                val firstPost = response.firstPost
                 val notFirstPosts = postList.filterNot { it.floor == 1 }
-                    .map { it.toThreadPost() }
                 val allPosts = listOfNotNull(firstPost) + notFirstPosts
-                val threadDetail = thread.toThreadDetail()
-                val currentUser = data.user?.toThreadUser() ?: ThreadUser()
                 val threadAuthorId = threadDetail.author?.id
                 ThreadPartialChange.Load.Success(
-                    thread.title,
-                    author.toThreadUser(),
+                    threadDetail.title,
+                    author,
                     currentUser,
                     firstPost,
                     ThreadPostMapper.mapPosts(notFirstPosts, threadAuthorId),
                     threadDetail,
-                    forum.toThreadForum(),
-                    anti.toThreadAnti(),
-                    page.current_page,
-                    page.new_total_page,
-                    page.has_more != 0,
+                    forum,
+                    anti,
+                    page.currentPage,
+                    page.totalPage,
+                    page.hasMore,
                     threadDetail.nextPagePostId(
                         postList.map { it.id },
                         intent.sortType
                     ),
-                    page.has_prev != 0,
+                    page.hasPrev,
                     firstPost?.contentRenders,
                     intent.postId,
                     intent.seeLz,

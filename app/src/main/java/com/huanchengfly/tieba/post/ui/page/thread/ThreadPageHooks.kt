@@ -11,12 +11,12 @@ import androidx.compose.runtime.setValue
 import com.huanchengfly.tieba.core.common.history.HistoryItem
 import com.huanchengfly.tieba.core.common.history.HistoryRepository
 import com.huanchengfly.tieba.core.common.thread.ThreadMeta
-import com.huanchengfly.tieba.post.models.PostEntity
 import com.huanchengfly.tieba.post.models.ThreadHistoryInfoBean
 import com.huanchengfly.tieba.post.utils.StringUtil
 import com.huanchengfly.tieba.post.toJson
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.common.thread.ThreadPost
+import com.huanchengfly.tieba.core.common.thread.ThreadPostMeta
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -28,7 +28,7 @@ private const val HISTORY_SAVE_DEBOUNCE_MS = 750L
 data class ThreadFeeds(
     val effectiveThreadId: Long,
     val threadMeta: ThreadMeta?,
-    val postEntities: List<PostEntity>,
+    val postMetas: Map<Long, ThreadPostMeta>,
     val postIds: List<Long>
 )
 
@@ -44,19 +44,19 @@ fun rememberThreadFeeds(
     }
     val threadMeta by threadMetaFlow.collectAsState(initial = null)
     val postIds = remember(uiState.postIds) { uiState.postIds.toList() }
-    val postsFlow = remember(viewModel, effectiveThreadId, postIds) {
-        viewModel.pbPageRepository.postsFlow(
+    val postMetaFlow = remember(viewModel, effectiveThreadId, postIds) {
+        viewModel.pbPageRepository.postMetaFlow(
             effectiveThreadId,
             postIds
         )
     }
-    val postEntities by postsFlow.collectAsState(initial = emptyList())
+    val postMetas by postMetaFlow.collectAsState(initial = emptyMap())
 
-    return remember(effectiveThreadId, threadMeta, postEntities, postIds) {
+    return remember(effectiveThreadId, threadMeta, postMetas, postIds) {
         ThreadFeeds(
             effectiveThreadId = effectiveThreadId,
             threadMeta = threadMeta,
-            postEntities = postEntities,
+            postMetas = postMetas,
             postIds = postIds
         )
     }

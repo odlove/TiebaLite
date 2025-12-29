@@ -50,7 +50,7 @@ import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
 import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import com.huanchengfly.tieba.post.components.dialogs.LoadingDialog
-import com.huanchengfly.tieba.post.models.PostEntity
+import com.huanchengfly.tieba.core.common.thread.ThreadPostMeta
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
@@ -93,7 +93,7 @@ fun PostCard(
     subPosts: ImmutableList<SubPostItemData> = persistentListOf(),
     threadAuthorId: Long = 0L,
     blocked: Boolean = false,
-    postEntities: List<PostEntity> = emptyList(),
+    postMetas: Map<Long, ThreadPostMeta> = emptyMap(),
     canDelete: (ThreadPost) -> Boolean = { false },
     immersiveMode: Boolean = false,
     isCollected: (ThreadPost) -> Boolean = { false },
@@ -120,11 +120,11 @@ fun PostCard(
         post.title.isNotBlank() && post.floor <= 1 && post.isNTitle != 1
     }
 
-    val postMeta = remember(postHolder, postEntities) {
-        postEntities.find { it.id == post.id }?.meta
+    val postMeta = remember(postHolder, postMetas) {
+        postMetas[post.id]
     }
     val hasAgreed = remember(postMeta, post) {
-        (postMeta?.hasAgree == 1) || (post.agree?.hasAgree == 1)
+        (postMeta?.hasAgree == true) || (post.agree?.hasAgree == 1)
     }
     val agreeNum = remember(postMeta, post) {
         postMeta?.agreeNum ?: (post.agree?.diffAgreeNum ?: 0L).toInt()

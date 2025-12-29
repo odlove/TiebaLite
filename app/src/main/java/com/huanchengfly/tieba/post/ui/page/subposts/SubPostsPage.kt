@@ -310,7 +310,7 @@ internal fun SubPostsContent(
                     .checkReportPost(subPostId)
                     .doIfSuccess {
                         dialog.dismiss()
-                        navigator.navigate(WebViewPageDestination(it.data.url))
+                        navigator.navigate(WebViewPageDestination(it.url))
                     }.doIfFailure {
                         dialog.dismiss()
                         context.toastShort(R.string.toast_load_failed)

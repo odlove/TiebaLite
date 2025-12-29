@@ -1,8 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.subposts
 
-import com.huanchengfly.tieba.post.TestFixtures
-import com.huanchengfly.tieba.post.models.mappers.toThreadSubPost
-import com.huanchengfly.tieba.post.models.mappers.toThreadUser
+import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
+import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -175,16 +174,16 @@ class SubPostsUtilsTest {
     @Test
     fun `buildReplyArgs should include subPost info when provided`() {
         // Given: A target sub-post with author info
-        val targetSubPost = TestFixtures.fakeSubPostList(
+        val targetSubPost = fakeThreadSubPost(
             id = 777L,
             authorId = 555L,
-            author = TestFixtures.fakeUser(
+            author = fakeThreadUser(
                 id = 555L,
                 name = "subPostAuthor",
                 nameShow = "Sub Post Author",
                 portrait = "sub_portrait"
             )
-        ).toThreadSubPost()
+        )
 
         val forumIdFromApi = 123L
         val fallbackForumId = 456L
@@ -220,24 +219,24 @@ class SubPostsUtilsTest {
     @Test
     fun `buildReplyArgs should use replyUser when both replyUser and targetSubPost are provided`() {
         // Given: Both replyUser and targetSubPost are provided
-        val replyUser = TestFixtures.fakeUser(
+        val replyUser = fakeThreadUser(
             id = 999L,
             name = "replyUser",
             nameShow = "Reply User",
             portrait = "reply_portrait"
-        ).toThreadUser()
+        )
 
-        val subPostAuthor = TestFixtures.fakeUser(
+        val subPostAuthor = fakeThreadUser(
             id = 555L,
             name = "subPostAuthor",
             nameShow = "Sub Post Author",
             portrait = "sub_portrait"
         )
-        val targetSubPost = TestFixtures.fakeSubPostList(
+        val targetSubPost = fakeThreadSubPost(
             id = 777L,
             authorId = 555L,
             author = subPostAuthor
-        ).toThreadSubPost()
+        )
 
         val forumIdFromApi = 123L
         val fallbackForumId = 456L
@@ -312,12 +311,12 @@ class SubPostsUtilsTest {
     @Test
     fun `buildReplyArgs should prefer replyUser id over postAuthorIdFallback when both present`() {
         // Given: replyUser with valid id and postAuthorIdFallback both present
-        val replyUser = TestFixtures.fakeUser(
+        val replyUser = fakeThreadUser(
             id = 999L,
             name = "normalUser",
             nameShow = "Normal User",
             portrait = "normal_portrait"
-        ).toThreadUser()
+        )
 
         val forumIdFromApi = 123L
         val fallbackForumId = 456L
@@ -353,11 +352,11 @@ class SubPostsUtilsTest {
     @Test
     fun `buildReplyArgs should use targetSubPost author_id when replyUser and postAuthorIdFallback are null`() {
         // Given: targetSubPost with author_id but replyUser and postAuthorIdFallback are null
-        val targetSubPost = TestFixtures.fakeSubPostList(
+        val targetSubPost = fakeThreadSubPost(
             id = 777L,
             authorId = 666L,  // author_id is present
             author = null  // But author object is null
-        ).toThreadSubPost()
+        )
 
         val forumIdFromApi = 123L
         val fallbackForumId = 456L
@@ -382,4 +381,28 @@ class SubPostsUtilsTest {
         assertNotNull("buildReplyArgs should return non-null result", result)
         assertEquals("replyUserId should fall back to targetSubPost.author_id", 666L, result?.replyUserId)
     }
+
+    private fun fakeThreadUser(
+        id: Long,
+        name: String,
+        nameShow: String,
+        portrait: String
+    ): ThreadUser =
+        ThreadUser(
+            id = id,
+            name = name,
+            nameShow = nameShow,
+            portrait = portrait
+        )
+
+    private fun fakeThreadSubPost(
+        id: Long,
+        authorId: Long,
+        author: ThreadUser?
+    ): ThreadSubPost =
+        ThreadSubPost(
+            id = id,
+            authorId = authorId,
+            author = author
+        )
 }

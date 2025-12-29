@@ -34,7 +34,8 @@ class ThreadViewModel @Inject constructor(
     override fun dispatchEvent(partialChange: ThreadPartialChange): UiEvent? =
         effectMapper.map(partialChange)
 
-    fun checkReportPost(postId: String) = contentModerationRepository.checkReportPost(postId)
+    suspend fun checkReportPost(postId: String) =
+        contentModerationRepository.checkReportPost(postId)
 
     private inner class ThreadPartialChangeProducer :
         PartialChangeProducer<ThreadUiIntent, ThreadPartialChange, ThreadUiState> {

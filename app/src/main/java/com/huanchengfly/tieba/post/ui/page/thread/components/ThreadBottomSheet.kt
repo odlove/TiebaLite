@@ -139,7 +139,7 @@ fun ThreadMenuSheetContent(
                 viewModel.checkReportPost(firstPostId.toString())
                     .doIfSuccess {
                         dialog.dismiss()
-                        navigator.navigate(WebViewPageDestination(it.data.url))
+                        navigator.navigate(WebViewPageDestination(it.url))
                     }
                     .doIfFailure {
                         dialog.dismiss()

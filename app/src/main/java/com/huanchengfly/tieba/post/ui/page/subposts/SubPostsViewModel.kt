@@ -69,7 +69,8 @@ class SubPostsViewModel
                 else -> null
             }
 
-        fun checkReportPost(postId: String) = contentModerationRepository.checkReportPost(postId)
+        suspend fun checkReportPost(postId: String) =
+            contentModerationRepository.checkReportPost(postId)
 
         class SubPostsPartialChangeProducer(
             private val subPostsRepository: SubPostsRepository,

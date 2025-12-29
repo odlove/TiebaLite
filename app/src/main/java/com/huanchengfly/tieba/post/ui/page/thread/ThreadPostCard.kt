@@ -164,7 +164,7 @@ fun PostCard(
                         viewModel.checkReportPost(post.id.toString())
                             .doIfSuccess {
                                 dialog.dismiss()
-                                navigator.navigate(WebViewPageDestination(it.data.url))
+                                navigator.navigate(WebViewPageDestination(it.url))
                             }
                             .doIfFailure {
                                 dialog.dismiss()
@@ -453,7 +453,7 @@ private fun SubPostItem(
                             viewModel.checkReportPost(subPostList.get { id }.toString())
                                 .doIfSuccess {
                                     dialog.dismiss()
-                                    navigator.navigate(WebViewPageDestination(it.data.url))
+                                    navigator.navigate(WebViewPageDestination(it.url))
                                 }
                                 .doIfFailure {
                                     dialog.dismiss()

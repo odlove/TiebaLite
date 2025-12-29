@@ -8,4 +8,4 @@ data class ThreadHistoryInfoBean(
     val pid: String? = null,
     val forumName: String? = null,
     val floor: String? = null,
-) : BaseBean()
+)

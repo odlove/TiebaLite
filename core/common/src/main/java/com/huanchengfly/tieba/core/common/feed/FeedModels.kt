@@ -19,6 +19,8 @@ data class ConcernMetadata(
 data class PersonalizedInfo(
     val threadId: Long = 0L,
     val dislikeReasons: List<DislikeReason> = emptyList(),
+    val weight: String = "",
+    val source: String = "",
     val extra: String? = null,
 )
 
@@ -56,4 +58,9 @@ data class ThreadFeedPage(
     val metadata: PersistentMap<Long, FeedMetadata> = persistentMapOf(),
     val topicList: ImmutableList<HotTopic> = persistentListOf(),
     val tabList: ImmutableList<HotTab> = persistentListOf(),
+)
+
+data class PersonalizedFeedPage(
+    val threadIds: ImmutableList<Long> = persistentListOf(),
+    val metadata: PersistentMap<Long, PersonalizedMetadata> = persistentMapOf(),
 )

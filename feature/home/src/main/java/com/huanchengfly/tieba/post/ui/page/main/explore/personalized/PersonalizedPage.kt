@@ -147,10 +147,9 @@ fun PersonalizedPage(
                 val meta = metadata[threadId] ?: return@mapNotNull null
                 PersonalizedThreadItem(
                     thread = card,
-                    personalized = (meta as? com.huanchengfly.tieba.core.common.feed.PersonalizedMetadata)?.personalized,
-                    blocked = (meta as? com.huanchengfly.tieba.core.common.feed.PersonalizedMetadata)?.blocked == true,
-                    hidden = (meta as? com.huanchengfly.tieba.core.common.feed.PersonalizedMetadata)?.blocked == true
-                            && appPreferences.hideBlockedContent
+                    personalized = meta.personalized,
+                    blocked = meta.blocked,
+                    hidden = meta.blocked && appPreferences.hideBlockedContent
                 )
             }.toImmutableList()
         }

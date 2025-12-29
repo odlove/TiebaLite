@@ -1,8 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.main.explore.personalized
 
 import com.huanchengfly.tieba.core.common.feed.DislikeReason
+import com.huanchengfly.tieba.core.common.feed.PersonalizedFeedPage
 import com.huanchengfly.tieba.core.common.feed.PersonalizedMetadata
-import com.huanchengfly.tieba.core.common.feed.ThreadFeedPage
 import com.huanchengfly.tieba.core.common.interaction.DislikeRequest
 import com.huanchengfly.tieba.core.common.repository.ThreadCardRepository
 import com.huanchengfly.tieba.core.common.repository.ThreadFeedFacade
@@ -71,7 +71,7 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
     fun `Refresh should call personalizedRepository personalizedFlow with page 1`() =
         runTest(testDispatcher) {
             // Given: Mock repository returns success
-            val response = ThreadFeedPage()
+            val response = PersonalizedFeedPage()
             every { mockThreadFeedRepo.personalizedThreads(1) } returns flowOf(response)
 
             // When: Create ViewModel and send Refresh intent
@@ -99,7 +99,7 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
     fun `LoadMore should call personalizedRepository personalizedFlow with page 2`() =
         runTest(testDispatcher) {
             // Given: Mock repository returns success
-            val response = ThreadFeedPage()
+            val response = PersonalizedFeedPage()
             every { mockThreadFeedRepo.personalizedThreads(2) } returns flowOf(response)
 
             // When: Create ViewModel and send LoadMore intent
@@ -201,7 +201,7 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
             1L to PersonalizedMetadata(blocked = false),
             2L to PersonalizedMetadata(blocked = true)
         )
-        val feedPage = ThreadFeedPage(
+        val feedPage = PersonalizedFeedPage(
             threadIds = persistentListOf(1L, 2L),
             metadata = metadataMap
         )
@@ -226,7 +226,7 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
     fun `LoadMore success should merge ids and replace metadata for overlapping entries`() = runTest(testDispatcher) {
         val initialMeta1 = PersonalizedMetadata(blocked = false)
         val initialMeta2 = PersonalizedMetadata(blocked = true)
-        val initialFeed = ThreadFeedPage(
+        val initialFeed = PersonalizedFeedPage(
             threadIds = persistentListOf(1L, 2L),
             metadata = persistentMapOf<Long, PersonalizedMetadata>(
                 1L to initialMeta1,
@@ -237,7 +237,7 @@ class PersonalizedViewModelTest : BaseViewModelTest() {
 
         val loadMetaOverlap = PersonalizedMetadata(blocked = false)
         val loadMetaNew = PersonalizedMetadata(blocked = true)
-        val loadMoreFeed = ThreadFeedPage(
+        val loadMoreFeed = PersonalizedFeedPage(
             threadIds = persistentListOf(2L, 3L),
             metadata = persistentMapOf<Long, PersonalizedMetadata>(
                 2L to loadMetaOverlap,

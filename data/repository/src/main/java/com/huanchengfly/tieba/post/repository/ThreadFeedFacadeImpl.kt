@@ -1,9 +1,7 @@
 package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.core.common.feed.ConcernMetadata
-import com.huanchengfly.tieba.core.common.feed.DislikeReason
-import com.huanchengfly.tieba.core.common.feed.PersonalizedInfo
-import com.huanchengfly.tieba.core.common.feed.PersonalizedMetadata
+import com.huanchengfly.tieba.core.common.feed.PersonalizedFeedPage
 import com.huanchengfly.tieba.core.common.feed.ThreadFeedPage
 import com.huanchengfly.tieba.core.common.repository.ThreadFeedFacade
 import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
@@ -12,7 +10,6 @@ import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
 import com.huanchengfly.tieba.post.models.mappers.resolveThreadId
 import com.huanchengfly.tieba.post.models.mappers.toThreadCard
 import com.huanchengfly.tieba.post.models.mappers.toThreadMeta
-import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.collections.immutable.toImmutableList
@@ -38,58 +35,8 @@ class ThreadFeedFacadeImpl @Inject constructor(
             .onStart { }
             .catch { throw it }
 
-    override fun personalizedThreads(page: Int): Flow<ThreadFeedPage> =
+    override fun personalizedThreads(page: Int): Flow<PersonalizedFeedPage> =
         personalizedRepository.personalizedFlow(1, page)
-            .onEach { response ->
-                val threadProtos = response.data_?.thread_list ?: emptyList()
-                val threadCards = threadProtos.map { it.toThreadCard() }
-                pbPageRepository.upsertThreads(threadCards)
-                val metaMap = threadProtos.associate { proto ->
-                    proto.resolveThreadId() to proto.toThreadMeta()
-                }
-                threadMetaStore.updateFromServer(metaMap)
-            }
-            .map { response ->
-                val threadProtos = response.data_?.thread_list ?: emptyList()
-                val threadIds = threadProtos.map { proto ->
-                    val threadId = proto.threadId
-                    val id = proto.id
-                    threadId.takeIf { it != 0L } ?: id
-                }.toImmutableList()
-                val threadInfoMap = threadProtos.associateBy { proto ->
-                    val threadId = proto.threadId
-                    val id = proto.id
-                    threadId.takeIf { it != 0L } ?: id
-                }
-
-                val personalizedMap = response.data_?.thread_personalized
-                    ?.associateBy { it.tid }
-                    .orEmpty()
-
-                val metadata = threadIds.associateWith { threadId ->
-                    val threadInfo = threadInfoMap[threadId]
-                    val personalized = personalizedMap[threadId]?.let { info ->
-                        PersonalizedInfo(
-                            threadId = info.tid,
-                            dislikeReasons = info.dislikeResource.map { reason ->
-                                DislikeReason(
-                                    dislikeReason = reason.dislikeReason,
-                                    dislikeId = reason.dislikeId.toInt(),
-                                    extra = reason.extra
-                                )
-                            },
-                            extra = info.extra
-                        )
-                    }
-                    val blocked = threadInfo?.shouldBlock() == true
-                    PersonalizedMetadata(personalized = personalized, blocked = blocked)
-                }.toPersistentMap()
-
-                ThreadFeedPage(
-                    threadIds = threadIds,
-                    metadata = metadata
-                )
-            }
             .onStart { }
             .catch { throw it }
 

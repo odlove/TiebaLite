@@ -1,5 +1,6 @@
 package com.huanchengfly.tieba.post.repository
 
+import com.huanchengfly.tieba.core.common.feed.PersonalizedFeedPage
 import com.huanchengfly.tieba.core.common.feed.ThreadFeedPage
 import kotlinx.coroutines.flow.Flow
 
@@ -27,9 +28,9 @@ interface ThreadFeedRepository {
      * 获取推荐帖子
      *
      * @param page 页码
-     * @return ThreadFeedPage Flow
+     * @return PersonalizedFeedPage Flow
      */
-    fun personalizedThreads(page: Int): Flow<ThreadFeedPage>
+    fun personalizedThreads(page: Int): Flow<PersonalizedFeedPage>
 
     /**
      * 获取关注列表帖子

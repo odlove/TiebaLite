@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.api.models.protos.personalized.PersonalizedResponse
+import com.huanchengfly.tieba.core.common.feed.PersonalizedFeedPage
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -17,5 +17,5 @@ interface PersonalizedRepository {
     fun personalizedFlow(
         loadType: Int,
         page: Int = 1
-    ): Flow<PersonalizedResponse>
+    ): Flow<PersonalizedFeedPage>
 }

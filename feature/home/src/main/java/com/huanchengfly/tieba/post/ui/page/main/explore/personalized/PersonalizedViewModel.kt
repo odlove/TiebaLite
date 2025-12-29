@@ -4,8 +4,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import com.huanchengfly.tieba.core.network.error.defaultErrorMessage
 import com.huanchengfly.tieba.core.common.feed.DislikeReason
+import com.huanchengfly.tieba.core.common.feed.PersonalizedFeedPage
 import com.huanchengfly.tieba.core.common.feed.PersonalizedMetadata
-import com.huanchengfly.tieba.core.common.feed.ThreadFeedPage
 import com.huanchengfly.tieba.core.common.interaction.DislikeRequest
 import com.huanchengfly.tieba.core.common.repository.ThreadCardRepository
 import com.huanchengfly.tieba.core.common.repository.ThreadFeedFacade
@@ -76,11 +76,10 @@ class PersonalizedViewModel @Inject constructor(
         private fun produceRefreshPartialChange(): Flow<PersonalizedPartialChange.Refresh> =
             threadFeedRepository
                 .personalizedThreads(1)
-                .map<ThreadFeedPage, PersonalizedPartialChange.Refresh> { feedPage ->
-                    @Suppress("UNCHECKED_CAST")
+                .map<PersonalizedFeedPage, PersonalizedPartialChange.Refresh> { feedPage ->
                     PersonalizedPartialChange.Refresh.Success(
                         threadIds = feedPage.threadIds,
-                        metadata = feedPage.metadata as PersistentMap<Long, PersonalizedMetadata>
+                        metadata = feedPage.metadata
                     )
                 }
                 .onStart { emit(PersonalizedPartialChange.Refresh.Start) }
@@ -89,12 +88,11 @@ class PersonalizedViewModel @Inject constructor(
         private fun PersonalizedUiIntent.LoadMore.producePartialChange(): Flow<PersonalizedPartialChange.LoadMore> =
             threadFeedRepository
                 .personalizedThreads(page)
-                .map<ThreadFeedPage, PersonalizedPartialChange.LoadMore> { feedPage ->
-                    @Suppress("UNCHECKED_CAST")
+                .map<PersonalizedFeedPage, PersonalizedPartialChange.LoadMore> { feedPage ->
                     PersonalizedPartialChange.LoadMore.Success(
                         currentPage = page,
                         threadIds = feedPage.threadIds,
-                        metadata = feedPage.metadata as PersistentMap<Long, PersonalizedMetadata>
+                        metadata = feedPage.metadata
                     )
                 }
                 .onStart { emit(PersonalizedPartialChange.LoadMore.Start) }

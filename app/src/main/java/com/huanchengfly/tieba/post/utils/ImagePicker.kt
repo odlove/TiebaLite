@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.os.ext.SdkExtensions.getExtensionVersion
 import android.provider.MediaStore
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
@@ -26,16 +25,6 @@ fun AppCompatActivity.registerPickMediasLauncher(callback: (PickMediasResult) ->
         PickMediasContract
     ) {
         callback(it)
-    }
-}
-
-fun isPhotoPickerAvailable(): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        true
-    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        getExtensionVersion(Build.VERSION_CODES.R) >= 2
-    } else {
-        false
     }
 }
 

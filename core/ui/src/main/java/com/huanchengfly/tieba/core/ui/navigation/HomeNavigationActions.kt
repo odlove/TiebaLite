@@ -2,6 +2,7 @@ package com.huanchengfly.tieba.core.ui.navigation
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import com.huanchengfly.tieba.core.common.thread.ThreadPreview
+import com.huanchengfly.tieba.core.common.theme.ThemeChannel
 
 /**
  * 定义主页面子模块可调用的导航 / 辅助操作，避免直接依赖 :app。
@@ -14,6 +15,8 @@ interface HomeNavigationActions {
     fun openAbout()
     fun openThreadCollect()
     fun openAppTheme()
+    fun openFontSizeSettings()
+    fun openTranslucentTheme(channel: ThemeChannel)
     fun openWeb(url: String)
     fun openForum(forumName: String)
     fun openThread(

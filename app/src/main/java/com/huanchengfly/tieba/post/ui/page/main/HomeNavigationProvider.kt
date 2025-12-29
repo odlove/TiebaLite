@@ -1,5 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.main
 
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -7,20 +8,23 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
 import com.huanchengfly.tieba.core.common.thread.ThreadPreview
+import com.huanchengfly.tieba.core.common.theme.ThemeChannel
 import com.huanchengfly.tieba.core.ui.navigation.HomeNavigationActions
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
-import com.huanchengfly.tieba.post.ui.page.destinations.AboutPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.AppThemePageDestination
+import com.huanchengfly.tieba.post.activities.AppFontSizeActivity
+import com.huanchengfly.tieba.post.activities.TranslucentThemeActivity
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.history.destinations.HistoryPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.HotTopicListPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.LoginPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.SearchPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.SettingsPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.SubPostsPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.threadcollect.destinations.ThreadCollectPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
+import com.huanchengfly.tieba.post.ui.page.settings.destinations.AboutPageDestination
+import com.huanchengfly.tieba.post.ui.page.settings.destinations.AppThemePageDestination
+import com.huanchengfly.tieba.post.ui.page.settings.destinations.SettingsPageDestination
 import com.huanchengfly.tieba.post.ui.page.webview.destinations.WebViewPageDestination
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import com.huanchengfly.tieba.post.utils.TiebaUtil
@@ -31,8 +35,9 @@ fun ProvideHomeNavigationActions(
     navController: NavHostController,
     content: @Composable () -> Unit,
 ) {
-    val appContext = LocalContext.current.applicationContext
-    val actions = remember(navController, appContext) {
+    val context = LocalContext.current
+    val appContext = context.applicationContext
+    val actions = remember(navController, appContext, context) {
         object : HomeNavigationActions {
             override fun openSearch() {
                 navController.navigateDirection(SearchPageDestination)
@@ -65,6 +70,17 @@ fun ProvideHomeNavigationActions(
 
             override fun openAppTheme() {
                 navController.navigateDirection(AppThemePageDestination)
+            }
+
+            override fun openFontSizeSettings() {
+                context.startActivity(Intent(context, AppFontSizeActivity::class.java))
+            }
+
+            override fun openTranslucentTheme(channel: ThemeChannel) {
+                context.startActivity(
+                    Intent(context, TranslucentThemeActivity::class.java)
+                        .putExtra(TranslucentThemeActivity.EXTRA_THEME_CHANNEL, channel.name)
+                )
             }
 
             override fun openWeb(url: String) {

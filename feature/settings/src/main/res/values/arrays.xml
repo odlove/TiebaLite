@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="theme_values">
+        <item>tieba</item>
+        <item>blue</item>
+        <item>black</item>
+        <item>pink</item>
+        <item>red</item>
+        <item>purple</item>
+        <item>blue_dark</item>
+        <item>grey_dark</item>
+        <item>amoled_dark</item>
+        <item>translucent</item>
+        <item>translucent_light</item>
+        <item>translucent_dark</item>
+    </string-array>
+</resources>

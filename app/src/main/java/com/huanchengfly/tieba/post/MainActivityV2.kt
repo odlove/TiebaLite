@@ -86,7 +86,7 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.LocalThemeState
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.menuBackground
-import com.huanchengfly.tieba.post.ui.page.NavGraphs
+import com.huanchengfly.tieba.post.ui.page.AppNavGraphs
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.LoginPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
@@ -646,7 +646,7 @@ class MainActivityV2 : BaseComposeActivity() {
                                 ProvideHomeNavigationActions(navController = navController) {
                                     DestinationsNavHost(
                                         navController = navController,
-                                        navGraph = NavGraphs.root,
+                                        navGraph = AppNavGraphs.root,
                                         engine = engine,
                                     )
                                 }

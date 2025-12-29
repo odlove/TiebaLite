@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.search
 
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.network.error.defaultErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
@@ -50,7 +51,7 @@ class SearchViewModel @Inject constructor(
     override fun dispatchEvent(partialChange: SearchPartialChange): UiEvent? =
         when (partialChange) {
             is SearchPartialChange.ClearSearchHistory.Success -> CommonUiEvent.Toast(
-                resourceProvider.getString(R.string.toast_clear_success)
+                resourceProvider.getString(CoreUiR.string.toast_clear_success)
             )
 
             is SearchPartialChange.ClearSearchHistory.Failure -> CommonUiEvent.Toast(

@@ -54,3 +54,8 @@ dependencies {
     implementation(libs.compose.destinations.core)
     ksp(libs.compose.destinations.ksp)
 }
+
+ksp {
+    arg("compose-destinations.mode", "destinations")
+    arg("compose-destinations.moduleName", "threadcollect")
+}

@@ -28,13 +28,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabSelectedColor
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabUnselectedColor
-import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.history.list.HistoryListPage
 import com.huanchengfly.tieba.post.ui.page.history.list.HistoryListUiEvent
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
@@ -42,18 +40,22 @@ import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
 import com.huanchengfly.tieba.core.ui.compose.TabRow
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.common.history.HistoryRepository
 import com.huanchengfly.tieba.post.di.entrypoints.HistoryRepositoryEntryPoint
+import com.huanchengfly.tieba.post.repository.ThreadPageFrom
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
+import com.huanchengfly.tieba.feature.history.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 
 @OptIn(ExperimentalFoundationApi::class)
 @Destination(
+    start = true,
     deepLinks = [
         DeepLink(uriPattern = "tblite://history")
     ]
@@ -66,6 +68,7 @@ fun HistoryPage(
     val coroutineScope = rememberCoroutineScope()
     val snackbarState = rememberSnackbarState()
     val globalEventBus = LocalGlobalEventBus.current
+    val homeNavigation = LocalHomeNavigation.current
 
     val context = LocalContext.current
     val historyRepository = remember(context) {
@@ -91,7 +94,7 @@ fun HistoryPage(
                     centerTitle = true,
                     title = {
                         Text(
-                            text = stringResource(id = R.string.title_history),
+                            text = stringResource(id = CoreUiR.string.title_history),
                             fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h6
                         )
                     },
@@ -104,7 +107,7 @@ fun HistoryPage(
                                 historyRepository.deleteAll()
                                 globalEventBus.emitGlobalEvent(HistoryListUiEvent.DeleteAll)
                                 snackbarState.showSnackbar(
-                                    context.getString(R.string.toast_clear_success)
+                                    context.getString(CoreUiR.string.toast_clear_success)
                                 )
                             }
                         }) {
@@ -151,7 +154,7 @@ fun HistoryPage(
                     Tab(
                         text = {
                             Text(
-                                text = stringResource(id = R.string.title_history_forum),
+                                text = stringResource(id = CoreUiR.string.title_history_forum),
                                 fontSize = 13.sp
                             )
                         },
@@ -168,19 +171,43 @@ fun HistoryPage(
             }
         }
     ) {
-        ProvideNavigator(navigator = navigator) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize(),
-                key = { it },
-                verticalAlignment = Alignment.Top,
-                userScrollEnabled = true,
-            ) {
-                if (it == 0) {
-                    HistoryListPage(type = HistoryRepository.TYPE_THREAD)
-                } else {
-                    HistoryListPage(type = HistoryRepository.TYPE_FORUM)
-                }
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+            key = { it },
+            verticalAlignment = Alignment.Top,
+            userScrollEnabled = true,
+        ) {
+            if (it == 0) {
+                HistoryListPage(
+                    type = HistoryRepository.TYPE_THREAD,
+                    onOpenForum = { forumName ->
+                        homeNavigation.openForum(forumName)
+                    },
+                    onOpenThread = { threadId, postId, seeLz ->
+                        homeNavigation.openThread(
+                            threadId = threadId,
+                            postId = postId,
+                            seeLz = seeLz,
+                            from = ThreadPageFrom.FROM_HISTORY
+                        )
+                    }
+                )
+            } else {
+                HistoryListPage(
+                    type = HistoryRepository.TYPE_FORUM,
+                    onOpenForum = { forumName ->
+                        homeNavigation.openForum(forumName)
+                    },
+                    onOpenThread = { threadId, postId, seeLz ->
+                        homeNavigation.openThread(
+                            threadId = threadId,
+                            postId = postId,
+                            seeLz = seeLz,
+                            from = ThreadPageFrom.FROM_HISTORY
+                        )
+                    }
+                )
             }
         }
     }

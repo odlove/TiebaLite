@@ -51,6 +51,7 @@
     <string name="title_share">分享</string>
     <string name="title_agree">点赞</string>
     <string name="title_history">浏览记录</string>
+    <string name="toast_clear_success">清除成功啦( •̀ ω •́ )✧</string>
     <string name="my_info_settings">设置</string>
     <string name="tip_login">请先登录</string>
     <string name="title_my_collect">我的收藏</string>

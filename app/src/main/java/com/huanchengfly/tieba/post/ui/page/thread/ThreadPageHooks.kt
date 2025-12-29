@@ -11,7 +11,7 @@ import androidx.compose.runtime.setValue
 import com.huanchengfly.tieba.core.common.history.HistoryItem
 import com.huanchengfly.tieba.core.common.history.HistoryRepository
 import com.huanchengfly.tieba.core.common.thread.ThreadMeta
-import com.huanchengfly.tieba.post.models.ThreadHistoryInfoBean
+import com.huanchengfly.tieba.core.common.history.ThreadHistoryInfoBean
 import com.huanchengfly.tieba.post.utils.StringUtil
 import com.huanchengfly.tieba.post.toJson
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder

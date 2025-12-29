@@ -233,6 +233,7 @@ dependencies {
     implementation(project(":feature:webview"))
     implementation(project(":feature:photoview"))
     implementation(project(":feature:threadcollect"))
+    implementation(project(":feature:history"))
 
     //Local Files
 //    implementation fileTree(include: ["*.jar"], dir: "libs")

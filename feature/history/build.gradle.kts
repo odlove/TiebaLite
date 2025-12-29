@@ -1,14 +1,14 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt.android)
 }
 
 android {
-    namespace = "com.huanchengfly.tieba.feature.home"
+    namespace = "com.huanchengfly.tieba.feature.history"
     compileSdk = 36
 
     defaultConfig {
@@ -31,20 +31,15 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:mvi"))
     implementation(project(":core:common"))
-    implementation(project(":core:ui"))
-    implementation(project(":core:runtime"))
-
-    implementation(project(":data:repository"))
-    implementation(libs.kotlinx.serialization.json)
+    implementation(project(":core:mvi"))
     implementation(project(":core:network"))
+    implementation(project(":core:ui"))
+    implementation(project(":data:repository"))
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation(libs.javax.inject)
-    implementation(libs.org.litepal.android.kotlin)
-    implementation(libs.kotlinx.collections.immutable)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.runtime)
@@ -53,13 +48,8 @@ dependencies {
     implementation(libs.compose.material.icons.core)
     implementation(libs.compose.material.icons.extended)
     implementation(libs.compose.animation)
-    implementation(libs.compose.animation.graphics)
-    implementation(libs.androidx.constraintlayout.compose)
-    implementation(libs.androidx.datastore.preferences)
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
-    implementation(libs.airbnb.lottie.compose)
-    implementation(libs.eygraber.placeholder.material)
 
     implementation(libs.compose.destinations.core)
     ksp(libs.compose.destinations.ksp)
@@ -67,5 +57,5 @@ dependencies {
 
 ksp {
     arg("compose-destinations.mode", "destinations")
-    arg("compose-destinations.moduleName", "home")
+    arg("compose-destinations.moduleName", "history")
 }

@@ -19,21 +19,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.history.R
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.fromJson
-import com.huanchengfly.tieba.post.models.ThreadHistoryInfoBean
+import com.huanchengfly.tieba.core.common.history.ThreadHistoryInfoBean
 import com.huanchengfly.tieba.core.common.history.HistoryItem
 import com.huanchengfly.tieba.core.common.history.HistoryRepository
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
-import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
-import com.huanchengfly.tieba.post.repository.ThreadPageFrom
 import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.core.ui.widgets.compose.Chip
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
@@ -50,7 +46,9 @@ import com.huanchengfly.tieba.core.common.utils.DateTimeUtils
 @Composable
 fun HistoryListPage(
     type: Int,
-    viewModel: HistoryListViewModel = if (type == HistoryRepository.TYPE_THREAD) pageViewModel<ThreadHistoryListViewModel>() else pageViewModel<ForumHistoryListViewModel>()
+    viewModel: HistoryListViewModel = if (type == HistoryRepository.TYPE_THREAD) pageViewModel<ThreadHistoryListViewModel>() else pageViewModel<ForumHistoryListViewModel>(),
+    onOpenForum: (String) -> Unit = {},
+    onOpenThread: (threadId: Long, postId: Long, seeLz: Boolean) -> Unit = { _, _, _ -> }
 ) {
     LazyLoad(loaded = viewModel.initialized) {
         viewModel.send(HistoryListUiIntent.Refresh)
@@ -81,7 +79,6 @@ fun HistoryListPage(
     )
 
     val context = LocalContext.current
-    val navigator = LocalNavigator.current
     val snackbarState = LocalSnackbarState.current
     viewModel.onEvent<HistoryListUiEvent.Delete.Failure> {
         snackbarState.showSnackbar(
@@ -137,19 +134,16 @@ fun HistoryListPage(
                             onClick = {
                                 when (it.type) {
                                     HistoryRepository.TYPE_FORUM -> {
-                                        navigator.navigate(ForumPageDestination(it.data))
+                                        onOpenForum(it.data)
                                     }
 
                                     HistoryRepository.TYPE_THREAD -> {
                                         val extrasJson = it.extras
                                         val extra = extrasJson?.fromJson<ThreadHistoryInfoBean>()
-                                        navigator.navigate(
-                                            ThreadPageDestination(
-                                                it.data.toLong(),
-                                                postId = extra?.pid?.toLongOrNull() ?: 0L,
-                                                seeLz = extra?.isSeeLz ?: false,
-                                                from = ThreadPageFrom.FROM_HISTORY
-                                            )
+                                        onOpenThread(
+                                            it.data.toLong(),
+                                            extra?.pid?.toLongOrNull() ?: 0L,
+                                            extra?.isSeeLz ?: false
                                         )
                                     }
                                 }
@@ -180,19 +174,16 @@ fun HistoryListPage(
                             onClick = {
                                 when (it.type) {
                                     HistoryRepository.TYPE_FORUM -> {
-                                        navigator.navigate(ForumPageDestination(it.data))
+                                        onOpenForum(it.data)
                                     }
 
                                     HistoryRepository.TYPE_THREAD -> {
                                         val extrasJson = it.extras
                                         val extra = extrasJson?.fromJson<ThreadHistoryInfoBean>()
-                                        navigator.navigate(
-                                            ThreadPageDestination(
-                                                it.data.toLong(),
-                                                postId = extra?.pid?.toLongOrNull() ?: 0L,
-                                                seeLz = extra?.isSeeLz ?: false,
-                                                from = ThreadPageFrom.FROM_HISTORY
-                                            )
+                                        onOpenThread(
+                                            it.data.toLong(),
+                                            extra?.pid?.toLongOrNull() ?: 0L,
+                                            extra?.isSeeLz ?: false
                                         )
                                     }
                                 }

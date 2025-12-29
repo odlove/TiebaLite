@@ -8,7 +8,6 @@
     <string name="title_refresh">刷新</string>
     <string name="title_copy_link">复制链接</string>
     <string name="toast_copy_success">已复制到剪贴板</string>
-    <string name="title_history_delete">清空浏览记录</string>
     <string name="toast_delete_success">删除成功</string>
     <string name="title_about">关于</string>
     <string name="title_settings">设置</string>
@@ -95,7 +94,6 @@
     <string name="settings_forum_single">吧列表单列显示</string>
     <string name="title_hide_explore">隐藏首页「动态」入口</string>
     <string name="settings_show_shortcut">在贴内显示快捷进吧入口</string>
-    <string name="toast_clear_success">清除成功啦( •̀ ω •́ )✧</string>
     <string name="button_retry">重试</string>
     <string name="tip_copy_text">长按自由复制</string>
     <string name="menu_copy">复制</string>
@@ -178,9 +176,6 @@
     <string name="title_oksign_finish">签到完成</string>
     <string name="title_oksign_fail">签到失败</string>
     <string name="text_login_first">请先登录</string>
-    <string name="title_history_today">今天早些时候</string>
-    <string name="title_history_before">昨天或更早</string>
-    <string name="title_history_thread">贴子记录</string>
     <string name="title_thread_header">回复 %1$s</string>
     <string name="tip_thread_no_replies">这个帖子暂时还没有回复</string>
     <string name="title_oksign_slow_mode">慢速模式</string>
@@ -331,8 +326,6 @@
     <string name="btn_more">更多选项</string>
     <string name="launcher_not_support_pin_shortcut">启动器不支持创建快捷方式</string>
     <string name="load_shortcut_icon_fail">加载图标失败</string>
-    <string name="delete_history_failure">删除历史记录失败 %s</string>
-    <string name="delete_history_success">删除历史记录成功</string>
     <string name="insert_emotions">插入表情</string>
     <string name="send_reply">发送回复</string>
     <string name="insert_photo">插入图片</string>

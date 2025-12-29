@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.forum.searchpost
 
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.repository.SearchRepository
 import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
@@ -62,7 +63,7 @@ class ForumSearchPostViewModel @Inject constructor(
             )
 
             is ForumSearchPostPartialChange.ClearHistory.Success -> CommonUiEvent.Toast(
-                resourceProvider.getString(R.string.toast_clear_success)
+                resourceProvider.getString(CoreUiR.string.toast_clear_success)
             )
 
             is ForumSearchPostPartialChange.ClearHistory.Failure -> CommonUiEvent.Toast(

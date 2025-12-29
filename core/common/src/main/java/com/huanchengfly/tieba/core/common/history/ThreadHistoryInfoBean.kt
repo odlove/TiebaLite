@@ -1,8 +1,5 @@
-package com.huanchengfly.tieba.post.models
+package com.huanchengfly.tieba.core.common.history
 
-import kotlinx.serialization.Serializable
-
-@Serializable
 data class ThreadHistoryInfoBean(
     val isSeeLz: Boolean = false,
     val pid: String? = null,

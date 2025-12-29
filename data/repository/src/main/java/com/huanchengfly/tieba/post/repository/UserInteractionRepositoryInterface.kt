@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.core.network.model.CommonResponse
-import com.huanchengfly.tieba.post.models.DislikeBean
+import com.huanchengfly.tieba.core.common.interaction.DislikeRequest
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -42,6 +42,6 @@ interface UserInteractionRepository {
      * @return 提交响应数据流
      */
     fun submitDislike(
-        dislikeBean: DislikeBean
+        request: DislikeRequest
     ): Flow<CommonResponse>
 }

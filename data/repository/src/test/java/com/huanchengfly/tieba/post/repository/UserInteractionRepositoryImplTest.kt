@@ -1,8 +1,9 @@
 package com.huanchengfly.tieba.post.repository
 
+import com.huanchengfly.tieba.core.common.interaction.DislikeRequest
+import com.huanchengfly.tieba.core.network.model.CommonResponse
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.models.AgreeBean
-import com.huanchengfly.tieba.core.network.model.CommonResponse
 import com.huanchengfly.tieba.post.models.DislikeBean
 import io.mockk.every
 import io.mockk.mockk
@@ -44,7 +45,7 @@ class UserInteractionRepositoryImplTest {
     // ========== Helper Functions ==========
 
     private fun createMockAgreeBean(score: String = "1"): AgreeBean {
-        return mockk<AgreeBean> {
+        return mockk {
             every { errorCode } returns "0"
             every { errorMsg } returns "success"
             every { data } returns mockk {
@@ -62,8 +63,8 @@ class UserInteractionRepositoryImplTest {
         )
     }
 
-    private fun createMockDislikeBean(): DislikeBean {
-        return DislikeBean(
+    private fun createMockDislikeRequest(): DislikeRequest {
+        return DislikeRequest(
             threadId = "12345",
             dislikeIds = "1,2,3",
             forumId = "100",
@@ -167,37 +168,51 @@ class UserInteractionRepositoryImplTest {
     @Test
     fun `submitDislike should return success flow when API call succeeds`() = runTest {
         // Given: Mock API returns successful CommonResponse
-        val dislikeBean = createMockDislikeBean()
+        val request = createMockDislikeRequest()
         val expectedResponse = createMockCommonResponse(errorCode = 0, errorMsg = "success")
+        val expectedBean = DislikeBean(
+            threadId = request.threadId,
+            dislikeIds = request.dislikeIds,
+            forumId = request.forumId,
+            clickTime = request.clickTime,
+            extra = request.extra
+        )
 
         every {
-            mockApi.submitDislikeFlow(dislikeBean)
+            mockApi.submitDislikeFlow(expectedBean)
         } returns flowOf(expectedResponse)
 
         // When: Call repository method
-        val result = repository.submitDislike(dislikeBean).first()
+        val result = repository.submitDislike(request).first()
 
         // Then: Verify the result matches expected response
         assertEquals(0, result.errorCode)
         assertEquals("success", result.errorMsg)
         verify(exactly = 1) {
-            mockApi.submitDislikeFlow(dislikeBean)
+            mockApi.submitDislikeFlow(expectedBean)
         }
     }
 
     @Test
     fun `submitDislike should propagate error when API call fails`() = runTest {
         // Given: Mock API throws exception
-        val dislikeBean = createMockDislikeBean()
+        val request = createMockDislikeRequest()
+        val expectedBean = DislikeBean(
+            threadId = request.threadId,
+            dislikeIds = request.dislikeIds,
+            forumId = request.forumId,
+            clickTime = request.clickTime,
+            extra = request.extra
+        )
         val expectedException = RuntimeException("Submit failed")
 
         every {
-            mockApi.submitDislikeFlow(dislikeBean)
+            mockApi.submitDislikeFlow(expectedBean)
         } returns flow { throw expectedException }
 
         // When & Then: Verify exception is propagated
         try {
-            repository.submitDislike(dislikeBean).first()
+            repository.submitDislike(request).first()
             throw AssertionError("Expected RuntimeException to be thrown")
         } catch (e: RuntimeException) {
             assertEquals("Submit failed", e.message)
@@ -207,21 +222,28 @@ class UserInteractionRepositoryImplTest {
     @Test
     fun `submitDislike should handle DislikeBean with multiple dislike IDs`() = runTest {
         // Given: DislikeBean with multiple dislike reasons
-        val dislikeBean = DislikeBean(
+        val request = DislikeRequest(
             threadId = "12345",
             dislikeIds = "1,2,3,4,5", // Multiple dislike reasons
             forumId = "100",
             clickTime = System.currentTimeMillis(),
             extra = ""
         )
+        val expectedBean = DislikeBean(
+            threadId = request.threadId,
+            dislikeIds = request.dislikeIds,
+            forumId = request.forumId,
+            clickTime = request.clickTime,
+            extra = request.extra
+        )
         val expectedResponse = createMockCommonResponse()
 
         every {
-            mockApi.submitDislikeFlow(dislikeBean)
+            mockApi.submitDislikeFlow(expectedBean)
         } returns flowOf(expectedResponse)
 
         // When: Call repository method
-        val result = repository.submitDislike(dislikeBean).first()
+        val result = repository.submitDislike(request).first()
 
         // Then: Verify API receives the full dislike bean
         assertEquals(0, result.errorCode)

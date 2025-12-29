@@ -45,4 +45,10 @@ dependencies {
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.appcompat)
     implementation(libs.sketch.core)
+
+    testImplementation(libs.junit.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
+    testImplementation(kotlin("test"))
 }

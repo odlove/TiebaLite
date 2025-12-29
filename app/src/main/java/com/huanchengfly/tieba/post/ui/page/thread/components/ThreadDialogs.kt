@@ -29,7 +29,7 @@ fun ThreadCollectMarkDialog(
         dialogState = dialogState,
         onConfirm = {
             if (lastVisibilityPostId != 0L) {
-                actions.updateFavoriteMark(
+                actions.updateCollectMark(
                     threadId = pageState.threadId,
                     postId = lastVisibilityPostId
                 )

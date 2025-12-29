@@ -104,7 +104,7 @@ fun PostCard(
     onSubPostReplyClick: ((ThreadPost, ThreadSubPost) -> Unit)? = null,
     onOpenSubPosts: (subPostId: Long) -> Unit = {},
     onMenuCopyClick: ((String) -> Unit)? = null,
-    onMenuFavoriteClick: ((ThreadPost) -> Unit)? = null,
+    onMenuCollectClick: ((ThreadPost) -> Unit)? = null,
     onMenuDeleteClick: ((ThreadPost) -> Unit)? = null,
 ) {
     val context = LocalContext.current
@@ -177,15 +177,15 @@ fun PostCard(
                 Text(text = stringResource(id = R.string.title_report))
             }
         }
-        if (onMenuFavoriteClick != null) {
+        if (onMenuCollectClick != null) {
             DropdownMenuItem(
                 onClick = {
-                    onMenuFavoriteClick(post)
+                    onMenuCollectClick(post)
                     menuState.expanded = false
                 }
             ) {
                 if (isCollected(post)) {
-                    Text(text = stringResource(id = R.string.title_collect_on))
+                    Text(text = stringResource(id = CoreUiR.string.title_collect_on))
                 } else {
                     Text(text = stringResource(id = R.string.title_collect_floor))
                 }

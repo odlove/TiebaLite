@@ -4,15 +4,15 @@ import com.google.gson.annotations.SerializedName
 import com.huanchengfly.tieba.post.models.BaseBean
 import javax.annotation.concurrent.Immutable
 
-data class ThreadStoreBean(
+data class ThreadCollectBean(
     @SerializedName("error_code")
     val errorCode: String? = null,
     val error: ErrorInfo? = null,
     @SerializedName("store_thread")
-    val storeThread: List<ThreadStoreInfo>? = null
+    val collectThread: List<ThreadCollectInfo>? = null
 ) : BaseBean() {
     @Immutable
-    data class ThreadStoreInfo(
+    data class ThreadCollectInfo(
         @SerializedName("thread_id")
         val threadId: String,
         val title: String,

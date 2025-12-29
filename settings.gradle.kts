@@ -49,3 +49,4 @@ include(
 include(":feature:home")
 include(":feature:webview")
 include(":feature:photoview")
+include(":feature:threadcollect")

@@ -37,8 +37,8 @@ import com.huanchengfly.tieba.post.repository.ThreadFeedRepository
 import com.huanchengfly.tieba.post.repository.ThreadFeedRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepositoryImpl
-import com.huanchengfly.tieba.post.repository.ThreadStoreRepository
-import com.huanchengfly.tieba.post.repository.ThreadStoreRepositoryImpl
+import com.huanchengfly.tieba.post.repository.ThreadCollectRepository
+import com.huanchengfly.tieba.post.repository.ThreadCollectRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ThreadMetaStoreImpl
 import com.huanchengfly.tieba.post.repository.UserContentRepository
 import com.huanchengfly.tieba.post.repository.UserContentRepositoryImpl
@@ -163,9 +163,9 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindThreadStoreRepository(
-        impl: ThreadStoreRepositoryImpl
-    ): ThreadStoreRepository
+    abstract fun bindThreadCollectRepository(
+        impl: ThreadCollectRepositoryImpl
+    ): ThreadCollectRepository
 
     @Binds
     @Singleton

@@ -31,13 +31,13 @@ class ThreadUseCaseRegistry @Inject constructor(
             ThreadUiIntent.LoadLatestPosts::class.java,
             ThreadUiIntent.LoadMyLatestReply::class.java,
             ThreadUiIntent.ToggleImmersiveMode::class.java,
-            ThreadUiIntent.AddFavorite::class.java,
-            ThreadUiIntent.RemoveFavorite::class.java,
+            ThreadUiIntent.AddCollect::class.java,
+            ThreadUiIntent.RemoveCollect::class.java,
             ThreadUiIntent.AgreeThread::class.java,
             ThreadUiIntent.AgreePost::class.java,
             ThreadUiIntent.DeletePost::class.java,
             ThreadUiIntent.DeleteThread::class.java,
-            ThreadUiIntent.UpdateFavoriteMark::class.java,
+            ThreadUiIntent.UpdateCollectMark::class.java,
         )
     }
 

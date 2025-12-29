@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
-import com.huanchengfly.tieba.post.api.models.ThreadStoreBean
+import com.huanchengfly.tieba.post.api.models.ThreadCollectBean
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
@@ -18,21 +18,21 @@ import org.junit.Before
 import org.junit.Test
 
 /**
- * Unit tests for ThreadStoreRepositoryImpl
+ * Unit tests for ThreadCollectRepositoryImpl
  *
  * Tests verify that the repository correctly delegates to ITiebaApi and propagates
- * Flow emissions for thread store operations (threadStore).
+ * Flow emissions for thread collect operations (threadCollect).
  */
 @OptIn(ExperimentalCoroutinesApi::class)
-class ThreadStoreRepositoryImplTest {
+class ThreadCollectRepositoryImplTest {
 
-    private lateinit var repository: ThreadStoreRepositoryImpl
+    private lateinit var repository: ThreadCollectRepositoryImpl
     private lateinit var mockApi: ITiebaApi
 
     @Before
     fun setup() {
         mockApi = mockk()
-        repository = ThreadStoreRepositoryImpl(mockApi)
+        repository = ThreadCollectRepositoryImpl(mockApi)
     }
 
     @After
@@ -42,18 +42,18 @@ class ThreadStoreRepositoryImplTest {
 
     // ========== Helper Functions ==========
 
-    private fun createMockThreadStoreBean(): ThreadStoreBean {
-        return ThreadStoreBean(
+    private fun createMockThreadCollectBean(): ThreadCollectBean {
+        return ThreadCollectBean(
             errorCode = "0",
             error = null,
-            storeThread =
+            collectThread =
                 listOf(
-                    ThreadStoreBean.ThreadStoreInfo(
+                    ThreadCollectBean.ThreadCollectInfo(
                         threadId = "123",
                         title = "Test Title",
                         forumName = "Test Forum",
                         author =
-                            ThreadStoreBean.AuthorInfo(
+                            ThreadCollectBean.AuthorInfo(
                                 lzUid = "42",
                                 name = "Test User",
                                 nameShow = "Test User Show",
@@ -76,42 +76,42 @@ class ThreadStoreRepositoryImplTest {
         )
     }
 
-    // ========== threadStore Tests ==========
+    // ========== threadCollect Tests ==========
 
     @Test
-    fun `threadStore should return success flow when API call succeeds`() = runTest {
-        // Given: Mock API returns successful ThreadStoreBean
+    fun `threadCollect should return success flow when API call succeeds`() = runTest {
+        // Given: Mock API returns successful ThreadCollectBean
         val page = 1
-        val expectedBean = createMockThreadStoreBean()
+        val expectedBean = createMockThreadCollectBean()
 
         every {
-            mockApi.threadStoreFlow(page)
+            mockApi.threadCollectFlow(page)
         } returns flowOf(expectedBean)
 
         // When: Call repository method
-        val result = repository.threadStore(page).first()
+        val result = repository.threadCollect(page).first()
 
         // Then: Verify the result matches expected data
         assertNotNull(result)
         assertEquals(1, result.items?.size)
         verify(exactly = 1) {
-            mockApi.threadStoreFlow(page)
+            mockApi.threadCollectFlow(page)
         }
     }
 
     @Test
-    fun `threadStore should propagate error when API call fails`() = runTest {
+    fun `threadCollect should propagate error when API call fails`() = runTest {
         // Given: Mock API throws exception
         val page = 1
         val expectedException = RuntimeException("Network error")
 
         every {
-            mockApi.threadStoreFlow(page)
+            mockApi.threadCollectFlow(page)
         } returns flow { throw expectedException }
 
         // When & Then: Verify exception is propagated
         try {
-            repository.threadStore(page).first()
+            repository.threadCollect(page).first()
             throw AssertionError("Expected RuntimeException to be thrown")
         } catch (e: RuntimeException) {
             assertEquals("Network error", e.message)
@@ -119,47 +119,47 @@ class ThreadStoreRepositoryImplTest {
     }
 
     @Test
-    fun `threadStore should handle default parameters correctly`() = runTest {
+    fun `threadCollect should handle default parameters correctly`() = runTest {
         // Given: Use default parameters
-        val expectedBean = createMockThreadStoreBean()
+        val expectedBean = createMockThreadCollectBean()
 
         every {
-            mockApi.threadStoreFlow(1)
+            mockApi.threadCollectFlow(1)
         } returns flowOf(expectedBean)
 
         // When: Call repository with default parameters
-        val result = repository.threadStore().first()
+        val result = repository.threadCollect().first()
 
         // Then: Verify API is called with default values
         assertNotNull(result)
         verify(exactly = 1) {
-            mockApi.threadStoreFlow(1)
+            mockApi.threadCollectFlow(1)
         }
     }
 
     @Test
-    fun `threadStore should handle page pagination correctly`() = runTest {
+    fun `threadCollect should handle page pagination correctly`() = runTest {
         // Given: Different page numbers
         // Test page 1
-        val page1Bean = createMockThreadStoreBean()
+        val page1Bean = createMockThreadCollectBean()
         every {
-            mockApi.threadStoreFlow(1)
+            mockApi.threadCollectFlow(1)
         } returns flowOf(page1Bean)
 
-        val result1 = repository.threadStore(1).first()
+        val result1 = repository.threadCollect(1).first()
         assertEquals(1, result1.items?.size)
 
         // Test page 2
-        val page2Bean = createMockThreadStoreBean()
+        val page2Bean = createMockThreadCollectBean()
         every {
-            mockApi.threadStoreFlow(2)
+            mockApi.threadCollectFlow(2)
         } returns flowOf(page2Bean)
 
-        val result2 = repository.threadStore(2).first()
+        val result2 = repository.threadCollect(2).first()
         assertEquals(1, result2.items?.size)
 
         // Verify both pages were called
-        verify(exactly = 1) { mockApi.threadStoreFlow(1) }
-        verify(exactly = 1) { mockApi.threadStoreFlow(2) }
+        verify(exactly = 1) { mockApi.threadCollectFlow(1) }
+        verify(exactly = 1) { mockApi.threadCollectFlow(2) }
     }
 }

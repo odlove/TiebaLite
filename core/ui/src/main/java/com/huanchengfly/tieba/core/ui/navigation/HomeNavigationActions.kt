@@ -12,7 +12,7 @@ interface HomeNavigationActions {
     fun openSettings()
     fun openUserProfile(userId: Long? = null)
     fun openAbout()
-    fun openThreadStore()
+    fun openThreadCollect()
     fun openAppTheme()
     fun openWeb(url: String)
     fun openForum(forumName: String)

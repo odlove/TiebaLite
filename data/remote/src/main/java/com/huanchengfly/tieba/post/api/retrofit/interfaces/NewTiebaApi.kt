@@ -4,7 +4,7 @@ import com.huanchengfly.tieba.post.api.Header
 import com.huanchengfly.tieba.core.network.model.CommonResponse
 import com.huanchengfly.tieba.post.api.models.MessageListBean
 import com.huanchengfly.tieba.post.api.models.MsgBean
-import com.huanchengfly.tieba.post.api.models.ThreadStoreBean
+import com.huanchengfly.tieba.post.api.models.ThreadCollectBean
 import com.huanchengfly.tieba.core.network.retrofit.ApiResult
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
@@ -33,11 +33,11 @@ interface NewTiebaApi {
     @Headers("${Header.FORCE_LOGIN}: ${Header.FORCE_LOGIN_TRUE}")
     @POST("/c/f/post/threadstore")
     @FormUrlEncoded
-    fun threadStore(
+    fun threadCollect(
         @Field("rn") pageSize: Int,
         @Field("offset") offset: Int,
         @Field("user_id") user_id: String?
-    ): Call<ThreadStoreBean>
+    ): Call<ThreadCollectBean>
 
     @Headers("${Header.FORCE_LOGIN}: ${Header.FORCE_LOGIN_TRUE}")
     @POST("/c/c/post/rmstore")

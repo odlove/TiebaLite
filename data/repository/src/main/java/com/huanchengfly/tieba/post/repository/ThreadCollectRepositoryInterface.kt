@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.core.common.threadstore.ThreadStoreResult
+import com.huanchengfly.tieba.core.common.threadcollect.ThreadCollectResult
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -8,14 +8,14 @@ import kotlinx.coroutines.flow.Flow
  *
  * 负责处理帖子收藏列表的数据获取
  */
-interface ThreadStoreRepository {
+interface ThreadCollectRepository {
     /**
      * 获取收藏列表
      *
      * @param page 页码（默认为1）
      * @return 收藏列表数据流
      */
-    fun threadStore(
+    fun threadCollect(
         page: Int = 1
-    ): Flow<ThreadStoreResult>
+    ): Flow<ThreadCollectResult>
 }

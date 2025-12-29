@@ -19,7 +19,7 @@ import com.huanchengfly.tieba.post.ui.page.destinations.SearchPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.SettingsPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.SubPostsPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.ThreadStorePageDestination
+import com.huanchengfly.tieba.post.ui.page.threadcollect.destinations.ThreadCollectPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
 import com.huanchengfly.tieba.post.ui.page.webview.destinations.WebViewPageDestination
 import com.huanchengfly.tieba.post.utils.AccountUtil
@@ -59,8 +59,8 @@ fun ProvideHomeNavigationActions(
                 navController.navigateDirection(AboutPageDestination)
             }
 
-            override fun openThreadStore() {
-                navController.navigateDirection(ThreadStorePageDestination)
+            override fun openThreadCollect() {
+                navController.navigateDirection(ThreadCollectPageDestination)
             }
 
             override fun openAppTheme() {

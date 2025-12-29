@@ -45,8 +45,8 @@ class PbPageRepositoryImpl @Inject constructor(
 ) : PbPageRepository {
     companion object {
         const val ST_TYPE_MENTION = "mention"
-        const val ST_TYPE_STORE_THREAD = "store_thread"
-        private val ST_TYPES = persistentListOf(ST_TYPE_MENTION, ST_TYPE_STORE_THREAD)
+        const val ST_TYPE_COLLECT_THREAD = "store_thread"
+        private val ST_TYPES = persistentListOf(ST_TYPE_MENTION, ST_TYPE_COLLECT_THREAD)
         private const val MAX_THREAD_CACHE_SIZE = 1000  // 缓存最多少个帖子
         private const val MAX_POST_CACHE_SIZE = 5000    // 缓存最多少个回复
     }
@@ -108,7 +108,7 @@ class PbPageRepositoryImpl @Inject constructor(
                 back = back,
                 forumId = forumId,
                 stType = from.takeIf { ST_TYPES.contains(it) }.orEmpty(),
-                mark = if (from == ThreadPageFrom.FROM_STORE) 1 else 0,
+                mark = if (from == ThreadPageFrom.FROM_COLLECT) 1 else 0,
                 lastPostId = lastPostId
             )
             .map { response ->

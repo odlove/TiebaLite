@@ -203,8 +203,8 @@ private fun LazyListScope.threadListContent(
                         onMenuCopyClick = { text ->
                             navigatorInstance.navigate(CopyTextDialogPageDestination(text))
                         },
-                        onMenuFavoriteClick = {
-                            actions.addFavorite(
+                        onMenuCollectClick = {
+                            actions.addCollect(
                                 threadId = pageState.threadId,
                                 postId = it.id,
                                 floor = it.floor
@@ -427,19 +427,19 @@ private fun LazyListScope.threadListContent(
                     onMenuCopyClick = { text ->
                         navigatorInstance.navigate(CopyTextDialogPageDestination(text))
                     },
-                    onMenuFavoriteClick = { post ->
+                    onMenuCollectClick = { post ->
                         val isPostCollected = pageState.threadMeta.collectStatus && post.id == pageState.threadMeta.collectMarkPid
                         val fid = pageState.curForumId ?: forumId
                         val tbs = pageState.curTbs
                         if (fid != null) {
                             if (isPostCollected) {
-                                actions.removeFavorite(
+                                actions.removeCollect(
                                     threadId = pageState.threadId,
                                     forumId = fid,
                                     tbs = tbs
                                 )
                             } else {
-                                actions.addFavorite(
+                                actions.addCollect(
                                     threadId = pageState.threadId,
                                     postId = post.id,
                                     floor = post.floor
@@ -557,15 +557,15 @@ private fun LazyListScope.latestPostsSection(
                     }
                 },
                 onMenuCopyClick = { text -> navigator.navigate(CopyTextDialogPageDestination(text)) },
-                onMenuFavoriteClick = { favouritePost ->
+                onMenuCollectClick = { favouritePost ->
                     val isPostCollected = pageState.threadMeta.collectStatus && favouritePost.id == pageState.threadMeta.collectMarkPid
                     val fid = pageState.curForumId
                     val tbs = pageState.curTbs
                     if (fid != null) {
                         if (isPostCollected) {
-                            actions.removeFavorite(pageState.threadId, fid, tbs)
+                            actions.removeCollect(pageState.threadId, fid, tbs)
                         } else {
-                            actions.addFavorite(pageState.threadId, favouritePost.id, favouritePost.floor)
+                            actions.addCollect(pageState.threadId, favouritePost.id, favouritePost.floor)
                         }
                     }
                 },

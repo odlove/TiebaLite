@@ -28,7 +28,7 @@ import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
 import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
-import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.AddFavorite
+import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.AddCollect
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.AgreePost
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.AgreeThread
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.DeletePost
@@ -39,9 +39,9 @@ import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.LoadLatestPosts
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.LoadMore
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.LoadMyLatestReply
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.LoadPrevious
-import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.RemoveFavorite
+import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.RemoveCollect
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.ToggleImmersiveMode
-import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.UpdateFavoriteMark
+import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.UpdateCollectMark
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -215,11 +215,11 @@ interface ThreadPageActions {
 
     fun toggleImmersiveMode(isImmersiveMode: Boolean)
 
-    fun addFavorite(threadId: Long, postId: Long, floor: Int)
+    fun addCollect(threadId: Long, postId: Long, floor: Int)
 
-    fun removeFavorite(threadId: Long, forumId: Long, tbs: String?)
+    fun removeCollect(threadId: Long, forumId: Long, tbs: String?)
 
-    fun updateFavoriteMark(threadId: Long, postId: Long)
+    fun updateCollectMark(threadId: Long, postId: Long)
 
     fun agreeThread(threadId: Long, postId: Long, agree: Boolean)
 
@@ -352,16 +352,16 @@ class ThreadPageActionsImpl(
         viewModel.send(ToggleImmersiveMode(isImmersiveMode))
     }
 
-    override fun addFavorite(threadId: Long, postId: Long, floor: Int) {
-        viewModel.send(AddFavorite(threadId = threadId, postId = postId, floor = floor))
+    override fun addCollect(threadId: Long, postId: Long, floor: Int) {
+        viewModel.send(AddCollect(threadId = threadId, postId = postId, floor = floor))
     }
 
-    override fun removeFavorite(threadId: Long, forumId: Long, tbs: String?) {
-        viewModel.send(RemoveFavorite(threadId = threadId, forumId = forumId, tbs = tbs))
+    override fun removeCollect(threadId: Long, forumId: Long, tbs: String?) {
+        viewModel.send(RemoveCollect(threadId = threadId, forumId = forumId, tbs = tbs))
     }
 
-    override fun updateFavoriteMark(threadId: Long, postId: Long) {
-        viewModel.send(UpdateFavoriteMark(threadId = threadId, postId = postId))
+    override fun updateCollectMark(threadId: Long, postId: Long) {
+        viewModel.send(UpdateCollectMark(threadId = threadId, postId = postId))
     }
 
     override fun agreeThread(threadId: Long, postId: Long, agree: Boolean) {

@@ -88,7 +88,7 @@ class MessageListBean : BaseBean() {
         val recycle: String? = null
 
         @SerializedName("storethread")
-        val storeThread: String? = null
+        val collectThread: String? = null
 
     }
 

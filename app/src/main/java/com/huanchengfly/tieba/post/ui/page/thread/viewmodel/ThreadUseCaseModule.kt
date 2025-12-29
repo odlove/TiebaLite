@@ -51,18 +51,18 @@ abstract class ThreadUseCaseModule {
 
     @Binds
     @IntoMap
-    @ThreadIntentKey(ThreadUiIntent.AddFavorite::class)
-    abstract fun bindAddFavoriteUseCase(useCase: AddFavoriteUseCase): ThreadIntentUseCase<out ThreadUiIntent>
+    @ThreadIntentKey(ThreadUiIntent.AddCollect::class)
+    abstract fun bindAddCollectUseCase(useCase: AddCollectUseCase): ThreadIntentUseCase<out ThreadUiIntent>
 
     @Binds
     @IntoMap
-    @ThreadIntentKey(ThreadUiIntent.RemoveFavorite::class)
-    abstract fun bindRemoveFavoriteUseCase(useCase: RemoveFavoriteUseCase): ThreadIntentUseCase<out ThreadUiIntent>
+    @ThreadIntentKey(ThreadUiIntent.RemoveCollect::class)
+    abstract fun bindRemoveCollectUseCase(useCase: RemoveCollectUseCase): ThreadIntentUseCase<out ThreadUiIntent>
 
     @Binds
     @IntoMap
-    @ThreadIntentKey(ThreadUiIntent.UpdateFavoriteMark::class)
-    abstract fun bindUpdateFavoriteMarkUseCase(useCase: UpdateFavoriteMarkUseCase): ThreadIntentUseCase<out ThreadUiIntent>
+    @ThreadIntentKey(ThreadUiIntent.UpdateCollectMark::class)
+    abstract fun bindUpdateCollectMarkUseCase(useCase: UpdateCollectMarkUseCase): ThreadIntentUseCase<out ThreadUiIntent>
 
     @Binds
     @IntoMap

@@ -54,6 +54,12 @@
     <string name="my_info_settings">设置</string>
     <string name="tip_login">请先登录</string>
     <string name="title_my_collect">我的收藏</string>
+    <string name="title_collect_on">取消收藏</string>
+    <string name="delete_collect_success">取消收藏成功</string>
+    <string name="delete_collect_failure">取消收藏失败 %s</string>
+    <string name="tip_thread_collect_update">更新到 %1$s 楼</string>
+    <string name="message_collect_thread_update">贴子更新到了第 %d 楼</string>
+    <string name="tip_thread_collect_deleted">该贴已被删除</string>
     <string name="title_at_me">提到我的</string>
     <string name="text_message_list_item_reply_my_thread">回复我的主题：%1$s</string>
     <string name="title_reply_me">回复我的</string>

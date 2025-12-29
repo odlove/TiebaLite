@@ -50,13 +50,13 @@ class ThreadViewModel @Inject constructor(
                 intentFlow.filterIsInstance<ThreadUiIntent.LoadLatestPosts>().flatMapConcat { useCaseRegistry.execute(it) },
                 intentFlow.filterIsInstance<ThreadUiIntent.LoadMyLatestReply>().flatMapConcat { useCaseRegistry.execute(it) },
                 intentFlow.filterIsInstance<ThreadUiIntent.ToggleImmersiveMode>().flatMapConcat { useCaseRegistry.execute(it) },
-                intentFlow.filterIsInstance<ThreadUiIntent.AddFavorite>().flatMapConcat { useCaseRegistry.execute(it) },
-                intentFlow.filterIsInstance<ThreadUiIntent.RemoveFavorite>().flatMapConcat { useCaseRegistry.execute(it) },
+                intentFlow.filterIsInstance<ThreadUiIntent.AddCollect>().flatMapConcat { useCaseRegistry.execute(it) },
+                intentFlow.filterIsInstance<ThreadUiIntent.RemoveCollect>().flatMapConcat { useCaseRegistry.execute(it) },
                 intentFlow.filterIsInstance<ThreadUiIntent.AgreeThread>().flatMapConcat { useCaseRegistry.execute(it) },
                 intentFlow.filterIsInstance<ThreadUiIntent.AgreePost>().flatMapConcat { useCaseRegistry.execute(it) },
                 intentFlow.filterIsInstance<ThreadUiIntent.DeletePost>().flatMapConcat { useCaseRegistry.execute(it) },
                 intentFlow.filterIsInstance<ThreadUiIntent.DeleteThread>().flatMapConcat { useCaseRegistry.execute(it) },
-                intentFlow.filterIsInstance<ThreadUiIntent.UpdateFavoriteMark>().flatMapConcat { useCaseRegistry.execute(it) },
+                intentFlow.filterIsInstance<ThreadUiIntent.UpdateCollectMark>().flatMapConcat { useCaseRegistry.execute(it) },
             )
     }
 }

@@ -106,6 +106,7 @@ import com.huanchengfly.tieba.post.ui.page.thread.components.ThreadPostList
 import com.huanchengfly.tieba.post.utils.StringUtil
 import com.huanchengfly.tieba.core.common.utils.getShortNumString
 import com.huanchengfly.tieba.post.di.entrypoints.HistoryRepositoryEntryPoint
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -118,7 +119,7 @@ sealed interface ThreadPageExtra
 object ThreadPageNoExtra : ThreadPageExtra
 
 @Serializable
-data class ThreadPageFromStoreExtra(
+data class ThreadPageFromCollectExtra(
     val maxPid: Long,
     val maxFloor: Int,
 ) : ThreadPageExtra
@@ -299,9 +300,9 @@ fun ThreadPageLayout(
 
     LaunchedEffect(Unit) {
         val snackbarThreadId = pageState.threadId.takeIf { it != 0L } ?: threadId
-        if (from == ThreadPageFrom.FROM_STORE && extra is ThreadPageFromStoreExtra && extra.maxPid != postId) {
+        if (from == ThreadPageFrom.FROM_COLLECT && extra is ThreadPageFromCollectExtra && extra.maxPid != postId) {
             val result = snackbarState.showSnackbarSuspending(
-                context.getString(R.string.message_store_thread_update, extra.maxFloor),
+                context.getString(CoreUiR.string.message_collect_thread_update, extra.maxFloor),
                 context.getString(R.string.button_load_new),
                 SnackbarDuration.Long
             )

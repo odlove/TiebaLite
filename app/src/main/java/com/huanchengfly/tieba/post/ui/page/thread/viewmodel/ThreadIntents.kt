@@ -77,13 +77,13 @@ sealed interface ThreadUiIntent : UiIntent {
         val isImmersiveMode: Boolean,
     ) : ThreadUiIntent
 
-    data class AddFavorite(
+    data class AddCollect(
         val threadId: Long,
         val postId: Long,
         val floor: Int
     ) : ThreadUiIntent
 
-    data class RemoveFavorite(
+    data class RemoveCollect(
         val threadId: Long,
         val forumId: Long,
         val tbs: String?
@@ -118,7 +118,7 @@ sealed interface ThreadUiIntent : UiIntent {
         val tbs: String? = null
     ) : ThreadUiIntent
 
-    data class UpdateFavoriteMark(
+    data class UpdateCollectMark(
         val threadId: Long,
         val postId: Long
     ) : ThreadUiIntent

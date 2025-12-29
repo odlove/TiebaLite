@@ -18,7 +18,6 @@
     <string name="text_loading">正在加载…</string>
     <string name="title_sort">倒序浏览</string>
     <string name="title_see_lz">只看楼主</string>
-    <string name="title_collect_on">取消收藏</string>
     <string name="tip_reply">评论一番，提高自己的姿势水平…</string>
     <string name="title_account_manage">账号管理</string>
     <string name="title_block_settings">屏蔽设置</string>
@@ -164,7 +163,6 @@
     <string name="toast_sign_failed">签到失败 %s</string>
     <string name="toast_like_failed">关注失败 %s</string>
     <string name="hint_reply">回复 %1$s</string>
-    <string name="tip_thread_store_update">更新到 %1$s 楼</string>
     <string name="text_load_failed">加载失败</string>
     <string name="title_search_forum">搜吧</string>
     <string name="title_search_thread">搜贴</string>
@@ -333,8 +331,6 @@
     <string name="btn_more">更多选项</string>
     <string name="launcher_not_support_pin_shortcut">启动器不支持创建快捷方式</string>
     <string name="load_shortcut_icon_fail">加载图标失败</string>
-    <string name="delete_store_success">取消收藏成功</string>
-    <string name="delete_store_failure">取消收藏失败 %s</string>
     <string name="delete_history_failure">删除历史记录失败 %s</string>
     <string name="delete_history_success">删除历史记录成功</string>
     <string name="insert_emotions">插入表情</string>
@@ -350,13 +346,12 @@
     <string name="tip_reply_thread">评论一番</string>
     <string name="btn_load_previous">查看上一页</string>
     <string name="tag_video">[视频]</string>
-    <string name="message_add_favorite_success">已收藏至第 %d 楼</string>
-    <string name="message_remove_favorite_success">取消收藏成功</string>
+    <string name="message_add_collect_success">已收藏至第 %d 楼</string>
+    <string name="message_remove_collect_success">取消收藏成功</string>
     <string name="message_update_collect_mark">本次阅读到第 %d 楼，是否更新收藏楼层？</string>
     <string name="message_update_collect_mark_failed">更新收藏楼层失败 %s</string>
     <string name="message_update_collect_mark_success">更新收藏楼层成功</string>
     <string name="open_all_sub_posts">查看全部 %d 条回复</string>
-    <string name="message_store_thread_update">贴子更新到了第 %d 楼</string>
     <string name="tip_blocked_post">由于你的屏蔽设置，第 %d 楼已被屏蔽</string>
     <string name="tip_blocked_sub_post">由于你的屏蔽设置，该回复已被屏蔽</string>
     <string name="settings_block_video">不看视频贴</string>
@@ -390,7 +385,6 @@
     <string name="above_is_latest_post">以上为最新回复</string>
     <string name="below_is_latest_post">以下为最新回复</string>
     <string name="btn_open_origin_thread">查看原贴</string>
-    <string name="tip_thread_store_deleted">该贴已被删除</string>
     <string name="toast_clear_failure">清除失败 %s</string>
     <string name="title_fuzzy_match_user">相关用户</string>
     <string name="button_expand_more_history">展开历史</string>

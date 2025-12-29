@@ -325,7 +325,7 @@ interface OfficialTiebaApi {
         "${Header.DROP_HEADERS}: ${Header.CHARSET},${Header.CLIENT_TYPE}",
         "${Header.NO_COMMON_PARAMS}: ${Param.OAID}",
     )
-    fun threadStoreFlow(
+    fun threadCollectFlow(
         @Field("rn") pageSize: Int,
         @Field("offset") offset: Int,
         @retrofit2.http.Header("client_user_token") client_user_token: String? = AccountTokens.uid,
@@ -333,7 +333,7 @@ interface OfficialTiebaApi {
         @retrofit2.http.Header(Header.USER_AGENT) user_agent: String = "bdtb for Android $client_version",
         @Field("stoken") stoken: String? = AccountTokens.stoken,
         @Field("user_id") user_id: String? = AccountTokens.uid,
-    ): Flow<ThreadStoreBean>
+    ): Flow<ThreadCollectBean>
 
     @Headers(
         "${Header.DROP_HEADERS}: ${Header.CHARSET},${Header.CLIENT_TYPE}",

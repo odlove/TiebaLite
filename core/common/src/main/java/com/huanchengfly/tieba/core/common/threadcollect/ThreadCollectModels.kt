@@ -1,13 +1,13 @@
-package com.huanchengfly.tieba.core.common.threadstore
+package com.huanchengfly.tieba.core.common.threadcollect
 
-data class ThreadStoreAuthor(
+data class ThreadCollectAuthor(
     val id: String? = null,
     val name: String? = null,
     val nameShow: String? = null,
     val portrait: String? = null,
 )
 
-data class ThreadStoreMedia(
+data class ThreadCollectMedia(
     val type: String? = null,
     val smallPic: String? = null,
     val bigPic: String? = null,
@@ -15,12 +15,12 @@ data class ThreadStoreMedia(
     val height: String? = null,
 )
 
-data class ThreadStoreItem(
+data class ThreadCollectItem(
     val threadId: String,
     val title: String,
     val forumName: String,
-    val author: ThreadStoreAuthor,
-    val media: List<ThreadStoreMedia> = emptyList(),
+    val author: ThreadCollectAuthor,
+    val media: List<ThreadCollectMedia> = emptyList(),
     val isDeleted: String,
     val lastTime: String,
     val type: String,
@@ -34,8 +34,8 @@ data class ThreadStoreItem(
     val count: String,
 )
 
-data class ThreadStoreResult(
-    val items: List<ThreadStoreItem>? = null,
+data class ThreadCollectResult(
+    val items: List<ThreadCollectItem>? = null,
     val errorCode: String? = null,
     val errorMessage: String? = null,
 )

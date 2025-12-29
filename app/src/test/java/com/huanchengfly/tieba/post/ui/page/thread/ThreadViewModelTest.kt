@@ -27,16 +27,16 @@ import javax.inject.Provider
  * Unit tests for ThreadViewModel
  *
  * Tests verify (6 tests):
- * - AddFavorite: Repository call verification (1 test)
- * - RemoveFavorite: Repository call verification (1 test)
+ * - AddCollect: Repository call verification (1 test)
+ * - RemoveCollect: Repository call verification (1 test)
  * - AgreePost: Repository call verification (1 test)
  * - DeleteThread: Repository call verification (1 test)
- * - UpdateFavoriteMark: Repository call verification (1 test)
+ * - UpdateCollectMark: Repository call verification (1 test)
  * - ThreadId Fallback: Store receives canonical threadId when threadId=0 (1 test)
  *
  * Testing Strategy:
  * - Verify repository method calls with correct parameters
- * - Verify ThreadStore receives canonical threadId when threadId=0
+ * - Verify ThreadCollect receives canonical threadId when threadId=0
  * - No state/event assertions (due to SharingStarted.Eagerly complexity)
  * - Confirms dependency injection wiring is correct after refactoring
  *
@@ -104,9 +104,9 @@ class ThreadViewModelTest : BaseViewModelTest() {
         register(ThreadUiIntent.LoadLatestPosts::class.java, LoadLatestPostsUseCase(mockPbPageRepo))
         register(ThreadUiIntent.LoadMyLatestReply::class.java, LoadMyLatestReplyUseCase(mockPbPageRepo))
         register(ThreadUiIntent.ToggleImmersiveMode::class.java, ToggleImmersiveModeUseCase())
-        register(ThreadUiIntent.AddFavorite::class.java, AddFavoriteUseCase(mockThreadOperationRepo, mockThreadMetaStore))
-        register(ThreadUiIntent.RemoveFavorite::class.java, RemoveFavoriteUseCase(mockThreadOperationRepo, mockThreadMetaStore))
-        register(ThreadUiIntent.UpdateFavoriteMark::class.java, UpdateFavoriteMarkUseCase(mockThreadOperationRepo, mockThreadMetaStore))
+        register(ThreadUiIntent.AddCollect::class.java, AddCollectUseCase(mockThreadOperationRepo, mockThreadMetaStore))
+        register(ThreadUiIntent.RemoveCollect::class.java, RemoveCollectUseCase(mockThreadOperationRepo, mockThreadMetaStore))
+        register(ThreadUiIntent.UpdateCollectMark::class.java, UpdateCollectMarkUseCase(mockThreadOperationRepo, mockThreadMetaStore))
         register(
             ThreadUiIntent.AgreeThread::class.java,
             AgreeThreadUseCase(mockUserInteractionRepo, mockThreadMetaStore, mockPbPageRepo)
@@ -118,19 +118,19 @@ class ThreadViewModelTest : BaseViewModelTest() {
         return ThreadUseCaseRegistry(useCases)
     }
 
-    // ========== AddFavorite Tests ==========
+    // ========== AddCollect Tests ==========
 
     @Test
-    fun `AddFavorite should call repository with correct parameters`() = runTest(testDispatcher) {
+    fun `AddCollect should call repository with correct parameters`() = runTest(testDispatcher) {
         // Given: Mock repository returns success
         val successResponse = TestFixtures.fakeCommonResponse(errorCode = 0, errorMsg = "")
         every { mockThreadOperationRepo.addStore(123L, 456L) } returns flowOf(successResponse)
 
-        // When: Create ViewModel and send AddFavorite intent
+        // When: Create ViewModel and send AddCollect intent
         val viewModel = createViewModel()
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle() // Let initialization complete
-        viewModel.send(ThreadUiIntent.AddFavorite(threadId = 123L, postId = 456L, floor = 10))
+        viewModel.send(ThreadUiIntent.AddCollect(threadId = 123L, postId = 456L, floor = 10))
         testDispatcher.scheduler.advanceUntilIdle() // Let coroutines execute
 
         // Then: Verify repository was called
@@ -138,19 +138,19 @@ class ThreadViewModelTest : BaseViewModelTest() {
         job.cancelAndJoin()
     }
 
-    // ========== RemoveFavorite Tests ==========
+    // ========== RemoveCollect Tests ==========
 
     @Test
-    fun `RemoveFavorite should call repository with correct parameters`() = runTest(testDispatcher) {
+    fun `RemoveCollect should call repository with correct parameters`() = runTest(testDispatcher) {
         // Given: Mock repository returns success
         val successResponse = TestFixtures.fakeCommonResponse(errorCode = 0, errorMsg = "")
         every { mockThreadOperationRepo.removeStore(123L, 999L, "tbs_token") } returns flowOf(successResponse)
 
-        // When: Create ViewModel and send RemoveFavorite intent
+        // When: Create ViewModel and send RemoveCollect intent
         val viewModel = createViewModel()
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle() // Let initialization complete
-        viewModel.send(ThreadUiIntent.RemoveFavorite(threadId = 123L, forumId = 999L, tbs = "tbs_token"))
+        viewModel.send(ThreadUiIntent.RemoveCollect(threadId = 123L, forumId = 999L, tbs = "tbs_token"))
         testDispatcher.scheduler.advanceUntilIdle() // Let coroutines execute
 
         // Then: Verify repository was called
@@ -236,19 +236,19 @@ class ThreadViewModelTest : BaseViewModelTest() {
         job.cancelAndJoin()
     }
 
-    // ========== UpdateFavoriteMark Tests ==========
+    // ========== UpdateCollectMark Tests ==========
 
     @Test
-    fun `UpdateFavoriteMark should call repository with correct parameters`() = runTest(testDispatcher) {
+    fun `UpdateCollectMark should call repository with correct parameters`() = runTest(testDispatcher) {
         // Given: Mock repository returns success
         val successResponse = TestFixtures.fakeCommonResponse(errorCode = 0, errorMsg = "")
         every { mockThreadOperationRepo.addStore(123L, 888L) } returns flowOf(successResponse)
 
-        // When: Create ViewModel and send UpdateFavoriteMark intent
+        // When: Create ViewModel and send UpdateCollectMark intent
         val viewModel = createViewModel()
         val job = collectUiState(viewModel)
         testDispatcher.scheduler.advanceUntilIdle() // Let initialization complete
-        viewModel.send(ThreadUiIntent.UpdateFavoriteMark(threadId = 123L, postId = 888L))
+        viewModel.send(ThreadUiIntent.UpdateCollectMark(threadId = 123L, postId = 888L))
         testDispatcher.scheduler.advanceUntilIdle() // Let coroutines execute
 
         // Then: Verify repository was called

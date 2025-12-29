@@ -13,11 +13,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 
 @ViewModelScoped
-class AddFavoriteUseCase @Inject constructor(
+class AddCollectUseCase @Inject constructor(
     private val threadOperationRepository: ThreadOperationRepository,
     private val threadMetaStore: ThreadMetaStore
-) : ThreadIntentUseCase<ThreadUiIntent.AddFavorite> {
-    override fun execute(intent: ThreadUiIntent.AddFavorite): Flow<ThreadPartialChange> {
+) : ThreadIntentUseCase<ThreadUiIntent.AddCollect> {
+    override fun execute(intent: ThreadUiIntent.AddCollect): Flow<ThreadPartialChange> {
         return threadOperationRepository
             .addStore(intent.threadId, intent.postId)
             .map { response ->
@@ -30,21 +30,21 @@ class AddFavoriteUseCase @Inject constructor(
                             collectMarkPid = intent.postId
                         )
                     )
-                    ThreadPartialChange.AddFavorite.Success(
+                    ThreadPartialChange.AddCollect.Success(
                         intent.postId,
                         intent.floor
                     )
                 } else {
-                    ThreadPartialChange.AddFavorite.Failure(
+                    ThreadPartialChange.AddCollect.Failure(
                         response.errorCode,
                         response.errorMsg
                     )
                 }
             }
-            .onStart { emit(ThreadPartialChange.AddFavorite.Start) }
+            .onStart { emit(ThreadPartialChange.AddCollect.Start) }
             .catch {
                 emit(
-                    ThreadPartialChange.AddFavorite.Failure(
+                    ThreadPartialChange.AddCollect.Failure(
                         it.getErrorCode(),
                         it.getErrorMessage()
                     )
@@ -54,11 +54,11 @@ class AddFavoriteUseCase @Inject constructor(
 }
 
 @ViewModelScoped
-class RemoveFavoriteUseCase @Inject constructor(
+class RemoveCollectUseCase @Inject constructor(
     private val threadOperationRepository: ThreadOperationRepository,
     private val threadMetaStore: ThreadMetaStore
-) : ThreadIntentUseCase<ThreadUiIntent.RemoveFavorite> {
-    override fun execute(intent: ThreadUiIntent.RemoveFavorite): Flow<ThreadPartialChange> {
+) : ThreadIntentUseCase<ThreadUiIntent.RemoveCollect> {
+    override fun execute(intent: ThreadUiIntent.RemoveCollect): Flow<ThreadPartialChange> {
         return threadOperationRepository
             .removeStore(intent.threadId, intent.forumId, intent.tbs)
             .map { response ->
@@ -71,18 +71,18 @@ class RemoveFavoriteUseCase @Inject constructor(
                             collectMarkPid = 0
                         )
                     )
-                    ThreadPartialChange.RemoveFavorite.Success
+                    ThreadPartialChange.RemoveCollect.Success
                 } else {
-                    ThreadPartialChange.RemoveFavorite.Failure(
+                    ThreadPartialChange.RemoveCollect.Failure(
                         response.errorCode,
                         response.errorMsg
                     )
                 }
             }
-            .onStart { emit(ThreadPartialChange.RemoveFavorite.Start) }
+            .onStart { emit(ThreadPartialChange.RemoveCollect.Start) }
             .catch {
                 emit(
-                    ThreadPartialChange.RemoveFavorite.Failure(
+                    ThreadPartialChange.RemoveCollect.Failure(
                         it.getErrorCode(),
                         it.getErrorMessage()
                     )

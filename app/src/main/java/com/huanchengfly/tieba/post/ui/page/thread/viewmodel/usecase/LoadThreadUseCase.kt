@@ -54,7 +54,7 @@ class LoadThreadUseCase @Inject constructor(
             intent.forumId,
             intent.seeLz,
             intent.sortType,
-            from = intent.from.takeIf { it == ThreadPageFrom.FROM_STORE }.orEmpty()
+            from = intent.from.takeIf { it == ThreadPageFrom.FROM_COLLECT }.orEmpty()
         )
             .map { response ->
                 val page = requireNotNull(response.page) { "pbPage page is null" }

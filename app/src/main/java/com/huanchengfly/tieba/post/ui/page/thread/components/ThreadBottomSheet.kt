@@ -66,7 +66,7 @@ fun ThreadMenuSheetContent(
             val tbs = pageState.curTbs
             if (fid != null) {
                 if (pageState.isCollected) {
-                    actions.removeFavorite(
+                    actions.removeCollect(
                         threadId = pageState.threadId,
                         forumId = fid,
                         tbs = tbs
@@ -74,7 +74,7 @@ fun ThreadMenuSheetContent(
                 } else {
                     val readItem = lastVisibilityPost
                     if (readItem != null) {
-                        actions.addFavorite(
+                        actions.addCollect(
                             threadId = pageState.threadId,
                             postId = readItem.get { id },
                             floor = readItem.get { floor }

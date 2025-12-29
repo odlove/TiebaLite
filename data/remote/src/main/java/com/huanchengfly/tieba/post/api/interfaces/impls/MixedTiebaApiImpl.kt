@@ -43,7 +43,7 @@ import com.huanchengfly.tieba.post.api.models.SignResultBean
 import com.huanchengfly.tieba.post.api.models.SubFloorListBean
 import com.huanchengfly.tieba.post.api.models.Sync
 import com.huanchengfly.tieba.post.api.models.ThreadContentBean
-import com.huanchengfly.tieba.post.api.models.ThreadStoreBean
+import com.huanchengfly.tieba.post.api.models.ThreadCollectBean
 import com.huanchengfly.tieba.post.api.models.UserLikeForumBean
 import com.huanchengfly.tieba.post.api.models.UserPostBean
 import com.huanchengfly.tieba.post.api.models.WebReplyResultBean
@@ -463,15 +463,15 @@ class MixedTiebaApiImpl @Inject constructor() : ITiebaApi {
 
     override fun msgFlow(): Flow<MsgBean> = RetrofitTiebaApi.NEW_TIEBA_API.msgFlow()
 
-    override fun threadStore(page: Int, pageSize: Int): Call<ThreadStoreBean> =
-        RetrofitTiebaApi.NEW_TIEBA_API.threadStore(
+    override fun threadCollect(page: Int, pageSize: Int): Call<ThreadCollectBean> =
+        RetrofitTiebaApi.NEW_TIEBA_API.threadCollect(
             pageSize,
             pageSize * page,
             AccountTokens.uid
         )
 
-    override fun threadStoreFlow(page: Int, pageSize: Int): Flow<ThreadStoreBean> =
-        RetrofitTiebaApi.OFFICIAL_TIEBA_API.threadStoreFlow(
+    override fun threadCollectFlow(page: Int, pageSize: Int): Flow<ThreadCollectBean> =
+        RetrofitTiebaApi.OFFICIAL_TIEBA_API.threadCollectFlow(
             pageSize,
             pageSize * page
         )

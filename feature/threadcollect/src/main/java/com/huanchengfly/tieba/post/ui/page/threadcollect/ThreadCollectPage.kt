@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.page.threadstore
+package com.huanchengfly.tieba.post.ui.page.threadcollect
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,20 +38,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.common.threadstore.ThreadStoreItem
+import com.huanchengfly.tieba.core.common.threadcollect.ThreadCollectItem
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
-import com.huanchengfly.tieba.post.dpToPxFloat
-import com.huanchengfly.tieba.post.pxToSp
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
+import com.huanchengfly.tieba.core.ui.preferences.LocalAppPreferences
 import com.huanchengfly.tieba.post.repository.ThreadPageFrom
-import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageFromStoreExtra
-import com.huanchengfly.tieba.post.ui.page.thread.ThreadSortType
 import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
@@ -65,69 +60,74 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.widgets.compose.UserHeader
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
-import com.huanchengfly.tieba.post.utils.StringUtil
-import com.huanchengfly.tieba.post.utils.StringUtil.getUsernameAnnotatedString
-import com.huanchengfly.tieba.post.preferences.appPreferences
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
+import com.huanchengfly.tieba.core.ui.window.dpToPx
+import com.huanchengfly.tieba.core.ui.window.pxToSp
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 private val UpdateTipTextStyle = TextStyle(fontWeight = FontWeight.Bold, fontSize = 10.sp)
+private const val SORT_TYPE_DEFAULT = 0
+private const val SORT_TYPE_DESC = 1
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalTextApi::class)
 @Destination(
+    start = true,
     deepLinks = [
-        DeepLink(uriPattern = "tblite://favorite")
+        DeepLink(uriPattern = "tblite://collect")
     ]
 )
 @Composable
-fun ThreadStorePage(
+fun ThreadCollectPage(
     navigator: DestinationsNavigator,
-    viewModel: ThreadStoreViewModel = pageViewModel()
+    viewModel: ThreadCollectViewModel = pageViewModel()
 ) {
     LazyLoad(loaded = viewModel.initialized) {
-        viewModel.send(ThreadStoreUiIntent.Refresh)
+        viewModel.send(ThreadCollectUiIntent.Refresh)
         viewModel.initialized = true
     }
     val isRefreshing by viewModel.uiState.collectPartialAsState(
-        prop1 = ThreadStoreUiState::isRefreshing,
+        prop1 = ThreadCollectUiState::isRefreshing,
         initial = false
     )
     val isLoadingMore by viewModel.uiState.collectPartialAsState(
-        prop1 = ThreadStoreUiState::isLoadingMore,
+        prop1 = ThreadCollectUiState::isLoadingMore,
         initial = false
     )
     val hasMore by viewModel.uiState.collectPartialAsState(
-        prop1 = ThreadStoreUiState::hasMore,
+        prop1 = ThreadCollectUiState::hasMore,
         initial = true
     )
     val currentPage by viewModel.uiState.collectPartialAsState(
-        prop1 = ThreadStoreUiState::currentPage,
+        prop1 = ThreadCollectUiState::currentPage,
         initial = 0
     )
     val data by viewModel.uiState.collectPartialAsState(
-        prop1 = ThreadStoreUiState::data,
+        prop1 = ThreadCollectUiState::data,
         initial = emptyList()
     )
     val error by viewModel.uiState.collectPartialAsState(
-        prop1 = ThreadStoreUiState::error,
+        prop1 = ThreadCollectUiState::error,
         initial = null
     )
     val isError by remember { derivedStateOf { error != null } }
 
     val context = LocalContext.current
+    val homeNavigation = LocalHomeNavigation.current
+    val appPreferences = LocalAppPreferences.current
     val snackbarState = rememberSnackbarState()
-    viewModel.onEvent<ThreadStoreUiEvent.Delete.Failure> {
+    viewModel.onEvent<ThreadCollectUiEvent.Delete.Failure> {
         snackbarState.showSnackbar(
             context.getString(
-                R.string.delete_store_failure,
+                CoreUiR.string.delete_collect_failure,
                 it.errorMsg
             )
         )
     }
-    viewModel.onEvent<ThreadStoreUiEvent.Delete.Success> {
-        snackbarState.showSnackbar(context.getString(R.string.delete_store_success))
+    viewModel.onEvent<ThreadCollectUiEvent.Delete.Success> {
+        snackbarState.showSnackbar(context.getString(CoreUiR.string.delete_collect_success))
     }
     SnackbarScaffold(
         backgroundColor = Color.Transparent,
@@ -140,7 +140,7 @@ fun ThreadStorePage(
                 centerTitle = true,
                 title = {
                     Text(
-                        text = stringResource(id = R.string.title_my_collect),
+                        text = stringResource(id = CoreUiR.string.title_my_collect),
                         fontWeight = FontWeight.Bold, style = MaterialTheme.typography.h6
                     )
                 },
@@ -158,7 +158,7 @@ fun ThreadStorePage(
                 .fillMaxSize()
                 .padding(contentPaddings),
             onReload = {
-                viewModel.send(ThreadStoreUiIntent.Refresh)
+                viewModel.send(ThreadCollectUiIntent.Refresh)
             },
             errorScreen = {
                 error?.let {
@@ -169,7 +169,7 @@ fun ThreadStorePage(
         ) {
             val pullRefreshState = rememberPullRefreshState(
                 refreshing = isRefreshing,
-                onRefresh = { viewModel.send(ThreadStoreUiIntent.Refresh) }
+                onRefresh = { viewModel.send(ThreadCollectUiIntent.Refresh) }
             )
 
             val lazyListState = rememberLazyListState()
@@ -177,7 +177,7 @@ fun ThreadStorePage(
             Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
                 LoadMoreLayout(
                     isLoading = isLoadingMore,
-                    onLoadMore = { viewModel.send(ThreadStoreUiIntent.LoadMore(currentPage + 1)) },
+                    onLoadMore = { viewModel.send(ThreadCollectUiIntent.LoadMore(currentPage + 1)) },
                     loadEnd = !hasMore,
                     lazyListState = lazyListState
                 ) {
@@ -186,31 +186,23 @@ fun ThreadStorePage(
                             items = data,
                             key = { it.threadId }
                         ) { info ->
-                            StoreItem(
+                            CollectItem(
                                 info = info,
                                 onUserClick = {
-                                    info.author.id?.let {
-                                        navigator.navigate(UserProfilePageDestination(it.toLong()))
-                                    }
+                                    info.author.id?.toLongOrNull()?.let { homeNavigation.openUserProfile(it) }
                                 },
                                 onClick = {
-                                    navigator.navigate(
-                                        ThreadPageDestination(
-                                            threadId = info.threadId.toLong(),
-                                            postId = info.markPid.toLong(),
-                                            seeLz = context.appPreferences.collectThreadSeeLz,
-                                            sortType = if(context.appPreferences.collectThreadDescSort) ThreadSortType.SORT_TYPE_DESC else ThreadSortType.SORT_TYPE_DEFAULT,
-                                            from = ThreadPageFrom.FROM_STORE,
-                                            extra = ThreadPageFromStoreExtra(
-                                                maxPid = info.maxPid.toLong(),
-                                                maxFloor = info.postNo.toInt()
-                                            )
-                                        )
+                                    homeNavigation.openThread(
+                                        threadId = info.threadId.toLong(),
+                                        postId = info.markPid.toLong(),
+                                        seeLz = appPreferences.collectThreadSeeLz,
+                                        sortType = if (appPreferences.collectThreadDescSort) SORT_TYPE_DESC else SORT_TYPE_DEFAULT,
+                                        from = ThreadPageFrom.FROM_COLLECT
                                     )
                                 },
                                 onDelete = {
                                     viewModel.send(
-                                        ThreadStoreUiIntent.Delete(
+                                        ThreadCollectUiIntent.Delete(
                                             info.threadId
                                         )
                                     )
@@ -234,20 +226,22 @@ fun ThreadStorePage(
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
-private fun StoreItem(
-    info: ThreadStoreItem,
+private fun CollectItem(
+    info: ThreadCollectItem,
     onUserClick: () -> Unit,
     onDelete: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    val appPreferences = LocalAppPreferences.current
     val hasUpdate = remember(info) { info.count != "0" && info.postNo != "0" }
     val isDeleted = remember(info) { info.isDeleted == "1" }
     val textMeasurer = rememberTextMeasurer()
     LongClickMenu(
         menuContent = {
             DropdownMenuItem(onClick = onDelete) {
-                Text(text = stringResource(id = R.string.title_collect_on))
+                Text(text = stringResource(id = CoreUiR.string.title_collect_on))
             }
         },
         onClick = onClick
@@ -260,18 +254,18 @@ private fun StoreItem(
             UserHeader(
                 avatar = {
                     Avatar(
-                        data = StringUtil.getAvatarUrl(info.author.portrait),
+                        data = StringFormatUtils.getAvatarUrl(info.author.portrait),
                         size = Sizes.Small,
                         contentDescription = null
                     )
                 },
                 name = {
                     Text(
-                        text = getUsernameAnnotatedString(
-                            LocalContext.current,
-                            info.author.name ?: "",
-                            info.author.nameShow,
-                            LocalContentColor.current
+                        text = StringFormatUtils.formatUsernameAnnotated(
+                            showBoth = appPreferences.showBothUsernameAndNickname,
+                            username = info.author.name ?: "",
+                            nickname = info.author.nameShow,
+                            color = LocalContentColor.current
                         )
                     )
                 },
@@ -287,7 +281,7 @@ private fun StoreItem(
                 }
             }
             val updateTip = stringResource(
-                id = R.string.tip_thread_store_update,
+                id = CoreUiR.string.tip_thread_collect_update,
                 info.postNo
             )
             val result = remember {
@@ -296,8 +290,8 @@ private fun StoreItem(
                     style = UpdateTipTextStyle
                 ).size
             }
-            val width = result.width.pxToSp() + 12F.dpToPxFloat().pxToSp() * 2 + 1
-            val height = result.height.pxToSp() + 4F.dpToPxFloat().pxToSp() * 2
+            val width = context.pxToSp(result.width.toFloat() + context.dpToPx(12f) * 2 + 1f)
+            val height = context.pxToSp(result.height.toFloat() + context.dpToPx(4f) * 2)
             Text(
                 text = title,
                 fontSize = 15.sp,
@@ -332,7 +326,7 @@ private fun StoreItem(
             )
             if (isDeleted) {
                 Text(
-                    text = stringResource(id = R.string.tip_thread_store_deleted),
+                    text = stringResource(id = CoreUiR.string.tip_thread_collect_deleted),
                     fontSize = 12.sp,
                     color = ExtendedTheme.colors.textDisabled
                 )

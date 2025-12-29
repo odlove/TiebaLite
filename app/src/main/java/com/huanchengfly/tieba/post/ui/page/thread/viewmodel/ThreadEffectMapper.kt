@@ -13,12 +13,12 @@ class ThreadEffectMapper @Inject constructor(
 
         ThreadPartialChange.LoadPrevious.Start -> ThreadPageEffect.ScrollToFirstReply
 
-        is ThreadPartialChange.AddFavorite.Success -> ThreadPageEffect.ShowSnackbar(
-            resourceProvider.getString(R.string.message_add_favorite_success, partialChange.floor)
+        is ThreadPartialChange.AddCollect.Success -> ThreadPageEffect.ShowSnackbar(
+            resourceProvider.getString(R.string.message_add_collect_success, partialChange.floor)
         )
 
-        ThreadPartialChange.RemoveFavorite.Success -> ThreadPageEffect.ShowSnackbar(
-            resourceProvider.getString(R.string.message_remove_favorite_success)
+        ThreadPartialChange.RemoveCollect.Success -> ThreadPageEffect.ShowSnackbar(
+            resourceProvider.getString(R.string.message_remove_collect_success)
         )
 
         is ThreadPartialChange.Load.Success -> ThreadPageEffect.LoadSuccess(partialChange.currentPage)
@@ -41,12 +41,12 @@ class ThreadEffectMapper @Inject constructor(
             resourceProvider.getString(R.string.toast_delete_failure, partialChange.errorMessage)
         )
 
-        is ThreadPartialChange.UpdateFavoriteMark.Success -> ThreadPageEffect.ShowToast(
+        is ThreadPartialChange.UpdateCollectMark.Success -> ThreadPageEffect.ShowToast(
             resourceProvider.getString(R.string.message_update_collect_mark_success),
             navigateUpAfter = true
         )
 
-        is ThreadPartialChange.UpdateFavoriteMark.Failure -> ThreadPageEffect.ShowToast(
+        is ThreadPartialChange.UpdateCollectMark.Failure -> ThreadPageEffect.ShowToast(
             resourceProvider.getString(
                 R.string.message_update_collect_mark_failed,
                 partialChange.errorMessage

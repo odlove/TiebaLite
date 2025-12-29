@@ -285,10 +285,10 @@ class PbPageRepositoryImplTest {
     fun `pbPage should handle from=store_thread parameter with stType and mark`() = runTest {
         // Given
         val threadId = 123456L
-        val from = "store_thread"  // Note: This equals ThreadPageFrom.FROM_STORE
+        val from = "store_thread"  // Note: This equals ThreadPageFrom.FROM_COLLECT
         val expectedResponse = createMockPbPageResponse()
 
-        // When from="store_thread", it matches both ST_TYPES and ThreadPageFrom.FROM_STORE
+        // When from="store_thread", it matches both ST_TYPES and ThreadPageFrom.FROM_COLLECT
         // So stType="store_thread" and mark=1
         every {
             mockApi.pbPageFlow(threadId, 1, 0, false, false, 0, null, "store_thread", 1, null)
@@ -305,13 +305,13 @@ class PbPageRepositoryImplTest {
     }
 
     @Test
-    fun `pbPage should handle from=FROM_STORE constant with mark=1`() = runTest {
+    fun `pbPage should handle from=FROM_COLLECT constant with mark=1`() = runTest {
         // Given
         val threadId = 123456L
-        val from = ThreadPageFrom.FROM_STORE  // This is "store_thread"
+        val from = ThreadPageFrom.FROM_COLLECT  // This is "store_thread"
         val expectedResponse = createMockPbPageResponse()
 
-        // ThreadPageFrom.FROM_STORE equals "store_thread", so stType="store_thread" and mark=1
+        // ThreadPageFrom.FROM_COLLECT equals "store_thread", so stType="store_thread" and mark=1
         every {
             mockApi.pbPageFlow(threadId, 1, 0, false, false, 0, null, "store_thread", 1, null)
         } returns flowOf(expectedResponse)

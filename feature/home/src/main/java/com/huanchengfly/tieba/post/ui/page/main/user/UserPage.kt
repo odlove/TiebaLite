@@ -342,9 +342,9 @@ fun UserPage(
                 }
                 if (account != null) {
                     ListMenuItem(
-                        icon = ImageVector.vectorResource(id = CoreUiR.drawable.ic_favorite),
+                        icon = ImageVector.vectorResource(id = CoreUiR.drawable.ic_collect),
                         text = stringResource(id = CoreUiR.string.title_my_collect),
-                        onClick = { homeNavigation.openThreadStore() }
+                        onClick = { homeNavigation.openThreadCollect() }
                     )
                 }
                 ListMenuItem(

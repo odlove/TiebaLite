@@ -560,10 +560,10 @@ interface ITiebaApi {
      * @param page 分页页码（从 0 开始）
      * @param pageSize 每页贴数（默认 20）
      */
-    fun threadStore(
+    fun threadCollect(
         page: Int = 0,
         pageSize: Int = 20
-    ): Call<ThreadStoreBean>
+    ): Call<ThreadCollectBean>
 
     /**
      * 查看收藏贴列表
@@ -573,10 +573,10 @@ interface ITiebaApi {
      * @param page 分页页码（从 0 开始）
      * @param pageSize 每页贴数（默认 20）
      */
-    fun threadStoreFlow(
+    fun threadCollectFlow(
         page: Int = 0,
         pageSize: Int = 20
-    ): Flow<ThreadStoreBean>
+    ): Flow<ThreadCollectBean>
 
     /**
      * 移除收藏

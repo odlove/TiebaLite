@@ -13,11 +13,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 
 @ViewModelScoped
-class UpdateFavoriteMarkUseCase @Inject constructor(
+class UpdateCollectMarkUseCase @Inject constructor(
     private val threadOperationRepository: ThreadOperationRepository,
     private val threadMetaStore: ThreadMetaStore
-) : ThreadIntentUseCase<ThreadUiIntent.UpdateFavoriteMark> {
-    override fun execute(intent: ThreadUiIntent.UpdateFavoriteMark): Flow<ThreadPartialChange> {
+) : ThreadIntentUseCase<ThreadUiIntent.UpdateCollectMark> {
+    override fun execute(intent: ThreadUiIntent.UpdateCollectMark): Flow<ThreadPartialChange> {
         return threadOperationRepository
             .addStore(intent.threadId, intent.postId)
             .map { response ->
@@ -30,18 +30,18 @@ class UpdateFavoriteMarkUseCase @Inject constructor(
                             collectMarkPid = intent.postId
                         )
                     )
-                    ThreadPartialChange.UpdateFavoriteMark.Success(intent.postId)
+                    ThreadPartialChange.UpdateCollectMark.Success(intent.postId)
                 } else {
-                    ThreadPartialChange.UpdateFavoriteMark.Failure(
+                    ThreadPartialChange.UpdateCollectMark.Failure(
                         response.errorCode,
                         response.errorMsg
                     )
                 }
             }
-            .onStart { emit(ThreadPartialChange.UpdateFavoriteMark.Start) }
+            .onStart { emit(ThreadPartialChange.UpdateCollectMark.Start) }
             .catch {
                 emit(
-                    ThreadPartialChange.UpdateFavoriteMark.Failure(
+                    ThreadPartialChange.UpdateCollectMark.Failure(
                         it.getErrorCode(),
                         it.getErrorMessage()
                     )

@@ -424,7 +424,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
         ) : ToggleImmersiveMode()
     }
 
-    sealed class AddFavorite : ThreadPartialChange {
+    sealed class AddCollect : ThreadPartialChange {
         override fun reduce(oldState: ThreadUiState): ThreadUiState {
             return when (this) {
                 Start -> oldState
@@ -441,20 +441,20 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             }
         }
 
-        object Start : AddFavorite()
+        object Start : AddCollect()
 
         data class Success(
             val markPostId: Long,
             val floor: Int
-        ) : AddFavorite()
+        ) : AddCollect()
 
         data class Failure(
             val errorCode: Int,
             val errorMessage: String
-        ) : AddFavorite()
+        ) : AddCollect()
     }
 
-    sealed class RemoveFavorite : ThreadPartialChange {
+    sealed class RemoveCollect : ThreadPartialChange {
         override fun reduce(oldState: ThreadUiState): ThreadUiState {
             return when (this) {
                 Start -> oldState
@@ -471,14 +471,14 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             }
         }
 
-        object Start : RemoveFavorite()
+        object Start : RemoveCollect()
 
-        object Success : RemoveFavorite()
+        object Success : RemoveCollect()
 
         data class Failure(
             val errorCode: Int,
             val errorMessage: String
-        ) : RemoveFavorite()
+        ) : RemoveCollect()
     }
 
     sealed class AgreeThread : ThreadPartialChange {
@@ -565,7 +565,7 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
         ) : DeleteThread()
     }
 
-    sealed class UpdateFavoriteMark : ThreadPartialChange {
+    sealed class UpdateCollectMark : ThreadPartialChange {
         override fun reduce(oldState: ThreadUiState): ThreadUiState {
             return when (this) {
                 Start -> oldState
@@ -582,16 +582,16 @@ sealed interface ThreadPartialChange : PartialChange<ThreadUiState> {
             }
         }
 
-        object Start : UpdateFavoriteMark()
+        object Start : UpdateCollectMark()
 
         data class Success(
             val markPostId: Long
-        ) : UpdateFavoriteMark()
+        ) : UpdateCollectMark()
 
         data class Failure(
             val errorCode: Int,
             val errorMessage: String
-        ) : UpdateFavoriteMark()
+        ) : UpdateCollectMark()
     }
 }
 

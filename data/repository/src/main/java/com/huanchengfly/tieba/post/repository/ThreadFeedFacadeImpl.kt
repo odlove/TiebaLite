@@ -2,9 +2,6 @@ package com.huanchengfly.tieba.post.repository
 
 import com.huanchengfly.tieba.core.common.feed.ConcernMetadata
 import com.huanchengfly.tieba.core.common.feed.DislikeReason
-import com.huanchengfly.tieba.core.common.feed.FeedMetadata
-import com.huanchengfly.tieba.core.common.feed.HotTab
-import com.huanchengfly.tieba.core.common.feed.HotTopic
 import com.huanchengfly.tieba.core.common.feed.PersonalizedInfo
 import com.huanchengfly.tieba.core.common.feed.PersonalizedMetadata
 import com.huanchengfly.tieba.core.common.feed.ThreadFeedPage
@@ -38,38 +35,6 @@ class ThreadFeedFacadeImpl @Inject constructor(
 
     override fun hotThreadList(tabCode: String): Flow<ThreadFeedPage> =
         contentRecommendRepository.hotThreadList(tabCode)
-            .onEach { response ->
-                val threadProtos = response.data_?.threadInfo ?: emptyList()
-                val threadCards = threadProtos.map { it.toThreadCard() }
-                pbPageRepository.upsertThreads(threadCards)
-                val metaMap = threadProtos.associate { proto ->
-                    proto.resolveThreadId() to proto.toThreadMeta()
-                }
-                threadMetaStore.updateFromServer(metaMap)
-            }
-            .map { response ->
-                val threadProtos = response.data_?.threadInfo ?: emptyList()
-                val threadIds = threadProtos.map { it.id }.toImmutableList()
-                val topicList = (response.data_?.topicList ?: emptyList()).map {
-                    HotTopic(
-                        topicId = it.topicId,
-                        topicName = it.topicName,
-                        tag = it.tag.toInt()
-                    )
-                }.toImmutableList()
-                val tabList = (response.data_?.hotThreadTabInfo ?: emptyList()).map {
-                    HotTab(
-                        tabName = it.tabName,
-                        tabCode = it.tabCode
-                    )
-                }.toImmutableList()
-                ThreadFeedPage(
-                    threadIds = threadIds,
-                    metadata = threadIds.associateWith { FeedMetadata() }.toPersistentMap(),
-                    topicList = topicList,
-                    tabList = tabList
-                )
-            }
             .onStart { }
             .catch { throw it }
 

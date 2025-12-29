@@ -1,15 +1,18 @@
 package com.huanchengfly.tieba.post.repository
 
+import com.huanchengfly.tieba.core.common.feed.ConcernMetadata
+import com.huanchengfly.tieba.core.common.feed.DislikeReason
+import com.huanchengfly.tieba.core.common.feed.FeedMetadata
+import com.huanchengfly.tieba.core.common.feed.PersonalizedInfo
+import com.huanchengfly.tieba.core.common.feed.PersonalizedMetadata
+import com.huanchengfly.tieba.core.common.feed.ThreadFeedPage
+import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
 import com.huanchengfly.tieba.post.api.retrofit.exception.TiebaUnknownException
-import com.huanchengfly.tieba.post.models.ThreadFeedPage
-import com.huanchengfly.tieba.post.models.FeedMetadata
-import com.huanchengfly.tieba.post.models.ConcernMetadata
-import com.huanchengfly.tieba.post.models.PersonalizedMetadata
 import com.huanchengfly.tieba.post.models.mappers.resolveThreadId
 import com.huanchengfly.tieba.post.models.mappers.toThreadCard
 import com.huanchengfly.tieba.post.models.mappers.toThreadMeta
-import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
+import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.flow.Flow
@@ -41,32 +44,6 @@ class ThreadFeedRepositoryImpl @Inject constructor(
 
     override fun hotThreadList(tabCode: String): Flow<ThreadFeedPage> =
         contentRecommendRepository.hotThreadList(tabCode)
-            .onEach { response ->
-                // ✅ 写入 PbPageRepository 缓存：转换 Proto -> Entity
-                val threadProtos = response.data_?.threadInfo ?: emptyList()
-                val threadCards = threadProtos.map { it.toThreadCard() }
-                pbPageRepository.upsertThreads(threadCards)
-                val metaMap = threadProtos.associate { proto ->
-                    proto.resolveThreadId() to proto.toThreadMeta()
-                }
-                threadMetaStore.updateFromServer(metaMap)
-            }
-            .map { response ->
-                // ✅ 构建返回结果
-                val threadProtos = response.data_?.threadInfo ?: emptyList()
-                val threadIds = threadProtos.map { it.id }.toImmutableList()
-
-                // ✅ 提取热榜特有数据
-                val topicList = (response.data_?.topicList ?: emptyList()).toImmutableList()
-                val tabList = (response.data_?.hotThreadTabInfo ?: emptyList()).toImmutableList()
-
-                ThreadFeedPage(
-                    threadIds = threadIds,
-                    metadata = threadIds.associateWith { FeedMetadata() }.toPersistentMap(),
-                    topicList = topicList,
-                    tabList = tabList
-                )
-            }
             .onStart { }
             .catch { throw it }
 
@@ -86,15 +63,35 @@ class ThreadFeedRepositoryImpl @Inject constructor(
                 // ✅ 构建返回结果
                 val threadProtos = response.data_?.thread_list ?: emptyList()
 
-                val threadIds = threadProtos.map { proto ->
-                    val threadId = proto.threadId
-                    val id = proto.id
-                    threadId.takeIf { it != 0L } ?: id
-                }.toImmutableList()
+                val threadIds = threadProtos.map { proto -> proto.resolveThreadId() }.toImmutableList()
+                val threadInfoMap = threadProtos.associateBy { proto -> proto.resolveThreadId() }
+
+                val personalizedMap = response.data_?.thread_personalized
+                    ?.associateBy { it.tid }
+                    .orEmpty()
+
+                val metadata = threadIds.associateWith { threadId ->
+                    val threadInfo = threadInfoMap[threadId]
+                    val personalized = personalizedMap[threadId]?.let { info ->
+                        PersonalizedInfo(
+                            threadId = info.tid,
+                            dislikeReasons = info.dislikeResource.map { reason ->
+                                DislikeReason(
+                                    dislikeReason = reason.dislikeReason,
+                                    dislikeId = reason.dislikeId.toInt(),
+                                    extra = reason.extra
+                                )
+                            },
+                            extra = info.extra
+                        )
+                    }
+                    val blocked = threadInfo?.shouldBlock() == true
+                    PersonalizedMetadata(personalized = personalized, blocked = blocked)
+                }.toPersistentMap()
 
                 ThreadFeedPage(
                     threadIds = threadIds,
-                    metadata = threadIds.associateWith { PersonalizedMetadata() }.toPersistentMap()
+                    metadata = metadata
                 )
             }
             .onStart { }

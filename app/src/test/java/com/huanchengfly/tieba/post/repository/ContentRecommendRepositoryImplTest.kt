@@ -1,10 +1,16 @@
 package com.huanchengfly.tieba.post.repository
 
+import com.huanchengfly.tieba.core.common.repository.ThreadMetaStore
+import com.huanchengfly.tieba.core.common.thread.ThreadMeta
 import com.huanchengfly.tieba.post.api.interfaces.ITiebaApi
+import com.huanchengfly.tieba.post.api.models.protos.FrsTabInfo
+import com.huanchengfly.tieba.post.api.models.protos.RecommendTopicList
+import com.huanchengfly.tieba.post.api.models.protos.ThreadInfo
 import com.huanchengfly.tieba.post.api.models.protos.forumRecommend.ForumRecommendResponse
 import com.huanchengfly.tieba.post.api.models.protos.forumRecommend.ForumRecommendResponseData
 import com.huanchengfly.tieba.post.api.models.protos.forumRecommend.LikeForum
 import com.huanchengfly.tieba.post.api.models.protos.hotThreadList.HotThreadListResponse
+import com.huanchengfly.tieba.post.api.models.protos.hotThreadList.HotThreadListResponseData
 import com.huanchengfly.tieba.post.api.models.protos.topicList.TopicListResponse
 import io.mockk.every
 import io.mockk.mockk
@@ -32,11 +38,15 @@ class ContentRecommendRepositoryImplTest {
 
     private lateinit var repository: ContentRecommendRepositoryImpl
     private lateinit var mockApi: ITiebaApi
+    private lateinit var mockPbPageRepository: PbPageRepository
+    private lateinit var mockThreadMetaStore: ThreadMetaStore
 
     @Before
     fun setup() {
         mockApi = mockk()
-        repository = ContentRecommendRepositoryImpl(mockApi)
+        mockPbPageRepository = mockk(relaxed = true)
+        mockThreadMetaStore = mockk(relaxed = true)
+        repository = ContentRecommendRepositoryImpl(mockApi, mockPbPageRepository, mockThreadMetaStore)
     }
 
     @After
@@ -46,13 +56,22 @@ class ContentRecommendRepositoryImplTest {
 
     // ========== Helper Functions ==========
 
-    private fun createMockHotThreadListResponse(): HotThreadListResponse {
+    private fun createMockHotThreadListResponse(
+        threadInfoList: List<ThreadInfo> = emptyList(),
+        topicItems: List<RecommendTopicList> = emptyList(),
+        tabItems: List<FrsTabInfo> = emptyList(),
+    ): HotThreadListResponse {
+        val data = mockk<HotThreadListResponseData>(relaxed = true) {
+            every { threadInfo } returns threadInfoList
+            every { topicList } returns topicItems
+            every { hotThreadTabInfo } returns tabItems
+        }
         return mockk<HotThreadListResponse> {
             every { error } returns mockk {
                 every { error_code } returns 0
                 every { error_msg } returns "success"
             }
-            every { data_ } returns mockk()
+            every { data_ } returns data
         }
     }
 
@@ -75,6 +94,43 @@ class ContentRecommendRepositoryImplTest {
             every { data_ } returns data
         }
     }
+
+    private fun createMockThreadInfo(
+        idValue: Long = 123L,
+        threadIdValue: Long = 0L,
+    ): ThreadInfo =
+        mockk(relaxed = true) {
+            every { id } returns idValue
+            every { threadId } returns threadIdValue
+            every { richAbstract } returns emptyList()
+            every { _abstract } returns emptyList()
+            every { media } returns emptyList()
+        }
+
+    private fun createMockRecommendTopicList(): RecommendTopicList =
+        mockk(relaxed = true) {
+            every { topicId } returns 11L
+            every { topicName } returns "Hot Topic"
+            every { type } returns 2
+            every { discussNum } returns 100L
+            every { tag } returns 3
+            every { topicDesc } returns "Hot Desc"
+            every { topicPic } returns "https://example.com/topic.jpg"
+        }
+
+    private fun createMockFrsTabInfo(): FrsTabInfo =
+        mockk(relaxed = true) {
+            every { tabId } returns 7
+            every { tabType } returns 1
+            every { tabName } returns "TabName"
+            every { tabUrl } returns "https://example.com/tab"
+            every { tabGid } returns "gid"
+            every { tabTitle } returns "TabTitle"
+            every { isGeneralTab } returns 1
+            every { tabCode } returns "home"
+            every { tabVersion } returns 2
+            every { isDefault } returns 1
+        }
 
     private fun createMockTopicListResponse(): TopicListResponse {
         return mockk<TopicListResponse> {
@@ -105,7 +161,14 @@ class ContentRecommendRepositoryImplTest {
     fun `hotThreadList should return success flow when API call succeeds`() = runTest {
         // Given: Mock API returns successful HotThreadListResponse
         val tabCode = "home"
-        val expectedResponse = createMockHotThreadListResponse()
+        val threadInfo = createMockThreadInfo(idValue = 123L)
+        val topic = createMockRecommendTopicList()
+        val tab = createMockFrsTabInfo()
+        val expectedResponse = createMockHotThreadListResponse(
+            threadInfoList = listOf(threadInfo),
+            topicItems = listOf(topic),
+            tabItems = listOf(tab),
+        )
 
         every {
             mockApi.hotThreadListFlow(tabCode)
@@ -116,10 +179,33 @@ class ContentRecommendRepositoryImplTest {
 
         // Then: Verify the result matches expected data
         assertNotNull(result)
-        assertNotNull(result.error)
+        assertEquals(listOf(123L), result.threadIds)
+        assertEquals(1, result.topicList.size)
+        assertEquals(1, result.tabList.size)
+        val mappedTopic = result.topicList.first()
+        assertEquals(11L, mappedTopic.topicId)
+        assertEquals("Hot Topic", mappedTopic.topicName)
+        assertEquals(2, mappedTopic.type)
+        assertEquals(100L, mappedTopic.discussNum)
+        assertEquals(3, mappedTopic.tag)
+        assertEquals("Hot Desc", mappedTopic.topicDesc)
+        assertEquals("https://example.com/topic.jpg", mappedTopic.topicPic)
+        val mappedTab = result.tabList.first()
+        assertEquals(7, mappedTab.tabId)
+        assertEquals(1, mappedTab.tabType)
+        assertEquals("TabName", mappedTab.tabName)
+        assertEquals("https://example.com/tab", mappedTab.tabUrl)
+        assertEquals("gid", mappedTab.tabGid)
+        assertEquals("TabTitle", mappedTab.tabTitle)
+        assertEquals(1, mappedTab.isGeneralTab)
+        assertEquals("home", mappedTab.tabCode)
+        assertEquals(2, mappedTab.tabVersion)
+        assertEquals(1, mappedTab.isDefault)
         verify(exactly = 1) {
             mockApi.hotThreadListFlow(tabCode)
         }
+        verify(exactly = 1) { mockPbPageRepository.upsertThreads(any()) }
+        verify(exactly = 1) { mockThreadMetaStore.updateFromServer(any<Map<Long, ThreadMeta>>()) }
     }
 
     @Test
@@ -156,6 +242,7 @@ class ContentRecommendRepositoryImplTest {
 
         // Then: Verify API is called (parameter validation is API's responsibility)
         assertNotNull(result)
+        assertEquals(0, result.threadIds.size)
         verify(exactly = 1) {
             mockApi.hotThreadListFlow("")
         }

@@ -1,8 +1,8 @@
 package com.huanchengfly.tieba.post.repository
 
+import com.huanchengfly.tieba.core.common.feed.ThreadFeedPage
 import com.huanchengfly.tieba.core.common.forum.ForumRecommendResult
 import com.huanchengfly.tieba.core.common.hottopic.HotTopicItem
-import com.huanchengfly.tieba.post.api.models.protos.hotThreadList.HotThreadListResponse
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -15,11 +15,12 @@ interface ContentRecommendRepository {
      * 获取热门帖子列表
      *
      * @param tabCode 标签代码（如"all"表示全部）
-     * @return 热门帖子列表数据流
+     * @return 热门帖子列表数据流（common ThreadFeedPage）。
+     *         该调用会同步更新线程缓存与 MetaStore。
      */
     fun hotThreadList(
         tabCode: String
-    ): Flow<HotThreadListResponse>
+    ): Flow<ThreadFeedPage>
 
     /**
      * 获取推荐贴吧列表

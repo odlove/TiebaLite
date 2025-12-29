@@ -31,12 +31,24 @@ data class DislikeReason(
 data class HotTopic(
     val topicId: Long = 0L,
     val topicName: String = "",
+    val type: Int = 0,
+    val discussNum: Long = 0L,
     val tag: Int = 0,
+    val topicDesc: String = "",
+    val topicPic: String = "",
 )
 
 data class HotTab(
+    val tabId: Int = 0,
+    val tabType: Int = 0,
     val tabName: String = "",
+    val tabUrl: String = "",
+    val tabGid: String = "",
+    val tabTitle: String = "",
+    val isGeneralTab: Int = 0,
     val tabCode: String = "",
+    val tabVersion: Int = 0,
+    val isDefault: Int = 0,
 )
 
 data class ThreadFeedPage(

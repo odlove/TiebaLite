@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.repository
 
-import com.huanchengfly.tieba.post.models.ThreadFeedPage
+import com.huanchengfly.tieba.core.common.feed.ThreadFeedPage
 import kotlinx.coroutines.flow.Flow
 
 /**

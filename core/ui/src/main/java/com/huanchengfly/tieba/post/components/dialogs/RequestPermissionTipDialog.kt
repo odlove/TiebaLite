@@ -7,8 +7,8 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.core.view.setPadding
-import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.dpToPx
+import com.huanchengfly.tieba.core.ui.R
+import com.huanchengfly.tieba.core.ui.window.dpToPx
 import com.huanchengfly.tieba.post.utils.PermissionUtils
 
 
@@ -36,7 +36,7 @@ class RequestPermissionTipDialog(context: Context, permission: PermissionUtils.P
             it.attributes = it.attributes.apply {
                 width = WindowManager.LayoutParams.MATCH_PARENT
                 height = WindowManager.LayoutParams.WRAP_CONTENT
-                it.decorView.setPadding(16f.dpToPx())
+                it.decorView.setPadding(context.dpToPx(16f).toInt())
             }
             it.setGravity(Gravity.TOP or Gravity.CENTER_HORIZONTAL)
         }

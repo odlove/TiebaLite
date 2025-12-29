@@ -11,7 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.material.LocalContentColor
 import com.huanchengfly.tieba.core.ui.compose.ActionItem
 import com.huanchengfly.tieba.core.ui.compose.BackNavigationIcon
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R
 
 @Composable
 fun DefaultBackIcon(

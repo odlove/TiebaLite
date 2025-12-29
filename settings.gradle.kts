@@ -47,3 +47,4 @@ include(
     ":data:local"
 )
 include(":feature:home")
+include(":feature:webview")

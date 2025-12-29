@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_refresh">刷新</string>
+    <string name="title_copy_link">复制链接</string>
+    <string name="title_open_in_browser">在浏览器内打开</string>
+    <string name="title_default">贴吧 Lite</string>
+    <string name="tip_no_permission">权限未授予，部分功能可能无法使用</string>
+    <string name="button_allow">允许</string>
+    <string name="button_denied">禁止</string>
+    <string name="title_not_ask">不再询问</string>
+    <string name="title_ask_permission">要允许 %1$s 访问您的%2$s吗？</string>
+    <string name="title_ask_permission_clipboard_copy">要允许 %1$s 写入您的剪贴板吗？</string>
+    <string name="title_start_app_permission">要允许 %1$s 打开您的%2$s吗？</string>
+    <string name="name_multi_app">应用</string>
+    <string name="common_permission_location">定位</string>
+    <string name="usage_webview_location_permission">用于向当前访问的网页提供你的位置信息，以便该网页向你提供相关服务。</string>
+    <string name="btn_more">更多选项</string>
+</resources>

@@ -6,14 +6,14 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.Manifest
+import android.widget.Toast
 import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.OnPermissionInterceptor
 import com.hjq.permissions.XXPermissions
 import com.hjq.permissions.permission.base.IPermission
 import com.hjq.permissions.permission.PermissionLists
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R
 import com.huanchengfly.tieba.post.components.dialogs.RequestPermissionTipDialog
-import com.huanchengfly.tieba.post.toastShort
 
 /**
  * Convert String permission to IPermission object
@@ -375,7 +375,7 @@ object PermissionUtils {
                         if (deniedList.isEmpty()) {
                             onGranted()
                         } else {
-                            context.toastShort(deniedToast)
+                            Toast.makeText(context, deniedToast, Toast.LENGTH_SHORT).show()
                             onDenied?.invoke()
                         }
                     }

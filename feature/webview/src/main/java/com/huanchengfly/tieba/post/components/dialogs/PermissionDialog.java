@@ -7,20 +7,21 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
-import com.huanchengfly.tieba.post.R;
+import com.huanchengfly.tieba.feature.webview.R;
 import com.huanchengfly.tieba.post.interfaces.OnDeniedCallback;
 import com.huanchengfly.tieba.post.interfaces.OnGrantedCallback;
 import com.huanchengfly.tieba.post.models.PermissionBean;
-import com.huanchengfly.tieba.post.utils.SharedPreferencesUtil;
 
 public class PermissionDialog extends AlertDialog implements View.OnClickListener {
     public static final int STATE_DENIED = 2;
     public static final int STATE_ALLOW = 1;
     public static final int STATE_UNSET = 0;
+    private static final String SP_PERMISSION = "permission";
     private final TextView titleView;
     private final ImageView iconView;
     private final Button allowBtn;
@@ -83,37 +84,36 @@ public class PermissionDialog extends AlertDialog implements View.OnClickListene
     @SuppressLint("ApplySharedPref")
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.permission_actions_allow:
-                if (getOnGrantedCallback() != null) {
-                    getOnGrantedCallback().onGranted(checkBox.isChecked());
-                }
-                if (checkBox.isChecked()) {
-                    SharedPreferencesUtil.get(v.getContext(), SharedPreferencesUtil.SP_PERMISSION)
-                            .edit()
-                            .putInt(permissionBean.getData() + "_" + permissionBean.getId(), STATE_ALLOW)
-                            .commit();
-                }
-                dismiss();
-                break;
-            case R.id.permission_actions_denied:
-                if (getOnDeniedCallback() != null) {
-                    getOnDeniedCallback().onDenied(checkBox.isChecked());
-                }
-                if (checkBox.isChecked()) {
-                    SharedPreferencesUtil.get(v.getContext(), SharedPreferencesUtil.SP_PERMISSION)
-                            .edit()
-                            .putInt(permissionBean.getData() + "_" + permissionBean.getId(), STATE_DENIED)
-                            .commit();
-                }
-                dismiss();
-                break;
+        int viewId = v.getId();
+        if (viewId == R.id.permission_actions_allow) {
+            if (getOnGrantedCallback() != null) {
+                getOnGrantedCallback().onGranted(checkBox.isChecked());
+            }
+            if (checkBox.isChecked()) {
+                getPermissionPreferences(v.getContext())
+                    .edit()
+                    .putInt(permissionBean.getData() + "_" + permissionBean.getId(), STATE_ALLOW)
+                    .commit();
+            }
+            dismiss();
+        } else if (viewId == R.id.permission_actions_denied) {
+            if (getOnDeniedCallback() != null) {
+                getOnDeniedCallback().onDenied(checkBox.isChecked());
+            }
+            if (checkBox.isChecked()) {
+                getPermissionPreferences(v.getContext())
+                    .edit()
+                    .putInt(permissionBean.getData() + "_" + permissionBean.getId(), STATE_DENIED)
+                    .commit();
+            }
+            dismiss();
         }
     }
 
     @Override
     public void show() {
-        int state = SharedPreferencesUtil.get(getContext(), SharedPreferencesUtil.SP_PERMISSION).getInt(permissionBean.getData() + "_" + permissionBean.getId(), STATE_UNSET);
+        int state = getPermissionPreferences(getContext())
+            .getInt(permissionBean.getData() + "_" + permissionBean.getId(), STATE_UNSET);
         if (state != STATE_UNSET) {
             if (state == STATE_ALLOW) {
                 if (getOnGrantedCallback() != null) {
@@ -127,6 +127,10 @@ public class PermissionDialog extends AlertDialog implements View.OnClickListene
         } else {
             super.show();
         }
+    }
+
+    private SharedPreferences getPermissionPreferences(Context context) {
+        return context.getSharedPreferences(SP_PERMISSION, Context.MODE_PRIVATE);
     }
 
     public static class CustomPermission {

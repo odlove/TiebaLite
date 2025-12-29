@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.login
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.webkit.CookieManager
 import android.webkit.WebView
 import android.widget.Toast
@@ -227,6 +228,7 @@ fun LoginPage(
                 },
                 client = remember(navigator) {
                     LoginWebViewClient(
+                        context,
                         navigator,
                         coroutineScope,
                         snackbarHostState
@@ -248,10 +250,11 @@ fun LoginPage(
 }
 
 class LoginWebViewClient(
-    nativeNavigator: DestinationsNavigator? = null,
+    context: Context,
+    private val nativeNavigator: DestinationsNavigator? = null,
     val coroutineScope: CoroutineScope,
     val snackbarHostState: SnackbarHostState,
-) : MyWebViewClient(nativeNavigator) {
+) : MyWebViewClient(appContext = context.applicationContext) {
     private var isLoadingAccount = false
 
     override fun injectCookies(url: String) {}

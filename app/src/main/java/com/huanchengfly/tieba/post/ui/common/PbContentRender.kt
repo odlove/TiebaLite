@@ -50,7 +50,7 @@ import com.huanchengfly.tieba.core.ui.photoview.PhotoViewData
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.WebViewPageDestination
+import com.huanchengfly.tieba.post.ui.page.webview.destinations.WebViewPageDestination
 import com.huanchengfly.tieba.core.ui.text.EmoticonText
 import com.huanchengfly.tieba.core.ui.widgets.compose.NetworkImage
 import com.huanchengfly.tieba.core.ui.widgets.compose.VideoPlayer

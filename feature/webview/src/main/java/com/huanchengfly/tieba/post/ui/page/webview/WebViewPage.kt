@@ -1,6 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.webview
 
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -50,23 +52,20 @@ import androidx.core.content.getSystemService
 import androidx.core.location.LocationManagerCompat
 import androidx.core.net.toUri
 import android.Manifest
-import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.webview.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.onEvent
-import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.post.components.dialogs.PermissionDialog
 import com.huanchengfly.tieba.post.models.PermissionBean
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.topBarSubtitleColor
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
-import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.core.ui.widgets.compose.AccompanistWebChromeClient
 import com.huanchengfly.tieba.core.ui.widgets.compose.AccompanistWebViewClient
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
@@ -79,10 +78,8 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberSaveableWebViewState
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberWebViewNavigator
 import com.huanchengfly.tieba.post.utils.AccountUtil
-import com.huanchengfly.tieba.post.utils.DialogUtil
 import com.huanchengfly.tieba.post.utils.PermissionUtils
 import com.huanchengfly.tieba.post.utils.PermissionUtils.PermissionData
-import com.huanchengfly.tieba.post.utils.TiebaUtil
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.core.ui.activityresult.launchActivityForResult
 import com.ramcosta.composedestinations.annotation.Destination
@@ -103,8 +100,10 @@ fun WebViewPage(
     navigator: DestinationsNavigator,
 ) {
     val context = LocalContext.current
+    val appContext = context.applicationContext
     val coroutineScope = rememberCoroutineScope()
     val globalEventBus = LocalGlobalEventBus.current
+    val homeNavigation = runCatching { LocalHomeNavigation.current }.getOrNull()
     val webViewState = rememberSaveableWebViewState()
     val webViewNavigator = rememberWebViewNavigator()
     var loaded by rememberSaveable {
@@ -206,7 +205,7 @@ fun WebViewPage(
                             DropdownMenuItem(
                                 onClick = {
                                     val url = webViewState.currentWebView?.url ?: initialUrl
-                                    TiebaUtil.copyText(context, url)
+                                    homeNavigation?.copyText(url) ?: copyToClipboard(context, url)
                                     dismiss()
                                 }
                             ) {
@@ -269,9 +268,19 @@ fun WebViewPage(
                         displayZoomControls = false
                     }
                 },
-                client = remember(navigator) { MyWebViewClient(navigator) },
+                client = remember(appContext, homeNavigation) {
+                    MyWebViewClient(
+                        appContext = appContext,
+                        openThread = homeNavigation?.let { nav -> { threadId -> nav.openThread(threadId) } },
+                        openForum = homeNavigation?.let { nav -> { forumName -> nav.openForum(forumName) } },
+                    )
+                },
                 chromeClient = remember(globalEventBus) {
-                    MyWebChromeClient(context, coroutineScope, globalEventBus)
+                    MyWebChromeClient(
+                        context = context,
+                        coroutineScope = coroutineScope,
+                        globalEventBus = globalEventBus,
+                    )
                 }
             )
 
@@ -299,10 +308,12 @@ fun isInternalHost(host: String): Boolean {
 }
 
 open class MyWebViewClient(
-    protected val nativeNavigator: DestinationsNavigator? = null,
+    private val appContext: Context,
+    private val openThread: ((Long) -> Unit)? = null,
+    private val openForum: ((String) -> Unit)? = null,
 ) : AccompanistWebViewClient() {
     val context: Context
-        get() = state.currentWebView?.context ?: App.INSTANCE
+        get() = state.currentWebView?.context ?: appContext
 
     private fun interceptWebViewRequest(
         webView: WebView,
@@ -327,24 +338,28 @@ open class MyWebViewClient(
                         newUri.getQueryParameter("kw") ?: newUri.getQueryParameter("word")
                     val threadId = newUri.getQueryParameter("kz")?.toLongOrNull()
                     if (threadId != null) {
-                        nativeNavigator?.navigate(
-                            ThreadPageDestination(threadId)
-                        )
-                        true
+                        openThread?.let {
+                            it.invoke(threadId)
+                            true
+                        } ?: false
                     } else if (forumName != null) {
-                        nativeNavigator?.navigate(
-                            ForumPageDestination(forumName)
-                        )
-                        true
-                    } else false
+                        openForum?.let {
+                            it.invoke(forumName)
+                            true
+                        } ?: false
+                    } else {
+                        false
+                    }
                 } else if (path.startsWith("/p/")) {
                     val threadId = path.substring(3).toLongOrNull()
                     if (threadId != null) {
-                        nativeNavigator?.navigate(
-                            ThreadPageDestination(threadId)
-                        )
-                        true
-                    } else false
+                        openThread?.let {
+                            it.invoke(threadId)
+                            true
+                        } ?: false
+                    } else {
+                        false
+                    }
                 } else false
             }
 
@@ -476,9 +491,10 @@ class MyWebChromeClient(
     private val globalEventBus: GlobalEventBus,
 ) : AccompanistWebChromeClient() {
     private val contextWeakReference = WeakReference(context)
+    private val appContext = context.applicationContext
 
     val context: Context
-        get() = state.currentWebView?.context ?: contextWeakReference.get() ?: App.INSTANCE
+        get() = state.currentWebView?.context ?: contextWeakReference.get() ?: appContext
 
     private var uploadMessage: ValueCallback<Array<Uri>>? = null
 
@@ -567,11 +583,9 @@ class MyWebChromeClient(
         message: String?,
         result: JsResult?,
     ): Boolean {
-        DialogUtil.build(view?.context ?: context)
+        androidx.appcompat.app.AlertDialog.Builder(view?.context ?: context)
             .setMessage(message)
-            .setPositiveButton(CoreUiR.string.button_sure_default) { _, _ ->
-                result?.confirm()
-            }
+            .setPositiveButton(CoreUiR.string.button_sure_default) { _, _ -> result?.confirm() }
             .setCancelable(false)
             .create()
             .show()
@@ -605,15 +619,11 @@ class MyWebChromeClient(
                     .show()
             }
         } else {
-            DialogUtil.build(view.context)
+            androidx.appcompat.app.AlertDialog.Builder(view.context)
                 .setTitle("Confirm")
                 .setMessage(message)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    result.confirm()
-                }
-                .setNegativeButton(android.R.string.cancel) { _, _ ->
-                    result.cancel()
-                }
+                .setPositiveButton(android.R.string.ok) { _, _ -> result.confirm() }
+                .setNegativeButton(android.R.string.cancel) { _, _ -> result.cancel() }
                 .create()
                 .show()
         }
@@ -621,7 +631,9 @@ class MyWebChromeClient(
     }
 }
 
-@Composable
-fun MyWebView() {
-
+private fun copyToClipboard(context: Context, text: String) {
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+    if (clipboard != null) {
+        clipboard.setPrimaryClip(ClipData.newPlainText(null, text))
+    }
 }

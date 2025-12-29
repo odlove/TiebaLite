@@ -16,7 +16,7 @@ import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import com.huanchengfly.tieba.post.components.dialogs.LoadingDialog
 import com.huanchengfly.tieba.post.toastShort
-import com.huanchengfly.tieba.post.ui.page.destinations.WebViewPageDestination
+import com.huanchengfly.tieba.post.ui.page.webview.destinations.WebViewPageDestination
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadMenu
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageActions
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageState

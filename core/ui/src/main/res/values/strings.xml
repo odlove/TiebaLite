@@ -49,6 +49,7 @@
     <string name="emoticon">表情 %s</string>
     <string name="tip_good">精</string>
     <string name="title_forum_name">%1$s吧</string>
+    <string name="tip_copy_text">长按自由复制</string>
     <string name="title_reply">回复</string>
     <string name="title_share">分享</string>
     <string name="title_agree">点赞</string>

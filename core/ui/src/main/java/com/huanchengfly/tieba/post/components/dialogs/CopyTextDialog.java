@@ -6,7 +6,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.huanchengfly.tieba.post.R;
+import com.huanchengfly.tieba.core.ui.R;
 
 public class CopyTextDialog extends BaseFullScreenDialog {
     public static final String TAG = CopyTextDialog.class.getSimpleName();

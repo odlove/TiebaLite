@@ -404,17 +404,6 @@
         <item name="colorDivider">#FF101010</item>
     </style>
 
-    <style name="Dialog.FullScreen" parent="Theme.MaterialComponents.DayNight.Dialog">
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@color/transparent</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:backgroundDimAmount">1.0</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
-    </style>
-
     <style name="AlertDialog" parent="AlertDialog.AppCompat.Light">
         <item name="android:layout">@layout/layout_alert_dialog</item>
     </style>

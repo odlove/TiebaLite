@@ -87,7 +87,6 @@
     <string name="title_hide_explore">隐藏首页「动态」入口</string>
     <string name="settings_show_shortcut">在贴内显示快捷进吧入口</string>
     <string name="button_retry">重试</string>
-    <string name="tip_copy_text">长按自由复制</string>
     <string name="menu_copy">复制</string>
     <string name="button_load_new">加载最新</string>
     <string name="title_sort_by_reply">回复时间排序</string>

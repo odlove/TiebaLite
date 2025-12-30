@@ -1,9 +1,8 @@
-package com.huanchengfly.tieba.post.components
+package com.huanchengfly.tieba.core.runtime.oaid
 
 import android.content.Context
 import com.github.gzuliyujiang.oaid.DeviceID
 import com.github.gzuliyujiang.oaid.IGetter
-import com.huanchengfly.tieba.core.runtime.oaid.OaidResolver
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.di
+package com.huanchengfly.tieba.core.ui.di
 
 import com.huanchengfly.tieba.core.ui.theme.data.ThemeRepository
 import com.huanchengfly.tieba.core.ui.theme.data.ThemeRepositoryImpl

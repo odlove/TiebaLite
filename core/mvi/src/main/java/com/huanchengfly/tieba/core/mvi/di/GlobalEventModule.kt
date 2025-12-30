@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.di
+package com.huanchengfly.tieba.core.mvi.di
 
 import com.huanchengfly.tieba.core.mvi.GlobalEventBus
 import com.huanchengfly.tieba.core.mvi.SharedFlowGlobalEventBus

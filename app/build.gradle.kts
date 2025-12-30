@@ -312,7 +312,6 @@ dependencies {
 
     implementation(libs.androidx.constraintlayout.compose)
 
-    implementation(libs.github.oaid)
 
     implementation(libs.org.jetbrains.annotations)
 

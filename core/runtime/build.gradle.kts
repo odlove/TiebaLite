@@ -35,4 +35,5 @@ dependencies {
     kapt(libs.hilt.compiler)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.androidx.startup.runtime)
+    implementation(libs.github.oaid)
 }

@@ -13,4 +13,7 @@ abstract class OaidModule {
     @Binds
     @IntoSet
     abstract fun bindOaidLifecycleCallbacks(callbacks: OaidLifecycleCallbacks): Application.ActivityLifecycleCallbacks
+
+    @Binds
+    abstract fun bindOaidResolver(resolver: DeviceIdOaidResolver): OaidResolver
 }

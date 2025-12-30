@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.StringDef;
 
-import com.huanchengfly.tieba.post.App;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -18,10 +16,6 @@ public class SharedPreferencesUtil {
     public static final String SP_IGNORE_VERSIONS = "ignore_version";
     public static final String SP_WEBVIEW_INFO = "webview_info";
     public static final String SP_PLUGINS = "plugins";
-
-    public static SharedPreferences get(@Preferences String name) {
-        return get(App.getINSTANCE(), name);
-    }
 
     public static SharedPreferences get(Context context, @Preferences String name) {
         return context.getSharedPreferences(name, Context.MODE_PRIVATE);

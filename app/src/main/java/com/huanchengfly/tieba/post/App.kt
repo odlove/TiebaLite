@@ -141,7 +141,7 @@ class App : Application(), SketchFactory, ActivityCollector {
             get() = nightMode == Configuration.UI_MODE_NIGHT_YES
 
         val isFirstRun: Boolean
-            get() = SharedPreferencesUtil.get(SharedPreferencesUtil.SP_APP_DATA)
+            get() = SharedPreferencesUtil.get(INSTANCE, SharedPreferencesUtil.SP_APP_DATA)
                 .getBoolean("first", true)
 
         private val nightMode: Int

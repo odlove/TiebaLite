@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK
+import android.content.res.Resources
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
@@ -24,16 +25,25 @@ import kotlin.math.roundToInt
 private val Context.scaledDensity: Float
     get() = resources.displayMetrics.scaledDensity
 
+private val systemScaledDensity: Float
+    get() = Resources.getSystem().displayMetrics.scaledDensity
+
 fun Float.dpToPx(): Int =
     dpToPxFloat().roundToInt()
 
 fun Float.dpToPxFloat(): Float =
     this * ScreenMetricsRegistry.current.density + 0.5f
 
-fun Float.spToPx(context: Context = App.INSTANCE): Int =
+fun Float.spToPx(): Int =
+    (this * systemScaledDensity + 0.5f).roundToInt()
+
+fun Float.spToPx(context: Context): Int =
     (this * context.scaledDensity + 0.5f).roundToInt()
 
-fun Float.spToPxFloat(context: Context = App.INSTANCE): Float =
+fun Float.spToPxFloat(): Float =
+    this * systemScaledDensity + 0.5f
+
+fun Float.spToPxFloat(context: Context): Float =
     this * context.scaledDensity + 0.5f
 
 fun Float.pxToDp(): Int =
@@ -42,20 +52,31 @@ fun Float.pxToDp(): Int =
 fun Float.pxToDpFloat(): Float =
     this / ScreenMetricsRegistry.current.density + 0.5f
 
-fun Float.pxToSp(context: Context = App.INSTANCE): Int =
+fun Float.pxToSp(): Int =
+    (this / systemScaledDensity + 0.5f).roundToInt()
+
+fun Float.pxToSp(context: Context): Int =
     (this / context.scaledDensity + 0.5f).roundToInt()
 
 fun Int.dpToPx(): Int = this.toFloat().dpToPx()
 
 fun Int.spToPx(): Int = this.toFloat().spToPx()
 
+fun Int.spToPx(context: Context): Int = this.toFloat().spToPx(context)
+
 fun Int.pxToDp(): Int = this.toFloat().pxToDp()
 
-fun Int.pxToSp(context: Context = App.INSTANCE): Int = this.toFloat().pxToSp(context)
+fun Int.pxToSp(): Int = this.toFloat().pxToSp()
 
-fun Float.pxToSpFloat(): Float = this / App.INSTANCE.resources.displayMetrics.scaledDensity + 0.5f
+fun Int.pxToSp(context: Context): Int = this.toFloat().pxToSp(context)
+
+fun Float.pxToSpFloat(): Float = this / systemScaledDensity + 0.5f
+
+fun Float.pxToSpFloat(context: Context): Float = this / context.scaledDensity + 0.5f
 
 fun Int.pxToSpFloat(): Float = this.toFloat().pxToSpFloat()
+
+fun Int.pxToSpFloat(context: Context): Float = this.toFloat().pxToSpFloat(context)
 
 fun Int.pxToDpFloat(): Float =
     this.toFloat().pxToDpFloat()

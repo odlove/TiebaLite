@@ -4,10 +4,13 @@ import android.app.Notification
 import android.app.Service
 import android.widget.Toast
 import android.content.pm.ServiceInfo
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
+import androidx.core.content.ContextCompat
 import com.huanchengfly.tieba.core.runtime.service.sign.SignForegroundStopMode
 import com.huanchengfly.tieba.core.runtime.service.sign.SignNotificationController
 import com.huanchengfly.tieba.core.runtime.service.sign.SignNotificationUpdate
@@ -23,6 +26,18 @@ import javax.inject.Singleton
 class AppSignNotificationController @Inject constructor() : SignNotificationController {
 
     override fun startForeground(service: Service) {
+        val manager = NotificationManagerCompat.from(service)
+        if (!manager.areNotificationsEnabled()) {
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                service,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
         val notification = buildNotification(
             service,
             service.getString(R.string.title_loading_data),
@@ -34,6 +49,18 @@ class AppSignNotificationController @Inject constructor() : SignNotificationCont
     }
 
     override fun update(service: Service, update: SignNotificationUpdate) {
+        val manager = NotificationManagerCompat.from(service)
+        if (!manager.areNotificationsEnabled()) {
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                service,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
         update.toastMessage?.let {
             Toast.makeText(service, it, Toast.LENGTH_SHORT).show()
         }
@@ -44,7 +71,7 @@ class AppSignNotificationController @Inject constructor() : SignNotificationCont
             update.ongoing,
             update.contentIntent
         )
-        NotificationManagerCompat.from(service).notify(NOTIFICATION_ID, notification)
+        manager.notify(NOTIFICATION_ID, notification)
 
         when (update.stopMode) {
             SignForegroundStopMode.DETACH ->
@@ -104,4 +131,5 @@ class AppSignNotificationController @Inject constructor() : SignNotificationCont
             .build()
         manager.createNotificationChannel(channel)
     }
+
 }

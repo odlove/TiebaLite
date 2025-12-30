@@ -130,7 +130,7 @@
                 <data android:scheme="tblite" />
             </intent-filter>
 
-            <intent-filter android:autoVerify="true">
+            <intent-filter android:autoVerify="false">
                 <data
                     android:host="unidispatch"
                     android:scheme="com.baidu.tieba" />
@@ -176,7 +176,7 @@
                 <data android:scheme="tblite" />
             </intent-filter>
 
-            <intent-filter android:autoVerify="true">
+            <intent-filter android:autoVerify="false">
                 <data
                     android:host="unidispatch"
                     android:scheme="com.baidu.tieba" />
@@ -211,7 +211,7 @@
                 <data android:scheme="tblite" />
             </intent-filter>
 
-            <intent-filter android:autoVerify="true">
+            <intent-filter android:autoVerify="false">
                 <data
                     android:host="unidispatch"
                     android:scheme="com.baidu.tieba" />
@@ -246,7 +246,7 @@
                 <data android:scheme="tblite" />
             </intent-filter>
 
-            <intent-filter android:autoVerify="true">
+            <intent-filter android:autoVerify="false">
                 <data
                     android:host="unidispatch"
                     android:scheme="com.baidu.tieba" />
@@ -280,7 +280,7 @@
                 <data android:scheme="tblite" />
             </intent-filter>
 
-            <intent-filter android:autoVerify="true">
+            <intent-filter android:autoVerify="false">
                 <data
                     android:host="unidispatch"
                     android:scheme="com.baidu.tieba" />

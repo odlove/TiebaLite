@@ -1,8 +1,10 @@
 package com.huanchengfly.tieba.post.services.notification
 
-import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.huanchengfly.tieba.core.common.ResourceProvider
@@ -29,9 +31,20 @@ class AppNotificationRenderer @Inject constructor(
 
     override fun render(context: Context, counts: NotificationCounts) {
         val manager = NotificationManagerCompat.from(context)
+        if (!manager.areNotificationsEnabled()) {
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
         if (counts.replies > 0) {
             val title = resourceProvider.getString(R.string.tips_message_reply, counts.replies.toString())
-        val builder = baseBuilder(context, CHANNEL_REPLY_ID)
+            val builder = baseBuilder(context, CHANNEL_REPLY_ID)
                 .setSubText(resourceProvider.getString(R.string.notification_channel_reply))
                 .setContentTitle(title)
             navigator.createPendingIntent(context, NotificationChannelType.REPLY)?.let(builder::setContentIntent)

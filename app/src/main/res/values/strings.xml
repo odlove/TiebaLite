@@ -16,11 +16,8 @@
     <string name="text_loading">正在加载…</string>
     <string name="title_sort">倒序浏览</string>
     <string name="title_see_lz">只看楼主</string>
-    <string name="tip_reply">评论一番，提高自己的姿势水平…</string>
     <string name="title_account_manage">账号管理</string>
     <string name="title_block_settings">屏蔽设置</string>
-    <string name="toast_reply_success_default">回贴成功</string>
-    <string name="toast_reply_success">回贴成功，经验 +%s</string>
     <string name="title_black_list">黑名单</string>
     <string name="title_white_list">白名单</string>
     <string name="title_add_black">添加黑名单</string>
@@ -33,7 +30,6 @@
     <string name="title_send_to_desktop">发送到桌面</string>
     <string name="toast_send_to_desktop_success">已尝试发送快捷方式</string>
     <string name="toast_send_to_desktop_failed">快捷方式创建失败：%1$s</string>
-    <string name="toast_reply_failed">回贴失败(%1$d) %2$s</string>
     <string name="title_exit_account">退出登录</string>
     <string name="title_copy_bduss">复制 BDUSS</string>
     <string name="title_my_tail">我的小尾巴</string>
@@ -158,7 +154,6 @@
     <string name="title_custom_color">自定义</string>
     <string name="toast_sign_failed">签到失败 %s</string>
     <string name="toast_like_failed">关注失败 %s</string>
-    <string name="hint_reply">回复 %1$s</string>
     <string name="text_load_failed">加载失败</string>
     <string name="title_oksign_finish">签到完成</string>
     <string name="title_oksign_fail">签到失败</string>
@@ -221,12 +216,6 @@
     <string name="snackbar_error">出现了一点小问题(%1$d)</string>
     <string name="toast_experimental_features_enabled">已启用实验性特性</string>
     <string name="toast_experimental_features_disabled">已禁用实验性特性</string>
-    <string name="title_dialog_reply_warning">建议使用官方途径回贴</string>
-    <string name="message_dialog_reply_warning">使用本 App 回贴可能会遇到回贴失败、需验证码等问题，甚至导致账户永久封禁等严重后果。\n建议你通过官方途径回贴。</string>
-    <string name="btn_cancel_reply">放弃回贴</string>
-    <string name="btn_continue_reply">无视风险，继续回贴</string>
-    <string name="button_official_client_reply">使用官方客户端回贴</string>
-    <string name="toast_official_client_not_install">未安装官方版客户端</string>
     <string name="title_post_or_reply_warning">发贴回贴风险提示</string>
     <string name="summary_ignore_battery_optimization">请忽略“电池优化”以允许应用启动自动签到</string>
     <string name="title_ignore_battery_optimization">忽略“电池优化”</string>
@@ -310,9 +299,6 @@
     <string name="btn_more">更多选项</string>
     <string name="launcher_not_support_pin_shortcut">启动器不支持创建快捷方式</string>
     <string name="load_shortcut_icon_fail">加载图标失败</string>
-    <string name="insert_emotions">插入表情</string>
-    <string name="send_reply">发送回复</string>
-    <string name="insert_photo">插入图片</string>
     <string name="title_dialog_oksign_battery_optimization">请忽略“电池优化”</string>
     <string name="message_dialog_oksign_battery_optimization">在 Android 12 及以上版本中，后台启动前台服务被严格限制。为了避免一键签到无法正常启动，请忽略本应用的“电池优化”。</string>
     <string name="button_go_to_ignore_battery_optimization">好的，去忽略</string>
@@ -342,11 +328,6 @@
     <string name="title_block_list">屏蔽词管理</string>
     <string name="settings_hide_blocked_content">彻底隐藏被屏蔽的内容</string>
     <string name="settings_block_video_summary">隐藏动态页面和吧页面的所有视频贴</string>
-    <string name="desc_image">图片</string>
-    <string name="desc_add_image">添加图片</string>
-    <string name="toast_upload_image_failed">上传图片失败 %s</string>
-    <string name="origin_image">原图</string>
-    <string name="desc_remove_image">删除图片</string>
     <string name="title_settings_image_watermark">图片添加水印</string>
     <string name="title_image_watermark_none">无水印</string>
     <string name="title_image_watermark_user_name">显示用户名</string>

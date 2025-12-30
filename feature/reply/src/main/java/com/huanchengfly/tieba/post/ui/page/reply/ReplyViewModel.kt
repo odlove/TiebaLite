@@ -3,7 +3,7 @@ package com.huanchengfly.tieba.post.ui.page.reply
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.reply.R
 import com.huanchengfly.tieba.core.common.reply.AddPostResult
 import com.huanchengfly.tieba.core.common.reply.UploadImageResult
 import com.huanchengfly.tieba.core.network.error.getErrorCode

@@ -19,7 +19,7 @@ import com.huanchengfly.tieba.post.ui.page.history.destinations.HistoryPageDesti
 import com.huanchengfly.tieba.post.ui.page.hottopic.list.destinations.HotTopicListPageDestination
 import com.huanchengfly.tieba.post.ui.page.login.destinations.LoginPageDestination
 import com.huanchengfly.tieba.post.ui.page.search.destinations.SearchPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.ReplyPageDestination
+import com.huanchengfly.tieba.post.ui.page.reply.destinations.ReplyPageDestination
 import com.huanchengfly.tieba.post.ui.page.subposts.destinations.SubPostsPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.threadcollect.destinations.ThreadCollectPageDestination

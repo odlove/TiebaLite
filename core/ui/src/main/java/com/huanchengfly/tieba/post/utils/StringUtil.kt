@@ -3,21 +3,12 @@ package com.huanchengfly.tieba.post.utils
 import android.content.Context
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.TextUtils
-import android.text.style.ForegroundColorSpan
 import android.widget.TextView
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withAnnotation
-import androidx.compose.ui.text.withStyle
-import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R
 import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
 import com.huanchengfly.tieba.post.components.spans.EmoticonSpanV2
@@ -88,7 +79,7 @@ object StringUtil {
         nickname: String?,
         color: Color = Color.Unspecified
     ): AnnotatedString {
-        val showBoth = App.isInitialized && context.appPreferences.showBothUsernameAndNickname
+        val showBoth = context.appPreferences.showBothUsernameAndNickname
         return StringFormatUtils.formatUsernameAnnotated(showBoth, username, nickname, color)
     }
 
@@ -99,10 +90,10 @@ object StringUtil {
         username: String,
         nickname: String?,
         content: String,
-        context: Context = App.INSTANCE,
+        context: Context,
     ): AnnotatedString {
         val color = Color(ThemeColorResolver.colorByAttr(context, R.attr.colorNewPrimary))
-        val showBoth = App.isInitialized && context.appPreferences.showBothUsernameAndNickname
+        val showBoth = context.appPreferences.showBothUsernameAndNickname
         return StringFormatUtils.buildAnnotatedStringWithUser(showBoth, color, userId, username, nickname, content)
     }
 

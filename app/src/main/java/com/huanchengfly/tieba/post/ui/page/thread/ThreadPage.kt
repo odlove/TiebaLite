@@ -91,7 +91,7 @@ import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.destinations.CopyTextDialogPageDestination
 import com.huanchengfly.tieba.post.ui.page.forum.destinations.ForumPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.ReplyPageDestination
+import com.huanchengfly.tieba.post.ui.page.reply.destinations.ReplyPageDestination
 import com.huanchengfly.tieba.post.ui.page.subposts.destinations.SubPostsSheetPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.webview.destinations.WebViewPageDestination

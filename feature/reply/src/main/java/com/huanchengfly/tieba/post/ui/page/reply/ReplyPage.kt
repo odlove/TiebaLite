@@ -84,7 +84,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.widget.addTextChangedListener
 import com.github.panpf.sketch.compose.AsyncImage
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.reply.R
 import com.huanchengfly.tieba.core.common.reply.ReplyArgs
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
@@ -94,14 +94,13 @@ import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.models.database.Draft
-import com.huanchengfly.tieba.post.pxToDpFloat
 import com.huanchengfly.tieba.post.toMD5
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.menuBackground
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeModalBottomSheetLayout
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.rememberDefaultBottomSheetState
-import com.huanchengfly.tieba.post.ui.page.destinations.ReplyPageDestination
+import com.huanchengfly.tieba.post.ui.page.reply.destinations.ReplyPageDestination
 import com.huanchengfly.tieba.post.ui.page.reply.ReplyPanelType.EMOJI
 import com.huanchengfly.tieba.post.ui.page.reply.ReplyPanelType.IMAGE
 import com.huanchengfly.tieba.post.ui.page.reply.ReplyPanelType.NONE
@@ -115,6 +114,7 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.core.ui.widgets.theme.TintUndoableEditText
 import com.huanchengfly.tieba.core.network.account.AccountTokenRegistry
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.emoticon.Emoticon
 import com.huanchengfly.tieba.post.utils.EmoticonManager
 import com.huanchengfly.tieba.post.utils.PickMediasRequest
@@ -429,21 +429,28 @@ internal fun ReplyPageContent(
             }
     }
 
-    val panelHeight by remember {
-        derivedStateOf { max(imeVisibleHeightPx.pxToDpFloat(), 150f).dp }
+    val panelHeight by remember(density) {
+        derivedStateOf {
+            val imeHeightDp = with(density) { imeVisibleHeightPx.toDp().value }
+            max(imeHeightDp, 150f).dp
+        }
     }
 
     val textMeasurer = rememberTextMeasurer()
 
-    val minResult = textMeasurer.measure(
+    val minResult = with(density) {
+        textMeasurer.measure(
         AnnotatedString("\n\n"),
         style = LocalTextStyle.current
-    ).size.height.pxToDpFloat().dp
+        ).size.height.toDp()
+    }
 
-    val maxResult = textMeasurer.measure(
+    val maxResult = with(density) {
+        textMeasurer.measure(
         AnnotatedString("\n\n\n\n\n"),
         style = LocalTextStyle.current
-    ).size.height.pxToDpFloat().dp
+        ).size.height.toDp()
+    }
 
     LaunchedEffect(closingPanel, imeAnimationEnd) {
         if (closingPanel) {
@@ -480,7 +487,7 @@ internal fun ReplyPageContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(id = R.string.title_reply),
+                text = stringResource(id = CoreUiR.string.title_reply),
                 modifier = Modifier.weight(1f),
                 fontWeight = FontWeight.Bold
             )
@@ -835,7 +842,7 @@ private fun EmoticonPanel(
                         )
                     ),
                     contentDescription = stringResource(
-                        id = R.string.emoticon,
+                        id = CoreUiR.string.emoticon,
                         emoticon.name
                     ),
                     contentScale = ContentScale.Fit,

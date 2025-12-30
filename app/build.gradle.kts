@@ -314,7 +314,7 @@ dependencies {
     implementation(libs.org.jetbrains.annotations)
 
     implementation(libs.kotlin.stdlib)
-    implementation(libs.kotlin.reflect)
+    debugImplementation(libs.kotlin.reflect)
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)

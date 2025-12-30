@@ -88,7 +88,7 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TA
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.menuBackground
 import com.huanchengfly.tieba.post.ui.page.AppNavGraphs
 import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.LoginPageDestination
+import com.huanchengfly.tieba.post.ui.page.login.destinations.LoginPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.photoview.PhotoViewActivity
 import com.huanchengfly.tieba.core.ui.R as CoreUiR

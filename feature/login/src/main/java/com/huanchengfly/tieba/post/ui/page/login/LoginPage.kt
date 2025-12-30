@@ -39,14 +39,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
+import com.huanchengfly.tieba.feature.login.R
 import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.topBarSubtitleColor
-import com.huanchengfly.tieba.post.ui.page.webview.MyWebChromeClient
-import com.huanchengfly.tieba.post.ui.page.webview.MyWebViewClient
-import com.huanchengfly.tieba.post.ui.page.webview.isInternalHost
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
@@ -55,6 +51,8 @@ import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.widgets.compose.WebView
+import com.huanchengfly.tieba.core.ui.widgets.compose.AccompanistWebChromeClient
+import com.huanchengfly.tieba.core.ui.widgets.compose.AccompanistWebViewClient
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberSaveableWebViewState
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberWebViewNavigator
@@ -65,7 +63,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filter
@@ -76,6 +73,19 @@ import kotlinx.coroutines.launch
 const val LOGIN_URL =
     "https://wappass.baidu.com/passport?login&u=https%3A%2F%2Ftieba.baidu.com%2Findex%2Ftbwise%2Fmine"
 
+private fun isTiebaHost(host: String): Boolean {
+    return host == "wapp.baidu.com" ||
+        host.contains("tieba.baidu.com") ||
+        host == "tiebac.baidu.com"
+}
+
+private fun isInternalHost(host: String): Boolean {
+    return isTiebaHost(host) ||
+        host.contains("wappass.baidu.com") ||
+        host.contains("ufosdk.baidu.com") ||
+        host.contains("m.help.baidu.com")
+}
+
 @SuppressLint("SetJavaScriptEnabled")
 @Destination
 @Composable
@@ -84,7 +94,6 @@ fun LoginPage(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val globalEventBus = LocalGlobalEventBus.current
     val webViewState = rememberSaveableWebViewState()
     val webViewNavigator = rememberWebViewNavigator()
     var loaded by rememberSaveable {
@@ -226,7 +235,7 @@ fun LoginPage(
                         displayZoomControls = false
                     }
                 },
-                client = remember(navigator) {
+                client = remember {
                     LoginWebViewClient(
                         context,
                         navigator,
@@ -234,9 +243,7 @@ fun LoginPage(
                         snackbarHostState
                     )
                 },
-                chromeClient = remember(globalEventBus) {
-                    MyWebChromeClient(context, coroutineScope, globalEventBus)
-                }
+                chromeClient = remember { AccompanistWebChromeClient() }
             )
 
             if (isLoading) {
@@ -250,14 +257,12 @@ fun LoginPage(
 }
 
 class LoginWebViewClient(
-    context: Context,
+    private val context: Context,
     private val nativeNavigator: DestinationsNavigator? = null,
     val coroutineScope: CoroutineScope,
     val snackbarHostState: SnackbarHostState,
-) : MyWebViewClient(appContext = context.applicationContext) {
+) : AccompanistWebViewClient() {
     private var isLoadingAccount = false
-
-    override fun injectCookies(url: String) {}
 
     override fun onPageFinished(view: WebView, url: String?) {
         super.onPageFinished(view, url)

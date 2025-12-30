@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page
 
 import com.huanchengfly.tieba.post.ui.page.history.historyDestinations
+import com.huanchengfly.tieba.post.ui.page.login.loginDestinations
 import com.huanchengfly.tieba.post.ui.page.main.notifications.homeDestinations
 import com.huanchengfly.tieba.post.ui.page.settings.settingsDestinations
 import com.huanchengfly.tieba.post.ui.page.threadcollect.threadcollectDestinations
@@ -16,6 +17,7 @@ object AppNavGraphs {
         webviewDestinations,
         homeDestinations,
         settingsDestinations,
+        loginDestinations,
     ).flatten()
 
     val root: NavGraphSpec = object : NavGraphSpec {

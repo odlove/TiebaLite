@@ -235,6 +235,7 @@ dependencies {
     implementation(project(":feature:threadcollect"))
     implementation(project(":feature:history"))
     implementation(project(":feature:settings"))
+    implementation(project(":feature:login"))
 
     //Local Files
 //    implementation fileTree(include: ["*.jar"], dir: "libs")

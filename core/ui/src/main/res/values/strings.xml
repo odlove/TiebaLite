@@ -69,7 +69,11 @@
     <string name="tip_thread_collect_update">更新到 %1$s 楼</string>
     <string name="message_collect_thread_update">贴子更新到了第 %d 楼</string>
     <string name="tip_thread_collect_deleted">该贴已被删除</string>
+    <string name="toast_copy_success">已复制到剪贴板</string>
+    <string name="tip_permission_storage">用于保存、上传图片，更换头像。</string>
     <string name="tip_permission_storage_download">用于下载文件</string>
+    <string name="toast_no_permission_save_photo">未授予「存储空间」权限，无法保存图片</string>
+    <string name="toast_photo_saved">图片保存在 %1$s</string>
     <string name="title_at_me">提到我的</string>
     <string name="text_message_list_item_reply_my_thread">回复我的主题：%1$s</string>
     <string name="title_reply_me">回复我的</string>

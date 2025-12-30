@@ -7,8 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.PersistableBundle
-import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.toastShort
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 
 object TiebaUtil {
     private fun ClipData.setIsSensitive(isSensitive: Boolean): ClipData = apply {
@@ -24,7 +24,7 @@ object TiebaUtil {
     fun copyText(
         context: Context,
         text: String?,
-        toast: String = context.getString(R.string.toast_copy_success),
+        toast: String = context.getString(CoreUiR.string.toast_copy_success),
         isSensitive: Boolean = false
     ) {
         val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

@@ -33,10 +33,9 @@ import com.github.panpf.sketch.request.enqueue
 import com.github.panpf.sketch.request.execute
 import com.github.panpf.sketch.transform.CircleCropTransformation
 import com.github.panpf.sketch.transform.RoundedCornersTransformation
-import com.huanchengfly.tieba.post.App.Companion.INSTANCE
-import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.post.dpToPxFloat
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.utils.PermissionUtils.PermissionData
 import com.huanchengfly.tieba.post.utils.PermissionUtils.askPermission
@@ -307,9 +306,9 @@ object ImageUtil {
                     PermissionUtils.READ_EXTERNAL_STORAGE,
                     PermissionUtils.WRITE_EXTERNAL_STORAGE
                 ),
-                context.getString(R.string.tip_permission_storage)
+                context.getString(CoreUiR.string.tip_permission_storage)
             ),
-            R.string.toast_no_permission_save_photo
+            CoreUiR.string.toast_no_permission_save_photo
         ) {
             downloadBelowQ(context, url)
         }
@@ -355,7 +354,7 @@ object ImageUtil {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(
                                 context,
-                                context.getString(R.string.toast_photo_saved, relativePath),
+                                context.getString(CoreUiR.string.toast_photo_saved, relativePath),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -403,7 +402,7 @@ object ImageUtil {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(
                                 context,
-                                context.getString(R.string.toast_photo_saved, destFile.path),
+                                context.getString(CoreUiR.string.toast_photo_saved, destFile.path),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -455,7 +454,7 @@ object ImageUtil {
     fun getPlaceHolder(context: Context, radius: Int): Drawable {
         val drawable = GradientDrawable()
         val colorResId =
-            if (isNightTheme()) R.color.color_place_holder_night else R.color.color_place_holder
+            if (isNightTheme(context)) CoreUiR.color.color_place_holder_night else CoreUiR.color.color_place_holder
         val color = ContextCompat.getColor(context, colorResId)
         drawable.setColor(color)
         drawable.cornerRadius =
@@ -466,7 +465,7 @@ object ImageUtil {
     fun getPlaceHolder(context: Context, radius: Float): Drawable {
         val drawable = GradientDrawable()
         val colorResId =
-            if (isNightTheme()) R.color.color_place_holder_night else R.color.color_place_holder
+            if (isNightTheme(context)) CoreUiR.color.color_place_holder_night else CoreUiR.color.color_place_holder
         val color = ContextCompat.getColor(context, colorResId)
         drawable.setColor(color)
         drawable.cornerRadius = radius.dpToPxFloat()
@@ -481,10 +480,10 @@ object ImageUtil {
         skipNetworkCheck: Boolean,
         noTransition: Boolean,
     ) {
-        if (!Util.canLoadGlide(imageView.context)) {
+        if (!canLoadImage(imageView.context)) {
             return
         }
-        if (isNightTheme()) {
+        if (isNightTheme(imageView.context)) {
             changeBrightness(imageView, -35)
         } else {
             imageView.clearColorFilter()
@@ -493,14 +492,14 @@ object ImageUtil {
         val requestBuilder =
             if (skipNetworkCheck ||
                 type == LOAD_TYPE_AVATAR ||
-                imageLoadSettings == SETTINGS_ALL_ORIGIN ||
-                imageLoadSettings == SETTINGS_SMART_ORIGIN ||
-                (imageLoadSettings == SETTINGS_SMART_LOAD && NetworkUtil.isWifiConnected(imageView.context))
+                imageLoadSettings(imageView.context) == SETTINGS_ALL_ORIGIN ||
+                imageLoadSettings(imageView.context) == SETTINGS_SMART_ORIGIN ||
+                (imageLoadSettings(imageView.context) == SETTINGS_SMART_LOAD && NetworkUtil.isWifiConnected(imageView.context))
             ) {
-                imageView.setTag(R.id.image_load_tag, true)
+                imageView.setTag(CoreUiR.id.image_load_tag, true)
                 DisplayRequest.Builder(imageView.context, url)
             } else {
-                imageView.setTag(R.id.image_load_tag, false)
+                imageView.setTag(CoreUiR.id.image_load_tag, false)
                 DisplayRequest.Builder(imageView.context, url).depth(Depth.LOCAL)
             }
         when (type) {
@@ -562,17 +561,25 @@ object ImageUtil {
     }
 
     private fun needReverse(context: Context): Boolean {
-        return if (imageLoadSettings == SETTINGS_SMART_ORIGIN &&
+        return if (imageLoadSettings(context) == SETTINGS_SMART_ORIGIN &&
             NetworkUtil.isWifiConnected(context)
         ) false
-        else imageLoadSettings != SETTINGS_ALL_ORIGIN
+        else imageLoadSettings(context) != SETTINGS_ALL_ORIGIN
     }
 
-    @get:ImageLoadSettings
-    private val imageLoadSettings: Int
-        get() = INSTANCE.appPreferences.imageLoadType?.toInt() ?: SETTINGS_SMART_ORIGIN
+    @ImageLoadSettings
+    private fun imageLoadSettings(context: Context): Int =
+        context.appPreferences.imageLoadType?.toInt() ?: SETTINGS_SMART_ORIGIN
 
-    private fun isNightTheme(): Boolean = ThemeColorResolver.state(INSTANCE).isNightMode
+    private fun isNightTheme(context: Context): Boolean = ThemeColorResolver.state(context).isNightMode
+
+    private fun canLoadImage(context: Context): Boolean {
+        return if (context is android.app.Activity) {
+            !context.isDestroyed
+        } else {
+            true
+        }
+    }
 
     fun imageToBase64(inputStream: InputStream?): String? {
         if (inputStream == null) {

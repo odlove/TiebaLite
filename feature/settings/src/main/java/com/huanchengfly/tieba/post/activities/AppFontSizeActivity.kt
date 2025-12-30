@@ -31,11 +31,9 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ThemeScaffold
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
-import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.settings.R
 import com.huanchengfly.tieba.post.arch.BaseComposeActivity
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
-import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.roundToInt
@@ -188,8 +186,12 @@ class AppFontSizeActivity : BaseComposeActivity() {
     override fun finish() {
         if (!finished && oldFontSize != appPreferences.fontScale) {
             finished = true
-            toastShort(R.string.toast_after_change_will_restart)
-            App.INSTANCE.removeAllActivity()
+            android.widget.Toast.makeText(
+                this,
+                getString(R.string.toast_after_change_will_restart),
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+            exitApplication()
             packageManager.getLaunchIntentForPackage(packageName)?.let {
                 startActivity(it)
             }

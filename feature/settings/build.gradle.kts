@@ -26,6 +26,7 @@ android {
 
     buildFeatures {
         compose = true
+        viewBinding = true
         buildConfig = false
     }
 }
@@ -34,6 +35,7 @@ dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:mvi"))
     implementation(project(":core:network"))
+    implementation(project(":core:runtime"))
     implementation(project(":core:ui"))
     implementation(project(":data:repository"))
 
@@ -52,10 +54,16 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
 
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.palette)
     implementation(libs.org.litepal.android.kotlin)
     implementation(libs.accompanist.drawablepainter)
     implementation(libs.eygraber.placeholder.material)
+    implementation(libs.com.gyf.immersionbar.immersionbar)
+    implementation(libs.google.material)
+    implementation(libs.com.jaredrummler.colorpicker)
     implementation(libs.godaddy.color.picker)
+    implementation(libs.com.github.yalantis.ucrop)
+    implementation(libs.systemuibars.tweaker)
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.google.gson)
     implementation(libs.sketch.core)

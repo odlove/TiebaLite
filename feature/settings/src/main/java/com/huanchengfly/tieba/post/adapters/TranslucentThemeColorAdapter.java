@@ -11,7 +11,7 @@ import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
-import com.huanchengfly.tieba.post.R;
+import com.huanchengfly.tieba.feature.settings.R;
 import com.huanchengfly.tieba.post.components.MyViewHolder;
 import com.huanchengfly.tieba.post.interfaces.OnItemClickListener;
 

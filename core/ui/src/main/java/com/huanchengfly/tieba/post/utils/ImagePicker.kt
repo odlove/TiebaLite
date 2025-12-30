@@ -12,8 +12,8 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AppCompatActivity
 import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
 import com.huanchengfly.tieba.core.mvi.MediaSelectorType
-import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
+import com.huanchengfly.tieba.core.ui.R
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
 import com.zhihu.matisse.engine.impl.GlideEngine

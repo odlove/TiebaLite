@@ -1,0 +1,3 @@
+<resources>
+    <dimen name="app_bar_elevation">0dp</dimen>
+</resources>

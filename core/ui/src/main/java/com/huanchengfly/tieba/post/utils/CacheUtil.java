@@ -21,8 +21,8 @@ public final class CacheUtil {
         File cacheFile = new File(cacheDir, MD5Util.toMd5(tClass.getName() + "_" + cacheId));
         if (cacheFile.exists()) {
             try {
-                return GsonUtil.getGson().fromJson(base64Decode(FileUtil.readFile(cacheFile)), tClass);
-            } catch (JsonSyntaxException e) {
+                return GsonUtil.getGson().fromJson(base64Decode(readFile(cacheFile)), tClass);
+            } catch (JsonSyntaxException | IOException e) {
                 e.printStackTrace();
             }
         }
@@ -35,7 +35,7 @@ public final class CacheUtil {
         try {
             if (cacheFile.exists() || cacheFile.createNewFile()) {
                 try {
-                    FileUtil.writeFile(cacheFile, base64Encode(GsonUtil.getGson().toJson(object)), false);
+                    writeFile(cacheFile, base64Encode(GsonUtil.getGson().toJson(object)), false);
                 } catch (JsonSyntaxException e) {
                     e.printStackTrace();
                 }
@@ -51,5 +51,24 @@ public final class CacheUtil {
 
     public static String base64Decode(String s) {
         return new String(Base64.decode(s.getBytes(StandardCharsets.UTF_8), Base64.DEFAULT), StandardCharsets.UTF_8);
+    }
+
+    private static String readFile(File file) throws IOException {
+        try (java.io.FileInputStream inputStream = new java.io.FileInputStream(file);
+             java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream()) {
+            byte[] buffer = new byte[1024];
+            int count;
+            while ((count = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, count);
+            }
+            return outputStream.toString(StandardCharsets.UTF_8.name());
+        }
+    }
+
+    private static void writeFile(File file, String content, boolean append) throws IOException {
+        try (java.io.FileOutputStream outputStream = new java.io.FileOutputStream(file, append)) {
+            outputStream.write(content.getBytes(StandardCharsets.UTF_8));
+            outputStream.flush();
+        }
     }
 }

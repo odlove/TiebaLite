@@ -1,28 +1,29 @@
 package com.huanchengfly.tieba.post.activities
 
 import android.annotation.SuppressLint
+import android.animation.LayoutTransition
 import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.PixelFormat
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.annotation.ColorInt
+import androidx.annotation.StringRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.github.panpf.sketch.request.DisplayRequest
 import com.github.panpf.sketch.request.DisplayResult
 import com.github.panpf.sketch.request.LoadRequest
@@ -33,22 +34,27 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.gyf.immersionbar.ImmersionBar
 import com.huanchengfly.tieba.core.common.theme.PersistedTranslucentThemeConfig
 import com.huanchengfly.tieba.core.common.theme.ThemeChannel
-import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
+import com.huanchengfly.tieba.core.common.wallpaper.WallpaperRepository
 import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsRegistry
-import com.huanchengfly.tieba.post.*
+import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
+import com.huanchengfly.tieba.core.ui.window.dpToPx
+import com.huanchengfly.tieba.feature.settings.R
+import com.huanchengfly.tieba.feature.settings.databinding.ActivityTranslucentThemeBinding
 import com.huanchengfly.tieba.post.adapters.TranslucentThemeColorAdapter
 import com.huanchengfly.tieba.post.adapters.WallpaperAdapter
-import com.huanchengfly.tieba.core.common.wallpaper.WallpaperRepository
 import com.huanchengfly.tieba.post.di.entrypoints.WallpaperRepositoryEntryPoint
 import com.huanchengfly.tieba.post.components.MyLinearLayoutManager
 import com.huanchengfly.tieba.post.components.dividers.HorizontalSpacesDecoration
 import com.huanchengfly.tieba.post.components.transformations.SketchBlurTransformation
-import com.huanchengfly.tieba.post.databinding.ActivityTranslucentThemeBinding
 import com.huanchengfly.tieba.post.interfaces.OnItemClickListener
-import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
-import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeUiDelegate
-import com.huanchengfly.tieba.core.ui.widgets.theme.TintMaterialButton
-import com.huanchengfly.tieba.post.utils.*
+import com.huanchengfly.tieba.post.utils.CacheUtil
+import com.huanchengfly.tieba.post.utils.ImageCacheUtil
+import com.huanchengfly.tieba.post.utils.PermissionUtils
+import com.huanchengfly.tieba.post.utils.PickMediasRequest
+import com.huanchengfly.tieba.post.utils.registerPickMediasLauncher
+import com.huanchengfly.tieba.post.utils.requestPermission
+import com.huanchengfly.tieba.post.utils.shouldUsePhotoPicker
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import com.yalantis.ucrop.UCrop
@@ -56,6 +62,9 @@ import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
 
 class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBarChangeListener,
     ColorPickerDialogListener {
@@ -151,7 +160,7 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
             if (result is LoadResult.Success) {
                 binding.progress.visibility = View.GONE
                 val file =
-                    ImageUtil.bitmapToFile(result.bitmap, File(cacheDir, "origin_background.jpg"))
+                    bitmapToFile(result.bitmap, File(cacheDir, "origin_background.jpg"))
                 val sourceFileUri = Uri.fromFile(file)
                 val destUri = Uri.fromFile(File(filesDir, "cropped_background.jpg"))
                 val metrics = ScreenMetricsRegistry.current
@@ -225,7 +234,7 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
             if (result is DisplayResult.Success) {
                 result.drawable.alpha = alpha
                 binding.background.background = result.drawable
-                mPalette = Palette.from(ImageUtil.drawableToBitmap(result.drawable)).generate()
+                mPalette = Palette.from(drawableToBitmap(result.drawable)).generate()
                 mTranslucentThemeColorAdapter.setPalette(mPalette)
                 binding.selectColor.visibility = View.VISIBLE
                 binding.progress.visibility = View.GONE
@@ -275,7 +284,9 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
         }
         wallpapers =
             CacheUtil.getCache(this, "recommend_wallpapers", List::class.java) as List<String>?
-        binding.colorTheme.enableChangingLayoutTransition()
+        binding.colorTheme.layoutTransition = LayoutTransition().apply {
+            enableTransitionType(LayoutTransition.CHANGING)
+        }
         wallpaperAdapter.setOnItemClickListener { _, item, _ ->
             launchUCrop(Uri.parse(item))
         }
@@ -283,8 +294,8 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
             HorizontalSpacesDecoration(
                 0,
                 0,
-                16.dpToPx(),
-                16.dpToPx(),
+                dpToPxInt(16),
+                dpToPxInt(16),
                 false
             )
         )
@@ -297,7 +308,7 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
                 binding.mask.post { themeUiDelegate.invalidateDecorView(this) }
             }
         binding.selectColorRecyclerView.apply {
-            addItemDecoration(HorizontalSpacesDecoration(0, 0, 12.dpToPx(), 12.dpToPx(), false))
+            addItemDecoration(HorizontalSpacesDecoration(0, 0, dpToPxInt(12), dpToPxInt(12), false))
             layoutManager = MyLinearLayoutManager(
                 this@TranslucentThemeActivity,
                 MyLinearLayoutManager.HORIZONTAL,
@@ -387,8 +398,8 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
             }.execute()
             if (result is DisplayResult.Success) {
                 result.drawable.alpha = alpha
-                val bitmap = ImageUtil.drawableToBitmap(result.drawable)
-                val file = ImageUtil.compressImage(
+                val bitmap = drawableToBitmap(result.drawable)
+                val file = compressImage(
                     bitmap,
                     File(filesDir, "background_${System.currentTimeMillis()}.jpg"),
                     maxSizeKb = 512,
@@ -549,6 +560,75 @@ class TranslucentThemeActivity : BaseActivity(), View.OnClickListener, OnSeekBar
             onGranted = granted
             onDenied = { toastShort(R.string.toast_no_permission_insert_photo) }
         }
+    }
+
+    private fun dpToPxInt(value: Int): Int = dpToPx(value.toFloat()).toInt()
+
+    private fun toastShort(@StringRes resId: Int) {
+        android.widget.Toast.makeText(this, getString(resId), android.widget.Toast.LENGTH_SHORT).show()
+    }
+
+    private fun drawableToBitmap(drawable: Drawable): Bitmap {
+        val bitmap = Bitmap.createBitmap(
+            drawable.intrinsicWidth,
+            drawable.intrinsicHeight,
+            if (drawable.opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
+        )
+        val canvas = android.graphics.Canvas(bitmap)
+        drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+        drawable.draw(canvas)
+        return bitmap
+    }
+
+    private fun bitmapToFile(
+        bitmap: Bitmap,
+        output: File,
+        format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
+    ): File {
+        val baos = java.io.ByteArrayOutputStream()
+        bitmap.compress(format, 100, baos)
+        try {
+            val fos = FileOutputStream(output)
+            try {
+                fos.write(baos.toByteArray())
+                fos.flush()
+                fos.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        }
+        return output
+    }
+
+    private fun compressImage(
+        bitmap: Bitmap,
+        output: File,
+        maxSizeKb: Int = 100,
+        initialQuality: Int = 100
+    ): File {
+        val baos = java.io.ByteArrayOutputStream()
+        var quality = initialQuality
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, baos)
+        while (baos.toByteArray().size / 1024 > maxSizeKb && quality > 0) {
+            baos.reset()
+            quality -= 5
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, baos)
+        }
+        try {
+            val fos = FileOutputStream(output)
+            try {
+                fos.write(baos.toByteArray())
+                fos.flush()
+                fos.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        }
+        return output
     }
 
     interface SavePicCallback<T> {

@@ -71,11 +71,6 @@
                 android:value="oksign" />
         </service>
 
-        <activity
-            android:name=".activities.AppFontSizeActivity"
-            android:configChanges="screenSize|screenLayout|orientation|smallestScreenSize|keyboardHidden"
-            android:label="@string/title_custom_font_size"
-            android:windowSoftInputMode="adjustResize" />
         <receiver
             android:name=".receivers.BootCompleteSignReceiver"
             android:enabled="true"
@@ -326,10 +321,6 @@
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <activity
-            android:name=".activities.TranslucentThemeActivity"
-            android:configChanges="screenSize|screenLayout|orientation|smallestScreenSize|keyboardHidden"
-            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"

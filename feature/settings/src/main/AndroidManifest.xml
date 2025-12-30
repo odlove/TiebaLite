@@ -1,2 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.huanchengfly.tieba.feature.settings" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.huanchengfly.tieba.feature.settings">
+    <application>
+        <activity
+            android:name="com.huanchengfly.tieba.post.activities.AppFontSizeActivity"
+            android:configChanges="screenSize|screenLayout|orientation|smallestScreenSize|keyboardHidden"
+            android:label="@string/title_custom_font_size" />
+
+        <activity
+            android:name="com.huanchengfly.tieba.post.activities.TranslucentThemeActivity"
+            android:configChanges="screenSize|screenLayout|orientation|smallestScreenSize|keyboardHidden"
+            android:windowSoftInputMode="adjustResize" />
+    </application>
+</manifest>

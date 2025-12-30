@@ -14,21 +14,22 @@ import com.github.panpf.sketch.decode.HeifAnimatedDrawableDecoder
 import com.github.panpf.sketch.decode.WebpAnimatedDrawableDecoder
 import com.github.panpf.sketch.http.OkHttpStack
 import com.github.panpf.sketch.request.PauseLoadWhenScrollingDrawableDecodeInterceptor
-import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.core.runtime.RuntimeInitializer
+import com.huanchengfly.tieba.core.runtime.app.ActivityCollector
 import com.microsoft.appcenter.distribute.Distribute
 import com.microsoft.appcenter.distribute.DistributeListener
 import com.microsoft.appcenter.distribute.ReleaseDetails
 import com.microsoft.appcenter.distribute.UpdateAction
 import com.huanchengfly.tieba.post.utils.SharedPreferencesUtil
 import com.huanchengfly.tieba.post.preferences.appPreferences
+import com.huanchengfly.tieba.post.activities.BaseActivity
 import dagger.hilt.android.HiltAndroidApp
 import net.swiftzer.semver.SemVer
 import javax.inject.Inject
 
 
 @HiltAndroidApp
-class App : Application(), SketchFactory {
+class App : Application(), SketchFactory, ActivityCollector {
     private val mActivityList: MutableList<Activity> = mutableListOf()
 
     @Inject
@@ -60,7 +61,7 @@ class App : Application(), SketchFactory {
     /**
      * 添加Activity
      */
-    fun addActivity(activity: Activity) {
+    override fun addActivity(activity: Activity) {
         // 判断当前集合中不存在该Activity
         if (!mActivityList.contains(activity)) {
             mActivityList.add(activity) //把当前Activity添加到集合中
@@ -71,7 +72,7 @@ class App : Application(), SketchFactory {
      * 销毁单个Activity
      */
     @JvmOverloads
-    fun removeActivity(activity: Activity, finish: Boolean = false) {
+    override fun removeActivity(activity: Activity, finish: Boolean) {
         //判断当前集合中存在该Activity
         if (mActivityList.contains(activity)) {
             mActivityList.remove(activity) //从集合中移除
@@ -82,7 +83,7 @@ class App : Application(), SketchFactory {
     /**
      * 销毁所有的Activity
      */
-    fun removeAllActivity() {
+    override fun removeAllActivity() {
         //通过循环，把集合中的所有Activity销毁
         for (activity in mActivityList) {
             activity.finish()

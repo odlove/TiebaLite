@@ -26,14 +26,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.gyf.immersionbar.ImmersionBar
 import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
+import com.huanchengfly.tieba.core.runtime.app.ActivityCollector
 import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsManager
 import com.huanchengfly.tieba.core.ui.theme.ExtraRefreshable
 import com.huanchengfly.tieba.core.ui.theme.ThemeController
 import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.core.ui.theme.data.ThemeRepository
-import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.App.Companion.INSTANCE
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
+import com.huanchengfly.tieba.core.ui.R
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeActivityHost
 import com.huanchengfly.tieba.core.ui.theme.runtime.entrypoints.ThemeRuntimeEntryPoint
 import com.huanchengfly.tieba.post.di.entrypoints.ThemeUiDelegateEntryPoint
@@ -41,10 +41,11 @@ import com.huanchengfly.tieba.post.di.entrypoints.ScreenMetricsEntryPoint
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeUiDelegate
 import com.huanchengfly.tieba.core.ui.widgets.voice.VoicePlayerManager
 import com.huanchengfly.tieba.core.ui.widgets.theme.TintToolbar
-import com.huanchengfly.tieba.post.utils.DialogUtil
 import com.huanchengfly.tieba.post.utils.HandleBackUtil
 import com.huanchengfly.tieba.post.preferences.appPreferences
-import com.huanchengfly.tieba.post.utils.calcStatusBarColorInt
+import com.huanchengfly.tieba.post.dataStore
+import com.huanchengfly.tieba.post.getBoolean
+import com.huanchengfly.tieba.post.utils.ColorUtils
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -67,6 +68,7 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     private var statusBarTinted = false
 
     val appPreferences: AppPreferencesDataSource by lazy { applicationContext.appPreferences }
+    private val activityCollector: ActivityCollector? by lazy { applicationContext as? ActivityCollector }
 
     private val themeRuntimeEntryPoint: ThemeRuntimeEntryPoint by lazy {
         EntryPointAccessors.fromApplication(
@@ -131,9 +133,7 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     }
 
     fun showDialog(builder: AlertDialog.Builder.() -> Unit): AlertDialog {
-        val dialog = DialogUtil.build(this)
-            .apply(builder)
-            .create()
+        val dialog = AlertDialog.Builder(this).apply(builder).create()
         if (isActivityRunning) {
             dialog.show()
         }
@@ -163,7 +163,7 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
         super.onCreate(savedInstanceState)
         if (isNeedFixBg) fixBackground()
         getDeviceDensity()
-        INSTANCE.addActivity(this)
+        activityCollector?.addActivity(this)
         if (isNeedSetTheme) themeUiDelegate.applyTheme(this)
         oldTheme = currentRawTheme()
         if (isNeedImmersionBar) {
@@ -225,9 +225,9 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
         isActivityRunning = true
         if (themeRepository.currentSettings().followSystemNight) {
             val themeState = themeController.themeState.value
-            if (App.isSystemNight && !themeState.isNightMode) {
+            if (isSystemNight() && !themeState.isNightMode) {
                 themeController.toggleNightMode()
-            } else if (!App.isSystemNight && themeState.isNightMode) {
+            } else if (!isSystemNight() && themeState.isNightMode) {
                 themeController.toggleNightMode()
             }
         }
@@ -236,12 +236,12 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
 
     override fun onDestroy() {
         super.onDestroy()
-        INSTANCE.removeActivity(this)
+        activityCollector?.removeActivity(this)
         job.cancel()
     }
 
     fun exitApplication() {
-        INSTANCE.removeAllActivity()
+        activityCollector?.removeAllActivity()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -318,7 +318,6 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
                 } else {
                     statusBarColorInt(
                         calcStatusBarColorInt(
-                            this@BaseActivity,
                             themeUiDelegate.themeColor(this@BaseActivity, R.attr.colorToolbar)
                         )
                     )
@@ -400,6 +399,25 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
     private fun applyTranslucentBackgroundIfNeeded() {
         val target = translucentBackgroundTargetView() ?: return
         themeUiDelegate.setTranslucentThemeBackground(this, target)
+    }
+
+    private fun isSystemNight(): Boolean {
+        val nightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        return nightMode == Configuration.UI_MODE_NIGHT_YES
+    }
+
+    private fun calcStatusBarColorInt(@ColorInt originColor: Int): Int {
+        var darkerStatusBar = true
+        val context = this
+        val isToolbarPrimaryColor =
+            context.dataStore.getBoolean(ThemeTokens.KEY_CUSTOM_TOOLBAR_PRIMARY_COLOR, false)
+        val themeState = ThemeColorResolver.state(context)
+        if (!themeState.isTranslucent && !themeState.isNightMode && !isToolbarPrimaryColor) {
+            darkerStatusBar = false
+        } else if (!context.dataStore.getBoolean("status_bar_darker", true)) {
+            darkerStatusBar = false
+        }
+        return if (darkerStatusBar) ColorUtils.getDarkerColor(originColor) else originColor
     }
 
     protected open fun translucentBackgroundTargetView(): View? =

@@ -7,7 +7,6 @@ import com.huanchengfly.tieba.core.runtime.clipboard.ClipboardContent
 import com.huanchengfly.tieba.core.runtime.clipboard.ClipboardPreviewHandler
 import com.huanchengfly.tieba.core.runtime.preview.PreviewInfo
 import com.huanchengfly.tieba.core.runtime.preview.QuickPreviewService
-import com.huanchengfly.tieba.post.MainActivityV2
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Job
@@ -38,11 +37,6 @@ class ClipBoardLinkDetector @Inject constructor(
         if (content == null) {
             clearPreview()
             return true
-        }
-
-        if (activity !is MainActivityV2) {
-            clearPreview()
-            return false
         }
 
         previewJob?.cancel()

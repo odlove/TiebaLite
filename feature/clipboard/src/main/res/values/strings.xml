@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_forum">%1$s吧</string>
+    <string name="subtitle_quick_preview_thread">来自%1$s吧，共 %2$s 条回复</string>
+    <string name="subtitle_link">网页链接</string>
+</resources>

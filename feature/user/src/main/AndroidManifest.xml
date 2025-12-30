@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <activity
+            android:name="com.huanchengfly.tieba.post.ui.page.user.edit.EditProfileActivity"
+            android:configChanges="screenSize|screenLayout|orientation|smallestScreenSize|keyboardHidden"
+            android:label="@string/title_activity_edit_profile"
+            android:windowSoftInputMode="adjustResize" />
+    </application>
+</manifest>

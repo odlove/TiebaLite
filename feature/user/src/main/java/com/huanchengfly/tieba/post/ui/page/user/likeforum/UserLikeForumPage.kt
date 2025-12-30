@@ -33,8 +33,7 @@ import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
-import com.huanchengfly.tieba.post.ui.page.forum.destinations.ForumPageDestination
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.core.ui.compose.Container
 import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
@@ -54,7 +53,7 @@ fun UserLikeForumPage(
     enablePullRefresh: Boolean = false,
     viewModel: UserLikeForumViewModel = pageViewModel(),
 ) {
-    val navigator = LocalNavigator.current
+    val homeNavigation = LocalHomeNavigation.current
 
     LazyLoad(loaded = viewModel.initialized) {
         viewModel.send(UserLikeForumUiIntent.Refresh(uid))
@@ -132,7 +131,7 @@ fun UserLikeForumPage(
                     fluid = fluid,
                     onClickForum = { forumBean ->
                         if (forumBean.name.isNotEmpty()) {
-                            navigator.navigate(ForumPageDestination(forumBean.name))
+                            homeNavigation.openForum(forumBean.name)
                         }
                     },
                     lazyListState = lazyListState

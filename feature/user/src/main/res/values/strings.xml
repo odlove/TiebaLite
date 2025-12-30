@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="toast_like_failed">关注失败 %s</string>
+    <string name="toast_unlike_failed">取消关注失败 %1$s</string>
+    <string name="toast_add_success">添加成功</string>
+    <string name="toast_agree_failed">点赞失败 %1$s</string>
+    <string name="toast_success">成功</string>
+    <string name="toast_copy_success">已复制到剪贴板</string>
+    <string name="toast_no_permission_upload_portrait">未授予「存储空间」权限，无法上传头像</string>
+    <string name="toast_intro_length_beyond_restrict">你输入的字数超出限制</string>
+
+    <string name="menu_add_user_to_black_list">添加到黑名单</string>
+    <string name="menu_add_user_to_white_list">添加到白名单</string>
+    <string name="menu_edit_info">编辑资料</string>
+
+    <string name="btn_block">屏蔽选项</string>
+    <string name="button_follow">关注</string>
+    <string name="button_save_profile">保存修改</string>
+
+    <string name="title_activity_edit_profile">编辑资料</string>
+    <string name="title_username">用户名</string>
+    <string name="title_nickname">昵称</string>
+    <string name="title_intro">简介</string>
+    <string name="title_modify_sex">选择性别</string>
+    <string name="title_user_hide_post">该用户已隐藏动态</string>
+    <string name="title_profile_threads_tab">贴子 %s</string>
+    <string name="title_profile_posts_tab">回复 %s</string>
+    <string name="title_profile_concern_forums_tab">关注吧 %s</string>
+
+    <string name="profile_sex">性别</string>
+    <string name="profile_sex_female">女</string>
+    <string name="profile_sex_male">男</string>
+    <string name="profile_sex_unset" />
+
+    <string name="upload_portrait">上传头像</string>
+    <string name="tip_permission_storage">用于保存、上传图片，更换头像。</string>
+
+    <string name="text_stat_agrees">获赞</string>
+    <string name="text_profile_ip_location">IP 属地：%s</string>
+    <string name="text_profile_tb_age">吧龄 %s 年</string>
+    <string name="text_profile_user_id">ID: %s</string>
+    <string name="text_god_verify">%s领域大神</string>
+</resources>

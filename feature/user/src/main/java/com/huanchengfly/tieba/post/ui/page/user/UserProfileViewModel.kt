@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.user
 
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.user.R
 import com.huanchengfly.tieba.core.common.user.UserProfile
 import com.huanchengfly.tieba.core.network.error.getErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel

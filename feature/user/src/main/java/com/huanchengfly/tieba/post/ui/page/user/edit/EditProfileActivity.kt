@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.user.edit
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -8,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -69,12 +71,11 @@ import com.bumptech.glide.request.transition.Transition
 import com.github.panpf.sketch.compose.AsyncImage
 import com.eygraber.compose.placeholder.material.placeholder
 import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
-import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
+import com.huanchengfly.tieba.feature.user.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.core.common.collectIn
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
-import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ApplySystemBars
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
@@ -97,7 +98,7 @@ import com.huanchengfly.tieba.post.utils.AccountUtil
 import com.huanchengfly.tieba.post.utils.ColorUtils
 import com.huanchengfly.tieba.post.utils.PermissionUtils
 import com.huanchengfly.tieba.post.utils.PickMediasRequest
-import com.huanchengfly.tieba.post.utils.StringUtil
+import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
 import com.huanchengfly.tieba.post.utils.registerPickMediasLauncher
 import com.huanchengfly.tieba.post.utils.requestPermission
 import com.huanchengfly.tieba.post.utils.shouldUsePhotoPicker
@@ -257,6 +258,14 @@ class EditProfileActivity : BaseActivity() {
     }
 }
 
+private fun Context.toastShort(text: String) {
+    runCatching { Toast.makeText(this, text, Toast.LENGTH_SHORT).show() }
+}
+
+private fun Context.toastShort(resId: Int, vararg args: Any) {
+    toastShort(getString(resId, *args))
+}
+
 @Composable
 fun EditProfileCard(
     portrait: String,
@@ -288,7 +297,7 @@ fun EditProfileCard(
                     .placeholder(visible = loading, color = MaterialTheme.colors.surface)
             ) {
                 AsyncImage(
-                    imageUri = StringUtil.getAvatarUrl(portrait),
+                    imageUri = StringFormatUtils.getAvatarUrl(portrait),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -442,7 +451,7 @@ fun EditProfileCard(
                     maxLength = 500,
                     countWhitespace = false,
                     onLengthBeyondRestrict = { context.toastShort(R.string.toast_intro_length_beyond_restrict) },
-                    placeholder = { Text(text = stringResource(id = R.string.tip_no_intro)) },
+                    placeholder = { Text(text = stringResource(id = CoreUiR.string.tip_no_intro)) },
                     modifier = Modifier
                         .constrainAs(introContent) {
                             top.linkTo(introTitle.top)
@@ -529,7 +538,7 @@ fun PageEditProfile(
                     dialogState = dialogState,
                     title = { Text(text = stringResource(id = R.string.title_modify_sex)) },
                     buttons = {
-                        DialogNegativeButton(text = stringResource(id = R.string.button_cancel))
+                        DialogNegativeButton(text = stringResource(id = CoreUiR.string.button_cancel))
                     }
                 ) {
                     ListSinglePicker(

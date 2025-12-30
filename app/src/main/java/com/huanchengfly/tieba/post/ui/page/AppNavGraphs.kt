@@ -5,6 +5,7 @@ import com.huanchengfly.tieba.post.ui.page.hottopic.list.hottopicDestinations
 import com.huanchengfly.tieba.post.ui.page.login.loginDestinations
 import com.huanchengfly.tieba.post.ui.page.main.notifications.homeDestinations
 import com.huanchengfly.tieba.post.ui.page.forum.forumDestinations
+import com.huanchengfly.tieba.post.ui.page.user.userDestinations
 import com.huanchengfly.tieba.post.ui.page.search.searchDestinations
 import com.huanchengfly.tieba.post.ui.page.settings.settingsDestinations
 import com.huanchengfly.tieba.post.ui.page.threadcollect.threadcollectDestinations
@@ -21,6 +22,7 @@ object AppNavGraphs {
         webviewDestinations,
         homeDestinations,
         forumDestinations,
+        userDestinations,
         settingsDestinations,
         loginDestinations,
         searchDestinations,

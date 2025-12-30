@@ -1,7 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page.user.post
 
 import androidx.compose.runtime.Immutable
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.user.R
 import com.huanchengfly.tieba.core.common.user.UserPostContent
 import com.huanchengfly.tieba.core.common.user.UserPostItem
 import com.huanchengfly.tieba.core.common.user.UserPostPageResult

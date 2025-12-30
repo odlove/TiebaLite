@@ -37,7 +37,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.user.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.common.feed.OriginThreadCard
 import com.huanchengfly.tieba.core.common.feed.ThreadAuthor
@@ -50,11 +50,7 @@ import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
-import com.huanchengfly.tieba.post.ui.page.forum.destinations.ForumPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.SubPostsPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.widgets.compose.Button
 import com.huanchengfly.tieba.core.ui.compose.Container
 import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
@@ -80,7 +76,7 @@ fun UserPostPage(
     enablePullRefresh: Boolean = false,
     viewModel: UserPostViewModel = pageViewModel(key = if (isThread) "user_thread_$uid" else "user_post_$uid"),
 ) {
-    val navigator = LocalNavigator.current
+    val homeNavigation = LocalHomeNavigation.current
 
     LazyLoad(loaded = viewModel.initialized) {
         viewModel.send(UserPostUiIntent.Refresh(uid, isThread))
@@ -233,23 +229,19 @@ fun UserPostPage(
                     lazyListState = lazyListState,
                     onClickItem = { threadId, postId, isSubPost ->
                         if (postId == null) {
-                            navigator.navigate(ThreadPageDestination(threadId))
+                            homeNavigation.openThread(threadId)
                         } else {
                             if (isSubPost) {
-                                navigator.navigate(
-                                    SubPostsPageDestination(
-                                        threadId = threadId,
-                                        subPostId = postId,
-                                        loadFromSubPost = true
-                                    )
+                                homeNavigation.openSubPosts(
+                                    threadId = threadId,
+                                    subPostId = postId,
+                                    loadFromSubPost = true
                                 )
                             } else {
-                                navigator.navigate(
-                                    ThreadPageDestination(
-                                        threadId,
-                                        postId = postId,
-                                        scrollToReply = true
-                                    )
+                                homeNavigation.openThread(
+                                    threadId = threadId,
+                                    postId = postId,
+                                    scrollToReply = true
                                 )
                             }
                         }
@@ -264,22 +256,20 @@ fun UserPostPage(
                         )
                     },
                     onClickReply = {
-                        navigator.navigate(
-                            ThreadPageDestination(
-                                it.threadId,
-                                it.forumId,
-                                scrollToReply = true
-                            )
+                        homeNavigation.openThread(
+                            threadId = it.threadId,
+                            forumId = it.forumId,
+                            scrollToReply = true
                         )
                     },
                     onClickUser = {
-                        navigator.navigate(UserProfilePageDestination(it))
+                        homeNavigation.openUserProfile(it)
                     },
                     onClickForum = {
-                        navigator.navigate(ForumPageDestination(it))
+                        homeNavigation.openForum(it)
                     },
                     onClickOriginThread = {
-                        navigator.navigate(ThreadPageDestination(it))
+                        homeNavigation.openThread(it)
                     },
                 )
             }

@@ -95,7 +95,7 @@ import com.huanchengfly.tieba.post.ui.page.destinations.ReplyPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.SubPostsSheetPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.webview.destinations.WebViewPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
+import com.huanchengfly.tieba.post.ui.page.user.destinations.UserProfilePageDestination
 import com.huanchengfly.tieba.post.ui.page.thread.components.ThreadCollectMarkDialog
 import com.huanchengfly.tieba.post.ui.page.thread.components.ThreadDeleteDialog
 import com.huanchengfly.tieba.post.ui.page.thread.components.ThreadInfoHeader

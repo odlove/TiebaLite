@@ -327,12 +327,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
-        <activity
-            android:name=".ui.page.user.edit.EditProfileActivity"
-            android:configChanges="screenSize|screenLayout|orientation|smallestScreenSize|keyboardHidden"
-            android:label="@string/title_activity_edit_profile"
-            android:windowSoftInputMode="adjustResize" />
-
         <receiver android:name=".receivers.AutoSignAlarm" />
 
         <provider

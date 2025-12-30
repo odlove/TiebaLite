@@ -1,5 +1,13 @@
 package com.huanchengfly.tieba.post.ui.page.user
 
+import android.content.ClipData
+import android.content.ClipDescription
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import android.os.PersistableBundle
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -68,7 +76,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.user.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.common.user.UserProfile
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
@@ -79,9 +88,7 @@ import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.mvi.getOrNull
 import com.huanchengfly.tieba.core.ui.pageViewModel
-import com.huanchengfly.tieba.post.goToActivity
 import com.huanchengfly.tieba.post.models.database.Block
-import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabSelectedColor
@@ -111,9 +118,9 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.TextButton
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import com.huanchengfly.tieba.post.utils.BlockManager
-import com.huanchengfly.tieba.post.utils.StringUtil
 import com.huanchengfly.tieba.core.common.utils.getShortNumString
-import com.huanchengfly.tieba.post.utils.TiebaUtil
+import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
+import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.collections.immutable.ImmutableList
@@ -514,7 +521,9 @@ private fun UserProfileContentNormal(
                                         return@UserProfileDetail
                                     }
                                     if (isSelf) {
-                                        context.goToActivity<EditProfileActivity>()
+                                        context.startActivity(
+                                            Intent(context, EditProfileActivity::class.java)
+                                        )
                                     } else if (user.get { hasConcerned } == 0) {
                                         onFollow()
                                     } else {
@@ -522,10 +531,7 @@ private fun UserProfileContentNormal(
                                     }
                                 },
                                 onCopyIdClick = {
-                                    TiebaUtil.copyText(
-                                        context,
-                                        user.get { id }.toString()
-                                    )
+                                    copyText(context, user.get { id }.toString())
                                 }
                             )
                         }
@@ -659,7 +665,9 @@ private fun UserProfileContentExpanded(
                                 return@UserProfileDetail
                             }
                             if (isSelf) {
-                                context.goToActivity<EditProfileActivity>()
+                                context.startActivity(
+                                    Intent(context, EditProfileActivity::class.java)
+                                )
                             } else if (user.get { hasConcerned } == 0) {
                                 onFollow()
                             } else {
@@ -667,10 +675,7 @@ private fun UserProfileContentExpanded(
                             }
                         },
                         onCopyIdClick = {
-                            TiebaUtil.copyText(
-                                context,
-                                user.get { id }.toString()
-                            )
+                            copyText(context, user.get { id }.toString())
                         }
                     )
 
@@ -766,21 +771,25 @@ private fun ToolbarUserTitle(
     user: ImmutableHolder<UserProfile>,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    val showBoth = remember(context) {
+        context.appPreferences.showBothUsernameAndNickname
+    }
     UserHeader(
         avatar = {
             Avatar(
-                data = StringUtil.getAvatarUrl(user.get { portrait }),
+                data = StringFormatUtils.getAvatarUrl(user.get { portrait }),
                 size = Sizes.Small,
                 contentDescription = null
             )
         },
         name = {
             Text(
-                text = StringUtil.getUsernameAnnotatedString(
-                    LocalContext.current,
-                    user.get { name },
-                    user.get { nameShow },
-                    LocalContentColor.current
+                text = StringFormatUtils.formatUsernameAnnotated(
+                    showBoth = showBoth,
+                    username = user.get { name },
+                    nickname = user.get { nameShow },
+                    color = LocalContentColor.current
                 )
             )
         },
@@ -808,7 +817,7 @@ private fun UserProfileDetail(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Avatar(
-                data = StringUtil.getBigAvatarUrl(user.get { portrait }),
+                data = StringFormatUtils.getBigAvatarUrl(user.get { portrait }),
                 size = 96.dp,
                 contentDescription = null,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -840,17 +849,21 @@ private fun UserProfileDetail(
                         enabled = !disableButton,
                         border = BorderStroke(1.dp, ExtendedTheme.colors.accent.copy(alpha = 0.35f))
                     ) {
-                        Text(text = stringResource(id = R.string.button_unfollow))
+                        Text(text = stringResource(id = CoreUiR.string.button_unfollow))
                     }
                 }
             }
         }
+        val context = LocalContext.current
+        val showBoth = remember(context) {
+            context.appPreferences.showBothUsernameAndNickname
+        }
         Text(
-            text = StringUtil.getUsernameAnnotatedString(
-                LocalContext.current,
-                user.get { name },
-                user.get { nameShow },
-                LocalContentColor.current
+            text = StringFormatUtils.formatUsernameAnnotated(
+                showBoth = showBoth,
+                username = user.get { name },
+                nickname = user.get { nameShow },
+                color = LocalContentColor.current
             ),
             style = MaterialTheme.typography.h6,
             maxLines = 1,
@@ -875,7 +888,7 @@ private fun UserProfileDetail(
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
-                            text = stringResource(id = R.string.text_stat_follow),
+                            text = stringResource(id = CoreUiR.string.text_stat_follow),
                             color = ExtendedTheme.colors.textSecondary
                         )
                         Text(
@@ -890,7 +903,7 @@ private fun UserProfileDetail(
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
-                            text = stringResource(id = R.string.text_stat_fans),
+                            text = stringResource(id = CoreUiR.string.text_stat_fans),
                             color = ExtendedTheme.colors.textSecondary
                         )
                         Text(
@@ -919,7 +932,7 @@ private fun UserProfileDetail(
         }
         Text(
             text = user.get { intro }.takeIf { it.isNotEmpty() }
-                ?: stringResource(id = R.string.tip_no_intro),
+                ?: stringResource(id = CoreUiR.string.tip_no_intro),
             style = MaterialTheme.typography.body2,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -1010,4 +1023,26 @@ private fun HorizontalDivider(modifier: Modifier = Modifier) {
             .width(1.dp)
             .then(modifier)
     )
+}
+
+private fun Context.toastShort(text: String) {
+    runCatching { Toast.makeText(this, text, Toast.LENGTH_SHORT).show() }
+}
+
+private fun Context.toastShort(resId: Int, vararg args: Any) {
+    toastShort(getString(resId, *args))
+}
+
+private fun copyText(context: Context, text: String) {
+    val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clipData = ClipData.newPlainText("Tieba Lite", text)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        clipData.description.extras = PersistableBundle().apply {
+            putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, false)
+        }
+    }
+    cm.setPrimaryClip(clipData)
+    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+        context.toastShort(R.string.toast_copy_success)
+    }
 }

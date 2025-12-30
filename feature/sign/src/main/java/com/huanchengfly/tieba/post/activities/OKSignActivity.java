@@ -4,13 +4,13 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.huanchengfly.tieba.post.utils.TiebaUtil;
+import com.huanchengfly.tieba.post.sign.SignActions;
 
 public class OKSignActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TiebaUtil.startSign(this);
+        SignActions.startSign(this);
         finish();
     }
 }

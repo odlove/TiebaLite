@@ -30,6 +30,7 @@ import com.huanchengfly.tieba.post.ui.page.settings.destinations.AppThemePageDes
 import com.huanchengfly.tieba.post.ui.page.settings.destinations.SettingsPageDestination
 import com.huanchengfly.tieba.post.ui.page.webview.destinations.WebViewPageDestination
 import com.huanchengfly.tieba.post.utils.AccountUtil
+import com.huanchengfly.tieba.post.sign.SignActions
 import com.huanchengfly.tieba.post.utils.TiebaUtil
 import com.ramcosta.composedestinations.spec.Direction
 
@@ -184,7 +185,7 @@ fun ProvideHomeNavigationActions(
             }
 
             override fun startSign() {
-                TiebaUtil.startSign(appContext)
+                SignActions.startSign(appContext)
             }
         }
     }

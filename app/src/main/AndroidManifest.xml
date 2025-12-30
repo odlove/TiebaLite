@@ -59,29 +59,6 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="UnusedAttribute">
-        <service
-            android:name=".services.OKSignService"
-            android:exported="true"
-            android:enabled="true"
-            android:foregroundServiceType="specialUse"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:process=":oksign">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="oksign" />
-        </service>
-
-        <receiver
-            android:name=".receivers.BootCompleteSignReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
         <meta-data
             android:name="android.max_aspect"
             android:value="2.4" />
@@ -296,26 +273,6 @@
                 android:resource="@xml/shortcut_new" />
         </activity-alias>
 
-        <activity
-            android:name=".activities.OKSignActivity"
-            android:excludeFromRecents="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.huanchengfly.tieba.post.action.OKSIGN" />
-            </intent-filter>
-        </activity>
-
-        <service
-            android:name=".services.OKSignTileService"
-            android:exported="true"
-            android:icon="@drawable/ic_oksign"
-            android:label="@string/title_oksign"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE" />
-            </intent-filter>
-        </service>
-
         <service
             android:name=".services.NotifyJobService"
             android:exported="true"
@@ -326,8 +283,6 @@
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-
-        <receiver android:name=".receivers.AutoSignAlarm" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

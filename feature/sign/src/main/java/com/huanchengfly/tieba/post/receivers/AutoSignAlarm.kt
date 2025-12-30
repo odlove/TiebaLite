@@ -3,12 +3,12 @@ package com.huanchengfly.tieba.post.receivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.huanchengfly.tieba.post.utils.TiebaUtil
+import com.huanchengfly.tieba.post.sign.SignActions
 
 class AutoSignAlarm : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         runCatching {
-            TiebaUtil.startSign(context)
+            SignActions.startSign(context)
         }
     }
 

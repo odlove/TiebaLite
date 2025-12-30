@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_loading_data">正在加载数据</string>
+    <string name="text_please_wait">请稍候……</string>
+</resources>

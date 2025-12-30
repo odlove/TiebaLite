@@ -121,7 +121,7 @@ import com.huanchengfly.tieba.post.utils.ImageUtil
 import com.huanchengfly.tieba.post.utils.JobServiceUtil
 import com.huanchengfly.tieba.post.utils.PermissionUtils
 import com.huanchengfly.tieba.post.utils.PickMediasRequest
-import com.huanchengfly.tieba.post.utils.TiebaUtil
+import com.huanchengfly.tieba.post.sign.SignActions
 import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import com.huanchengfly.tieba.core.ui.preferences.ProvideAppPreferences
 import com.huanchengfly.tieba.post.dataStore
@@ -351,7 +351,7 @@ class MainActivityV2 : BaseComposeActivity() {
 
     private fun initAutoSign() {
         runCatching {
-            TiebaUtil.initAutoSign(this)
+            SignActions.initAutoSign(this)
         }
     }
 

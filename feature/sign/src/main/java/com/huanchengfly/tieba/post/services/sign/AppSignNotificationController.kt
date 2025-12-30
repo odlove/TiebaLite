@@ -15,7 +15,7 @@ import com.huanchengfly.tieba.core.runtime.service.sign.SignForegroundStopMode
 import com.huanchengfly.tieba.core.runtime.service.sign.SignNotificationController
 import com.huanchengfly.tieba.core.runtime.service.sign.SignNotificationUpdate
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.sign.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.runtime.service.sign.SignServiceConstants.NOTIFICATION_CHANNEL_ID
 import com.huanchengfly.tieba.core.runtime.service.sign.SignServiceConstants.NOTIFICATION_ID

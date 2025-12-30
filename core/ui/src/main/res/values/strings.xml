@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="button_undo">Undo</string>
-    <string name="button_redo">Redo</string>
+    <string name="button_undo">撤销</string>
+    <string name="button_redo">重做</string>
     <string name="button_clear">清除</string>
     <string name="button_search">搜索</string>
     <string name="tip_empty">这里什么都没有</string>

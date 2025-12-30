@@ -14,7 +14,6 @@ import androidx.compose.material.icons.outlined.OfflinePin
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +47,6 @@ import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @Destination
@@ -78,7 +76,6 @@ fun OKSignSettingsPage(
     ) { paddingValues ->
         val context = LocalContext.current
         val dataStore = context.dataStore
-        val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
         PrefsScreen(
             dataStore = dataStore,
             dividerThickness = 0.dp,
@@ -154,7 +151,7 @@ fun OKSignSettingsPage(
                     key = "auto_sign_time",
                     title = stringResource(id = R.string.title_auto_sign_time),
                     defaultValue = "09:00",
-                    summary = { time -> context.getString(R.string.summary_auto_sign_time, time.format(timeFormatter)) },
+                    summary = { time -> context.getString(R.string.summary_auto_sign_time, time.format()) },
                     enabled = depend(key = "auto_sign"),
                     leadingContent = {
                         LeadingIcon {

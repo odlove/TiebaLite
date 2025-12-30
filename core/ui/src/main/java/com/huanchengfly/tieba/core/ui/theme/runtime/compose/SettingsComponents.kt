@@ -56,8 +56,7 @@ import androidx.datastore.preferences.core.edit
 import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import com.huanchengfly.tieba.core.ui.widgets.compose.Switch
 import kotlinx.coroutines.launch
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun ThemeScaffold(
@@ -392,17 +391,34 @@ fun SettingsListPicker(
     }
 }
 
+data class SettingsTime(
+    val hour: Int,
+    val minute: Int,
+) {
+    fun format(): String = String.format(Locale.getDefault(), "%02d:%02d", hour, minute)
+}
+
+private fun parseSettingsTime(raw: String, fallback: SettingsTime): SettingsTime {
+    val parts = raw.split(":")
+    val hour = parts.getOrNull(0)?.toIntOrNull()
+    val minute = parts.getOrNull(1)?.toIntOrNull()
+    return if (hour != null && minute != null && hour in 0..23 && minute in 0..59) {
+        SettingsTime(hour, minute)
+    } else {
+        fallback
+    }
+}
+
 @Composable
 fun SettingsTimePicker(
     key: String,
     title: String,
     modifier: Modifier = Modifier,
     defaultValue: String = "09:00",
-    summary: ((LocalTime) -> String?)? = null,
-    onValueChange: ((LocalTime) -> Unit)? = null,
+    summary: ((SettingsTime) -> String?)? = null,
+    onValueChange: ((SettingsTime) -> Unit)? = null,
     enabled: Boolean = true,
-    leadingContent: @Composable (() -> Unit)? = null,
-    formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+    leadingContent: @Composable (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     val datastore = LocalPreferencesDataStore.current
@@ -411,29 +427,30 @@ fun SettingsTimePicker(
     val selectionKey = remember(key) { stringPreferencesKey(key) }
     val scope = rememberCoroutineScope()
 
+    val fallbackTime = remember(defaultValue) {
+        parseSettingsTime(defaultValue, SettingsTime(9, 0))
+    }
     val initialTime = remember(prefs, defaultValue) {
         val raw = prefs?.get(selectionKey) ?: defaultValue
-        runCatching { LocalTime.parse(raw, formatter) }.getOrElse {
-            runCatching { LocalTime.parse(defaultValue, formatter) }.getOrElse { LocalTime.of(9, 0) }
-        }
+        parseSettingsTime(raw, fallbackTime)
     }
     var selectedTime by remember { mutableStateOf(initialTime) }
     LaunchedEffect(initialTime) {
         selectedTime = initialTime
     }
 
-    fun persist(newValue: LocalTime) {
+    fun persist(newValue: SettingsTime) {
         selectedTime = newValue
         onValueChange?.invoke(newValue)
         scope.launch {
             datastore.edit { storage ->
-                storage[selectionKey] = newValue.format(formatter)
+                storage[selectionKey] = newValue.format()
             }
         }
     }
 
     val summaryContent: @Composable (() -> Unit)? = {
-        val text = summary?.invoke(selectedTime) ?: selectedTime.format(formatter)
+        val text = summary?.invoke(selectedTime) ?: selectedTime.format()
         Text(text = text)
     }
 
@@ -445,7 +462,7 @@ fun SettingsTimePicker(
             val dialog = android.app.TimePickerDialog(
                 context,
                 { _, hour, minute ->
-                    persist(LocalTime.of(hour, minute))
+                    persist(SettingsTime(hour, minute))
                 },
                 selectedTime.hour,
                 selectedTime.minute,

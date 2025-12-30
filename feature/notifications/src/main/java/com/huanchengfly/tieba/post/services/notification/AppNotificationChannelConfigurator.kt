@@ -8,7 +8,7 @@ import android.os.Build
 import androidx.core.app.NotificationManagerCompat
 import com.huanchengfly.tieba.core.runtime.service.notification.NotificationChannelConfigurator
 import com.huanchengfly.tieba.core.common.ResourceProvider
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.notifications.R
 import javax.inject.Inject
 import javax.inject.Singleton
 

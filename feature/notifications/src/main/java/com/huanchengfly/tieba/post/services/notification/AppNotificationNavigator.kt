@@ -5,9 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.net.Uri
+import android.os.Build
 import com.huanchengfly.tieba.core.runtime.service.notification.NotificationChannelType
 import com.huanchengfly.tieba.core.runtime.service.notification.NotificationNavigator
-import com.huanchengfly.tieba.post.pendingIntentFlagImmutable
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,5 +25,13 @@ class AppNotificationNavigator @Inject constructor() : NotificationNavigator {
             intent,
             pendingIntentFlagImmutable()
         )
+    }
+
+    private fun pendingIntentFlagImmutable(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.FLAG_IMMUTABLE
+        } else {
+            0
+        }
     }
 }

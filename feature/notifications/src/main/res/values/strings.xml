@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tips_message_reply">你有 %1$s 条新回复</string>
+    <string name="tips_message_at">有 %1$s 人提到了你</string>
+    <string name="tip_touch_to_view">轻按以查看</string>
+    <string name="notification_group_messages">消息通知</string>
+    <string name="notification_group_messages_description">贴吧的各种消息通知</string>
+    <string name="notification_channel_reply">回复我的</string>
+    <string name="notification_channel_mention">提到我的</string>
+</resources>

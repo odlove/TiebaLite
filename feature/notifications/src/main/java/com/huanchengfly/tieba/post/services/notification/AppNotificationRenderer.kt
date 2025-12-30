@@ -13,7 +13,7 @@ import com.huanchengfly.tieba.core.runtime.service.notification.NotificationCoun
 import com.huanchengfly.tieba.core.runtime.service.notification.NotificationRenderer
 import com.huanchengfly.tieba.core.runtime.service.notification.NotificationNavigator
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.notifications.R
 import com.huanchengfly.tieba.post.services.notification.NotificationConstants.ACTION_NEW_MESSAGE
 import com.huanchengfly.tieba.post.services.notification.NotificationConstants.CHANNEL_MENTION_ID
 import com.huanchengfly.tieba.post.services.notification.NotificationConstants.CHANNEL_REPLY_ID
@@ -80,7 +80,6 @@ class AppNotificationRenderer @Inject constructor(
         return NotificationCompat.Builder(context, channelId)
             .setContentText(resourceProvider.getString(R.string.tip_touch_to_view))
             .setSmallIcon(R.drawable.ic_round_drafts)
-            .setWhen(System.currentTimeMillis())
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setColor(color)

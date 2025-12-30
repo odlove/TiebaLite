@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.huanchengfly.tieba.feature.notifications">
+
+    <application>
+        <service
+            android:name="com.huanchengfly.tieba.post.services.NotifyJobService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+    </application>
+</manifest>

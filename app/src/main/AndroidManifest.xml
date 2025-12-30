@@ -273,12 +273,6 @@
                 android:resource="@xml/shortcut_new" />
         </activity-alias>
 
-        <service
-            android:name=".services.NotifyJobService"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-
-
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"

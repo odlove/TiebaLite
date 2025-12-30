@@ -244,6 +244,7 @@ dependencies {
     implementation(project(":feature:forum"))
     implementation(project(":feature:user"))
     implementation(project(":feature:sign"))
+    implementation(project(":feature:notifications"))
 
     //Local Files
 //    implementation fileTree(include: ["*.jar"], dir: "libs")

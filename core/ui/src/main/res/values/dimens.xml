@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="radius">8dp</dimen>
     <dimen name="size_avatar_small">36dp</dimen>
 </resources>

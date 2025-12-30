@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.page
+package com.huanchengfly.tieba.post.navigation
 
 import androidx.compose.runtime.Composable
 import com.huanchengfly.tieba.post.ui.page.main.MainPageContent

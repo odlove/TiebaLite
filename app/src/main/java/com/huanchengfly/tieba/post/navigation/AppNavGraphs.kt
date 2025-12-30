@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.page
+package com.huanchengfly.tieba.post.navigation
 
 import com.huanchengfly.tieba.post.ui.page.history.historyDestinations
 import com.huanchengfly.tieba.post.ui.page.hottopic.list.hottopicDestinations
@@ -13,6 +13,7 @@ import com.huanchengfly.tieba.post.ui.page.reply.replyDestinations
 import com.huanchengfly.tieba.post.ui.page.thread.threadDestinations
 import com.huanchengfly.tieba.post.ui.page.threadcollect.threadcollectDestinations
 import com.huanchengfly.tieba.post.ui.page.webview.webviewDestinations
+import com.huanchengfly.tieba.post.NavGraphs
 import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.NavGraphSpec
 import com.ramcosta.composedestinations.spec.Route

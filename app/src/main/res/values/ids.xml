@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <item name="video_player" type="id" />
-    <item name="image_load_tag" type="id" />
-    <item name="no_data" type="id" />
-    <item name="portrait" type="id" />
-    <item name="tag_translucent_background_path" type="id" />
-</resources>

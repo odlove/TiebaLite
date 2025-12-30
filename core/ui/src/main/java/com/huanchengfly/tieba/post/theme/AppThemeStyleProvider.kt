@@ -2,7 +2,7 @@ package com.huanchengfly.tieba.post.theme
 
 import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeStyleProvider
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R
 import javax.inject.Inject
 import javax.inject.Singleton
 

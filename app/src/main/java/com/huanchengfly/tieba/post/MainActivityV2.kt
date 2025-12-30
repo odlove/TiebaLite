@@ -86,7 +86,7 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.LocalThemeState
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.menuBackground
-import com.huanchengfly.tieba.post.ui.page.AppNavGraphs
+import com.huanchengfly.tieba.post.navigation.AppNavGraphs
 import com.huanchengfly.tieba.post.ui.page.forum.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.login.destinations.LoginPageDestination
 import com.huanchengfly.tieba.post.ui.page.thread.destinations.ThreadPageDestination
@@ -102,7 +102,7 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.Dialog
 import com.huanchengfly.tieba.core.ui.widgets.compose.DialogNegativeButton
 import com.huanchengfly.tieba.core.ui.widgets.compose.DialogPositiveButton
 import com.huanchengfly.tieba.core.ui.widgets.compose.ProvideAccountActions
-import com.huanchengfly.tieba.post.ui.page.main.ProvideHomeNavigationActions
+import com.huanchengfly.tieba.post.navigation.ProvideHomeNavigationActions
 import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.ui.widgets.compose.AppOriginThreadRenderer

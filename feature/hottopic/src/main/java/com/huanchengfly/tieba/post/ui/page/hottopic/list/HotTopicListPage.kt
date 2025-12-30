@@ -36,7 +36,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.Scaffold
-import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.common.hottopic.HotTopicItem
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.ui.pageViewModel
@@ -53,6 +52,8 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.NetworkImage
 import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.common.utils.getShortNumString
+import com.huanchengfly.tieba.feature.hottopic.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -120,7 +121,7 @@ private fun TopicBody(
             Text(text = item.topicName, style = MaterialTheme.typography.subtitle1)
             when (item.topicTag) {
                 2 -> Text(
-                    text = stringResource(id = R.string.topic_tag_hot),
+                    text = stringResource(id = CoreUiR.string.topic_tag_hot),
                     fontSize = 10.sp,
                     color = White,
                     modifier = Modifier
@@ -130,7 +131,7 @@ private fun TopicBody(
                 )
 
                 1 -> Text(
-                    text = stringResource(id = R.string.topic_tag_new),
+                    text = stringResource(id = CoreUiR.string.topic_tag_new),
                     fontSize = 10.sp,
                     color = White,
                     modifier = Modifier
@@ -147,7 +148,7 @@ private fun TopicBody(
             style = MaterialTheme.typography.body2
         )
         Text(
-            text = stringResource(id = R.string.hot_num, item.discussNum.getShortNumString()),
+            text = stringResource(id = CoreUiR.string.hot_num, item.discussNum.getShortNumString()),
             style = MaterialTheme.typography.caption,
             color = ExtendedTheme.colors.textSecondary
         )

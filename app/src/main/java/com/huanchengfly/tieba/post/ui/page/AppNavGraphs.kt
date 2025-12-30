@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.post.ui.page
 
 import com.huanchengfly.tieba.post.ui.page.history.historyDestinations
+import com.huanchengfly.tieba.post.ui.page.hottopic.list.hottopicDestinations
 import com.huanchengfly.tieba.post.ui.page.login.loginDestinations
 import com.huanchengfly.tieba.post.ui.page.main.notifications.homeDestinations
 import com.huanchengfly.tieba.post.ui.page.settings.settingsDestinations
@@ -13,6 +14,7 @@ import com.ramcosta.composedestinations.spec.Route
 object AppNavGraphs {
     private val extraDestinations: List<DestinationSpec<*>> = listOf(
         historyDestinations,
+        hottopicDestinations,
         threadcollectDestinations,
         webviewDestinations,
         homeDestinations,

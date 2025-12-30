@@ -129,7 +129,6 @@
     <string name="cpv_custom">自定义</string>
     <string name="cpv_presets">预设</string>
     <string name="menu_save_audio">保存语音</string>
-    <string name="title_hot_message_list">话题榜</string>
     <string name="toast_photo_saved">图片保存在 %1$s</string>
     <string name="title_settings_default_sort_type">吧默认排序方式</string>
     <string name="toast_load_failed">加载失败</string>

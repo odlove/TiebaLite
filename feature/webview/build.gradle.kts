@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.androidx.browser)
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
+    implementation(libs.hilt.android)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.runtime)

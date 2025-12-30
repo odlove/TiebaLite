@@ -1,7 +1,13 @@
 package com.huanchengfly.tieba.post.utils;
 
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Handler;
+import android.os.PersistableBundle;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -18,6 +24,7 @@ import dagger.hilt.android.EntryPointAccessors;
 
 public class TiebaLiteJavaScript {
     public static final String TAG = "JsBridge";
+    private static final String SP_WEBVIEW_INFO = "webview_info";
 
     private static final Handler handler = new Handler();
     public Context context;
@@ -55,12 +62,12 @@ public class TiebaLiteJavaScript {
 
     @JavascriptInterface
     public void copyText(String content) {
-        TiebaUtil.copyText(context, content);
+        copyTextInternal(content);
     }
 
     @JavascriptInterface
     public void putString(String key, String value) {
-        SharedPreferencesUtil.get(context, SharedPreferencesUtil.SP_WEBVIEW_INFO)
+        getPrefs()
                 .edit()
                 .putString(key, value)
                 .apply();
@@ -69,22 +76,38 @@ public class TiebaLiteJavaScript {
 
     @JavascriptInterface
     public String getString(String key) {
-        return SharedPreferencesUtil.get(context, SharedPreferencesUtil.SP_WEBVIEW_INFO)
-                .getString(key, "");
+        return getPrefs().getString(key, "");
     }
 
     @JavascriptInterface
     public int getInt(String key, int defValue) {
-        return SharedPreferencesUtil.get(context, SharedPreferencesUtil.SP_WEBVIEW_INFO)
-                .getInt(key, defValue);
+        return getPrefs().getInt(key, defValue);
     }
 
     @JavascriptInterface
     public void putInt(String key, int value) {
-        SharedPreferencesUtil.get(context, SharedPreferencesUtil.SP_WEBVIEW_INFO)
+        getPrefs()
                 .edit()
                 .putInt(key, value)
                 .apply();
         Log.i(TAG, "putInt: " + key + ": " + value);
+    }
+
+    private SharedPreferences getPrefs() {
+        return context.getSharedPreferences(SP_WEBVIEW_INFO, Context.MODE_PRIVATE);
+    }
+
+    private void copyTextInternal(String text) {
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard == null) {
+            return;
+        }
+        ClipData clipData = ClipData.newPlainText("Tieba Lite", text);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            PersistableBundle extras = new PersistableBundle();
+            extras.putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, false);
+            clipData.getDescription().setExtras(extras);
+        }
+        clipboard.setPrimaryClip(clipData);
     }
 }

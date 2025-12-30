@@ -14,7 +14,7 @@ import android.content.ContextWrapper
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.settings.R
 import com.huanchengfly.tieba.post.di.entrypoints.ThemeUiDelegateEntryPoint
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeUiDelegate

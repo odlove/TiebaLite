@@ -6,9 +6,9 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.util.TypedValue
 import androidx.appcompat.widget.AppCompatSeekBar
-import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.post.dpToPxFloat
+import com.huanchengfly.tieba.feature.settings.R
 
 class RulerSeekBar : AppCompatSeekBar {
     /**
@@ -59,7 +59,10 @@ class RulerSeekBar : AppCompatSeekBar {
             )
             mRulerColor = array.getColor(R.styleable.RulerSeekBar_rulerColor, Color.WHITE)
             mRulerCount = array.getInteger(R.styleable.RulerSeekBar_rulerCount, 5)
-            mRulerSize = array.getDimension(R.styleable.RulerSeekBar_rulerSize, 12f.dpToPxFloat())
+            mRulerSize = array.getDimension(
+                R.styleable.RulerSeekBar_rulerSize,
+                defaultRulerSize()
+            )
             isShowTopOfThumb = array.getBoolean(R.styleable.RulerSeekBar_rulerShowTopOfThumb, false)
             rulerOnEdge = array.getBoolean(R.styleable.RulerSeekBar_rulerOnEdge, false)
             array.recycle()
@@ -78,6 +81,14 @@ class RulerSeekBar : AppCompatSeekBar {
 
         //Api21及以上调用，去掉滑块后面的背景
         splitTrack = false
+    }
+
+    private fun defaultRulerSize(): Float {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            12f,
+            resources.displayMetrics
+        )
     }
 
     /**

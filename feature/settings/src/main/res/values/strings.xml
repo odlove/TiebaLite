@@ -162,4 +162,5 @@
     <string name="toast_after_change_will_restart">修改已保存，即将重启 App 以应用设置</string>
     <string name="toast_no_permission_insert_photo">未授予「存储空间」权限，无法插入图片</string>
     <string name="toast_save_pic_success">设置保存成功</string>
+    <string name="tip_primary_color">主题色</string>
 </resources>

@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.systemuibars.tweaker)
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.google.gson)
+    implementation("androidx.preference:preference:1.2.1")
     implementation(libs.sketch.core)
     implementation(libs.sketch.compose)
     implementation(libs.sketch.ext.compose)

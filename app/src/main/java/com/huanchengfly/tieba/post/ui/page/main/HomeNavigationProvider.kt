@@ -13,7 +13,7 @@ import com.huanchengfly.tieba.core.ui.navigation.HomeNavigationActions
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.post.activities.AppFontSizeActivity
 import com.huanchengfly.tieba.post.activities.TranslucentThemeActivity
-import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
+import com.huanchengfly.tieba.post.ui.page.forum.destinations.ForumPageDestination
 import com.huanchengfly.tieba.post.ui.page.history.destinations.HistoryPageDestination
 import com.huanchengfly.tieba.post.ui.page.hottopic.list.destinations.HotTopicListPageDestination
 import com.huanchengfly.tieba.post.ui.page.login.destinations.LoginPageDestination

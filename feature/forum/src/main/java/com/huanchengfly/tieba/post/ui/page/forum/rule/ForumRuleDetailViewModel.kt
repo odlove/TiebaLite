@@ -12,10 +12,9 @@ import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
 import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
+import com.huanchengfly.tieba.core.common.thread.ThreadContentItem
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.repository.ForumInfoRepository
-import com.huanchengfly.tieba.post.ui.common.PbContentRender
-import com.huanchengfly.tieba.post.ui.page.thread.renders
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -124,11 +123,20 @@ data class ForumRuleDetailUiState(
 @Immutable
 data class ForumRuleItemData(
     val title: String,
-    val contentRenders: ImmutableList<PbContentRender>,
+    val contentText: String,
 )
 
 private fun ForumRuleItem.toData(): ForumRuleItemData =
     ForumRuleItemData(
         title = title,
-        contentRenders = content.renders
+        contentText = content.plainText()
     )
+
+private fun List<ThreadContentItem>.plainText(): String =
+    mapNotNull { item ->
+        when {
+            item.text.isNotBlank() -> item.text
+            item.link.isNotBlank() -> item.link
+            else -> null
+        }
+    }.joinToString("\n")

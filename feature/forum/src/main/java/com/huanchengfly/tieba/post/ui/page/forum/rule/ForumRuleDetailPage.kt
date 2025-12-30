@@ -18,8 +18,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
-import com.huanchengfly.tieba.post.R
+import androidx.compose.runtime.remember
+import com.huanchengfly.tieba.feature.forum.R
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.getOrNull
@@ -32,10 +32,11 @@ import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
+import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.widgets.compose.UserHeader
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
-import com.huanchengfly.tieba.post.utils.StringUtil
+import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.collections.immutable.persistentListOf
@@ -122,22 +123,26 @@ fun ForumRuleDetailPage(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(text = title, style = MaterialTheme.typography.h5)
-                    author?.let {
+                    author?.let { authorInfo ->
+                        val context = LocalContext.current
+                        val showBoth = remember(context) {
+                            context.appPreferences.showBothUsernameAndNickname
+                        }
                         UserHeader(
                             avatar = {
                                 Avatar(
-                                    data = StringUtil.getAvatarUrl(it.get { portrait }),
+                                    data = StringFormatUtils.getAvatarUrl(authorInfo.get { portrait }),
                                     size = Sizes.Small,
                                     contentDescription = null
                                 )
                             },
                             name = {
                                 Text(
-                                    text = StringUtil.getUsernameAnnotatedString(
-                                        LocalContext.current,
-                                        it.get { userName },
-                                        it.get { nameShow },
-                                        LocalContentColor.current
+                                    text = StringFormatUtils.formatUsernameAnnotated(
+                                        showBoth = showBoth,
+                                        username = authorInfo.get { userName },
+                                        nickname = authorInfo.get { nameShow },
+                                        color = LocalContentColor.current
                                     )
                                 )
                             },
@@ -151,7 +156,7 @@ fun ForumRuleDetailPage(
                     ) {
                         ProvideTextStyle(value = MaterialTheme.typography.body1) {
                             Text(text = preface)
-                            data.fastForEach {
+                            data.forEach {
                                 if (it.title.isNotEmpty()) {
                                     Text(
                                         text = it.title,
@@ -161,8 +166,8 @@ fun ForumRuleDetailPage(
                                 Column(
                                     verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    it.contentRenders.fastForEach { render ->
-                                        render.Render()
+                                    if (it.contentText.isNotEmpty()) {
+                                        Text(text = it.contentText)
                                     }
                                 }
                             }

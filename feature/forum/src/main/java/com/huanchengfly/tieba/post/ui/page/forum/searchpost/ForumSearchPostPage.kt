@@ -62,7 +62,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.forum.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.ui.pageViewModel
@@ -72,11 +72,8 @@ import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeSearchBox
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
-import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.SubPostsPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
 import com.huanchengfly.tieba.core.ui.widgets.compose.Button
 import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
 import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
@@ -217,6 +214,7 @@ fun ForumSearchPostPage(
     ),
 ) {
     val context = LocalContext.current
+    val homeNavigation = LocalHomeNavigation.current
     val currentKeyword by viewModel.uiState.collectPartialAsState(
         prop1 = ForumSearchPostUiState::keyword,
         initial = ""
@@ -410,54 +408,40 @@ fun ForumSearchPostPage(
                                     lazyListState = lazyListState,
                                     onItemClick = {
                                         if (it.quotePost != null) {
-                                            navigator.navigate(
-                                                SubPostsPageDestination(
-                                                    threadId = it.threadId.toLong(),
-                                                    subPostId = it.subPostId.toLong(),
-                                                    loadFromSubPost = true
-                                                )
+                                            homeNavigation.openSubPosts(
+                                                threadId = it.threadId.toLong(),
+                                                subPostId = it.subPostId.toLong(),
+                                                loadFromSubPost = true
                                             )
                                         } else if (it.mainPost != null) {
-                                            navigator.navigate(
-                                                ThreadPageDestination(
-                                                    threadId = it.threadId.toLong(),
-                                                    postId = it.postId.toLong(),
-                                                    scrollToReply = true,
-                                                )
+                                            homeNavigation.openThread(
+                                                threadId = it.threadId.toLong(),
+                                                postId = it.postId.toLong(),
+                                                scrollToReply = true,
                                             )
                                         } else {
-                                            navigator.navigate(
-                                                ThreadPageDestination(
-                                                    threadId = it.threadId.toLong()
-                                                )
+                                            homeNavigation.openThread(
+                                                threadId = it.threadId.toLong()
                                             )
                                         }
                                     },
                                     onItemUserClick = {
-                                        navigator.navigate(UserProfilePageDestination(it.userId.toLong()))
+                                        homeNavigation.openUserProfile(it.userId.toLong())
                                     },
                                     onItemForumClick = {
-                                        navigator.navigate(
-                                            ForumPageDestination(
-                                                it.name
-                                            )
-                                        )
+                                        homeNavigation.openForum(it.name)
                                     },
                                     onQuotePostClick = {
-                                        navigator.navigate(
-                                            ThreadPageDestination(
-                                                threadId = it.threadId,
-                                                postId = it.postId,
-                                                scrollToReply = true
-                                            )
+                                        homeNavigation.openThread(
+                                            threadId = it.threadId,
+                                            postId = it.postId,
+                                            scrollToReply = true
                                         )
                                     },
                                     onMainPostClick = {
-                                        navigator.navigate(
-                                            ThreadPageDestination(
-                                                threadId = it.threadId,
-                                                scrollToReply = true
-                                            )
+                                        homeNavigation.openThread(
+                                            threadId = it.threadId,
+                                            scrollToReply = true
                                         )
                                     },
                                     hideForum = true,

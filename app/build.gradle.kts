@@ -238,6 +238,7 @@ dependencies {
     implementation(project(":feature:login"))
     implementation(project(":feature:hottopic"))
     implementation(project(":feature:search"))
+    implementation(project(":feature:forum"))
 
     //Local Files
 //    implementation fileTree(include: ["*.jar"], dir: "libs")

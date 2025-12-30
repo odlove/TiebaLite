@@ -31,7 +31,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.forum.R
 import com.huanchengfly.tieba.core.common.forum.ForumDetailInfo
 import com.huanchengfly.tieba.core.common.thread.ThreadContentItem
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
@@ -55,10 +55,14 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.core.common.utils.getShortNumString
-import com.huanchengfly.tieba.post.ui.page.thread.plainText
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+
+private val List<ThreadContentItem>.plainText: String
+    get() = joinToString("\n") { item ->
+        if (item.text.isNotBlank()) item.text else item.link
+    }
 
 @Destination
 @Composable

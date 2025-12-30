@@ -34,7 +34,7 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
-import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
+import com.huanchengfly.tieba.post.ui.page.forum.destinations.ForumPageDestination
 import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.core.ui.compose.Container
 import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen

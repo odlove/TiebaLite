@@ -15,12 +15,6 @@ import android.view.View
 import androidx.annotation.ColorInt
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.core.content.pm.ShortcutInfoCompat
-import androidx.core.content.pm.ShortcutManagerCompat
-import androidx.core.graphics.drawable.IconCompat
-import com.github.panpf.sketch.request.LoadRequest
-import com.github.panpf.sketch.request.LoadResult
-import com.github.panpf.sketch.request.execute
 import com.google.android.material.snackbar.Snackbar
 import com.huanchengfly.tieba.post.App
 import com.huanchengfly.tieba.post.R
@@ -252,31 +246,4 @@ fun calcStatusBarColorInt(context: Context, @ColorInt originColor: Int): Int {
         darkerStatusBar = false
     }
     return if (darkerStatusBar) ColorUtils.getDarkerColor(originColor) else originColor
-}
-
-suspend fun requestPinShortcut(
-    context: Context,
-    shortcutId: String,
-    iconImageUri: String,
-    label: String,
-    shortcutIntent: Intent,
-    onSuccess: () -> Unit = {},
-    onFailure: (String) -> Unit = {}
-) {
-    if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
-        val imageResult = LoadRequest(context, iconImageUri).execute()
-        if (imageResult is LoadResult.Success) {
-            val shortcutInfo = ShortcutInfoCompat.Builder(context, shortcutId)
-                .setIcon(IconCompat.createWithBitmap(imageResult.bitmap))
-                .setIntent(shortcutIntent)
-                .setShortLabel(label)
-                .build()
-            val result = ShortcutManagerCompat.requestPinShortcut(context, shortcutInfo, null)
-            if (result) onSuccess() else onFailure(context.getString(R.string.launcher_not_support_pin_shortcut))
-        } else {
-            onFailure(context.getString(R.string.load_shortcut_icon_fail))
-        }
-    } else {
-        onFailure(context.getString(R.string.launcher_not_support_pin_shortcut))
-    }
 }

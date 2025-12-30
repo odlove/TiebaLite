@@ -35,7 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.forum.R
 import com.huanchengfly.tieba.core.common.feed.OriginThreadCard
 import com.huanchengfly.tieba.core.common.feed.ThreadCard
 import com.huanchengfly.tieba.core.common.forum.ForumClassify
@@ -50,10 +50,9 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
 import com.huanchengfly.tieba.post.ui.models.ThreadItemData
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
-import com.huanchengfly.tieba.post.ui.page.destinations.ForumRuleDetailPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
+import com.huanchengfly.tieba.post.ui.page.forum.destinations.ForumRuleDetailPageDestination
 import com.huanchengfly.tieba.post.ui.page.forum.getSortType
 import com.huanchengfly.tieba.core.ui.widgets.compose.BlockTip
 import com.huanchengfly.tieba.core.ui.widgets.compose.BlockableContent
@@ -274,6 +273,7 @@ fun ForumThreadListPage(
 ) {
     val context = LocalContext.current
     val navigator = LocalNavigator.current
+    val homeNavigation = LocalHomeNavigation.current
     val snackbarState = LocalSnackbarState.current
 
     val lazyListState = rememberLazyListState()
@@ -398,21 +398,17 @@ fun ForumThreadListPage(
                     state = lazyListState,
                     items = threadList.map { it.get { this } }.toImmutableList(),
                     onItemClicked = {
-                        navigator.navigate(
-                            ThreadPageDestination(
-                                it.threadId,
-                                forumId = it.forumId,
-                                threadPreview = it.toThreadPreview()
-                            )
+                        homeNavigation.openThread(
+                            threadId = it.threadId,
+                            forumId = it.forumId,
+                            threadPreview = it.toThreadPreview()
                         )
                     },
                     onItemReplyClicked = {
-                        navigator.navigate(
-                            ThreadPageDestination(
-                                it.threadId,
-                                forumId = it.forumId,
-                                scrollToReply = true
-                            )
+                        homeNavigation.openThread(
+                            threadId = it.threadId,
+                            forumId = it.forumId,
+                            scrollToReply = true
                         )
                     },
                     onAgree = {
@@ -429,14 +425,12 @@ fun ForumThreadListPage(
                         navigator.navigate(ForumRuleDetailPageDestination(forumId))
                     },
                     onOriginThreadClicked = {
-                        navigator.navigate(
-                            ThreadPageDestination(
-                                threadId = it.threadId,
-                                forumId = it.forumId,
-                            )
+                        homeNavigation.openThread(
+                            threadId = it.threadId,
+                            forumId = it.forumId,
                         )
                     }
-                ) { navigator.navigate(UserProfilePageDestination(it)) }
+                ) { homeNavigation.openUserProfile(it) }
             }
         }
 

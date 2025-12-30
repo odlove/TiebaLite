@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.forum.searchpost
 
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.forum.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.repository.SearchRepository
 import com.huanchengfly.tieba.core.network.error.getErrorMessage

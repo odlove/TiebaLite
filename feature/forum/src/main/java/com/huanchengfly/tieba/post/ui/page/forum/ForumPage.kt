@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -81,7 +82,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import com.eygraber.compose.placeholder.PlaceholderHighlight
 import com.eygraber.compose.placeholder.material.fade
 import com.eygraber.compose.placeholder.material.placeholder
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.forum.R
 import com.huanchengfly.tieba.core.common.forum.ForumInfo
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
@@ -95,7 +96,6 @@ import com.huanchengfly.tieba.post.getInt
 import com.huanchengfly.tieba.post.models.ForumHistoryExtra
 import com.huanchengfly.tieba.core.common.history.HistoryItem
 import com.huanchengfly.tieba.core.common.history.HistoryRepository
-import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabSelectedColor
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabUnselectedColor
@@ -104,8 +104,8 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeScrollab
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
 import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
-import com.huanchengfly.tieba.post.ui.page.destinations.ForumDetailPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.ForumSearchPostPageDestination
+import com.huanchengfly.tieba.post.ui.page.forum.destinations.ForumDetailPageDestination
+import com.huanchengfly.tieba.post.ui.page.forum.destinations.ForumSearchPostPageDestination
 import com.huanchengfly.tieba.post.ui.page.forum.threadlist.ForumThreadListPage
 import com.huanchengfly.tieba.post.ui.page.forum.threadlist.ForumThreadListUiEvent
 import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
@@ -131,7 +131,6 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import com.huanchengfly.tieba.post.di.entrypoints.HistoryRepositoryEntryPoint
 import com.huanchengfly.tieba.core.common.utils.getShortNumString
-import com.huanchengfly.tieba.post.utils.TiebaUtil
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.utils.requestPinShortcut
 import com.ramcosta.composedestinations.annotation.DeepLink
@@ -341,11 +340,14 @@ private fun ForumHeader(
 }
 
 private fun shareForum(context: Context, forumName: String) {
-    TiebaUtil.shareText(
-        context,
-        "https://tieba.baidu.com/f?kw=$forumName",
-        context.getString(R.string.title_forum, forumName)
-    )
+    val title = context.getString(R.string.title_forum, forumName)
+    val content = "https://tieba.baidu.com/f?kw=$forumName"
+    val text = "「$title」\n$content\n（分享自贴吧 Lite）"
+    context.startActivity(Intent().apply {
+        action = Intent.ACTION_SEND
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, text)
+    })
 }
 
 private suspend fun sendToDesktop(
@@ -640,7 +642,11 @@ fun ForumPage(
                                     }
 
                                     else -> {
-                                        context.toastShort(R.string.toast_feature_unavailable)
+                                        Toast.makeText(
+                                            context,
+                                            context.getString(R.string.toast_feature_unavailable),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                                 }
                             },

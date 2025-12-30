@@ -1,26 +1,22 @@
 package com.huanchengfly.tieba.post.utils
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
-import android.os.Build
 import android.view.View
 import androidx.annotation.ColorInt
 import com.google.android.material.snackbar.Snackbar
-import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.network.exception.TiebaException
-import com.huanchengfly.tieba.post.dataStore
-import com.huanchengfly.tieba.post.dpToPxFloat
-import com.huanchengfly.tieba.post.getBoolean
-import com.huanchengfly.tieba.post.toastShort
+import com.huanchengfly.tieba.core.ui.R
 import com.huanchengfly.tieba.core.ui.theme.ColorStateListUtils
 import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
+import com.huanchengfly.tieba.post.dataStore
+import com.huanchengfly.tieba.post.dpToPxFloat
+import com.huanchengfly.tieba.post.getBoolean
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.utils.Util.createSnackbar
 
@@ -71,6 +67,7 @@ fun getItemBackgroundDrawable(
 }
 
 fun getRadiusDrawable(
+    context: Context,
     topLeftPx: Float = 0f,
     topRightPx: Float = 0f,
     bottomLeftPx: Float = 0f,
@@ -88,17 +85,18 @@ fun getRadiusDrawable(
     }
     return if (ripple)
         wrapRipple(
-            ThemeColorResolver.rippleColor(App.INSTANCE),
+            ThemeColorResolver.rippleColor(context),
             drawable
         )
     else drawable
 }
 
 fun getRadiusDrawable(
+    context: Context,
     radiusPx: Float = 0f,
     ripple: Boolean = false
 ): Drawable {
-    return getRadiusDrawable(radiusPx, radiusPx, radiusPx, radiusPx, ripple)
+    return getRadiusDrawable(context, radiusPx, radiusPx, radiusPx, radiusPx, ripple)
 }
 
 fun wrapRipple(rippleColor: Int, drawable: Drawable): Drawable {

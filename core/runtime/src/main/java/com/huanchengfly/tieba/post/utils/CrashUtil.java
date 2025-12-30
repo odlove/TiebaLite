@@ -1,7 +1,5 @@
 package com.huanchengfly.tieba.post.utils;
 
-import static com.huanchengfly.tieba.post.ExtensionsKt.pendingIntentFlagMutable;
-
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -15,8 +13,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.huanchengfly.tieba.post.App;
-import com.huanchengfly.tieba.post.MainActivityV2;
+import com.huanchengfly.tieba.core.runtime.app.ActivityCollector;
 
 public class CrashUtil {
     public static final String TAG = "CrashUtil";
@@ -108,21 +105,30 @@ public class CrashUtil {
 
     @SuppressWarnings("WrongConstant")
     private static void restart(@NonNull Context context) {
-        Intent intent = new Intent(context.getApplicationContext(), MainActivityV2.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        AlarmManager mAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (mAlarmManager != null) {
-            PendingIntent restartIntent = PendingIntent.getActivity(
-                    context.getApplicationContext(),
-                    0,
-                    intent,
-                    pendingIntentFlagMutable()
-            );
-            mAlarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + 1000,
-                    restartIntent);
+        Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
+        if (intent != null) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            if (alarmManager != null) {
+                PendingIntent restartIntent = PendingIntent.getActivity(
+                        context.getApplicationContext(),
+                        0,
+                        intent,
+                        pendingIntentFlagMutable()
+                );
+                alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + 1000,
+                        restartIntent);
+            }
         }
-        ((App) context.getApplicationContext()).removeAllActivity();
+        Context appContext = context.getApplicationContext();
+        if (appContext instanceof ActivityCollector) {
+            ((ActivityCollector) appContext).removeAllActivity();
+        }
         android.os.Process.killProcess(android.os.Process.myPid());
+    }
+
+    private static int pendingIntentFlagMutable() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ? PendingIntent.FLAG_MUTABLE : 0;
     }
 
     public static long getTime(@NonNull Context context) {

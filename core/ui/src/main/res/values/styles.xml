@@ -9,6 +9,10 @@
         <item name="android:textSize">15sp</item>
     </style>
 
+    <style name="TextAppearance.Bold">
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="Dialog.RequestPermissionTip" parent="Theme.MaterialComponents.DayNight.Dialog">
         <item name="android:windowFrame">@null</item>
         <item name="android:windowNoTitle">true</item>

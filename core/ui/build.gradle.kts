@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.google.material)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.startup.runtime)
     implementation(libs.sketch.core)
     implementation(libs.sketch.compose)
     implementation(libs.sketch.ext.compose)

@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.startup.Initializer
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.RuleController
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R
 
 @ExperimentalWindowApi
 class WindowInitializer : Initializer<RuleController> {

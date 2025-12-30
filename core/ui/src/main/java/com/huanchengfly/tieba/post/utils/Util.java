@@ -30,9 +30,8 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.AppCompatDrawableManager;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.huanchengfly.tieba.post.R;
+import com.huanchengfly.tieba.core.ui.R;
 import com.huanchengfly.tieba.post.di.entrypoints.ThemeUiDelegateEntryPoint;
-import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver;
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeUiDelegate;
 import dagger.hilt.android.EntryPointAccessors;
 
@@ -50,8 +49,8 @@ public class Util {
         ).themeUiDelegate();
         themeUiDelegate.applySnackbar(snackbar);
         View mView = snackbar.getView();
-        Button mButton = mView.findViewById(R.id.snackbar_action);
-        TextView mTextView = mView.findViewById(R.id.snackbar_text);
+        Button mButton = mView.findViewById(com.google.android.material.R.id.snackbar_action);
+        TextView mTextView = mView.findViewById(com.google.android.material.R.id.snackbar_text);
         if (mButton != null) {
             mButton.setTextAppearance(view.getContext(), R.style.TextAppearance_Bold);
         }

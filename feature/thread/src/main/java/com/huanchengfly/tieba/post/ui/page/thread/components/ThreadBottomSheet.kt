@@ -12,19 +12,17 @@ import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.network.retrofit.doIfFailure
 import com.huanchengfly.tieba.core.network.retrofit.doIfSuccess
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
+import com.huanchengfly.tieba.feature.thread.R
 import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import com.huanchengfly.tieba.post.components.dialogs.LoadingDialog
 import com.huanchengfly.tieba.post.toastShort
-import com.huanchengfly.tieba.post.ui.page.webview.destinations.WebViewPageDestination
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadMenu
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageActions
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageState
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadSortType
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadViewModel
 import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
-import com.huanchengfly.tieba.post.utils.TiebaUtil
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -38,12 +36,12 @@ fun ThreadMenuSheetContent(
     confirmDeleteDialogState: DialogState,
     deletePostState: MutableState<ImmutableHolder<ThreadPost>?>,
     actions: ThreadPageActions,
-    navigator: DestinationsNavigator,
     viewModel: ThreadViewModel,
     coroutineScope: CoroutineScope,
     context: Context,
     closeBottomSheet: () -> Unit
 ) {
+    val homeNavigation = runCatching { LocalHomeNavigation.current }.getOrNull()
     ThreadMenu(
         isSeeLz = pageState.isSeeLz,
         isCollected = pageState.isCollected,
@@ -116,15 +114,13 @@ fun ThreadMenuSheetContent(
             jumpToPageDialogState.show()
         },
         onShareClick = {
-            TiebaUtil.shareText(
-                context,
+            homeNavigation?.shareText(
                 "https://tieba.baidu.com/p/${pageState.threadId}",
                 pageState.threadTitle
             )
         },
         onCopyLinkClick = {
-            TiebaUtil.copyText(
-                context,
+            homeNavigation?.copyText(
                 "https://tieba.baidu.com/p/${pageState.threadId}?see_lz=${if (pageState.isSeeLz) "1" else "0"}"
             )
         },
@@ -139,7 +135,7 @@ fun ThreadMenuSheetContent(
                 viewModel.checkReportPost(firstPostId.toString())
                     .doIfSuccess {
                         dialog.dismiss()
-                        navigator.navigate(WebViewPageDestination(it.url))
+                        homeNavigation?.openWeb(it.url)
                     }
                     .doIfFailure {
                         dialog.dismiss()

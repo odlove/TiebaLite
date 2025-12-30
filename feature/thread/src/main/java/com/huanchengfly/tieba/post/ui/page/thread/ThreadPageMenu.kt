@@ -47,7 +47,7 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.invertChipBackground
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.invertChipContent
 import com.huanchengfly.tieba.core.ui.widgets.compose.ListMenuItem
 import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalGrid
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.thread.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.ui.text.TextWithMinWidth
 

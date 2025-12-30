@@ -10,6 +10,7 @@ import com.huanchengfly.tieba.post.ui.page.search.searchDestinations
 import com.huanchengfly.tieba.post.ui.page.settings.settingsDestinations
 import com.huanchengfly.tieba.post.ui.page.subposts.subpostsDestinations
 import com.huanchengfly.tieba.post.ui.page.reply.replyDestinations
+import com.huanchengfly.tieba.post.ui.page.thread.threadDestinations
 import com.huanchengfly.tieba.post.ui.page.threadcollect.threadcollectDestinations
 import com.huanchengfly.tieba.post.ui.page.webview.webviewDestinations
 import com.ramcosta.composedestinations.spec.DestinationSpec
@@ -23,6 +24,7 @@ object AppNavGraphs {
         threadcollectDestinations,
         subpostsDestinations,
         replyDestinations,
+        threadDestinations,
         webviewDestinations,
         homeDestinations,
         forumDestinations,

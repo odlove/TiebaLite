@@ -41,11 +41,11 @@ import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.network.retrofit.doIfFailure
 import com.huanchengfly.tieba.core.network.retrofit.doIfSuccess
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
-import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.text.buildChipInlineContent
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.widgets.compose.*
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.thread.R
 import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
 import com.huanchengfly.tieba.core.common.thread.ThreadUser
@@ -56,10 +56,9 @@ import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.post.ui.common.PbContentText
 import com.huanchengfly.tieba.post.ui.common.VideoContentRender
-import com.huanchengfly.tieba.post.ui.page.webview.destinations.WebViewPageDestination
 import com.huanchengfly.tieba.core.common.utils.DateTimeUtils.getRelativeTimeString
 import com.huanchengfly.tieba.post.utils.StringUtil
-import com.huanchengfly.tieba.post.utils.Util.getIconColorByLevel
+import com.huanchengfly.tieba.post.utils.getIconColorByLevel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
@@ -108,7 +107,7 @@ fun PostCard(
     onMenuDeleteClick: ((ThreadPost) -> Unit)? = null,
 ) {
     val context = LocalContext.current
-    val navigator = LocalNavigator.current
+    val homeNavigation = runCatching { LocalHomeNavigation.current }.getOrNull()
     val coroutineScope = rememberCoroutineScope()
     val post = remember(postHolder) { postHolder.get() }
     val hasPadding = remember(key1 = postHolder, key2 = immersiveMode) {
@@ -164,7 +163,7 @@ fun PostCard(
                         viewModel.checkReportPost(post.id.toString())
                             .doIfSuccess {
                                 dialog.dismiss()
-                                navigator.navigate(WebViewPageDestination(it.url))
+                                homeNavigation?.openWeb(it.url)
                             }
                             .doIfFailure {
                                 dialog.dismiss()
@@ -419,7 +418,7 @@ private fun SubPostItem(
     onMenuCopyClick: ((ThreadSubPost) -> Unit)?,
 ) {
     val context = LocalContext.current
-    val navigator = LocalNavigator.current
+    val homeNavigation = runCatching { LocalHomeNavigation.current }.getOrNull()
     val coroutineScope = rememberCoroutineScope()
     val menuState = rememberMenuState()
     LongClickMenu(
@@ -432,7 +431,7 @@ private fun SubPostItem(
                         menuState.expanded = false
                     }
                 ) {
-                    Text(text = stringResource(id = R.string.title_reply))
+                    Text(text = stringResource(id = CoreUiR.string.title_reply))
                 }
             }
             if (onMenuCopyClick != null) {
@@ -453,7 +452,7 @@ private fun SubPostItem(
                             viewModel.checkReportPost(subPostList.get { id }.toString())
                                 .doIfSuccess {
                                     dialog.dismiss()
-                                    navigator.navigate(WebViewPageDestination(it.url))
+                                    homeNavigation?.openWeb(it.url)
                                 }
                                 .doIfFailure {
                                     dialog.dismiss()

@@ -42,23 +42,23 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.huanchengfly.tieba.core.common.reply.ReplyArgs
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.ui.compose.Container
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
+import com.huanchengfly.tieba.core.ui.navigation.HomeNavigationActions
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.loadMoreIndicator
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.core.ui.widgets.compose.Button
 import com.huanchengfly.tieba.core.ui.widgets.compose.TipScreen
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.thread.R
 import com.huanchengfly.tieba.core.common.thread.ThreadPost
-import com.huanchengfly.tieba.post.ui.page.destinations.CopyTextDialogPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
-import com.huanchengfly.tieba.post.ui.page.reply.destinations.ReplyPageDestination
-import com.huanchengfly.tieba.post.ui.page.subposts.destinations.SubPostsSheetPageDestination
-import com.huanchengfly.tieba.post.ui.page.user.destinations.UserProfilePageDestination
+import com.huanchengfly.tieba.post.ui.page.thread.destinations.CopyTextDialogPageDestination
+import com.huanchengfly.tieba.post.ui.page.thread.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageActions
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageState
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadSortType
@@ -85,6 +85,7 @@ fun ThreadPostList(
     confirmDeleteDialogState: DialogState,
     modifier: Modifier = Modifier
 ) {
+    val homeNavigation = runCatching { LocalHomeNavigation.current }.getOrNull()
     Box(modifier = modifier) {
         LoadMoreLayout(
             isLoading = pageState.isLoadingMore,
@@ -131,6 +132,7 @@ fun ThreadPostList(
                 threadListContent(
                     pageState = pageState,
                     navigator = navigator,
+                    homeNavigation = homeNavigation,
                     actions = actions,
                     viewModel = viewModel,
                     forumId = forumId,
@@ -155,6 +157,7 @@ fun ThreadPostList(
 private fun LazyListScope.threadListContent(
     pageState: ThreadPageState,
     navigator: DestinationsNavigator,
+    homeNavigation: HomeNavigationActions?,
     actions: ThreadPageActions,
     viewModel: ThreadViewModel,
     forumId: Long?,
@@ -186,14 +189,14 @@ private fun LazyListScope.threadListContent(
                         canDelete = { it.authorId == curUserId },
                         isCollected = { pageState.threadMeta.collectStatus && it.id == pageState.threadMeta.collectMarkPid },
                         showSubPosts = false,
-                        onUserClick = { navigatorInstance.navigate(UserProfilePageDestination(it.id)) },
+                        onUserClick = { homeNavigation?.openUserProfile(it.id) },
                         onAgree = {
                             val firstPostId = firstPost.get { id }
                             actions.agreeThread(pageState.threadId, firstPostId, !pageState.hasThreadAgreed)
                         },
                         onReplyClick = {
-                            navigatorInstance.navigate(
-                                ReplyPageDestination(
+                            homeNavigation?.openReply(
+                                ReplyArgs(
                                     forumId = pageState.curForumId ?: 0,
                                     forumName = pageState.curForumName.orEmpty(),
                                     threadId = pageState.threadId,
@@ -279,6 +282,7 @@ private fun LazyListScope.threadListContent(
             pageState = pageState,
             actions = actions,
             navigator = navigatorInstance,
+            homeNavigation = homeNavigation,
             viewModel = viewModel,
             deletePostState = deletePostState,
             confirmDeleteDialogState = confirmDeleteDialogState
@@ -372,7 +376,7 @@ private fun LazyListScope.threadListContent(
                     immersiveMode = pageState.isImmersiveMode,
                     canDelete = { it.authorId == curUserId },
                     isCollected = { pageState.threadMeta.collectStatus && it.id == pageState.threadMeta.collectMarkPid },
-                    onUserClick = { navigatorInstance.navigate(UserProfilePageDestination(it.id)) },
+                    onUserClick = { homeNavigation?.openUserProfile(it.id) },
                     onAgree = {
                         val postId = item.post.get { id }
                         val meta = pageState.postMetas[postId]
@@ -384,8 +388,8 @@ private fun LazyListScope.threadListContent(
                         )
                     },
                     onReplyClick = { post ->
-                        navigatorInstance.navigate(
-                            ReplyPageDestination(
+                        homeNavigation?.openReply(
+                            ReplyArgs(
                                 forumId = pageState.curForumId ?: 0,
                                 forumName = pageState.curForumName.orEmpty(),
                                 threadId = pageState.threadId,
@@ -397,8 +401,8 @@ private fun LazyListScope.threadListContent(
                         )
                     },
                     onSubPostReplyClick = { post, subPost ->
-                        navigatorInstance.navigate(
-                            ReplyPageDestination(
+                        homeNavigation?.openReply(
+                            ReplyArgs(
                                 forumId = pageState.curForumId ?: 0,
                                 forumName = pageState.curForumName.orEmpty(),
                                 threadId = pageState.threadId,
@@ -411,18 +415,12 @@ private fun LazyListScope.threadListContent(
                         )
                     },
                     onOpenSubPosts = { subPostId ->
-                        val forumValue = pageState.curForumId ?: forumId
-                        if (forumValue != null) {
-                            navigatorInstance.navigate(
-                                SubPostsSheetPageDestination(
-                                    forumId = forumValue,
-                                    threadId = pageState.threadId,
-                                    postId = item.post.get { id },
-                                    subPostId = subPostId,
-                                    loadFromSubPost = false
-                                )
-                            )
-                        }
+                        homeNavigation?.openSubPostsSheet(
+                            threadId = pageState.threadId,
+                            postId = item.post.get { id },
+                            subPostId = subPostId,
+                            loadFromSubPost = false
+                        )
                     },
                     onMenuCopyClick = { text ->
                         navigatorInstance.navigate(CopyTextDialogPageDestination(text))
@@ -459,6 +457,7 @@ private fun LazyListScope.threadListContent(
             pageState = pageState,
             actions = actions,
             navigator = navigatorInstance,
+            homeNavigation = homeNavigation,
             viewModel = viewModel,
             deletePostState = deletePostState,
             confirmDeleteDialogState = confirmDeleteDialogState
@@ -471,6 +470,7 @@ private fun LazyListScope.latestPostsSection(
     pageState: ThreadPageState,
     actions: ThreadPageActions,
     navigator: DestinationsNavigator,
+    homeNavigation: HomeNavigationActions?,
     viewModel: ThreadViewModel,
     deletePostState: MutableState<ImmutableHolder<ThreadPost>?>,
     confirmDeleteDialogState: DialogState,
@@ -504,7 +504,7 @@ private fun LazyListScope.latestPostsSection(
                 immersiveMode = pageState.isImmersiveMode,
                 canDelete = { it.authorId == pageState.user.get { id } },
                 isCollected = { pageState.threadMeta.collectStatus && it.id == pageState.threadMeta.collectMarkPid },
-                onUserClick = { navigator.navigate(UserProfilePageDestination(it.id)) },
+                onUserClick = { homeNavigation?.openUserProfile(it.id) },
                 onAgree = {
                     val postId = postHolder.get { id }
                     val meta = pageState.postMetas[postId]
@@ -516,8 +516,8 @@ private fun LazyListScope.latestPostsSection(
                     )
                 },
                 onReplyClick = { targetPost ->
-                    navigator.navigate(
-                        ReplyPageDestination(
+                    homeNavigation?.openReply(
+                        ReplyArgs(
                             forumId = pageState.curForumId ?: 0,
                             forumName = pageState.curForumName.orEmpty(),
                             threadId = pageState.threadId,
@@ -529,8 +529,8 @@ private fun LazyListScope.latestPostsSection(
                     )
                 },
                 onSubPostReplyClick = { parent, subPost ->
-                    navigator.navigate(
-                        ReplyPageDestination(
+                    homeNavigation?.openReply(
+                        ReplyArgs(
                             forumId = pageState.curForumId ?: 0,
                             forumName = pageState.curForumName.orEmpty(),
                             threadId = pageState.threadId,
@@ -543,18 +543,12 @@ private fun LazyListScope.latestPostsSection(
                     )
                 },
                 onOpenSubPosts = { subPostId ->
-                    val forumValue = pageState.curForumId
-                    if (forumValue != null) {
-                        navigator.navigate(
-                            SubPostsSheetPageDestination(
-                                forumId = forumValue,
-                                threadId = pageState.threadId,
-                                postId = postHolder.get { id },
-                                subPostId = subPostId,
-                                loadFromSubPost = false
-                            )
-                        )
-                    }
+                    homeNavigation?.openSubPostsSheet(
+                        threadId = pageState.threadId,
+                        postId = postHolder.get { id },
+                        subPostId = subPostId,
+                        loadFromSubPost = false
+                    )
                 },
                 onMenuCopyClick = { text -> navigator.navigate(CopyTextDialogPageDestination(text)) },
                 onMenuCollectClick = { favouritePost ->
@@ -641,22 +635,22 @@ private fun ThreadLoadMoreIndicator(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = stringResource(id = R.string.text_loading),
+                            text = stringResource(id = CoreUiR.string.text_loading),
                             modifier = Modifier.padding(horizontal = 8.dp)
                         )
                     }
 
                     loadMoreEnd -> {
                         Text(
-                            text = stringResource(id = R.string.no_more),
+                            text = stringResource(id = CoreUiR.string.no_more),
                             modifier = Modifier.padding(horizontal = 8.dp)
                         )
                     }
 
                     hasMore -> {
                         Text(
-                            text = if (willLoad) stringResource(id = R.string.release_to_load) else stringResource(
-                                id = R.string.pull_to_load
+                            text = if (willLoad) stringResource(id = CoreUiR.string.release_to_load) else stringResource(
+                                id = CoreUiR.string.pull_to_load
                             ),
                             modifier = Modifier.padding(horizontal = 8.dp)
                         )

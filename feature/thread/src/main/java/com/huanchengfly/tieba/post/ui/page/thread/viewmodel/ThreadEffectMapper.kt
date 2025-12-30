@@ -1,7 +1,8 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
 import com.huanchengfly.tieba.core.common.ResourceProvider
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
+import com.huanchengfly.tieba.feature.thread.R
 import javax.inject.Inject
 
 class ThreadEffectMapper @Inject constructor(
@@ -32,13 +33,13 @@ class ThreadEffectMapper @Inject constructor(
         )
 
         is ThreadPartialChange.DeletePost.Failure -> ThreadPageEffect.ShowToast(
-            resourceProvider.getString(R.string.toast_delete_failure, partialChange.errorMessage)
+            resourceProvider.getString(CoreUiR.string.toast_delete_failure, partialChange.errorMessage)
         )
 
         is ThreadPartialChange.DeleteThread.Success -> ThreadPageEffect.NavigateUp
 
         is ThreadPartialChange.DeleteThread.Failure -> ThreadPageEffect.ShowToast(
-            resourceProvider.getString(R.string.toast_delete_failure, partialChange.errorMessage)
+            resourceProvider.getString(CoreUiR.string.toast_delete_failure, partialChange.errorMessage)
         )
 
         is ThreadPartialChange.UpdateCollectMark.Success -> ThreadPageEffect.ShowToast(

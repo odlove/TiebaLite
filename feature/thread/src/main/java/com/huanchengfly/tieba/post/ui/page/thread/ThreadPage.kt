@@ -74,6 +74,7 @@ import com.huanchengfly.tieba.core.ui.compose.MyPredictiveBackHandler
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.pageViewModel
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.loadMoreIndicator
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
@@ -82,20 +83,15 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.BlockTip
 import com.huanchengfly.tieba.core.ui.widgets.compose.BlockableContent
 import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.thread.R
+import com.huanchengfly.tieba.core.common.reply.ReplyArgs
 import com.huanchengfly.tieba.core.common.history.ThreadHistoryInfoBean
 import com.huanchengfly.tieba.post.repository.ThreadPageFrom
 import com.huanchengfly.tieba.post.toJson
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
-import com.huanchengfly.tieba.post.ui.page.destinations.CopyTextDialogPageDestination
-import com.huanchengfly.tieba.post.ui.page.forum.destinations.ForumPageDestination
-import com.huanchengfly.tieba.post.ui.page.reply.destinations.ReplyPageDestination
-import com.huanchengfly.tieba.post.ui.page.subposts.destinations.SubPostsSheetPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
-import com.huanchengfly.tieba.post.ui.page.webview.destinations.WebViewPageDestination
-import com.huanchengfly.tieba.post.ui.page.user.destinations.UserProfilePageDestination
+import com.huanchengfly.tieba.post.ui.page.thread.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.thread.components.ThreadCollectMarkDialog
 import com.huanchengfly.tieba.post.ui.page.thread.components.ThreadDeleteDialog
 import com.huanchengfly.tieba.post.ui.page.thread.components.ThreadInfoHeader
@@ -185,6 +181,7 @@ fun ThreadPageLayout(
     }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val homeNavigation = runCatching { LocalHomeNavigation.current }.getOrNull()
     val historyRepository = remember(context) {
         EntryPointAccessors.fromApplication(
             context.applicationContext,
@@ -370,7 +367,7 @@ fun ThreadPageLayout(
                         onForumClick = {
                             val forumName = pageState.forum?.get { name }
                             if (!forumName.isNullOrBlank()) {
-                                navigator.navigate(ForumPageDestination(forumName))
+                                homeNavigation?.openForum(forumName)
                             }
                         }
                     )
@@ -381,8 +378,8 @@ fun ThreadPageLayout(
                         pbPageRepository = viewModel.pbPageRepository,
                         threadId = pageState.threadId,
                         onClickReply = {
-                            navigator.navigate(
-                                ReplyPageDestination(
+                            homeNavigation?.openReply(
+                                ReplyArgs(
                                     forumId = pageState.curForumId ?: 0,
                                     forumName = pageState.curForumName.orEmpty(),
                                     threadId = pageState.threadId,
@@ -438,7 +435,6 @@ fun ThreadPageLayout(
                                 confirmDeleteDialogState = confirmDeleteDialogState,
                                 deletePostState = dialogs.deletePost,
                                 actions = actions,
-                                navigator = navigator,
                                 viewModel = viewModel,
                                 coroutineScope = coroutineScope,
                                 context = context,

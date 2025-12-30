@@ -8,7 +8,6 @@ import com.huanchengfly.tieba.core.common.thread.ThreadForum
 import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import com.huanchengfly.tieba.core.common.thread.ThreadMeta
-import com.huanchengfly.tieba.post.removeAt
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -605,4 +604,8 @@ private fun ThreadDetail.updateCollectStatus(
     )
 } else {
     this
+}
+
+private fun <T> ImmutableList<T>.removeAt(index: Int): ImmutableList<T> {
+    return this.toMutableList().apply { removeAt(index) }.toImmutableList()
 }

@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
-import com.huanchengfly.tieba.post.BuildConfig
+import com.huanchengfly.tieba.feature.thread.BuildConfig
 import dagger.MapKey
 import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject

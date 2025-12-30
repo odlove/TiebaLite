@@ -21,7 +21,8 @@ import com.huanchengfly.tieba.post.ui.page.login.destinations.LoginPageDestinati
 import com.huanchengfly.tieba.post.ui.page.search.destinations.SearchPageDestination
 import com.huanchengfly.tieba.post.ui.page.reply.destinations.ReplyPageDestination
 import com.huanchengfly.tieba.post.ui.page.subposts.destinations.SubPostsPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
+import com.huanchengfly.tieba.post.ui.page.subposts.destinations.SubPostsSheetPageDestination
+import com.huanchengfly.tieba.post.ui.page.thread.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.threadcollect.destinations.ThreadCollectPageDestination
 import com.huanchengfly.tieba.post.ui.page.user.destinations.UserProfilePageDestination
 import com.huanchengfly.tieba.post.ui.page.settings.destinations.AboutPageDestination
@@ -134,6 +135,22 @@ fun ProvideHomeNavigationActions(
                 )
             }
 
+            override fun openSubPostsSheet(
+                threadId: Long,
+                subPostId: Long,
+                postId: Long,
+                loadFromSubPost: Boolean,
+            ) {
+                navController.navigateDirection(
+                    SubPostsSheetPageDestination(
+                        threadId = threadId,
+                        postId = postId,
+                        subPostId = subPostId,
+                        loadFromSubPost = loadFromSubPost
+                    )
+                )
+            }
+
             override fun openReply(args: ReplyArgs) {
                 navController.navigateDirection(
                     ReplyPageDestination(
@@ -160,6 +177,10 @@ fun ProvideHomeNavigationActions(
 
             override fun copyText(text: String, isSensitive: Boolean) {
                 TiebaUtil.copyText(appContext, text, isSensitive = isSensitive)
+            }
+
+            override fun shareText(text: String, title: String?) {
+                TiebaUtil.shareText(appContext, text, title)
             }
 
             override fun startSign() {

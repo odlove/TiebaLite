@@ -36,10 +36,17 @@ interface HomeNavigationActions {
         postId: Long = 0,
         loadFromSubPost: Boolean = false
     )
+    fun openSubPostsSheet(
+        threadId: Long,
+        subPostId: Long,
+        postId: Long = 0,
+        loadFromSubPost: Boolean = false
+    )
     fun openReply(args: ReplyArgs)
     fun openHotTopicList()
     fun openLogin()
     fun copyText(text: String, isSensitive: Boolean = false)
+    fun shareText(text: String, title: String? = null)
     fun startSign()
 }
 

@@ -5,6 +5,7 @@ import com.huanchengfly.tieba.core.common.history.HistoryItem
 import com.huanchengfly.tieba.core.common.history.HistoryRepository
 import com.huanchengfly.tieba.core.common.repository.ForumRecommendRepository
 import com.huanchengfly.tieba.post.repository.ForumOperationRepository
+import com.huanchengfly.tieba.post.repository.TopForumRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
 import io.mockk.clearMocks
 import io.mockk.every
@@ -41,6 +42,7 @@ class HomeViewModelTest : BaseViewModelTest() {
 
     private lateinit var mockForumRecommendRepo: ForumRecommendRepository
     private lateinit var mockForumOperationRepo: ForumOperationRepository
+    private lateinit var mockTopForumRepository: TopForumRepository
     private lateinit var mockHistoryRepository: HistoryRepository
 
     @Before
@@ -51,13 +53,14 @@ class HomeViewModelTest : BaseViewModelTest() {
 
         mockForumRecommendRepo = mockk(relaxed = true)
         mockForumOperationRepo = mockk(relaxed = true)
+        mockTopForumRepository = mockk(relaxed = true)
         mockHistoryRepository = mockk(relaxed = true)
     }
 
     @After
     override fun tearDown() {
         super.tearDown()
-        clearMocks(mockForumRecommendRepo, mockForumOperationRepo)
+        clearMocks(mockForumRecommendRepo, mockForumOperationRepo, mockTopForumRepository, mockHistoryRepository)
     }
 
     // ========== Unfollow Tests ==========
@@ -75,6 +78,7 @@ class HomeViewModelTest : BaseViewModelTest() {
             val viewModel = HomeViewModel(
                 mockForumRecommendRepo,
                 mockForumOperationRepo,
+                mockTopForumRepository,
                 mockHistoryRepository,
                 testDispatcherProvider
             )

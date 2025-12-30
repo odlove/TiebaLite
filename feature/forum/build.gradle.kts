@@ -57,7 +57,6 @@ dependencies {
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.datastore.preferences)
-    implementation(libs.org.litepal.android.kotlin)
     implementation(libs.eygraber.placeholder.material)
 }
 

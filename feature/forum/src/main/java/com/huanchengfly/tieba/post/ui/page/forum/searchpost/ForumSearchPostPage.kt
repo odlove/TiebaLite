@@ -66,7 +66,7 @@ import com.huanchengfly.tieba.feature.forum.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.ui.pageViewModel
-import com.huanchengfly.tieba.post.models.database.SearchPostHistory
+import com.huanchengfly.tieba.core.common.search.SearchPostHistoryItem
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
@@ -94,11 +94,11 @@ import kotlinx.collections.immutable.toImmutableList
 @OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun SearchHistoryList(
-    searchHistories: ImmutableList<SearchPostHistory>,
-    onSearchHistoryClick: (SearchPostHistory) -> Unit,
+    searchHistories: ImmutableList<SearchPostHistoryItem>,
+    onSearchHistoryClick: (SearchPostHistoryItem) -> Unit,
     expanded: Boolean = false,
     onToggleExpand: () -> Unit = {},
-    onDelete: (SearchPostHistory) -> Unit = {},
+    onDelete: (SearchPostHistoryItem) -> Unit = {},
     onClear: () -> Unit = {},
 ) {
     val hasItem = remember(searchHistories) {

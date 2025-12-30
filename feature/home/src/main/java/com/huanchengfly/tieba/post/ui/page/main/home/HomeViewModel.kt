@@ -14,9 +14,9 @@ import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.core.common.history.HistoryItem
 import com.huanchengfly.tieba.core.common.history.HistoryRepository
-import com.huanchengfly.tieba.post.models.database.TopForum
 import com.huanchengfly.tieba.core.common.repository.ForumRecommendRepository
 import com.huanchengfly.tieba.post.repository.ForumOperationRepository
+import com.huanchengfly.tieba.post.repository.TopForumRepository
 import com.huanchengfly.tieba.post.utils.AccountUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.zip
-import org.litepal.LitePal
 import javax.inject.Inject
 
 @Stable
@@ -43,6 +42,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val forumRecommendRepository: ForumRecommendRepository,
     private val forumOperationRepository: ForumOperationRepository,
+    private val topForumRepository: TopForumRepository,
     private val historyRepository: HistoryRepository,
     dispatcherProvider: DispatcherProvider
 ) : BaseViewModel<HomeUiIntent, HomePartialChange, HomeUiState, HomeUiEvent>(dispatcherProvider) {
@@ -94,7 +94,7 @@ class HomeViewModel @Inject constructor(
                         )
                     }
                     val topForums = mutableListOf<HomeUiState.Forum>()
-                    val topForumsDB = LitePal.findAll(TopForum::class.java).map { it.forumId }
+                    val topForumsDB = topForumRepository.getTopForumIds()
                     topForums.addAll(forums.filter { topForumsDB.contains(it.forumId) })
                     HomePartialChange.Refresh.Success(
                         forums,
@@ -113,8 +113,8 @@ class HomeViewModel @Inject constructor(
 
         private fun HomeUiIntent.TopForums.Delete.toPartialChangeFlow() =
             flow {
-                val deletedRows = LitePal.deleteAll(TopForum::class.java, "forumId = ?", forumId)
-                if (deletedRows > 0) {
+                val deleted = topForumRepository.deleteTopForum(forumId)
+                if (deleted) {
                     emit(HomePartialChange.TopForums.Delete.Success(forumId))
                 } else {
                     emit(HomePartialChange.TopForums.Delete.Failure("forum $forumId is not top!"))
@@ -124,7 +124,7 @@ class HomeViewModel @Inject constructor(
 
         private fun HomeUiIntent.TopForums.Add.toPartialChangeFlow() =
             flow {
-                val success = TopForum(forum.forumId).saveOrUpdate("forumId = ?", forum.forumId)
+                val success = topForumRepository.addTopForum(forum.forumId)
                 if (success) {
                     emit(HomePartialChange.TopForums.Add.Success(forum))
                 } else {

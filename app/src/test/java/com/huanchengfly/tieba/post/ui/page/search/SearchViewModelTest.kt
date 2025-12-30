@@ -2,6 +2,7 @@ package com.huanchengfly.tieba.post.ui.page.search
 
 import com.huanchengfly.tieba.post.TestFixtures
 import com.huanchengfly.tieba.post.repository.SearchRepository
+import com.huanchengfly.tieba.post.repository.SearchHistoryRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
 import com.huanchengfly.tieba.core.common.ResourceProvider
 import io.mockk.clearMocks
@@ -30,20 +31,21 @@ import org.junit.Test
  * - KeywordInputChanged: Verifies searchRepository.searchSuggestions() is called
  *
  * Skipped Tests:
- * - Init, ClearSearchHistory, DeleteSearchHistory, SubmitKeyword: These intents use LitePal
- *   database directly (global state) which is not initialized in test environment. Mocking
- *   LitePal is out of scope for smoke tests.
+ * - Init, ClearSearchHistory, DeleteSearchHistory, SubmitKeyword: These intents exercise
+ *   searchHistoryRepository and persistence paths, which are out of scope for smoke tests.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class SearchViewModelTest : BaseViewModelTest() {
 
     private lateinit var mockSearchRepo: SearchRepository
+    private lateinit var mockSearchHistoryRepo: SearchHistoryRepository
     private lateinit var mockResourceProvider: ResourceProvider
 
     @Before
     override fun setup() {
         super.setup()
         mockSearchRepo = mockk(relaxed = true)
+        mockSearchHistoryRepo = mockk(relaxed = true)
         mockResourceProvider = mockk(relaxed = true)
     }
 
@@ -51,6 +53,7 @@ class SearchViewModelTest : BaseViewModelTest() {
     override fun tearDown() {
         super.tearDown()
         clearMocks(mockSearchRepo)
+        clearMocks(mockSearchHistoryRepo)
     }
 
     // ========== KeywordInputChanged Tests ==========
@@ -65,7 +68,12 @@ class SearchViewModelTest : BaseViewModelTest() {
             } returns flowOf(response)
 
             // When: Create ViewModel and send KeywordInputChanged intent
-            val viewModel = SearchViewModel(mockSearchRepo, testDispatcherProvider, mockResourceProvider)
+            val viewModel = SearchViewModel(
+                mockSearchRepo,
+                mockSearchHistoryRepo,
+                testDispatcherProvider,
+                mockResourceProvider
+            )
             val job = collectUiState(viewModel)
             testDispatcher.scheduler.advanceUntilIdle() // Let initialization complete
             viewModel.send(SearchUiIntent.KeywordInputChanged("test keyword"))

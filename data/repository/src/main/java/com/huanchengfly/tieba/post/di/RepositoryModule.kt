@@ -29,10 +29,14 @@ import com.huanchengfly.tieba.post.repository.PersonalizedRepository
 import com.huanchengfly.tieba.post.repository.PersonalizedRepositoryImpl
 import com.huanchengfly.tieba.post.repository.SearchRepository
 import com.huanchengfly.tieba.post.repository.SearchRepositoryImpl
+import com.huanchengfly.tieba.post.repository.SearchHistoryRepository
+import com.huanchengfly.tieba.post.repository.SearchHistoryRepositoryImpl
 import com.huanchengfly.tieba.post.preview.QuickPreviewRepository
 import com.huanchengfly.tieba.post.preview.QuickPreviewRepositoryImpl
 import com.huanchengfly.tieba.post.repository.SubPostsRepository
 import com.huanchengfly.tieba.post.repository.SubPostsRepositoryImpl
+import com.huanchengfly.tieba.post.repository.TopForumRepository
+import com.huanchengfly.tieba.post.repository.TopForumRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ThreadFeedRepository
 import com.huanchengfly.tieba.post.repository.ThreadFeedRepositoryImpl
 import com.huanchengfly.tieba.post.repository.ThreadOperationRepository
@@ -139,6 +143,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindSearchHistoryRepository(
+        impl: SearchHistoryRepositoryImpl
+    ): SearchHistoryRepository
+
+    @Binds
+    @Singleton
     abstract fun bindContentRecommendRepository(
         impl: ContentRecommendRepositoryImpl
     ): ContentRecommendRepository
@@ -160,6 +170,12 @@ abstract class RepositoryModule {
     abstract fun bindSubPostsRepository(
         impl: SubPostsRepositoryImpl
     ): SubPostsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindTopForumRepository(
+        impl: TopForumRepositoryImpl
+    ): TopForumRepository
 
     @Binds
     @Singleton

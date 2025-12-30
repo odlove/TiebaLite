@@ -54,7 +54,6 @@ dependencies {
     implementation(libs.compose.destinations.core)
     ksp(libs.compose.destinations.ksp)
 
-    implementation(libs.org.litepal.android.kotlin)
     implementation(libs.kotlinx.collections.immutable)
 }
 

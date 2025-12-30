@@ -74,7 +74,7 @@ import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.mvi.emitGlobalEventSuspend
 import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
-import com.huanchengfly.tieba.post.models.database.SearchHistory
+import com.huanchengfly.tieba.core.common.search.SearchHistoryItem
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
@@ -487,11 +487,11 @@ private fun ColumnScope.SearchTabRow(
 @OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun SearchHistoryList(
-    searchHistories: ImmutableList<SearchHistory>,
-    onSearchHistoryClick: (SearchHistory) -> Unit,
+    searchHistories: ImmutableList<SearchHistoryItem>,
+    onSearchHistoryClick: (SearchHistoryItem) -> Unit,
     expanded: Boolean = false,
     onToggleExpand: () -> Unit = {},
-    onDelete: (SearchHistory) -> Unit = {},
+    onDelete: (SearchHistoryItem) -> Unit = {},
     onClear: () -> Unit = {},
 ) {
     val hasItem = remember(searchHistories) {
@@ -604,7 +604,11 @@ fun PreviewSearchHistoryList() {
         Box(modifier = Modifier.background(ExtendedTheme.colors.background)) {
             SearchHistoryList(
                 searchHistories = (0..20).map {
-                    SearchHistory(content = if (it % 2 == 0) "记录$it" else "搜索记录$it")
+                    SearchHistoryItem(
+                        id = it.toLong(),
+                        content = if (it % 2 == 0) "记录$it" else "搜索记录$it",
+                        timestamp = System.currentTimeMillis()
+                    )
                 }.toImmutableList(),
                 onSearchHistoryClick = {},
                 expanded = expanded,

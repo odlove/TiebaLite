@@ -14,10 +14,11 @@ import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
-import com.huanchengfly.tieba.post.models.database.SearchPostHistory
 import com.huanchengfly.tieba.core.common.ResourceProvider
+import com.huanchengfly.tieba.core.common.search.SearchPostHistoryItem
 import com.huanchengfly.tieba.core.common.search.SearchThreadItem
 import com.huanchengfly.tieba.core.common.search.SearchThreadResult
+import com.huanchengfly.tieba.post.repository.SearchHistoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -36,22 +37,19 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
-import org.litepal.LitePal
-import org.litepal.extension.delete
-import org.litepal.extension.deleteAll
-import org.litepal.extension.find
 import javax.inject.Inject
 
 @HiltViewModel
 class ForumSearchPostViewModel @Inject constructor(
     dispatcherProvider: DispatcherProvider,
     private val searchRepository: SearchRepository,
+    private val searchHistoryRepository: SearchHistoryRepository,
     private val resourceProvider: ResourceProvider
 ) : BaseViewModel<ForumSearchPostUiIntent, ForumSearchPostPartialChange, ForumSearchPostUiState, UiEvent>(dispatcherProvider) {
     override fun createInitialState(): ForumSearchPostUiState = ForumSearchPostUiState()
 
     override fun createPartialChangeProducer(): PartialChangeProducer<ForumSearchPostUiIntent, ForumSearchPostPartialChange, ForumSearchPostUiState> =
-        ForumSearchPostPartialChangeProducer(searchRepository)
+        ForumSearchPostPartialChangeProducer(searchRepository, searchHistoryRepository)
 
     override fun dispatchEvent(partialChange: ForumSearchPostPartialChange): UiEvent? =
         when (partialChange) {
@@ -77,7 +75,8 @@ class ForumSearchPostViewModel @Inject constructor(
         }
 
     private class ForumSearchPostPartialChangeProducer(
-        private val searchRepository: SearchRepository
+        private val searchRepository: SearchRepository,
+        private val searchHistoryRepository: SearchHistoryRepository
     ) : PartialChangeProducer<ForumSearchPostUiIntent, ForumSearchPostPartialChange, ForumSearchPostUiState> {
         @OptIn(ExperimentalCoroutinesApi::class)
         override fun toPartialChangeFlow(intentFlow: Flow<ForumSearchPostUiIntent>): Flow<ForumSearchPostPartialChange> =
@@ -96,9 +95,7 @@ class ForumSearchPostViewModel @Inject constructor(
 
         private fun produceInitPartialChange(): Flow<ForumSearchPostPartialChange.Init> =
             flow<ForumSearchPostPartialChange.Init> {
-                val searchHistories = LitePal
-                    .order("timestamp DESC")
-                    .find<SearchPostHistory>()
+                val searchHistories = searchHistoryRepository.getSearchPostHistory()
                 emit(ForumSearchPostPartialChange.Init.Success(searchHistories))
             }.catch {
                 emit(ForumSearchPostPartialChange.Init.Failure(it))
@@ -110,7 +107,7 @@ class ForumSearchPostViewModel @Inject constructor(
                 .filter { it.isNotBlank() }
                 .onEach {
                     runCatching {
-                        SearchPostHistory(it, forumName).saveOrUpdate("content = ?", it)
+                        searchHistoryRepository.saveSearchPostHistory(it, forumName)
                     }
                 }
                 .flatMapConcat {
@@ -159,7 +156,7 @@ class ForumSearchPostViewModel @Inject constructor(
 
         private fun ForumSearchPostUiIntent.DeleteHistory.producePartialChange(): Flow<ForumSearchPostPartialChange.DeleteHistory> =
             flow<ForumSearchPostPartialChange.DeleteHistory> {
-                LitePal.delete<SearchPostHistory>(id)
+                searchHistoryRepository.deleteSearchPostHistory(id)
                 emit(ForumSearchPostPartialChange.DeleteHistory.Success(id))
             }.catch {
                 emit(ForumSearchPostPartialChange.DeleteHistory.Failure(it))
@@ -167,7 +164,7 @@ class ForumSearchPostViewModel @Inject constructor(
 
         private fun produceClearHistoryPartialChange(): Flow<ForumSearchPostPartialChange.ClearHistory> =
             flow<ForumSearchPostPartialChange.ClearHistory> {
-                LitePal.deleteAll<SearchPostHistory>()
+                searchHistoryRepository.clearSearchPostHistory()
                 emit(ForumSearchPostPartialChange.ClearHistory.Success)
             }.catch {
                 emit(ForumSearchPostPartialChange.ClearHistory.Failure(it))
@@ -212,7 +209,7 @@ sealed interface ForumSearchPostPartialChange : PartialChange<ForumSearchPostUiS
             }
 
         data class Success(
-            val searchHistories: List<SearchPostHistory>,
+            val searchHistories: List<SearchPostHistoryItem>,
         ) : Init()
 
         data class Failure(
@@ -225,9 +222,11 @@ sealed interface ForumSearchPostPartialChange : PartialChange<ForumSearchPostUiS
             when (this) {
                 is Start -> {
                     val newSearchHistories = (oldState.searchHistories
-                        .filterNot { it.content == keyword } + SearchPostHistory(
-                        keyword,
-                        forumName
+                        .filterNot { it.content == keyword } + SearchPostHistoryItem(
+                        id = 0,
+                        content = keyword,
+                        forumName = forumName,
+                        timestamp = System.currentTimeMillis()
                     ))
                         .sortedByDescending { it.timestamp }
                     oldState.copy(
@@ -361,7 +360,7 @@ data class ForumSearchPostUiState(
     val isRefreshing: Boolean = true,
     val isLoadingMore: Boolean = false,
     val error: ImmutableHolder<Throwable>? = null,
-    val searchHistories: ImmutableList<SearchPostHistory> = persistentListOf(),
+    val searchHistories: ImmutableList<SearchPostHistoryItem> = persistentListOf(),
     val currentPage: Int = 1,
     val hasMore: Boolean = true,
     val keyword: String = "",

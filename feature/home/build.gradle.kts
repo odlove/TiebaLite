@@ -43,7 +43,6 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation(libs.javax.inject)
-    implementation(libs.org.litepal.android.kotlin)
     implementation(libs.kotlinx.collections.immutable)
 
     implementation(platform(libs.compose.bom))

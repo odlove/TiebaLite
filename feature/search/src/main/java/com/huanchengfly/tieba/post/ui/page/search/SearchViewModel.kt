@@ -10,9 +10,10 @@ import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
 import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
-import com.huanchengfly.tieba.post.models.database.SearchHistory
 import com.huanchengfly.tieba.post.repository.SearchRepository
+import com.huanchengfly.tieba.post.repository.SearchHistoryRepository
 import com.huanchengfly.tieba.core.common.ResourceProvider
+import com.huanchengfly.tieba.core.common.search.SearchHistoryItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -29,15 +30,12 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
-import org.litepal.LitePal
-import org.litepal.extension.delete
-import org.litepal.extension.deleteAll
-import org.litepal.extension.find
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val searchRepository: SearchRepository,
+    private val searchHistoryRepository: SearchHistoryRepository,
     dispatcherProvider: DispatcherProvider,
     private val resourceProvider: ResourceProvider
 ) :
@@ -86,7 +84,7 @@ class SearchViewModel @Inject constructor(
         private fun produceInitPartialChange() = flow<SearchPartialChange.Init> {
             emit(
                 SearchPartialChange.Init.Success(
-                    LitePal.order("timestamp DESC").find<SearchHistory>()
+                    searchHistoryRepository.getSearchHistory()
                 )
             )
         }.catch {
@@ -95,7 +93,7 @@ class SearchViewModel @Inject constructor(
 
         private fun produceClearHistoryPartialChange() =
             flow<SearchPartialChange.ClearSearchHistory> {
-                LitePal.deleteAll<SearchHistory>()
+                searchHistoryRepository.clearSearchHistory()
                 emit(SearchPartialChange.ClearSearchHistory.Success)
             }.catch {
                 emit(SearchPartialChange.ClearSearchHistory.Failure(it.defaultErrorMessage()))
@@ -103,7 +101,7 @@ class SearchViewModel @Inject constructor(
 
         private fun SearchUiIntent.DeleteSearchHistory.producePartialChange() =
             flow<SearchPartialChange.DeleteSearchHistory> {
-                LitePal.delete<SearchHistory>(id)
+                searchHistoryRepository.deleteSearchHistory(id)
                 emit(SearchPartialChange.DeleteSearchHistory.Success(id))
             }.catch {
                 emit(SearchPartialChange.DeleteSearchHistory.Failure(it.defaultErrorMessage()))
@@ -114,7 +112,7 @@ class SearchViewModel @Inject constructor(
                 .onEach {
                     if (it.isNotBlank()) {
                         runCatching {
-                            SearchHistory(it).saveOrUpdate("content = ?", it)
+                            searchHistoryRepository.saveSearchHistory(it)
                         }
                     }
                 }
@@ -155,7 +153,7 @@ sealed interface SearchPartialChange : PartialChange<SearchUiState> {
             is Failure -> oldState
         }
 
-        data class Success(val searchHistories: List<SearchHistory>) : Init()
+        data class Success(val searchHistories: List<SearchHistoryItem>) : Init()
 
         data class Failure(val errorCode: Int, val errorMessage: String) : Init()
     }
@@ -199,7 +197,11 @@ sealed interface SearchPartialChange : PartialChange<SearchUiState> {
                 )
             }
             val newSearchHistories = (oldState.searchHistories
-                .filterNot { it.content == keyword } + SearchHistory(content = keyword))
+                .filterNot { it.content == keyword } + SearchHistoryItem(
+                id = 0,
+                content = keyword,
+                timestamp = System.currentTimeMillis()
+            ))
                 .sortedByDescending { it.timestamp }
             return oldState.copy(
                 keyword = keyword,
@@ -226,7 +228,7 @@ sealed interface SearchPartialChange : PartialChange<SearchUiState> {
 data class SearchUiState(
     val keyword: String = "",
     val isKeywordEmpty: Boolean = true,
-    val searchHistories: ImmutableList<SearchHistory> = persistentListOf(),
+    val searchHistories: ImmutableList<SearchHistoryItem> = persistentListOf(),
     val suggestions: ImmutableList<String> = persistentListOf(),
 ) : UiState
 

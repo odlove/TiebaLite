@@ -30,7 +30,7 @@ android {
 
     buildFeatures {
         compose = true
-        buildConfig = false
+        buildConfig = true
     }
 }
 
@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.compose.destinations.core)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.core)
+    implementation(libs.androidx.browser)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.appcompat)
     implementation(libs.google.material)

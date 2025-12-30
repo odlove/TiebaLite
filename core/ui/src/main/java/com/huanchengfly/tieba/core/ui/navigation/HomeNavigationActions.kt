@@ -1,6 +1,7 @@
 package com.huanchengfly.tieba.core.ui.navigation
 
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.huanchengfly.tieba.core.common.reply.ReplyArgs
 import com.huanchengfly.tieba.core.common.thread.ThreadPreview
 import com.huanchengfly.tieba.core.common.theme.ThemeChannel
 
@@ -35,6 +36,7 @@ interface HomeNavigationActions {
         postId: Long = 0,
         loadFromSubPost: Boolean = false
     )
+    fun openReply(args: ReplyArgs)
     fun openHotTopicList()
     fun openLogin()
     fun copyText(text: String, isSensitive: Boolean = false)

@@ -11,12 +11,10 @@ import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
 import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.common.account.AccountInfo
+import com.huanchengfly.tieba.core.common.reply.ReplyArgs
+import com.huanchengfly.tieba.core.ui.navigation.HomeNavigationActions
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
-import com.huanchengfly.tieba.post.ui.page.destinations.CopyTextDialogPageDestination
-import com.huanchengfly.tieba.post.ui.page.user.destinations.UserProfilePageDestination
-import com.huanchengfly.tieba.post.ui.page.reply.ReplyArgs
 import com.huanchengfly.tieba.post.preferences.appPreferences
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.collections.immutable.ImmutableList
 
 /**
@@ -211,7 +209,7 @@ fun rememberSubPostsUiProps(
 @Composable
 fun rememberSubPostsCallbacks(
     viewModel: SubPostsViewModel,
-    navigator: DestinationsNavigator,
+    homeNavigation: HomeNavigationActions?,
     forumId: Long,
     threadId: Long,
     postId: Long,
@@ -219,11 +217,20 @@ fun rememberSubPostsCallbacks(
     onReply: (ThreadSubPost?) -> Unit,
     onShowDeleteDialog: (ThreadSubPost?) -> Unit,
 ): SubPostsCallbacks {
-    return remember(viewModel, navigator, forumId, threadId, postId, onNavigateUp, onReply, onShowDeleteDialog) {
+    return remember(
+        viewModel,
+        homeNavigation,
+        forumId,
+        threadId,
+        postId,
+        onNavigateUp,
+        onReply,
+        onShowDeleteDialog
+    ) {
         SubPostsCallbacks(
             onBack = onNavigateUp,
             onUserClick = { userId ->
-                navigator.navigate(UserProfilePageDestination(userId))
+                homeNavigation?.openUserProfile(userId)
             },
             onReplyClick = onReply,
             onAgree = { subPost ->
@@ -239,7 +246,7 @@ fun rememberSubPostsCallbacks(
                 )
             },
             onMenuCopy = { content ->
-                navigator.navigate(CopyTextDialogPageDestination(content))
+                homeNavigation?.copyText(content)
             },
             onMenuDelete = onShowDeleteDialog,
             onRefresh = {

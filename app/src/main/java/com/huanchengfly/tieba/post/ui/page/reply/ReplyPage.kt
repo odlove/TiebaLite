@@ -85,6 +85,7 @@ import androidx.core.widget.addTextChangedListener
 import com.github.panpf.sketch.compose.AsyncImage
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.common.reply.ReplyArgs
 import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
@@ -140,18 +141,6 @@ import org.litepal.extension.findFirstAsync
 import java.util.UUID
 import kotlin.concurrent.thread
 import kotlin.math.max
-
-data class ReplyArgs(
-    val forumId: Long,
-    val forumName: String,
-    val threadId: Long,
-    val postId: Long? = null,
-    val subPostId: Long? = null,
-    val replyUserId: Long? = null,
-    val replyUserName: String? = null,
-    val replyUserPortrait: String? = null,
-    val tbs: String? = null,
-)
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

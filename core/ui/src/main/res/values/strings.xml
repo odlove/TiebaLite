@@ -41,6 +41,8 @@
     <string name="desc_photo">图片</string>
     <string name="desc_share">分享</string>
     <string name="desc_video">视频</string>
+    <string name="menu_save_audio">保存语音</string>
+    <string name="tag_video">[视频]</string>
     <string name="link">链接</string>
     <string name="user">用户</string>
     <string name="single_chinese_char" translatable="false">国</string>
@@ -58,6 +60,7 @@
     <string name="load_shortcut_icon_fail">加载图标失败</string>
     <string name="my_info_settings">设置</string>
     <string name="tip_login">请先登录</string>
+    <string name="toast_feature_unavailable">该功能尚未实现</string>
     <string name="title_my_collect">我的收藏</string>
     <string name="title_collect_on">取消收藏</string>
     <string name="delete_collect_success">取消收藏成功</string>
@@ -65,6 +68,7 @@
     <string name="tip_thread_collect_update">更新到 %1$s 楼</string>
     <string name="message_collect_thread_update">贴子更新到了第 %d 楼</string>
     <string name="tip_thread_collect_deleted">该贴已被删除</string>
+    <string name="tip_permission_storage_download">用于下载文件</string>
     <string name="title_at_me">提到我的</string>
     <string name="text_message_list_item_reply_my_thread">回复我的主题：%1$s</string>
     <string name="title_reply_me">回复我的</string>

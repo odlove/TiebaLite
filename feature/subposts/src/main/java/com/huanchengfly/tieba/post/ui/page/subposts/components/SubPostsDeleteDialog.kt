@@ -7,7 +7,8 @@ import androidx.compose.material.Text
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogPrimaryButtonColors
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogSecondaryButtonColors
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeDialog
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.subposts.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
@@ -56,7 +57,7 @@ fun SubPostsDeleteDialog(
                 shape = RoundedCornerShape(100),
                 colors = dialogPrimaryButtonColors(),
             ) {
-                Text(text = stringResource(id = R.string.button_sure_default))
+                Text(text = stringResource(id = CoreUiR.string.button_sure_default))
             }
         },
         dismissButton = {
@@ -65,7 +66,7 @@ fun SubPostsDeleteDialog(
                 shape = RoundedCornerShape(100),
                 colors = dialogSecondaryButtonColors(),
             ) {
-                Text(text = stringResource(id = R.string.button_cancel))
+                Text(text = stringResource(id = CoreUiR.string.button_cancel))
             }
         },
     )

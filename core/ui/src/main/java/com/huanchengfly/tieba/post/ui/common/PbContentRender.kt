@@ -41,16 +41,13 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.panpf.sketch.compose.AsyncImage
-import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
-import com.huanchengfly.tieba.post.BuildConfig
+import com.huanchengfly.tieba.core.ui.BuildConfig
 import com.huanchengfly.tieba.core.network.http.Header
 import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.ui.photoview.PhotoViewData
 import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
-import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
-import com.huanchengfly.tieba.post.ui.page.user.destinations.UserProfilePageDestination
-import com.huanchengfly.tieba.post.ui.page.webview.destinations.WebViewPageDestination
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.text.EmoticonText
 import com.huanchengfly.tieba.core.ui.widgets.compose.NetworkImage
 import com.huanchengfly.tieba.core.ui.widgets.compose.VideoPlayer
@@ -173,7 +170,7 @@ data class VoiceContentRender(
             "https://tiebac.baidu.com/c/p/voice?voice_md5=$voiceMd5&play_from=pb_voice_play"
         }
         val context = LocalContext.current
-        val downloadLabel = stringResource(id = R.string.menu_save_audio)
+        val downloadLabel = stringResource(id = CoreUiR.string.menu_save_audio)
         val currentContext = rememberUpdatedState(context)
         val currentDownloadLabel = rememberUpdatedState(downloadLabel)
         val onDownload = remember(voiceUrl) {
@@ -215,7 +212,7 @@ data class VideoContentRender(
         val widthFraction =
             if (LocalWindowSizeClass.current.widthSizeClass == WindowWidthSizeClass.Compact) 1f else 0.5f
         val context = LocalContext.current
-        val navigator = LocalNavigator.current
+        val homeNavigation = runCatching { LocalHomeNavigation.current }.getOrNull()
         val videoHeaders = remember(webUrl) {
             val referer = webUrl.takeIf { it.isNotBlank() } ?: "https://tieba.baidu.com/"
             mapOf(Header.REFERER to referer)
@@ -250,9 +247,7 @@ data class VideoContentRender(
                     contentDescription = stringResource(id = CoreUiR.string.desc_video),
                     modifier = picModifier
                         .clickable {
-                            navigator.navigate(
-                                WebViewPageDestination(webUrl)
-                            )
+                            launchUrl(context, homeNavigation, webUrl)
                         },
                     contentScale = ContentScale.Crop
                 )
@@ -335,7 +330,7 @@ fun PbContentText(
     style: TextStyle = LocalTextStyle.current,
 ) {
     val context = LocalContext.current
-    val navigator = LocalNavigator.current
+    val homeNavigation = runCatching { LocalHomeNavigation.current }.getOrNull()
 
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
     EmoticonText(
@@ -356,12 +351,12 @@ fun PbContentText(
                         when (annotation.tag) {
                             "url" -> {
                                 val url = annotation.item
-                                launchUrl(context, navigator, url)
+                                launchUrl(context, homeNavigation, url)
                             }
 
                             "user" -> {
                                 val uid = annotation.item.toLong()
-                                navigator.navigate(UserProfilePageDestination(uid))
+                                homeNavigation?.openUserProfile(uid)
                             }
                         }
                     }

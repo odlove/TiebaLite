@@ -1,24 +1,31 @@
 package com.huanchengfly.tieba.post.ui.page.thread
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.util.Log
+import android.webkit.URLUtil
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
-import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.ui.text.font.FontWeight
 import com.huanchengfly.tieba.core.common.thread.ThreadContentItem
 import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
+import com.huanchengfly.tieba.core.runtime.ApplicationContextHolder
 import com.huanchengfly.tieba.core.ui.photoview.LoadPicPageData
 import com.huanchengfly.tieba.core.ui.photoview.PhotoViewData
 import com.huanchengfly.tieba.core.ui.photoview.PicItem
-import com.huanchengfly.tieba.post.App
-import com.huanchengfly.tieba.post.BuildConfig
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.BuildConfig
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
+import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
+import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.post.ui.common.PicContentRender
 import com.huanchengfly.tieba.post.ui.common.TextContentRender.Companion.appendText
@@ -26,9 +33,8 @@ import com.huanchengfly.tieba.post.ui.common.VideoContentRender
 import com.huanchengfly.tieba.post.ui.common.VoiceContentRender
 import com.huanchengfly.tieba.post.utils.EmoticonManager
 import com.huanchengfly.tieba.post.utils.EmoticonUtil.emoticonString
-import com.huanchengfly.tieba.post.utils.ImageUtil
-import com.huanchengfly.tieba.post.utils.StringUtil
-import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
+import com.huanchengfly.tieba.post.preferences.appPreferences
+import com.zhihu.matisse.MimeType
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
@@ -38,10 +44,18 @@ private const val DEFAULT_VIDEO_HEIGHT = 9
 private val VIDEO_STREAM_HINTS = listOf(".mp4", ".m3u8", ".mpd", ".flv", ".mov")
 private val IMAGE_HINTS = listOf(".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp")
 
+private const val SETTINGS_SMART_ORIGIN = 0
+private const val SETTINGS_SMART_LOAD = 1
+private const val SETTINGS_ALL_ORIGIN = 2
+private const val SETTINGS_ALL_NO = 3
+
+private val appContext: Context
+    get() = ApplicationContextHolder.application
+
 private val ThreadContentItem.picUrl: String
     get() =
-        ImageUtil.getUrl(
-            App.INSTANCE,
+        resolveImageUrl(
+            appContext,
             true,
             originSrc,
             bigCdnSrc,
@@ -51,6 +65,54 @@ private val ThreadContentItem.picUrl: String
             cdnSrcActive,
             src
         )
+
+private fun resolveImageUrl(
+    context: Context,
+    isSmallPic: Boolean,
+    originUrl: String,
+    vararg smallPicUrls: String?
+): String {
+    if (!isSmallPic) {
+        return originUrl
+    }
+    val urls = smallPicUrls.toMutableList()
+    if (needReverse(context)) {
+        urls.reverse()
+    }
+    return urls.firstOrNull { !it.isNullOrEmpty() } ?: originUrl
+}
+
+private fun needReverse(context: Context): Boolean {
+    return if (imageLoadSettings(context) == SETTINGS_SMART_ORIGIN &&
+        isWifiConnected(context)
+    ) {
+        false
+    } else {
+        imageLoadSettings(context) != SETTINGS_ALL_ORIGIN
+    }
+}
+
+private fun imageLoadSettings(context: Context): Int {
+    return context.appPreferences.imageLoadType?.toIntOrNull() ?: SETTINGS_SMART_ORIGIN
+}
+
+private fun isWifiConnected(context: Context): Boolean {
+    val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+    } else {
+        @Suppress("DEPRECATION")
+        connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)?.isConnected == true
+    }
+}
+
+private fun getPicId(picUrl: String?): String {
+    val fileName = URLUtil.guessFileName(picUrl, null, MimeType.JPEG.toString())
+    return fileName.replace(".jpg", "")
+}
 
 private fun ThreadContentItem.parseMediaSize(): Pair<Int, Int> {
     val parts = bsize.split(",")
@@ -107,7 +169,7 @@ val List<ThreadContentItem>.renders: ImmutableList<PbContentRender>
                             withStyle(
                                 SpanStyle(
                                     color = Color(
-                                        ThemeColorResolver.primaryColor(App.INSTANCE)
+                                        ThemeColorResolver.primaryColor(appContext)
                                     )
                                 )
                             ) {
@@ -135,7 +197,7 @@ val List<ThreadContentItem>.renders: ImmutableList<PbContentRender>
                             originUrl = it.originSrc,
                             showOriginBtn = it.showOriginalBtn == 1,
                             originSize = it.originSize,
-                            picId = ImageUtil.getPicId(it.originSrc),
+                            picId = getPicId(it.originSrc),
                             width = width,
                             height = height
                         )
@@ -148,7 +210,7 @@ val List<ThreadContentItem>.renders: ImmutableList<PbContentRender>
                             withStyle(
                                 SpanStyle(
                                     color = Color(
-                                        ThemeColorResolver.primaryColor(App.INSTANCE)
+                                        ThemeColorResolver.primaryColor(appContext)
                                     )
                                 )
                             ) {
@@ -213,11 +275,11 @@ val List<ThreadContentItem>.renders: ImmutableList<PbContentRender>
                                 withStyle(
                                     SpanStyle(
                                         color = Color(
-                                            ThemeColorResolver.primaryColor(App.INSTANCE)
+                                            ThemeColorResolver.primaryColor(appContext)
                                         )
                                     )
                                 ) {
-                                    append(App.INSTANCE.getString(R.string.tag_video))
+                                    append(appContext.getString(CoreUiR.string.tag_video))
                                     append(it.text)
                                 }
                             }
@@ -238,7 +300,7 @@ val List<ThreadContentItem>.renders: ImmutableList<PbContentRender>
                             originUrl = it.src,
                             showOriginBtn = it.showOriginalBtn == 1,
                             originSize = it.originSize,
-                            picId = ImageUtil.getPicId(it.src),
+                            picId = getPicId(it.src),
                             width = width,
                             height = height
                         )
@@ -307,9 +369,10 @@ private fun getPhotoViewData(
 
 @OptIn(ExperimentalTextApi::class)
 fun ThreadSubPost.getContentText(threadAuthorId: Long? = null): AnnotatedString {
-    val context = App.INSTANCE
+    val context = appContext
     val accentColor = Color(ThemeColorResolver.primaryColor(context))
 
+    val showBoth = context.appPreferences.showBothUsernameAndNickname
     val userNameString = buildAnnotatedString {
         withAnnotation("user", "${author?.id}") {
             withStyle(
@@ -318,13 +381,7 @@ fun ThreadSubPost.getContentText(threadAuthorId: Long? = null): AnnotatedString 
                     fontWeight = FontWeight.Bold
                 )
             ) {
-                append(
-                    StringUtil.getUsernameAnnotatedString(
-                        context,
-                        author?.name ?: "",
-                        author?.nameShow
-                    )
-                )
+                append(StringFormatUtils.formatUsernameAnnotated(showBoth, author?.name.orEmpty(), author?.nameShow, accentColor))
             }
             if (author?.id == threadAuthorId) {
                 appendInlineContent("Lz")

@@ -2,6 +2,7 @@ package com.huanchengfly.tieba.post.ui.page.subposts
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -20,22 +22,38 @@ import androidx.compose.material.icons.rounded.OpenInBrowser
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.huanchengfly.tieba.post.R
+import androidx.compose.ui.util.fastForEach
+import com.huanchengfly.tieba.feature.subposts.R
+import com.huanchengfly.tieba.core.common.thread.ThreadPost
+import com.huanchengfly.tieba.core.common.thread.ThreadUser
+import com.huanchengfly.tieba.core.common.utils.DateTimeUtils
+import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
 import com.huanchengfly.tieba.post.ui.page.subposts.components.SubPostItem
 import com.huanchengfly.tieba.post.ui.page.subposts.components.SubPostsBottomBar
-import com.huanchengfly.tieba.post.ui.page.thread.PostCard
+import com.huanchengfly.tieba.post.ui.page.subposts.components.SubPostsUserNameText
+import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.core.ui.widgets.compose.LoadMoreLayout
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButton
+import com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButtonVariant
+import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
+import com.huanchengfly.tieba.core.ui.widgets.compose.LongClickMenu
+import com.huanchengfly.tieba.core.ui.widgets.compose.PlainCard
+import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
+import com.huanchengfly.tieba.core.ui.widgets.compose.UserHeader
+import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
 import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
-import com.huanchengfly.tieba.post.utils.StringUtil
+import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 
 /**
@@ -59,8 +77,8 @@ import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
  */
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun SubPostsScreen(
-        props: SubPostsUiProps,
+fun SubPostsScreen(
+    props: SubPostsUiProps,
         callbacks: SubPostsCallbacks,
         lazyListState: LazyListState,
         isSheet: Boolean,
@@ -72,8 +90,8 @@ import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
         onAgreeMainPost: () -> Unit,
         onReplyMainPost: () -> Unit,
         onMainPostMenuCopy: (String) -> Unit,
-        onMainPostMenuDelete: () -> Unit,
-    ) {
+    onMainPostMenuDelete: () -> Unit,
+) {
         val extendedColors = ExtendedTheme.colors
         val scaffoldBackground = remember(isSheet, extendedColors.background, extendedColors.isTranslucent) {
             if (isSheet && extendedColors.isTranslucent) {
@@ -137,7 +155,7 @@ import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
             bottomBar = {
                 SubPostsBottomBar(
                     visible = props.bottomBarVisible,
-                    avatarUrl = StringUtil.getAvatarUrl(props.currentAccount?.portrait),
+                    avatarUrl = StringFormatUtils.getAvatarUrl(props.currentAccount?.portrait),
                     accountName = props.currentAccount?.name.orEmpty(),
                     onReplyClick = onShowReplyDialog,
                 )
@@ -155,18 +173,17 @@ import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
                     item(key = "Post$postId") {
                         props.post?.let {
                             Column {
-                                PostCard(
+                                SubPostsMainPostCard(
                                     postHolder = it,
                                     contentRenders = props.postContentRenders,
+                                    threadAuthorId = props.threadAuthorId,
                                     canDelete = { post -> post.authorId == props.currentAccount?.uid?.toLongOrNull() },
-                                    showSubPosts = false,
                                     onUserClick = { user -> callbacks.onUserClick(user.id) },
                                     onAgree = onAgreeMainPost,
                                     onReplyClick = { onReplyMainPost() },
                                     onMenuCopyClick = onMainPostMenuCopy,
-                                ) {
-                                    onMainPostMenuDelete()
-                                }
+                                    onMenuDeleteClick = { onMainPostMenuDelete() },
+                                )
                                 VerticalDivider(thickness = 2.dp)
                             }
                         }
@@ -208,5 +225,107 @@ import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SubPostsMainPostCard(
+    postHolder: ImmutableHolder<ThreadPost>,
+    contentRenders: List<PbContentRender>,
+    threadAuthorId: Long?,
+    canDelete: (ThreadPost) -> Boolean,
+    onUserClick: (ThreadUser) -> Unit,
+    onAgree: () -> Unit,
+    onReplyClick: (ThreadPost) -> Unit,
+    onMenuCopyClick: ((String) -> Unit)?,
+    onMenuDeleteClick: (() -> Unit)?,
+) {
+    val context = LocalContext.current
+    val post = remember(postHolder) { postHolder.get() }
+    val author = post.author ?: return
+    val menuState = rememberMenuState()
+    val hasAgreed = post.agree?.hasAgree == 1
+    val agreeNum = ((post.agree?.diffAgreeNum ?: post.agree?.agreeNum) ?: 0L).toInt()
+    val desc = remember(postHolder) {
+        val texts = listOfNotNull(
+            DateTimeUtils.getRelativeTimeString(context, post.time),
+            post.floor.takeIf { it > 0 }?.let { context.getString(R.string.tip_post_floor, it) }
+        )
+        texts.joinToString(" · ")
+    }
+
+    LongClickMenu(
+        menuState = menuState,
+        indication = null,
+        menuContent = {
+            if (onMenuCopyClick != null) {
+                DropdownMenuItem(
+                    onClick = {
+                        onMenuCopyClick(contentRenders.joinToString("\n") { it.toString() })
+                        menuState.expanded = false
+                    },
+                ) {
+                    Text(text = stringResource(id = R.string.menu_copy))
+                }
+            }
+            if (onMenuDeleteClick != null && canDelete(post)) {
+                DropdownMenuItem(
+                    onClick = {
+                        onMenuDeleteClick()
+                        menuState.expanded = false
+                    },
+                ) {
+                    Text(text = stringResource(id = R.string.title_delete))
+                }
+            }
+        },
+        onClick = { onReplyClick(post) }.takeUnless { context.appPreferences.hideReply },
+    ) {
+        PlainCard(
+            header = {
+                UserHeader(
+                    avatar = {
+                        Avatar(
+                            data = StringFormatUtils.getAvatarUrl(author.portrait),
+                            size = Sizes.Small,
+                            contentDescription = null,
+                        )
+                    },
+                    name = {
+                        SubPostsUserNameText(
+                            userName = StringFormatUtils.formatUsernameAnnotated(
+                                context.appPreferences.showBothUsernameAndNickname,
+                                author.name,
+                                author.nameShow,
+                            ),
+                            userLevel = author.levelId,
+                            isLz = author.id == threadAuthorId,
+                            bawuType = author.bawuType,
+                        )
+                    },
+                    desc = {
+                        Text(text = desc)
+                    },
+                    onClick = { onUserClick(author) },
+                ) {
+                    AgreeButton(
+                        hasAgreed = hasAgreed,
+                        agreeNum = agreeNum,
+                        onClick = onAgree,
+                        variant = AgreeButtonVariant.PostDetail,
+                    )
+                }
+            },
+            content = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .padding(start = Sizes.Small + 8.dp)
+                        .fillMaxWidth(),
+                ) {
+                    contentRenders.fastForEach { it.Render() }
+                }
+            },
+        )
     }
 }

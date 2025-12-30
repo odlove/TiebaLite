@@ -12,7 +12,6 @@ import android.content.res.Configuration.SCREENLAYOUT_SIZE_MASK
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -83,14 +82,6 @@ inline fun <reified T : Activity> Fragment.goToActivity() {
 
 inline fun <reified T : Activity> Fragment.goToActivity(pre: Intent.() -> Unit) {
     startActivity(Intent(requireContext(), T::class.java).apply(pre))
-}
-
-fun Context.toastShort(text: String) {
-    runCatching { Toast.makeText(this, text, Toast.LENGTH_SHORT).show() }
-}
-
-fun Context.toastShort(resId: Int, vararg args: Any) {
-    toastShort(getString(resId, *args))
 }
 
 fun ViewGroup.enableChangingLayoutTransition() {

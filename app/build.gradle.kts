@@ -233,6 +233,7 @@ dependencies {
     implementation(project(":feature:webview"))
     implementation(project(":feature:photoview"))
     implementation(project(":feature:threadcollect"))
+    implementation(project(":feature:subposts"))
     implementation(project(":feature:history"))
     implementation(project(":feature:settings"))
     implementation(project(":feature:login"))

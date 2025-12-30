@@ -11,6 +11,7 @@ import com.huanchengfly.tieba.core.common.thread.ThreadPreview
 import com.huanchengfly.tieba.core.common.theme.ThemeChannel
 import com.huanchengfly.tieba.core.ui.navigation.HomeNavigationActions
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
+import com.huanchengfly.tieba.core.common.reply.ReplyArgs
 import com.huanchengfly.tieba.post.activities.AppFontSizeActivity
 import com.huanchengfly.tieba.post.activities.TranslucentThemeActivity
 import com.huanchengfly.tieba.post.ui.page.forum.destinations.ForumPageDestination
@@ -18,7 +19,8 @@ import com.huanchengfly.tieba.post.ui.page.history.destinations.HistoryPageDesti
 import com.huanchengfly.tieba.post.ui.page.hottopic.list.destinations.HotTopicListPageDestination
 import com.huanchengfly.tieba.post.ui.page.login.destinations.LoginPageDestination
 import com.huanchengfly.tieba.post.ui.page.search.destinations.SearchPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.SubPostsPageDestination
+import com.huanchengfly.tieba.post.ui.page.destinations.ReplyPageDestination
+import com.huanchengfly.tieba.post.ui.page.subposts.destinations.SubPostsPageDestination
 import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
 import com.huanchengfly.tieba.post.ui.page.threadcollect.destinations.ThreadCollectPageDestination
 import com.huanchengfly.tieba.post.ui.page.user.destinations.UserProfilePageDestination
@@ -128,6 +130,22 @@ fun ProvideHomeNavigationActions(
                         postId = postId,
                         subPostId = subPostId,
                         loadFromSubPost = loadFromSubPost
+                    )
+                )
+            }
+
+            override fun openReply(args: ReplyArgs) {
+                navController.navigateDirection(
+                    ReplyPageDestination(
+                        forumId = args.forumId,
+                        forumName = args.forumName,
+                        threadId = args.threadId,
+                        postId = args.postId,
+                        subPostId = args.subPostId,
+                        replyUserId = args.replyUserId,
+                        replyUserName = args.replyUserName,
+                        replyUserPortrait = args.replyUserPortrait,
+                        tbs = args.tbs,
                     )
                 )
             }

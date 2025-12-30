@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_delete">删除</string>
+    <string name="tip_post_floor">第 %d 楼</string>
+    <string name="title_report">举报</string>
+    <string name="menu_copy">复制</string>
+    <string name="toast_load_failed">加载失败</string>
+    <string name="toast_forum_info_loading">论坛信息加载中，请稍后再试</string>
+    <string name="btn_close">关闭</string>
+    <string name="tip_reply_thread">评论一番</string>
+    <string name="tip_blocked_sub_post">由于你的屏蔽设置，该回复已被屏蔽</string>
+    <string name="title_sub_posts">%d 楼的回复</string>
+    <string name="title_sub_posts_default">回复</string>
+    <string name="title_sub_posts_header">%d 条回复</string>
+    <string name="btn_reply">回复</string>
+    <string name="message_confirm_delete">你确定要删除%s吗？</string>
+    <string name="this_reply">这条回复</string>
+    <string name="btn_open_origin_thread">查看原贴</string>
+    <string name="tip_lz">楼主</string>
+</resources>

@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.subposts.R
 import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
 import com.huanchengfly.tieba.core.network.retrofit.doIfFailure
 import com.huanchengfly.tieba.core.network.retrofit.doIfSuccess
@@ -20,17 +20,12 @@ import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.components.dialogs.LoadingDialog
 import com.huanchengfly.tieba.post.toastShort
-import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
-import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
-import com.huanchengfly.tieba.post.ui.page.destinations.CopyTextDialogPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
-import com.huanchengfly.tieba.post.ui.page.webview.destinations.WebViewPageDestination
-import com.huanchengfly.tieba.post.ui.page.reply.ReplyArgs
-import com.huanchengfly.tieba.post.ui.page.reply.ReplyDialog
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.post.ui.page.subposts.components.SubPostsDeleteDialog
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
+import com.huanchengfly.tieba.post.utils.launchUrl
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyleBottomSheet
@@ -49,17 +44,15 @@ fun SubPostsPage(
     loadFromSubPost: Boolean = false,
     viewModel: SubPostsViewModel = pageViewModel(),
 ) {
-    ProvideNavigator(navigator) {
-        SubPostsContent(
-            viewModel = viewModel,
-            forumId = forumId,
-            threadId = threadId,
-            postId = postId,
-            subPostId = subPostId,
-            loadFromSubPost = loadFromSubPost,
-            onNavigateUp = { navigator.navigateUp() },
-        )
-    }
+    SubPostsContent(
+        viewModel = viewModel,
+        forumId = forumId,
+        threadId = threadId,
+        postId = postId,
+        subPostId = subPostId,
+        loadFromSubPost = loadFromSubPost,
+        onNavigateUp = { navigator.navigateUp() },
+    )
 }
 
 @Destination(
@@ -75,18 +68,16 @@ fun SubPostsSheetPage(
     loadFromSubPost: Boolean = false,
     viewModel: SubPostsViewModel = pageViewModel(),
 ) {
-    ProvideNavigator(navigator) {
-        SubPostsContent(
-            viewModel = viewModel,
-            forumId = forumId,
-            threadId = threadId,
-            postId = postId,
-            subPostId = subPostId,
-            loadFromSubPost = loadFromSubPost,
-            isSheet = true,
-            onNavigateUp = { navigator.navigateUp() },
-        )
-    }
+    SubPostsContent(
+        viewModel = viewModel,
+        forumId = forumId,
+        threadId = threadId,
+        postId = postId,
+        subPostId = subPostId,
+        loadFromSubPost = loadFromSubPost,
+        isSheet = true,
+        onNavigateUp = { navigator.navigateUp() },
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -102,7 +93,7 @@ internal fun SubPostsContent(
     onNavigateUp: () -> Unit = {},
 ) {
     val context = LocalContext.current
-    val navigator = LocalNavigator.current
+    val homeNavigation = runCatching { LocalHomeNavigation.current }.getOrNull()
     val account = LocalAccount.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -217,20 +208,6 @@ internal fun SubPostsContent(
         },
     )
 
-    val replyDialogState = rememberDialogState()
-    var currentReplyArgs by remember { mutableStateOf<ReplyArgs?>(null) }
-    if (!replyDialogState.show && currentReplyArgs != null) {
-        currentReplyArgs = null
-    }
-    currentReplyArgs?.let { args ->
-        ReplyDialog(args = args, state = replyDialogState)
-    }
-
-    fun showReplyDialog(args: ReplyArgs) {
-        currentReplyArgs = args
-        replyDialogState.show()
-    }
-
     // 创建 UI Props 和 Callbacks
     val props =
         rememberSubPostsUiProps(
@@ -249,7 +226,7 @@ internal fun SubPostsContent(
     val callbacks =
         rememberSubPostsCallbacks(
             viewModel = viewModel,
-            navigator = navigator,
+            homeNavigation = homeNavigation,
             forumId = forumId,
             threadId = threadId,
             postId = effectivePostId,
@@ -264,7 +241,7 @@ internal fun SubPostsContent(
                     targetSubPost = subPost,
                     replyUser = subPost?.author,
                     postAuthorIdFallback = post?.get { authorId },
-                    onSuccess = ::showReplyDialog,
+                    onSuccess = { args -> homeNavigation?.openReply(args) },
                     onFailure = { context.toastShort(R.string.toast_forum_info_loading) },
                 )
             },
@@ -283,12 +260,10 @@ internal fun SubPostsContent(
         postId = effectivePostId,
         totalCount = totalCount,
         onNavigateToThread = {
-            navigator.navigate(
-                ThreadPageDestination(
-                    forumId = forum?.get { id } ?: forumId,
-                    threadId = threadId,
-                    postId = effectivePostId,
-                ),
+            homeNavigation?.openThread(
+                threadId = threadId,
+                forumId = forum?.get { id } ?: forumId,
+                postId = effectivePostId,
             )
         },
         onShowReplyDialog = {
@@ -299,7 +274,7 @@ internal fun SubPostsContent(
                 post = post,
                 fallbackPostId = effectivePostId,
                 postAuthorIdFallback = post?.get { authorId },
-                onSuccess = ::showReplyDialog,
+                onSuccess = { args -> homeNavigation?.openReply(args) },
                 onFailure = { context.toastShort(R.string.toast_forum_info_loading) },
             )
         },
@@ -310,7 +285,7 @@ internal fun SubPostsContent(
                     .checkReportPost(subPostId)
                     .doIfSuccess {
                         dialog.dismiss()
-                        navigator.navigate(WebViewPageDestination(it.url))
+                        launchUrl(context, homeNavigation, it.url)
                     }.doIfFailure {
                         dialog.dismiss()
                         context.toastShort(R.string.toast_load_failed)
@@ -337,12 +312,12 @@ internal fun SubPostsContent(
                 fallbackPostId = effectivePostId,
                 replyUser = post?.get { author },
                 postAuthorIdFallback = post?.get { authorId },
-                onSuccess = ::showReplyDialog,
+                onSuccess = { args -> homeNavigation?.openReply(args) },
                 onFailure = { context.toastShort(R.string.toast_forum_info_loading) },
             )
         },
         onMainPostMenuCopy = { content ->
-            navigator.navigate(CopyTextDialogPageDestination(content))
+            homeNavigation?.copyText(content)
         },
         onMainPostMenuDelete = {
             deleteSubPost = null

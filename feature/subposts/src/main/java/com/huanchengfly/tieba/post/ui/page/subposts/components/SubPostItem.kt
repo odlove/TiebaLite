@@ -13,14 +13,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.subposts.R
 import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
-import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
-import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
 import com.huanchengfly.tieba.post.ui.page.subposts.SubPostItemData
-import com.huanchengfly.tieba.post.ui.page.thread.PostAgreeBtn
-import com.huanchengfly.tieba.post.ui.page.thread.UserNameText
+import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
 import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.core.ui.widgets.compose.BlockTip
 import com.huanchengfly.tieba.core.ui.widgets.compose.BlockableContent
@@ -29,7 +26,8 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.LongClickMenu
 import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.core.ui.widgets.compose.UserHeader
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
-import com.huanchengfly.tieba.post.utils.StringUtil
+import com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButton
+import com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButtonVariant
 import com.huanchengfly.tieba.post.preferences.appPreferences
 
 /**
@@ -59,7 +57,6 @@ fun SubPostItem(
 ) {
     val (subPost, contentRenders, blocked) = item
     val context = LocalContext.current
-    val navigator = LocalNavigator.current
 
     val author = remember(subPost) { subPost.get { author }?.wrapImmutable() }
     val hasAgreed =
@@ -133,19 +130,18 @@ fun SubPostItem(
                         UserHeader(
                             avatar = {
                                 Avatar(
-                                    data = StringUtil.getAvatarUrl(author.get { portrait }),
+                                    data = StringFormatUtils.getAvatarUrl(author.get { portrait }),
                                     size = Sizes.Small,
                                     contentDescription = null,
                                 )
                             },
                             name = {
-                                UserNameText(
-                                    userName =
-                                        StringUtil.getUsernameAnnotatedString(
-                                            LocalContext.current,
-                                            author.get { name },
-                                            author.get { nameShow },
-                                        ),
+                                SubPostsUserNameText(
+                                    userName = StringFormatUtils.formatUsernameAnnotated(
+                                        context.appPreferences.showBothUsernameAndNickname,
+                                        author.get { name },
+                                        author.get { nameShow },
+                                    ),
                                     userLevel = author.get { levelId },
                                     isLz = author.get { id } == threadAuthorId,
                                     bawuType = author.get { bawuType },
@@ -153,20 +149,21 @@ fun SubPostItem(
                             },
                             desc = {
                                 Text(
-                                    text =
-                                        getDescText(
-                                            subPost.get { time }.toLong(),
-                                        ),
+                                    text = getDescText(
+                                        context,
+                                        subPost.get { time }.toLong(),
+                                    ),
                                 )
                             },
                             onClick = {
                                 onUserClick(author.get { id })
                             },
                         ) {
-                            PostAgreeBtn(
+                            AgreeButton(
                                 hasAgreed = hasAgreed,
                                 agreeNum = agreeNum,
                                 onClick = { onAgree(subPost.get()) },
+                                variant = AgreeButtonVariant.PostDetail,
                             )
                         }
                     }

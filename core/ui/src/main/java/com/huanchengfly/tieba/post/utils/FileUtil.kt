@@ -11,7 +11,7 @@ import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.text.TextUtils
 import android.webkit.URLUtil
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.post.utils.PermissionUtils.PermissionData
 import com.huanchengfly.tieba.post.utils.PermissionUtils.askPermission
 import java.io.File
@@ -212,7 +212,7 @@ object FileUtil {
                     PermissionUtils.READ_EXTERNAL_STORAGE,
                     PermissionUtils.WRITE_EXTERNAL_STORAGE
                 ),
-                context.getString(R.string.tip_permission_storage_download)
+                context.getString(CoreUiR.string.tip_permission_storage_download)
             )
         ) {
             downloadBySystemWithPermission(context, fileType, url, fileName)

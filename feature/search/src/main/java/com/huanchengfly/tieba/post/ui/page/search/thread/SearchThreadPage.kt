@@ -19,10 +19,7 @@ import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
-import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.ThreadPageDestination
-import com.huanchengfly.tieba.post.ui.page.destinations.UserProfilePageDestination
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.post.ui.page.search.SearchUiEvent
 import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
 import com.huanchengfly.tieba.core.ui.compose.LazyLoad
@@ -39,7 +36,7 @@ fun SearchThreadPage(
     initialSortType: Int = SearchThreadSortType.SORT_TYPE_NEWEST,
     viewModel: SearchThreadViewModel = pageViewModel(),
 ) {
-    val navigator = LocalNavigator.current
+    val homeNavigation = LocalHomeNavigation.current
     LazyLoad(loaded = viewModel.initialized) {
         viewModel.send(SearchThreadUiIntent.Refresh(keyword, initialSortType))
         viewModel.initialized = true
@@ -137,23 +134,17 @@ fun SearchThreadPage(
                     data = data,
                     lazyListState = lazyListState,
                     onItemClick = {
-                        navigator.navigate(
-                            ThreadPageDestination(
-                                threadId = it.threadId.toLong()
-                            )
+                        homeNavigation.openThread(
+                            threadId = it.threadId.toLong()
                         )
                     },
                     onItemUserClick = {
                         it.userId.toLongOrNull()?.let { id ->
-                            navigator.navigate(UserProfilePageDestination(id))
+                            homeNavigation.openUserProfile(id)
                         }
                     },
                     onItemForumClick = {
-                        navigator.navigate(
-                            ForumPageDestination(
-                                it.name
-                            )
-                        )
+                        homeNavigation.openForum(it.name)
                     },
                     searchKeyword = keyword,
                 )

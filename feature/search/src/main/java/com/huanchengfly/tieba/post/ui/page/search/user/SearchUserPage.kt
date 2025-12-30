@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.page.search.forum
+package com.huanchengfly.tieba.post.ui.page.search.user
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -24,17 +24,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.huanchengfly.tieba.post.R
-import com.huanchengfly.tieba.core.common.search.SearchForum
+import com.huanchengfly.tieba.feature.search.R
+import com.huanchengfly.tieba.core.common.search.SearchUser
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
-import com.huanchengfly.tieba.post.ui.page.destinations.ForumPageDestination
+import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.post.ui.page.search.SearchUiEvent
 import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
 import com.huanchengfly.tieba.core.ui.widgets.compose.Chip
@@ -44,68 +44,70 @@ import com.huanchengfly.tieba.core.ui.compose.LocalShouldLoad
 import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
 import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
+import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
+import com.huanchengfly.tieba.post.preferences.appPreferences
 import kotlinx.collections.immutable.persistentListOf
+
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun SearchForumPage(
+fun SearchUserPage(
     keyword: String,
-    viewModel: SearchForumViewModel = pageViewModel(),
+    viewModel: SearchUserViewModel = pageViewModel(),
 ) {
-    val navigator = LocalNavigator.current
+    val homeNavigation = LocalHomeNavigation.current
     LazyLoad(loaded = viewModel.initialized) {
-        viewModel.send(SearchForumUiIntent.Refresh(keyword))
+        viewModel.send(SearchUserUiIntent.Refresh(keyword))
         viewModel.initialized = true
     }
     val currentKeyword by viewModel.uiState.collectPartialAsState(
-        prop1 = SearchForumUiState::keyword,
+        prop1 = SearchUserUiState::keyword,
         initial = ""
     )
     val isRefreshing by viewModel.uiState.collectPartialAsState(
-        prop1 = SearchForumUiState::isRefreshing,
+        prop1 = SearchUserUiState::isRefreshing,
         initial = true
     )
     val error by viewModel.uiState.collectPartialAsState(
-        prop1 = SearchForumUiState::error,
+        prop1 = SearchUserUiState::error,
         initial = null
     )
-    val exactMatchForum by viewModel.uiState.collectPartialAsState(
-        prop1 = SearchForumUiState::exactMatchForum,
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = { viewModel.send(SearchUserUiIntent.Refresh(keyword)) }
+    )
+    val exactMatch by viewModel.uiState.collectPartialAsState(
+        prop1 = SearchUserUiState::exactMatch,
         initial = null
     )
-    val fuzzyMatchForumList by viewModel.uiState.collectPartialAsState(
-        prop1 = SearchForumUiState::fuzzyMatchForumList,
+    val fuzzyMatch by viewModel.uiState.collectPartialAsState(
+        prop1 = SearchUserUiState::fuzzyMatch,
         initial = persistentListOf()
     )
 
     val showExactMatchResult by remember {
-        derivedStateOf { exactMatchForum != null }
+        derivedStateOf { exactMatch != null }
     }
     val showFuzzyMatchResult by remember {
-        derivedStateOf { fuzzyMatchForumList.isNotEmpty() }
-    }
-
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = { viewModel.send(SearchForumUiIntent.Refresh(keyword)) }
-    )
-
-    val isEmpty by remember {
-        derivedStateOf { !showExactMatchResult && !showFuzzyMatchResult }
+        derivedStateOf { fuzzyMatch.isNotEmpty() }
     }
 
     onGlobalEvent<SearchUiEvent.KeywordChanged> {
-        viewModel.send(SearchForumUiIntent.Refresh(it.keyword))
+        viewModel.send(SearchUserUiIntent.Refresh(it.keyword))
     }
     val shouldLoad = LocalShouldLoad.current
     LaunchedEffect(currentKeyword) {
         if (currentKeyword.isNotEmpty() && keyword != currentKeyword) {
             if (shouldLoad) {
-                viewModel.send(SearchForumUiIntent.Refresh(keyword))
+                viewModel.send(SearchUserUiIntent.Refresh(keyword))
             } else {
                 viewModel.initialized = false
             }
         }
+    }
+
+    val isEmpty by remember {
+        derivedStateOf { !showExactMatchResult && !showFuzzyMatchResult }
     }
 
     StateScreen(
@@ -113,7 +115,7 @@ fun SearchForumPage(
         isEmpty = isEmpty,
         isError = error != null,
         isLoading = isRefreshing,
-        onReload = { viewModel.send(SearchForumUiIntent.Refresh(keyword)) },
+        onReload = { viewModel.send(SearchUserUiIntent.Refresh(keyword)) },
         errorScreen = {
             error?.let {
                 val (e) = it
@@ -141,12 +143,15 @@ fun SearchForumPage(
                             )
                         }
                     }
-                    item(key = "ExactMatch") {
-                        exactMatchForum?.let { forum ->
-                            SearchForumItem(
-                                item = forum,
+                    exactMatch?.let {
+                        item(key = "ExactMatch") {
+                            SearchUserItem(
+                                item = it,
                                 onClick = {
-                                navigator.navigate(ForumPageDestination(forum.name))
+                                    val id = it.userId.toLongOrNull()
+                                    if (id != null) {
+                                        homeNavigation.openUserProfile(id)
+                                    }
                                 }
                             )
                         }
@@ -161,16 +166,19 @@ fun SearchForumPage(
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
                             Chip(
-                                text = stringResource(id = R.string.title_fuzzy_match),
+                                text = stringResource(id = R.string.title_fuzzy_match_user),
                                 invertColor = false
                             )
                         }
                     }
-                    items(fuzzyMatchForumList) {
-                        SearchForumItem(
+                    items(fuzzyMatch) {
+                        SearchUserItem(
                             item = it,
                             onClick = {
-                                navigator.navigate(ForumPageDestination(it.name))
+                                val id = it.userId.toLongOrNull()
+                                if (id != null) {
+                                    homeNavigation.openUserProfile(id)
+                                }
                             }
                         )
                     }
@@ -186,12 +194,11 @@ fun SearchForumPage(
             )
         }
     }
-
 }
 
 @Composable
-private fun SearchForumItem(
-    item: SearchForum,
+private fun SearchUserItem(
+    item: SearchUser,
     onClick: () -> Unit,
 ) {
     Row(
@@ -203,22 +210,29 @@ private fun SearchForumItem(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Avatar(
-            data = item.avatar,
+            data = StringFormatUtils.getAvatarUrl(item.portrait),
             size = Sizes.Medium,
-            contentDescription = item.nameShow
+            contentDescription = item.userName
         )
         Column(
             modifier = Modifier
                 .weight(1f),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            val context = LocalContext.current
+            val showBoth = context.appPreferences.showBothUsernameAndNickname
             Text(
-                text = stringResource(id = R.string.title_forum, item.nameShow ?: item.name),
+                text = StringFormatUtils.formatUsernameAnnotated(
+                    showBoth,
+                    item.userName,
+                    item.showNickname
+                ),
                 style = MaterialTheme.typography.subtitle1
             )
-            if (!item.intro.isNullOrEmpty()) {
+            val intro = item.intro
+            if (!intro.isNullOrEmpty()) {
                 Text(
-                    text = item.slogan.orEmpty(),
+                    text = intro,
                     style = MaterialTheme.typography.body2,
                     maxLines = 1
                 )

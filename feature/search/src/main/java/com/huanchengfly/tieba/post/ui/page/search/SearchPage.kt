@@ -66,7 +66,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
-import com.huanchengfly.tieba.post.R
+import com.huanchengfly.tieba.feature.search.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.mvi.LocalGlobalEventBus
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
@@ -85,7 +85,7 @@ import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabSelectedColor
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabUnselectedColor
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
-import com.huanchengfly.tieba.post.ui.page.destinations.SearchPageDestination
+import com.huanchengfly.tieba.post.ui.page.search.destinations.SearchPageDestination
 import com.huanchengfly.tieba.post.ui.page.search.forum.SearchForumPage
 import com.huanchengfly.tieba.post.ui.page.search.thread.SearchThreadPage
 import com.huanchengfly.tieba.post.ui.page.search.thread.SearchThreadSortType
@@ -272,7 +272,7 @@ fun SearchPage(
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                                contentDescription = stringResource(id = R.string.button_back)
+                                contentDescription = stringResource(id = CoreUiR.string.button_back)
                             )
                         }
                     },
@@ -284,7 +284,7 @@ fun SearchPage(
                                 .fillMaxWidth()
                                 .padding(end = 4.dp),
                             placeholder = {
-                                Text(text = stringResource(id = R.string.hint_search))
+                                Text(text = stringResource(id = CoreUiR.string.hint_search))
                             },
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                             keyboardActions = KeyboardActions(

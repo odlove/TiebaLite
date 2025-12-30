@@ -1,6 +1,5 @@
 package com.huanchengfly.tieba.post.ui.page.search
 
-import com.huanchengfly.tieba.post.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.network.error.defaultErrorMessage
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
@@ -55,11 +54,11 @@ class SearchViewModel @Inject constructor(
             )
 
             is SearchPartialChange.ClearSearchHistory.Failure -> CommonUiEvent.Toast(
-                resourceProvider.getString(R.string.toast_clear_failure, partialChange.errorMessage)
+                resourceProvider.getString(CoreUiR.string.toast_clear_failure, partialChange.errorMessage)
             )
 
             is SearchPartialChange.DeleteSearchHistory.Failure -> CommonUiEvent.Toast(
-                resourceProvider.getString(R.string.toast_delete_failure, partialChange.errorMessage)
+                resourceProvider.getString(CoreUiR.string.toast_delete_failure, partialChange.errorMessage)
             )
 
             is SearchPartialChange.SubmitKeyword -> SearchUiEvent.KeywordChanged(partialChange.keyword)

@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="hint_search_in_ba">在 %1$s 吧内搜索</string>
     <string name="shortcut_oksign">一键签到</string>
     <string name="shortcut_my_collect">我的收藏</string>
     <string name="shortcut_my_message">我的消息</string>
@@ -161,17 +160,6 @@
     <string name="toast_like_failed">关注失败 %s</string>
     <string name="hint_reply">回复 %1$s</string>
     <string name="text_load_failed">加载失败</string>
-    <string name="title_search_forum">搜吧</string>
-    <string name="title_search_thread">搜贴</string>
-    <string name="title_search_user">搜人</string>
-    <string name="title_search_history">搜索历史</string>
-    <string name="title_exact_match">推荐</string>
-    <string name="title_fuzzy_match">相关吧</string>
-    <string name="title_search_filter_only_thread">只看主题贴</string>
-    <string name="title_search_order_new">新贴在前</string>
-    <string name="title_search_order_old">旧贴在前</string>
-    <string name="title_search_order_relevant">相关度</string>
-    <string name="title_search_filter_all">全部</string>
     <string name="title_oksign_finish">签到完成</string>
     <string name="title_oksign_fail">签到失败</string>
     <string name="text_login_first">请先登录</string>
@@ -279,8 +267,6 @@
     <string name="title_request_permission_tip_dialog">贴吧 Lite 正在请求“%1$s”权限</string>
     <string name="message_request_permission_tip_dialog">授权后，将%1$s</string>
     <string name="usage_webview_location_permission">用于向当前访问的网页提供你的位置信息，以便该网页向你提供相关服务。</string>
-    <string name="title_search_post_sort_by_time">时间倒序</string>
-    <string name="title_search_post_sort_by_relevant">相关性排序</string>
     <string name="title_activity_edit_profile">编辑资料</string>
     <string name="button_save_profile">保存修改</string>
     <string name="title_username">用户名</string>
@@ -321,7 +307,6 @@
     <string name="text_stat_threads">贴子</string>
     <string name="snackbar_agree_fail">点赞失败(%1$d)：%2$s</string>
     <string name="button_signed_in">已签%d天</string>
-    <string name="btn_search_in_forum">吧内搜索</string>
     <string name="btn_more">更多选项</string>
     <string name="launcher_not_support_pin_shortcut">启动器不支持创建快捷方式</string>
     <string name="load_shortcut_icon_fail">加载图标失败</string>
@@ -370,18 +355,12 @@
     <string name="btn_reply">回复</string>
     <string name="title_collect_floor">收藏到此楼</string>
     <string name="title_collected_floor">已收藏到本楼</string>
-    <string name="toast_delete_failure">删除失败 %s</string>
     <string name="message_confirm_delete">你确定要删除%s吗？</string>
     <string name="this_thread">本贴</string>
     <string name="this_reply">这条回复</string>
     <string name="above_is_latest_post">以上为最新回复</string>
     <string name="below_is_latest_post">以下为最新回复</string>
     <string name="btn_open_origin_thread">查看原贴</string>
-    <string name="toast_clear_failure">清除失败 %s</string>
-    <string name="title_fuzzy_match_user">相关用户</string>
-    <string name="button_expand_more_history">展开历史</string>
-    <string name="button_expand_less_history">收起历史</string>
-    <string name="button_clear_all">清除全部</string>
     <string name="title_dynamic_theme">动态取色</string>
     <string name="desc_night_theme">夜间主题</string>
     <string name="settings_image_darken_when_night_mode">夜间模式压暗缩略图</string>
@@ -400,7 +379,6 @@
     <string name="notification_channel_reply">回复我的</string>
     <string name="notification_channel_mention">提到我的</string>
     <string name="btn_hide">隐藏</string>
-    <string name="desc_search_sug">搜索联想：%s</string>
     <string name="title_forum_intro">本吧简介</string>
     <string name="title_forum_rule">本吧吧规</string>
     <string name="desc_forum_rule">吧规</string>

@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="hint_search_in_ba">在 %1$s 吧内搜索</string>
+    <string name="title_search_forum">搜吧</string>
+    <string name="title_search_thread">搜贴</string>
+    <string name="title_search_user">搜人</string>
+    <string name="title_search_history">搜索历史</string>
+    <string name="title_exact_match">推荐</string>
+    <string name="title_fuzzy_match">相关吧</string>
+    <string name="title_fuzzy_match_user">相关用户</string>
+    <string name="title_search_filter_only_thread">只看主题贴</string>
+    <string name="title_search_order_new">新贴在前</string>
+    <string name="title_search_order_old">旧贴在前</string>
+    <string name="title_search_order_relevant">相关度</string>
+    <string name="title_search_filter_all">全部</string>
+    <string name="title_search_post_sort_by_time">时间倒序</string>
+    <string name="title_search_post_sort_by_relevant">相关性排序</string>
+    <string name="btn_search_in_forum">吧内搜索</string>
+    <string name="desc_search_sug">搜索联想：%s</string>
+    <string name="button_expand_more_history">展开历史</string>
+    <string name="button_expand_less_history">收起历史</string>
+    <string name="button_clear_all">清除全部</string>
+</resources>

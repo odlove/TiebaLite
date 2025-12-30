@@ -11,7 +11,7 @@ import androidx.appcompat.widget.ListPopupWindow;
 import androidx.appcompat.widget.MenuPopupWindow;
 import androidx.appcompat.widget.PopupMenu;
 
-import com.huanchengfly.tieba.post.R;
+import com.huanchengfly.tieba.core.ui.R;
 import com.huanchengfly.tieba.core.ui.theme.runtime.entrypoints.ThemeRuntimeEntryPoint;
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeBridge;
 import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeDrawableUtils;

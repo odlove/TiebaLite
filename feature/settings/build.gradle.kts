@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.compose.animation)
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(libs.kotlin.reflect)
 
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.palette)

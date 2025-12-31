@@ -59,6 +59,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.airbnb.lottie.compose)
     implementation(libs.androidx.appcompat)
+
+    testImplementation(project(":core:testing"))
 }
 
 ksp {

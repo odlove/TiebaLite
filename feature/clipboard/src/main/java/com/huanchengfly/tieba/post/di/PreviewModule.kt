@@ -1,8 +1,8 @@
 package com.huanchengfly.tieba.post.di
 
-import com.huanchengfly.tieba.core.runtime.preview.ClipBoardLink
-import com.huanchengfly.tieba.core.runtime.preview.LinkParser
-import com.huanchengfly.tieba.core.runtime.preview.QuickPreviewService
+import com.huanchengfly.tieba.post.runtime.preview.ClipBoardLink
+import com.huanchengfly.tieba.post.runtime.preview.LinkParser
+import com.huanchengfly.tieba.post.runtime.preview.QuickPreviewService
 import com.huanchengfly.tieba.post.runtime.preview.AppLinkParser
 import com.huanchengfly.tieba.post.runtime.preview.AppQuickPreviewService
 import dagger.Binds

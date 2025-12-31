@@ -3,4 +3,7 @@
     <string name="title_forum">%1$s吧</string>
     <string name="subtitle_quick_preview_thread">来自%1$s吧，共 %2$s 条回复</string>
     <string name="subtitle_link">网页链接</string>
+    <string name="title_dialog_clip_board_tieba_url">是否要打开剪贴板中的链接</string>
+    <string name="button_open">打开</string>
+    <string name="btn_close">关闭</string>
 </resources>

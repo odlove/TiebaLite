@@ -42,6 +42,7 @@ include(
     ":core:network",
     ":core:runtime",
     ":core:ui",
+    ":core:testing",
     ":data:remote",
     ":data:repository",
     ":data:local"
@@ -63,3 +64,4 @@ include(":feature:user")
 include(":feature:sign")
 include(":feature:notifications")
 include(":feature:clipboard")
+include(":feature:navigation")

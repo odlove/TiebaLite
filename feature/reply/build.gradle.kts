@@ -60,6 +60,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.accompanist.drawablepainter)
     implementation(libs.sketch.compose)
+
+    testImplementation(project(":core:testing"))
 }
 
 ksp {

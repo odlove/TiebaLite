@@ -4,25 +4,18 @@ import android.app.Activity
 import android.app.Application
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.os.Build
 import androidx.annotation.Keep
-import com.github.panpf.sketch.Sketch
 import com.github.panpf.sketch.SketchFactory
-import com.github.panpf.sketch.decode.GifAnimatedDrawableDecoder
-import com.github.panpf.sketch.decode.GifMovieDrawableDecoder
-import com.github.panpf.sketch.decode.HeifAnimatedDrawableDecoder
-import com.github.panpf.sketch.decode.WebpAnimatedDrawableDecoder
-import com.github.panpf.sketch.http.OkHttpStack
-import com.github.panpf.sketch.request.PauseLoadWhenScrollingDrawableDecodeInterceptor
 import com.huanchengfly.tieba.core.runtime.RuntimeInitializer
 import com.huanchengfly.tieba.core.runtime.app.ActivityCollector
+import com.huanchengfly.tieba.core.ui.image.createAppSketch
 import com.microsoft.appcenter.distribute.Distribute
 import com.microsoft.appcenter.distribute.DistributeListener
 import com.microsoft.appcenter.distribute.ReleaseDetails
 import com.microsoft.appcenter.distribute.UpdateAction
-import com.huanchengfly.tieba.post.utils.SharedPreferencesUtil
-import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.activities.BaseActivity
+import com.huanchengfly.tieba.post.preferences.appPreferences
+import com.huanchengfly.tieba.post.utils.SharedPreferencesUtil
 import dagger.hilt.android.HiltAndroidApp
 import net.swiftzer.semver.SemVer
 import javax.inject.Inject
@@ -149,24 +142,5 @@ class App : Application(), SketchFactory, ActivityCollector {
     }
 
 
-    override fun createSketch(): Sketch = Sketch.Builder(this).apply {
-        httpStack(OkHttpStack.Builder().apply {
-            userAgent(System.getProperty("http.agent"))
-        }.build())
-        components {
-            addDrawableDecodeInterceptor(PauseLoadWhenScrollingDrawableDecodeInterceptor())
-            addDrawableDecoder(
-                when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> GifAnimatedDrawableDecoder.Factory()
-                    else -> GifMovieDrawableDecoder.Factory()
-                }
-            )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                addDrawableDecoder(WebpAnimatedDrawableDecoder.Factory())
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                addDrawableDecoder(HeifAnimatedDrawableDecoder.Factory())
-            }
-        }
-    }.build()
+    override fun createSketch() = createAppSketch(this)
 }

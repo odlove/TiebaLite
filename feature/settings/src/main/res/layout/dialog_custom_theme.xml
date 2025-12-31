@@ -13,18 +13,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        app:columnCount="2"
-        app:orientation="vertical"
-        app:rowCount="1">
+        android:columnCount="2"
+        android:orientation="vertical"
+        android:rowCount="1">
 
         <LinearLayout
             android:id="@+id/custom_theme_primary_holder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_column="0"
-            app:layout_columnSpan="1"
-            app:layout_columnWeight="1">
+            android:layout_column="0"
+            android:layout_columnSpan="1"
+            android:layout_columnWeight="1">
 
             <View
                 android:id="@+id/custom_theme_primary"

@@ -67,4 +67,6 @@ dependencies {
     implementation(libs.sketch.ext.compose)
     implementation(libs.sketch.okhttp)
     implementation(libs.zoomimage.compose.sketch)
+
+    testImplementation(project(":core:testing"))
 }

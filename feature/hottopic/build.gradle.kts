@@ -53,6 +53,8 @@ dependencies {
 
     implementation(libs.compose.destinations.core)
     ksp(libs.compose.destinations.ksp)
+
+    testImplementation(project(":core:testing"))
 }
 
 ksp {

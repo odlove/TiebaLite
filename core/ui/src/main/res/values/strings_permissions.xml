@@ -32,6 +32,7 @@
     <string name="common_permission_ignore_battery_optimize">忽略电池优化</string>
     <string name="common_permission_picture_in_picture">画中画</string>
     <string name="common_permission_vpn">\tVPN\t</string>
+    <string name="desc_permission_post_notifications">用于发送消息通知、显示一键签到进度</string>
     <string name="title_request_permission_tip_dialog">贴吧 Lite 正在请求“%1$s”权限</string>
     <string name="message_request_permission_tip_dialog">授权后，将%1$s</string>
 </resources>

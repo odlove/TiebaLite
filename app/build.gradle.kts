@@ -230,6 +230,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":data:repository"))
     implementation(project(":feature:home"))
+    implementation(project(":feature:navigation"))
     implementation(project(":feature:webview"))
     implementation(project(":feature:photoview"))
     implementation(project(":feature:threadcollect"))
@@ -263,7 +264,6 @@ dependencies {
     implementation(libs.androidx.media3.ui)
 
     implementation(libs.compose.destinations.core)
-    ksp(libs.compose.destinations.ksp)
 
     implementation(libs.androidx.navigation.compose)
 

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt.android)
 }
@@ -23,6 +24,7 @@ android {
     }
 
     buildFeatures {
+        compose = true
         buildConfig = false
     }
 }
@@ -42,4 +44,10 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.lifecycle.runtime)
+
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.runtime)
+    implementation(libs.compose.material)
+
+    testImplementation(project(":core:testing"))
 }

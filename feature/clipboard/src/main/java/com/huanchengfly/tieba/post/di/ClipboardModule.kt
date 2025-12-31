@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.di
 
-import com.huanchengfly.tieba.core.runtime.clipboard.ClipboardPreviewHandler
+import com.huanchengfly.tieba.post.runtime.clipboard.ClipboardPreviewHandler
 import com.huanchengfly.tieba.post.components.ClipBoardLinkDetector
 import dagger.Binds
 import dagger.Module

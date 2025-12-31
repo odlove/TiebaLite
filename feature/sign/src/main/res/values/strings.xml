@@ -2,4 +2,8 @@
 <resources>
     <string name="title_loading_data">正在加载数据</string>
     <string name="text_please_wait">请稍候……</string>
+    <string name="title_dialog_oksign_battery_optimization">请忽略“电池优化”</string>
+    <string name="message_dialog_oksign_battery_optimization">在 Android 12 及以上版本中，后台启动前台服务被严格限制。为了避免一键签到无法正常启动，请忽略本应用的“电池优化”。</string>
+    <string name="button_go_to_ignore_battery_optimization">好的，去忽略</string>
+    <string name="button_dont_remind_again">不再提示</string>
 </resources>

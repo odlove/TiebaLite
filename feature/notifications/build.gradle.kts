@@ -38,4 +38,6 @@ dependencies {
     implementation(libs.javax.inject)
 
     implementation(libs.androidx.core)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.lifecycle.runtime)
 }

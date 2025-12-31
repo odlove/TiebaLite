@@ -3,10 +3,10 @@ package com.huanchengfly.tieba.post.components
 import android.app.Activity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import com.huanchengfly.tieba.core.runtime.clipboard.ClipboardContent
-import com.huanchengfly.tieba.core.runtime.clipboard.ClipboardPreviewHandler
-import com.huanchengfly.tieba.core.runtime.preview.PreviewInfo
-import com.huanchengfly.tieba.core.runtime.preview.QuickPreviewService
+import com.huanchengfly.tieba.post.runtime.clipboard.ClipboardContent
+import com.huanchengfly.tieba.post.runtime.clipboard.ClipboardPreviewHandler
+import com.huanchengfly.tieba.post.runtime.preview.PreviewInfo
+import com.huanchengfly.tieba.post.runtime.preview.QuickPreviewService
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Job

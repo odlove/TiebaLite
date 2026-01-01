@@ -3,7 +3,7 @@ package com.huanchengfly.tieba.post.navigation
 import com.huanchengfly.tieba.post.ui.page.history.historyDestinations
 import com.huanchengfly.tieba.post.ui.page.hottopic.list.hottopicDestinations
 import com.huanchengfly.tieba.post.ui.page.login.loginDestinations
-import com.huanchengfly.tieba.post.ui.page.main.notifications.homeDestinations
+import com.huanchengfly.tieba.post.ui.page.main.tabs.notifications.ui.homeDestinations
 import com.huanchengfly.tieba.post.ui.page.forum.forumDestinations
 import com.huanchengfly.tieba.post.ui.page.user.userDestinations
 import com.huanchengfly.tieba.post.ui.page.search.searchDestinations

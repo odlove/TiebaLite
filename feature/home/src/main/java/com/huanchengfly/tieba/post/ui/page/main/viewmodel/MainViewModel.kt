@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.page.main
+package com.huanchengfly.tieba.post.ui.page.main.viewmodel
 
 import androidx.compose.runtime.Stable
 import com.huanchengfly.tieba.core.mvi.BaseViewModel
@@ -6,6 +6,10 @@ import com.huanchengfly.tieba.core.mvi.DispatcherProvider
 import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
 import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiState
+import com.huanchengfly.tieba.post.ui.page.main.contract.MainPartialChange
+import com.huanchengfly.tieba.post.ui.page.main.contract.MainUiEvent
+import com.huanchengfly.tieba.post.ui.page.main.contract.MainUiIntent
+import com.huanchengfly.tieba.post.ui.page.main.contract.MainUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,10 +39,4 @@ class MainViewModel @Inject constructor(
                 useCaseRegistry.execute(intent)
             }
     }
-}
-
-data class MainUiState(val messageCount: Int = 0) : UiState
-
-sealed interface MainUiEvent : UiEvent {
-    data object Refresh : MainUiEvent
 }

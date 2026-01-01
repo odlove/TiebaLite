@@ -1,5 +1,7 @@
-package com.huanchengfly.tieba.post.ui.page.main
+package com.huanchengfly.tieba.post.ui.page.main.viewmodel
 
+import com.huanchengfly.tieba.post.ui.page.main.contract.MainPartialChange
+import com.huanchengfly.tieba.post.ui.page.main.contract.MainUiIntent
 import dagger.MapKey
 import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject

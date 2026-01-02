@@ -30,6 +30,8 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,12 +45,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.widget.Toast
 import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.common.utils.AvatarUtils
-import com.huanchengfly.tieba.core.mvi.collectPartialAsState
+import com.huanchengfly.tieba.core.ui.hiltViewModel
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
-import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.ui.preferences.LocalAppPreferences
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
 import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
@@ -64,8 +66,6 @@ import com.huanchengfly.tieba.core.ui.widgets.compose.Switch
 import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
 import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
 import com.huanchengfly.tieba.core.common.account.AccountInfo
-import com.huanchengfly.tieba.post.ui.page.main.tabs.user.contract.UserUiIntent
-import com.huanchengfly.tieba.post.ui.page.main.tabs.user.contract.UserUiState
 import com.huanchengfly.tieba.post.ui.page.main.tabs.user.viewmodel.UserViewModel
 import com.huanchengfly.tieba.post.utils.CuidUtils
 
@@ -254,23 +254,28 @@ private fun LoginTipCard(modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun UserPage(
-    viewModel: UserViewModel = pageViewModel<UserUiIntent, UserViewModel>(
-        listOf(UserUiIntent.Refresh)
-    )
+    viewModel: UserViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val homeNavigation = LocalHomeNavigation.current
-    val isLoading by viewModel.uiState.collectPartialAsState(
-        prop1 = UserUiState::isLoading,
-        initial = false
-    )
-    val account by viewModel.uiState.collectPartialAsState(
-        prop1 = UserUiState::account,
-        initial = null
-    )
+    val uiState by viewModel.uiState.collectAsState()
+    val isLoading = uiState.isLoading
+    val account = uiState.account
+    val errorMessage = uiState.errorMessage
     val themeController = LocalThemeController.current
     val themeState = LocalThemeState.current
     val appPreferences = LocalAppPreferences.current
+
+    LaunchedEffect(viewModel) {
+        viewModel.refresh()
+    }
+
+    LaunchedEffect(errorMessage) {
+        if (!errorMessage.isNullOrEmpty()) {
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+            viewModel.clearError()
+        }
+    }
 
     val switchToNightDialogState = rememberDialogState()
     ConfirmDialog(
@@ -294,7 +299,7 @@ fun UserPage(
     ) { contentPaddings ->
         val pullRefreshState = rememberPullRefreshState(
             refreshing = isLoading,
-            onRefresh = { viewModel.send(UserUiIntent.Refresh) })
+            onRefresh = { viewModel.refresh() })
         Box(
             modifier = Modifier
                 .fillMaxSize()

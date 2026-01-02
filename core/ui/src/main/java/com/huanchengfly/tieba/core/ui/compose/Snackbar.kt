@@ -2,17 +2,24 @@ package com.huanchengfly.tieba.core.ui.compose
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material.DismissValue
 import androidx.compose.material.DrawerDefaults
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FabPosition
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.SnackbarResult
+import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.contentColorFor
+import androidx.compose.material.rememberDismissState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -24,6 +31,27 @@ import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+internal fun SwipeToDismissSnackbarHost(hostState: SnackbarHostState) {
+    val dismissState = rememberDismissState(
+        confirmStateChange = { value ->
+            if (value != DismissValue.Default) {
+                hostState.currentSnackbarData?.dismiss()
+            }
+            true
+        }
+    )
+    LaunchedEffect(dismissState.currentValue) {
+        if (dismissState.currentValue != DismissValue.Default) {
+            dismissState.reset()
+        }
+    }
+    SwipeToDismiss(state = dismissState, background = {}) {
+        SnackbarHost(hostState = hostState)
+    }
+}
 
 @Stable
 class SnackbarState internal constructor(
@@ -89,7 +117,7 @@ fun SnackbarScaffold(
     content: @Composable (PaddingValues) -> Unit
 ) {
     CompositionLocalProvider(LocalSnackbarState provides snackbarState) {
-        MyScaffold(
+        Scaffold(
             modifier = modifier,
             scaffoldState = snackbarState.scaffoldState,
             topBar = topBar,

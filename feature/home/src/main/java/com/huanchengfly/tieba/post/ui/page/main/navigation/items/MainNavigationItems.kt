@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.page.main.navigation
+package com.huanchengfly.tieba.post.ui.page.main.navigation.items
 
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
@@ -10,7 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.feature.home.R as HomeR
-import com.huanchengfly.tieba.core.ui.widgets.compose.navigation.NavigationItem
 import com.huanchengfly.tieba.post.ui.page.main.tabs.explore.ui.ExplorePage
 import com.huanchengfly.tieba.post.ui.page.main.tabs.home.ui.HomePage
 import com.huanchengfly.tieba.post.ui.page.main.tabs.notifications.ui.NotificationsPage
@@ -21,14 +20,12 @@ import kotlinx.collections.immutable.toImmutableList
 @OptIn(ExperimentalAnimationGraphicsApi::class)
 @Composable
 internal fun rememberMainNavigationItems(
-    hideExplore: Boolean,
     messageCount: Int,
     canOpenExplore: Boolean,
     onOpenExplore: () -> Unit,
     onNotificationsClick: () -> Unit,
 ): ImmutableList<NavigationItem> {
     val navigationItems by remember(
-        hideExplore,
         messageCount,
         canOpenExplore,
         onOpenExplore,
@@ -50,8 +47,7 @@ internal fun rememberMainNavigationItems(
                         }
                     }
                 ),
-                if (hideExplore) null
-                else NavigationItem(
+                NavigationItem(
                     id = "explore",
                     icon = {
                         AnimatedImageVector.animatedVectorResource(

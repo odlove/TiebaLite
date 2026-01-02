@@ -1,103 +1,92 @@
 package com.huanchengfly.tieba.post.ui.page.main.tabs.user.viewmodel
 
-import androidx.compose.runtime.Stable
-import com.huanchengfly.tieba.core.network.error.defaultErrorMessage
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.huanchengfly.tieba.core.common.account.AccountInfo
 import com.huanchengfly.tieba.core.common.repository.UserProfileFacade
 import com.huanchengfly.tieba.core.common.user.UserProfileInfo
-import com.huanchengfly.tieba.core.mvi.BaseViewModel
-import com.huanchengfly.tieba.core.mvi.CommonUiEvent
-import com.huanchengfly.tieba.core.mvi.DispatcherProvider
-import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
-import com.huanchengfly.tieba.core.mvi.UiEvent
-import com.huanchengfly.tieba.core.common.account.AccountInfo
-import com.huanchengfly.tieba.post.utils.AccountUtil
-import com.huanchengfly.tieba.post.ui.page.main.tabs.user.contract.UserPartialChange
-import com.huanchengfly.tieba.post.ui.page.main.tabs.user.contract.UserUiEvent
-import com.huanchengfly.tieba.post.ui.page.main.tabs.user.contract.UserUiIntent
+import com.huanchengfly.tieba.core.network.error.defaultErrorMessage
 import com.huanchengfly.tieba.post.ui.page.main.tabs.user.contract.UserUiState
+import com.huanchengfly.tieba.post.utils.AccountUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-@Stable
 @HiltViewModel
 class UserViewModel @Inject constructor(
-    dispatcherProvider: DispatcherProvider,
     private val userProfileRepository: UserProfileFacade
-) : BaseViewModel<UserUiIntent, UserPartialChange, UserUiState, UserUiEvent>(dispatcherProvider) {
-    override fun createInitialState(): UserUiState =
-        UserUiState()
+) : ViewModel() {
+    private val _uiState = MutableStateFlow(UserUiState())
+    val uiState: StateFlow<UserUiState> = _uiState.asStateFlow()
 
-    override fun createPartialChangeProducer(): PartialChangeProducer<UserUiIntent, UserPartialChange, UserUiState> =
-        UserPartialChangeProducer(userProfileRepository)
+    private var refreshJob: Job? = null
 
-    override fun dispatchEvent(partialChange: UserPartialChange): UiEvent? =
-        when (partialChange) {
-            is UserPartialChange.Refresh.Failure -> CommonUiEvent.Toast(partialChange.errorMessage)
-            else -> null
+    fun refresh() {
+        val account = AccountUtil.currentAccount
+        if (account == null) {
+            _uiState.update { it.copy(isLoading = false, account = null) }
+            return
         }
 
-    class UserPartialChangeProducer(
-        private val userProfileRepository: UserProfileFacade
-    ) : PartialChangeProducer<UserUiIntent, UserPartialChange, UserUiState> {
-        @OptIn(ExperimentalCoroutinesApi::class)
-        override fun toPartialChangeFlow(intentFlow: Flow<UserUiIntent>): Flow<UserPartialChange> =
-            merge(
-                intentFlow.filterIsInstance<UserUiIntent.Refresh>().flatMapConcat { it.toPartialChangeFlow() }
-            )
+        if (account.loadSuccess) {
+            _uiState.update { it.copy(account = account) }
+        }
+        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
-        private fun UserUiIntent.Refresh.toPartialChangeFlow(): Flow<UserPartialChange> {
-            val account = AccountUtil.currentAccount
-            return if (account == null) {
-                listOf(UserPartialChange.Refresh.NotLogin).asFlow()
-            } else {
-                userProfileRepository
-                    .userProfile(account.uid.toLong())
-                    .map<UserProfileInfo, UserPartialChange> { profile ->
-                        account.apply {
-                            nameShow = profile.nameShow
-                            portrait = profile.portrait.orEmpty()
-                            intro = profile.intro
-                            sex = profile.sex
-                            fansNum = profile.fansNum
-                            postNum = profile.postNum
-                            threadNum = profile.threadNum
-                            concernNum = profile.concernNum
-                            tbAge = profile.tbAge
-                            age = profile.age
-                            birthdayShowStatus = profile.birthdayShowStatus
-                            birthdayTime = profile.birthdayTime
-                            constellation = profile.constellation
-                            tiebaUid = profile.tiebaUid
-                            loadSuccess = true
-                            updateAll("uid = ?", uid)
-                        }
-                        UserPartialChange.Refresh.Success(account = account)
+        refreshJob?.cancel()
+        refreshJob = viewModelScope.launch {
+            userProfileRepository
+                .userProfile(account.uid.toLong())
+                .catch { error ->
+                    error.printStackTrace()
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = error.defaultErrorMessage()
+                        )
                     }
-                    .onStart {
-                        emit(UserPartialChange.Refresh.Start)
-                        if (account.loadSuccess) {
-                            emit(
-                                UserPartialChange.Refresh.Success(
-                                    account = account,
-                                    isLocal = true
-                                )
-                            )
-                        }
+                }
+                .collect { profile ->
+                    applyProfile(account, profile)
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            account = account,
+                            errorMessage = null
+                        )
                     }
-                    .catch {
-                        it.printStackTrace()
-                        emit(UserPartialChange.Refresh.Failure(errorMessage = it.defaultErrorMessage()))
-                    }
-            }
+                }
+        }
+    }
+
+    fun clearError() {
+        _uiState.update { it.copy(errorMessage = null) }
+    }
+
+    private fun applyProfile(account: AccountInfo, profile: UserProfileInfo) {
+        account.apply {
+            nameShow = profile.nameShow
+            portrait = profile.portrait.orEmpty()
+            intro = profile.intro
+            sex = profile.sex
+            fansNum = profile.fansNum
+            postNum = profile.postNum
+            threadNum = profile.threadNum
+            concernNum = profile.concernNum
+            tbAge = profile.tbAge
+            age = profile.age
+            birthdayShowStatus = profile.birthdayShowStatus
+            birthdayTime = profile.birthdayTime
+            constellation = profile.constellation
+            tiebaUid = profile.tiebaUid
+            loadSuccess = true
+            updateAll("uid = ?", uid)
         }
     }
 }

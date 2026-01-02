@@ -17,9 +17,9 @@ import com.huanchengfly.tieba.core.ui.hiltViewModel
 import com.huanchengfly.tieba.core.ui.locals.LocalDevicePosture
 import com.huanchengfly.tieba.core.ui.locals.LocalNotificationCountFlow
 import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.THEME_DIAGNOSTICS_TAG
-import com.huanchengfly.tieba.core.ui.windowsizeclass.LocalWindowSizeClass
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.theme.compose.THEME_DIAGNOSTICS_TAG
+import com.huanchengfly.tieba.core.ui.device.LocalWindowSizeClass
 import com.huanchengfly.tieba.post.ui.page.main.navigation.items.rememberMainNavigationItems
 import com.huanchengfly.tieba.post.ui.page.main.navigation.scaffold.MainPageScaffold
 import com.huanchengfly.tieba.post.ui.page.main.navigation.type.rememberMainNavigationContentPosition

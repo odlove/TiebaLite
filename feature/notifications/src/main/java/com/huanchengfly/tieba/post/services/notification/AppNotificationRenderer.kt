@@ -12,7 +12,7 @@ import com.huanchengfly.tieba.core.runtime.service.notification.NotificationChan
 import com.huanchengfly.tieba.core.runtime.service.notification.NotificationCounts
 import com.huanchengfly.tieba.core.runtime.service.notification.NotificationRenderer
 import com.huanchengfly.tieba.core.runtime.service.notification.NotificationNavigator
-import com.huanchengfly.tieba.core.ui.theme.runtime.ThemeColorResolver
+import com.huanchengfly.tieba.core.theme.runtime.bridge.ThemeColorResolver
 import com.huanchengfly.tieba.feature.notifications.R
 import com.huanchengfly.tieba.post.services.notification.NotificationConstants.ACTION_NEW_MESSAGE
 import com.huanchengfly.tieba.post.services.notification.NotificationConstants.CHANNEL_MENTION_ID

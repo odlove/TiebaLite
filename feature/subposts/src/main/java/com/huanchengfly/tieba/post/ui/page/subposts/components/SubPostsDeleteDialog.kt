@@ -4,15 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogPrimaryButtonColors
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.dialogSecondaryButtonColors
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeDialog
+import com.huanchengfly.tieba.core.theme.compose.dialogPrimaryButtonColors
+import com.huanchengfly.tieba.core.theme.compose.dialogSecondaryButtonColors
+import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeDialog
 import com.huanchengfly.tieba.feature.subposts.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
-import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
-import com.huanchengfly.tieba.core.ui.widgets.compose.TextButton
+import com.huanchengfly.tieba.core.ui.compose.widgets.DialogState
+import com.huanchengfly.tieba.core.ui.compose.widgets.TextButton
 
 /**
  * 删除确认对话框

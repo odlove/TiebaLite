@@ -7,7 +7,7 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
-import com.huanchengfly.tieba.core.ui.utils.MainNavigationContentPosition
+import com.huanchengfly.tieba.core.ui.device.MainNavigationContentPosition
 
 internal enum class LayoutType {
     HEADER, CONTENT

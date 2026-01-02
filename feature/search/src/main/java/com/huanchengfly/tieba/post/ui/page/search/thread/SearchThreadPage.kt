@@ -17,16 +17,16 @@ import androidx.compose.ui.Modifier
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.theme.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.post.ui.page.search.SearchUiEvent
-import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
-import com.huanchengfly.tieba.core.ui.compose.LazyLoad
-import com.huanchengfly.tieba.core.ui.widgets.compose.LoadMoreLayout
-import com.huanchengfly.tieba.core.ui.compose.LocalShouldLoad
-import com.huanchengfly.tieba.core.ui.widgets.compose.SearchThreadList
-import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
+import com.huanchengfly.tieba.core.ui.compose.widgets.ErrorScreen
+import com.huanchengfly.tieba.core.ui.compose.base.LazyLoad
+import com.huanchengfly.tieba.core.ui.compose.widgets.LoadMoreLayout
+import com.huanchengfly.tieba.core.ui.compose.base.LocalShouldLoad
+import com.huanchengfly.tieba.core.ui.compose.widgets.SearchThreadList
+import com.huanchengfly.tieba.core.ui.compose.widgets.states.StateScreen
 import kotlinx.collections.immutable.persistentListOf
 
 @OptIn(ExperimentalMaterialApi::class)

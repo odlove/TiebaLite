@@ -34,24 +34,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.threadBottomBar
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.theme.compose.threadBottomBar
 import com.huanchengfly.tieba.feature.thread.R
 import com.huanchengfly.tieba.core.common.thread.ThreadUser
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.repository.PbPageRepository
-import com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButton
-import com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButtonVariant
-import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
+import com.huanchengfly.tieba.core.ui.compose.widgets.AgreeButton
+import com.huanchengfly.tieba.core.ui.compose.widgets.AgreeButtonVariant
+import com.huanchengfly.tieba.core.ui.compose.widgets.Avatar
+import com.huanchengfly.tieba.core.ui.compose.widgets.Sizes
 import com.huanchengfly.tieba.post.utils.StringUtil
 
 @Deprecated(
     "Use AgreeButton with AgreeButtonVariant.PostDetail instead",
     ReplaceWith(
         "AgreeButton(hasAgreed, agreeNum, onClick, modifier, AgreeButtonVariant.PostDetail)",
-        "com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButton",
-        "com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButtonVariant"
+        "com.huanchengfly.tieba.core.ui.compose.widgets.AgreeButton",
+        "com.huanchengfly.tieba.core.ui.compose.widgets.AgreeButtonVariant"
     )
 )
 @Composable
@@ -76,8 +76,8 @@ fun PostAgreeBtn(
     "Use AgreeButton with AgreeButtonVariant.BottomBar instead",
     ReplaceWith(
         "AgreeButton(hasAgreed, agreeNum, onClick, modifier, AgreeButtonVariant.BottomBar)",
-        "com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButton",
-        "com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButtonVariant"
+        "com.huanchengfly.tieba.core.ui.compose.widgets.AgreeButton",
+        "com.huanchengfly.tieba.core.ui.compose.widgets.AgreeButtonVariant"
     )
 )
 @Composable

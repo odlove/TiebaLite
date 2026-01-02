@@ -56,15 +56,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.core.common.theme.ThemeChannel
 import com.huanchengfly.tieba.core.common.theme.ThemeChannelConfig
-import com.huanchengfly.tieba.core.ui.theme.ThemeCatalog
-import com.huanchengfly.tieba.core.ui.theme.ThemePalette
-import com.huanchengfly.tieba.core.ui.theme.ThemeSpec
-import com.huanchengfly.tieba.core.ui.theme.ThemeTokens
-import com.huanchengfly.tieba.core.ui.theme.ThemeType
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.rememberThemePalette
+import com.huanchengfly.tieba.core.theme.model.ThemeCatalog
+import com.huanchengfly.tieba.core.theme.model.ThemePalette
+import com.huanchengfly.tieba.core.theme.model.ThemeSpec
+import com.huanchengfly.tieba.core.theme.model.ThemeTokens
+import com.huanchengfly.tieba.core.theme.model.ThemeType
+import com.huanchengfly.tieba.core.theme.compose.CardSurface
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.compose.base.PreviewTheme
+import com.huanchengfly.tieba.core.theme.compose.rememberThemePalette
 import com.huanchengfly.tieba.feature.settings.R
 
 @Composable

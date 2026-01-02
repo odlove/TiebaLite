@@ -11,8 +11,8 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.huanchengfly.tieba.core.ui.utils.MainNavigationContentPosition
-import com.huanchengfly.tieba.core.ui.utils.MainNavigationType
+import com.huanchengfly.tieba.core.ui.device.MainNavigationContentPosition
+import com.huanchengfly.tieba.core.ui.device.MainNavigationType
 import com.huanchengfly.tieba.post.ui.page.main.navigation.chrome.BottomNavigation
 import com.huanchengfly.tieba.post.ui.page.main.navigation.chrome.NavigationDrawerContent
 import com.huanchengfly.tieba.post.ui.page.main.navigation.chrome.NavigationRail

@@ -22,7 +22,7 @@ import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageActions
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadPageState
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadSortType
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadViewModel
-import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
+import com.huanchengfly.tieba.core.ui.compose.widgets.DialogState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

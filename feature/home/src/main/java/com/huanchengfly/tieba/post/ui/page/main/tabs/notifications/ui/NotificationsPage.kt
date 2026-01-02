@@ -20,16 +20,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
-import com.huanchengfly.tieba.core.ui.compose.LazyLoadHorizontalPager
-import com.huanchengfly.tieba.core.ui.compose.PagerTabIndicator
-import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
-import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabSelectedColor
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.tabUnselectedColor
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
-import com.huanchengfly.tieba.core.ui.widgets.compose.ActionItem
-import com.huanchengfly.tieba.core.ui.widgets.compose.accountNavIconIfCompact
+import com.huanchengfly.tieba.core.ui.compose.base.LazyLoadHorizontalPager
+import com.huanchengfly.tieba.core.theme.compose.PagerTabIndicator
+import com.huanchengfly.tieba.core.ui.compose.base.SnackbarScaffold
+import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.theme.compose.tabSelectedColor
+import com.huanchengfly.tieba.core.theme.compose.tabUnselectedColor
+import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ActionItem
+import com.huanchengfly.tieba.core.ui.compose.widgets.accountNavIconIfCompact
 import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
 import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.main.tabs.notifications.contract.NotificationsType

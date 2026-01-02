@@ -20,9 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.navigationSelectedColor
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.navigationUnselectedColor
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.topBarSecondaryColor
+import com.huanchengfly.tieba.core.theme.compose.navigationSelectedColor
+import com.huanchengfly.tieba.core.theme.compose.navigationUnselectedColor
+import com.huanchengfly.tieba.core.theme.compose.topBarSecondaryColor
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

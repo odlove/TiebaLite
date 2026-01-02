@@ -9,8 +9,8 @@ import com.huanchengfly.tieba.core.mvi.PartialChangeProducer
 import com.huanchengfly.tieba.core.mvi.UiEvent
 import com.huanchengfly.tieba.core.mvi.UiIntent
 import com.huanchengfly.tieba.core.mvi.UiState
-import com.huanchengfly.tieba.core.ui.photoview.LoadPicPageData
-import com.huanchengfly.tieba.core.ui.photoview.PhotoViewData
+import com.huanchengfly.tieba.core.ui.media.photoview.LoadPicPageData
+import com.huanchengfly.tieba.core.ui.media.photoview.PhotoViewData
 import com.huanchengfly.tieba.post.repository.PhotoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList

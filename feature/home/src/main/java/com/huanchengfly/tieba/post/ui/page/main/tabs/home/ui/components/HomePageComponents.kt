@@ -48,18 +48,18 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
-import com.huanchengfly.tieba.core.ui.compose.MyLazyVerticalGrid
+import com.huanchengfly.tieba.core.ui.compose.base.MyLazyVerticalGrid
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.core.ui.widgets.compose.Button
-import com.huanchengfly.tieba.core.ui.widgets.compose.Chip
-import com.huanchengfly.tieba.core.ui.widgets.compose.LongClickMenu
-import com.huanchengfly.tieba.core.ui.widgets.compose.MenuState
-import com.huanchengfly.tieba.core.ui.widgets.compose.TipScreen
-import com.huanchengfly.tieba.core.ui.widgets.compose.TextButton
-import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
+import com.huanchengfly.tieba.core.theme.compose.CardSurface
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.compose.widgets.Avatar
+import com.huanchengfly.tieba.core.ui.compose.widgets.Button
+import com.huanchengfly.tieba.core.ui.compose.widgets.Chip
+import com.huanchengfly.tieba.core.ui.compose.widgets.LongClickMenu
+import com.huanchengfly.tieba.core.ui.compose.widgets.MenuState
+import com.huanchengfly.tieba.core.ui.compose.widgets.TipScreen
+import com.huanchengfly.tieba.core.ui.compose.widgets.TextButton
+import com.huanchengfly.tieba.core.ui.compose.widgets.rememberMenuState
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.ui.page.main.tabs.home.contract.HomeUiState
 

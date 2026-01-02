@@ -50,13 +50,13 @@ import androidx.core.graphics.toColorInt
 import com.godaddy.android.colorpicker.HsvColor
 import com.godaddy.android.colorpicker.harmony.ColorHarmonyMode
 import com.godaddy.android.colorpicker.harmony.HarmonyColorPicker
-import com.huanchengfly.tieba.core.ui.compose.ProvideContentColor
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.compose.base.ProvideContentColor
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.feature.settings.R
-import com.huanchengfly.tieba.core.ui.widgets.compose.Dialog
-import com.huanchengfly.tieba.core.ui.widgets.compose.DialogNegativeButton
-import com.huanchengfly.tieba.core.ui.widgets.compose.DialogPositiveButton
-import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
+import com.huanchengfly.tieba.core.ui.compose.widgets.Dialog
+import com.huanchengfly.tieba.core.ui.compose.widgets.DialogNegativeButton
+import com.huanchengfly.tieba.core.ui.compose.widgets.DialogPositiveButton
+import com.huanchengfly.tieba.core.ui.compose.widgets.DialogState
 import com.huanchengfly.tieba.post.utils.extension.toHexString
 
 @Composable

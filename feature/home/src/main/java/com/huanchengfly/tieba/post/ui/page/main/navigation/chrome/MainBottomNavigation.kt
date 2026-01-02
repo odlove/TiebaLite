@@ -5,8 +5,8 @@ import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.NavigationItemModel
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeNavigationBar
+import com.huanchengfly.tieba.core.theme.compose.scenes.NavigationItemModel
+import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeNavigationBar
 import com.huanchengfly.tieba.post.ui.page.main.navigation.items.NavigationItem
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList

@@ -25,11 +25,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
-import com.huanchengfly.tieba.core.ui.compose.Container
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
-import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.core.ui.widgets.compose.HorizontalDivider
+import com.huanchengfly.tieba.core.ui.compose.base.Container
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.Avatar
+import com.huanchengfly.tieba.core.ui.compose.widgets.HorizontalDivider
 import com.huanchengfly.tieba.feature.thread.R
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon

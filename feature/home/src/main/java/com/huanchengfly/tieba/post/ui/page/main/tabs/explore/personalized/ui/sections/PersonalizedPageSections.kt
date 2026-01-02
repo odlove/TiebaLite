@@ -16,9 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.huanchengfly.tieba.core.common.feed.DislikeReason
 import com.huanchengfly.tieba.core.common.feed.ThreadCard
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.core.ui.widgets.compose.HomeLoadMoreLayout
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.theme.compose.pullRefreshIndicator
+import com.huanchengfly.tieba.core.ui.compose.widgets.HomeLoadMoreLayout
 import com.huanchengfly.tieba.post.ui.page.main.tabs.explore.personalized.ui.components.FeedList
 import com.huanchengfly.tieba.post.ui.page.main.tabs.explore.personalized.ui.components.PersonalizedThreadItem
 import com.huanchengfly.tieba.post.ui.page.main.tabs.explore.personalized.ui.components.RefreshTip

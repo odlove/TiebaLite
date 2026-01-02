@@ -42,11 +42,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.invertChipBackground
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.invertChipContent
-import com.huanchengfly.tieba.core.ui.widgets.compose.ListMenuItem
-import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalGrid
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.theme.compose.invertChipBackground
+import com.huanchengfly.tieba.core.theme.compose.invertChipContent
+import com.huanchengfly.tieba.core.ui.compose.widgets.ListMenuItem
+import com.huanchengfly.tieba.core.ui.compose.widgets.VerticalGrid
 import com.huanchengfly.tieba.feature.thread.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.ui.text.TextWithMinWidth

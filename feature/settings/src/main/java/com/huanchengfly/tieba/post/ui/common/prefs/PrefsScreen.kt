@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.huanchengfly.tieba.core.ui.compose.Container
+import com.huanchengfly.tieba.core.ui.compose.base.Container
 import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 
 /**

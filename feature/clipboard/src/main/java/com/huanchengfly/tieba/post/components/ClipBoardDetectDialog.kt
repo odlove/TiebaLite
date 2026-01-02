@@ -19,14 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.post.runtime.preview.ClipBoardLink
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.core.ui.widgets.compose.AvatarIcon
-import com.huanchengfly.tieba.core.ui.widgets.compose.Dialog
-import com.huanchengfly.tieba.core.ui.widgets.compose.DialogNegativeButton
-import com.huanchengfly.tieba.core.ui.widgets.compose.DialogPositiveButton
-import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.compose.widgets.Avatar
+import com.huanchengfly.tieba.core.ui.compose.widgets.AvatarIcon
+import com.huanchengfly.tieba.core.ui.compose.widgets.Dialog
+import com.huanchengfly.tieba.core.ui.compose.widgets.DialogNegativeButton
+import com.huanchengfly.tieba.core.ui.compose.widgets.DialogPositiveButton
+import com.huanchengfly.tieba.core.ui.compose.widgets.Sizes
+import com.huanchengfly.tieba.core.ui.compose.widgets.rememberDialogState
 import com.huanchengfly.tieba.feature.clipboard.R
 
 @Composable

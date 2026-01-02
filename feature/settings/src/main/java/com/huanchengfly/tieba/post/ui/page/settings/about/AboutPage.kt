@@ -31,11 +31,11 @@ import androidx.compose.ui.unit.dp
 import android.widget.Toast
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.huanchengfly.tieba.feature.settings.R
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
-import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
-import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.base.SnackbarScaffold
+import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
+import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor

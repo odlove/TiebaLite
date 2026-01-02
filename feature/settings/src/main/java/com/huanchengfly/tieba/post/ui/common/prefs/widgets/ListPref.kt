@@ -13,10 +13,10 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
-import com.huanchengfly.tieba.core.ui.widgets.compose.Dialog
-import com.huanchengfly.tieba.core.ui.widgets.compose.DialogNegativeButton
-import com.huanchengfly.tieba.core.ui.widgets.compose.picker.ListSinglePicker
-import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.core.ui.compose.widgets.Dialog
+import com.huanchengfly.tieba.core.ui.compose.widgets.DialogNegativeButton
+import com.huanchengfly.tieba.core.ui.compose.widgets.picker.ListSinglePicker
+import com.huanchengfly.tieba.core.ui.compose.widgets.rememberDialogState
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.launch

@@ -38,19 +38,19 @@ import com.huanchengfly.tieba.core.common.feed.ThreadCard
 import com.huanchengfly.tieba.core.common.utils.getShortNumString
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
-import com.huanchengfly.tieba.core.ui.compose.Container
-import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
-import com.huanchengfly.tieba.core.ui.compose.ProvideContentColor
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.OrangeA700
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.RedA700
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.White
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.Yellow
-import com.huanchengfly.tieba.core.ui.widgets.compose.FeedCard
-import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
-import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalGrid
-import com.huanchengfly.tieba.core.ui.widgets.compose.items as gridItems
-import com.huanchengfly.tieba.core.ui.widgets.compose.itemsIndexed as gridItemsIndexed
+import com.huanchengfly.tieba.core.ui.compose.base.Container
+import com.huanchengfly.tieba.core.ui.compose.base.MyLazyColumn
+import com.huanchengfly.tieba.core.ui.compose.base.ProvideContentColor
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.theme.compose.OrangeA700
+import com.huanchengfly.tieba.core.theme.compose.RedA700
+import com.huanchengfly.tieba.core.theme.compose.White
+import com.huanchengfly.tieba.core.theme.compose.Yellow
+import com.huanchengfly.tieba.core.ui.compose.widgets.FeedCard
+import com.huanchengfly.tieba.core.ui.compose.widgets.VerticalDivider
+import com.huanchengfly.tieba.core.ui.compose.widgets.VerticalGrid
+import com.huanchengfly.tieba.core.ui.compose.widgets.items as gridItems
+import com.huanchengfly.tieba.core.ui.compose.widgets.itemsIndexed as gridItemsIndexed
 import com.huanchengfly.tieba.post.ui.page.main.tabs.explore.hot.ui.components.ChipHeader
 import com.huanchengfly.tieba.post.ui.page.main.tabs.explore.hot.ui.components.ThreadListTab
 import kotlinx.coroutines.flow.Flow

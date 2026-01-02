@@ -2,9 +2,9 @@ package com.huanchengfly.tieba.post.ui.page.photoview
 
 import com.huanchengfly.tieba.core.common.photoview.PicPageItem
 import com.huanchengfly.tieba.core.common.photoview.PicPageResult
-import com.huanchengfly.tieba.core.ui.photoview.LoadPicPageData
-import com.huanchengfly.tieba.core.ui.photoview.PhotoViewData
-import com.huanchengfly.tieba.core.ui.photoview.PicItem
+import com.huanchengfly.tieba.core.ui.media.photoview.LoadPicPageData
+import com.huanchengfly.tieba.core.ui.media.photoview.PhotoViewData
+import com.huanchengfly.tieba.core.ui.media.photoview.PicItem
 import com.huanchengfly.tieba.post.repository.PhotoRepository
 import com.huanchengfly.tieba.post.ui.BaseViewModelTest
 import kotlinx.coroutines.cancelAndJoin

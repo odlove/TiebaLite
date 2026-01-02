@@ -7,8 +7,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import com.huanchengfly.tieba.core.ui.compose.LazyLoad
-import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
+import com.huanchengfly.tieba.core.ui.compose.base.LazyLoad
+import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.common.thread.ThreadPreview
 import com.huanchengfly.tieba.core.common.thread.toThreadDetail

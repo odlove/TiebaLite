@@ -43,8 +43,8 @@ import com.huanchengfly.tieba.core.network.retrofit.doIfSuccess
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.text.buildChipInlineContent
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.widgets.compose.*
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.compose.widgets.*
 import com.huanchengfly.tieba.feature.thread.R
 import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import com.huanchengfly.tieba.core.common.thread.ThreadSubPost

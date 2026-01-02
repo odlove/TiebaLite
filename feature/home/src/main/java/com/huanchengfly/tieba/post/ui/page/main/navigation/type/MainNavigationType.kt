@@ -4,11 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import com.huanchengfly.tieba.core.ui.utils.DevicePosture
-import com.huanchengfly.tieba.core.ui.utils.MainNavigationContentPosition
-import com.huanchengfly.tieba.core.ui.utils.MainNavigationType
-import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowHeightSizeClass
-import com.huanchengfly.tieba.core.ui.windowsizeclass.WindowWidthSizeClass
+import com.huanchengfly.tieba.core.ui.device.DevicePosture
+import com.huanchengfly.tieba.core.ui.device.MainNavigationContentPosition
+import com.huanchengfly.tieba.core.ui.device.MainNavigationType
+import com.huanchengfly.tieba.core.ui.device.WindowHeightSizeClass
+import com.huanchengfly.tieba.core.ui.device.WindowWidthSizeClass
 
 @Composable
 internal fun rememberMainNavigationType(

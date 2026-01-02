@@ -6,8 +6,8 @@ import androidx.compose.ui.platform.LocalContext
 import com.huanchengfly.tieba.core.ui.image.ImageUrlResolver
 import com.huanchengfly.tieba.core.ui.locals.LocalOriginThreadRenderer
 import com.huanchengfly.tieba.core.ui.locals.ProvideCoreLocals
-import com.huanchengfly.tieba.core.ui.photoview.LocalPhotoViewer
-import com.huanchengfly.tieba.core.ui.utils.DevicePosture
+import com.huanchengfly.tieba.core.ui.media.photoview.LocalPhotoViewer
+import com.huanchengfly.tieba.core.ui.device.DevicePosture
 import com.huanchengfly.tieba.post.goToActivity
 import com.huanchengfly.tieba.post.ui.page.photoview.PhotoViewActivity
 import com.huanchengfly.tieba.post.ui.widgets.compose.AppOriginThreadRenderer

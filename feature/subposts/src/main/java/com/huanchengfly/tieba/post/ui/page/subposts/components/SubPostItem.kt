@@ -18,16 +18,16 @@ import com.huanchengfly.tieba.core.common.thread.ThreadSubPost
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.post.ui.page.subposts.SubPostItemData
 import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
-import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.core.ui.widgets.compose.BlockTip
-import com.huanchengfly.tieba.core.ui.widgets.compose.BlockableContent
-import com.huanchengfly.tieba.core.ui.widgets.compose.PlainCard
-import com.huanchengfly.tieba.core.ui.widgets.compose.LongClickMenu
-import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.core.ui.widgets.compose.UserHeader
-import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
-import com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButton
-import com.huanchengfly.tieba.core.ui.widgets.compose.AgreeButtonVariant
+import com.huanchengfly.tieba.core.ui.compose.widgets.Avatar
+import com.huanchengfly.tieba.core.ui.compose.widgets.BlockTip
+import com.huanchengfly.tieba.core.ui.compose.widgets.BlockableContent
+import com.huanchengfly.tieba.core.ui.compose.widgets.PlainCard
+import com.huanchengfly.tieba.core.ui.compose.widgets.LongClickMenu
+import com.huanchengfly.tieba.core.ui.compose.widgets.Sizes
+import com.huanchengfly.tieba.core.ui.compose.widgets.UserHeader
+import com.huanchengfly.tieba.core.ui.compose.widgets.rememberMenuState
+import com.huanchengfly.tieba.core.ui.compose.widgets.AgreeButton
+import com.huanchengfly.tieba.core.ui.compose.widgets.AgreeButtonVariant
 import com.huanchengfly.tieba.post.preferences.appPreferences
 
 /**

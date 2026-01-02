@@ -7,7 +7,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.huanchengfly.tieba.core.ui.compose.LazyLoadHorizontalPager
+import com.huanchengfly.tieba.core.ui.compose.base.LazyLoadHorizontalPager
 import com.huanchengfly.tieba.post.ui.page.main.navigation.items.NavigationItem
 import kotlinx.collections.immutable.ImmutableList
 

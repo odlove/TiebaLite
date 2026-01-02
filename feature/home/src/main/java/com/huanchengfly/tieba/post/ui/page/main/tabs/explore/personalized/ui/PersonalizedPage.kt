@@ -20,12 +20,12 @@ import com.huanchengfly.tieba.core.mvi.bindScrollToTopEvent
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
-import com.huanchengfly.tieba.core.ui.compose.LazyLoad
+import com.huanchengfly.tieba.core.ui.compose.base.LazyLoad
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.ui.preferences.LocalAppPreferences
-import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
-import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
+import com.huanchengfly.tieba.core.ui.compose.widgets.ErrorScreen
+import com.huanchengfly.tieba.core.ui.compose.widgets.states.StateScreen
 import com.huanchengfly.tieba.post.ui.page.main.tabs.explore.personalized.contract.PersonalizedUiEvent
 import com.huanchengfly.tieba.post.ui.page.main.tabs.explore.personalized.contract.PersonalizedUiIntent
 import com.huanchengfly.tieba.post.ui.page.main.tabs.explore.personalized.contract.PersonalizedUiState

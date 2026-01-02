@@ -31,7 +31,13 @@ android {
 dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:runtime"))
-    implementation(project(":core:ui"))
+    implementation(project(":core:ui:theme"))
+    implementation(project(":core:ui:app"))
+    implementation(project(":core:ui:foundation"))
+    implementation(project(":core:ui:device"))
+    implementation(project(":core:ui:compose-widgets"))
+    implementation(project(":core:ui:media"))
+    implementation(project(":core:ui:navigation"))
     implementation(project(":core:mvi"))
 
     implementation(project(":feature:home"))

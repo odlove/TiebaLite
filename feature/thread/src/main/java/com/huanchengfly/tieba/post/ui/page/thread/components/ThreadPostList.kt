@@ -46,15 +46,15 @@ import com.huanchengfly.tieba.core.common.reply.ReplyArgs
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
-import com.huanchengfly.tieba.core.ui.compose.Container
-import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
+import com.huanchengfly.tieba.core.ui.compose.base.Container
+import com.huanchengfly.tieba.core.ui.compose.base.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.navigation.HomeNavigationActions
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.loadMoreIndicator
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.core.ui.widgets.compose.Button
-import com.huanchengfly.tieba.core.ui.widgets.compose.TipScreen
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.theme.compose.loadMoreIndicator
+import com.huanchengfly.tieba.core.theme.compose.pullRefreshIndicator
+import com.huanchengfly.tieba.core.ui.compose.widgets.Button
+import com.huanchengfly.tieba.core.ui.compose.widgets.TipScreen
 import com.huanchengfly.tieba.feature.thread.R
 import com.huanchengfly.tieba.core.common.thread.ThreadPost
 import com.huanchengfly.tieba.post.ui.page.thread.destinations.CopyTextDialogPageDestination
@@ -65,8 +65,8 @@ import com.huanchengfly.tieba.post.ui.page.thread.ThreadSortType
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadViewModel
 import com.huanchengfly.tieba.post.ui.page.thread.PostCard
 import com.huanchengfly.tieba.post.ui.page.thread.components.ThreadInfoHeader
-import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
-import com.huanchengfly.tieba.core.ui.widgets.compose.LoadMoreLayout
+import com.huanchengfly.tieba.core.ui.compose.widgets.DialogState
+import com.huanchengfly.tieba.core.ui.compose.widgets.LoadMoreLayout
 import com.huanchengfly.tieba.post.ui.widgets.compose.OriginThreadCard
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlin.math.max

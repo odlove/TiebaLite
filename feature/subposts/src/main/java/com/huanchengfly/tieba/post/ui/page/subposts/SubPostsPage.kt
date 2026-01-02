@@ -22,8 +22,8 @@ import com.huanchengfly.tieba.post.components.dialogs.LoadingDialog
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.post.ui.page.subposts.components.SubPostsDeleteDialog
-import com.huanchengfly.tieba.core.ui.compose.LazyLoad
-import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.core.ui.compose.base.LazyLoad
+import com.huanchengfly.tieba.core.ui.compose.widgets.rememberDialogState
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import com.huanchengfly.tieba.post.utils.launchUrl
 import com.ramcosta.composedestinations.annotation.Destination

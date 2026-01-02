@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
-import com.huanchengfly.tieba.core.ui.widgets.compose.Switch
+import com.huanchengfly.tieba.core.ui.compose.widgets.Switch
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi

@@ -5,8 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.tooling.preview.Preview
 import com.huanchengfly.tieba.post.models.database.Account
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.PreviewTheme
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.TiebaLiteTheme
+import com.huanchengfly.tieba.core.ui.compose.base.PreviewTheme
+import com.huanchengfly.tieba.core.theme.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import kotlinx.collections.immutable.persistentListOf
 

@@ -36,13 +36,13 @@ import com.huanchengfly.tieba.core.common.feed.DislikeReason
 import com.huanchengfly.tieba.core.common.feed.PersonalizedInfo
 import com.huanchengfly.tieba.core.common.feed.ThreadCard
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
-import com.huanchengfly.tieba.core.ui.compose.Container
-import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.widgets.compose.BlockTip
-import com.huanchengfly.tieba.core.ui.widgets.compose.BlockableContent
-import com.huanchengfly.tieba.core.ui.widgets.compose.FeedCard
-import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalDivider
+import com.huanchengfly.tieba.core.ui.compose.base.Container
+import com.huanchengfly.tieba.core.ui.compose.base.MyLazyColumn
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.compose.widgets.BlockTip
+import com.huanchengfly.tieba.core.ui.compose.widgets.BlockableContent
+import com.huanchengfly.tieba.core.ui.compose.widgets.FeedCard
+import com.huanchengfly.tieba.core.ui.compose.widgets.VerticalDivider
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable

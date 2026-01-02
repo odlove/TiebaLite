@@ -14,9 +14,9 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.huanchengfly.tieba.core.common.utils.DateTimeUtils;
-import com.huanchengfly.tieba.core.ui.theme.ThemeController;
-import com.huanchengfly.tieba.core.ui.theme.ThemeTokens;
-import com.huanchengfly.tieba.core.ui.theme.runtime.entrypoints.ThemeRuntimeEntryPoint;
+import com.huanchengfly.tieba.core.theme.runtime.controller.ThemeController;
+import com.huanchengfly.tieba.core.theme.model.ThemeTokens;
+import com.huanchengfly.tieba.core.theme.runtime.entrypoints.ThemeRuntimeEntryPoint;
 
 import java.util.Locale;
 

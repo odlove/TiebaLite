@@ -12,12 +12,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.huanchengfly.tieba.core.common.theme.ThemeChannel
 import com.huanchengfly.tieba.core.common.theme.ThemeChannelConfig
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.feature.settings.R
-import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
+import com.huanchengfly.tieba.core.ui.compose.widgets.DialogState
 import com.huanchengfly.tieba.post.ui.common.prefs.widgets.TextPref
-import com.huanchengfly.tieba.core.ui.widgets.compose.Switch as AppSwitch
-import com.huanchengfly.tieba.core.ui.widgets.compose.SwitchDefaults as AppSwitchDefaults
+import com.huanchengfly.tieba.core.ui.compose.widgets.Switch as AppSwitch
+import com.huanchengfly.tieba.core.ui.compose.widgets.SwitchDefaults as AppSwitchDefaults
 
 @Composable
 internal fun ThemeSettingsBody(

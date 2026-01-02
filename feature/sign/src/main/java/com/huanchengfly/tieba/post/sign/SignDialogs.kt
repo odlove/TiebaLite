@@ -5,10 +5,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.huanchengfly.tieba.core.ui.widgets.compose.AlertDialog
-import com.huanchengfly.tieba.core.ui.widgets.compose.DialogNegativeButton
-import com.huanchengfly.tieba.core.ui.widgets.compose.DialogPositiveButton
-import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.core.ui.compose.widgets.AlertDialog
+import com.huanchengfly.tieba.core.ui.compose.widgets.DialogNegativeButton
+import com.huanchengfly.tieba.core.ui.compose.widgets.DialogPositiveButton
+import com.huanchengfly.tieba.core.ui.compose.widgets.rememberDialogState
 import com.huanchengfly.tieba.feature.sign.R
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.utils.isIgnoringBatteryOptimizations

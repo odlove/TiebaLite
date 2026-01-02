@@ -68,21 +68,21 @@ import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.onEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
-import com.huanchengfly.tieba.core.ui.compose.Container
-import com.huanchengfly.tieba.core.ui.compose.LazyLoad
-import com.huanchengfly.tieba.core.ui.compose.MyPredictiveBackHandler
-import com.huanchengfly.tieba.core.ui.compose.SnackbarScaffold
-import com.huanchengfly.tieba.core.ui.compose.rememberSnackbarState
+import com.huanchengfly.tieba.core.ui.compose.base.Container
+import com.huanchengfly.tieba.core.ui.compose.base.LazyLoad
+import com.huanchengfly.tieba.core.ui.compose.base.MyPredictiveBackHandler
+import com.huanchengfly.tieba.core.ui.compose.base.SnackbarScaffold
+import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.loadMoreIndicator
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeModalBottomSheetLayout
-import com.huanchengfly.tieba.core.ui.widgets.compose.BlockTip
-import com.huanchengfly.tieba.core.ui.widgets.compose.BlockableContent
-import com.huanchengfly.tieba.core.ui.widgets.compose.ErrorScreen
-import com.huanchengfly.tieba.core.ui.widgets.compose.states.StateScreen
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.theme.compose.loadMoreIndicator
+import com.huanchengfly.tieba.core.theme.compose.pullRefreshIndicator
+import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeModalBottomSheetLayout
+import com.huanchengfly.tieba.core.ui.compose.widgets.BlockTip
+import com.huanchengfly.tieba.core.ui.compose.widgets.BlockableContent
+import com.huanchengfly.tieba.core.ui.compose.widgets.ErrorScreen
+import com.huanchengfly.tieba.core.ui.compose.widgets.states.StateScreen
 import com.huanchengfly.tieba.feature.thread.R
 import com.huanchengfly.tieba.core.common.reply.ReplyArgs
 import com.huanchengfly.tieba.core.common.history.ThreadHistoryInfoBean
@@ -134,7 +134,7 @@ fun ThreadPageLayout(
     scrollToReply: Boolean,
     pageState: ThreadPageState,
     dialogs: ThreadPageDialogs,
-    snackbarState: com.huanchengfly.tieba.core.ui.compose.SnackbarState,
+    snackbarState: com.huanchengfly.tieba.core.ui.compose.base.SnackbarState,
     actions: ThreadPageActions,
     viewModel: ThreadViewModel
 ) {

@@ -10,13 +10,13 @@ import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.runtime.client.ClientUtils
 import com.huanchengfly.tieba.core.ui.activityresult.ActivityResultPayload
 import com.huanchengfly.tieba.core.ui.activityresult.LaunchActivityForResult
-import com.huanchengfly.tieba.core.ui.utils.DevicePosture
+import com.huanchengfly.tieba.core.ui.device.DevicePosture
 import com.huanchengfly.tieba.post.arch.BaseComposeActivity
 import com.huanchengfly.tieba.post.components.ClipBoardLinkDetector
 import com.huanchengfly.tieba.post.navigation.MainActivityContent
 import com.huanchengfly.tieba.post.navigation.MainActivityNavigationDelegate
 import com.huanchengfly.tieba.core.ui.image.createImageUrlResolver
-import com.huanchengfly.tieba.core.ui.utils.createDevicePostureFlow
+import com.huanchengfly.tieba.core.ui.device.createDevicePostureFlow
 import com.huanchengfly.tieba.post.services.notification.registerNotificationRuntime
 import com.huanchengfly.tieba.post.utils.registerPickMediasLauncher
 import com.microsoft.appcenter.analytics.Analytics

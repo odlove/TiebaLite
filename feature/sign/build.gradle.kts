@@ -32,7 +32,10 @@ android {
 dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:runtime"))
-    implementation(project(":core:ui"))
+    implementation(project(":core:ui:theme"))
+    implementation(project(":core:ui:foundation"))
+    implementation(project(":core:ui:compose-widgets"))
+    implementation(project(":core:ui:app"))
     implementation(project(":data:repository"))
 
     implementation(libs.hilt.android)

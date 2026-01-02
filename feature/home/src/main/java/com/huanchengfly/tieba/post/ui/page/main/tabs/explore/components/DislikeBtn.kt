@@ -35,11 +35,11 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.huanchengfly.tieba.core.common.feed.DislikeReason
 import com.huanchengfly.tieba.core.common.feed.PersonalizedInfo
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.widgets.compose.ClickMenu
-import com.huanchengfly.tieba.core.ui.widgets.compose.VerticalGrid
-import com.huanchengfly.tieba.core.ui.widgets.compose.items
-import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.compose.widgets.ClickMenu
+import com.huanchengfly.tieba.core.ui.compose.widgets.VerticalGrid
+import com.huanchengfly.tieba.core.ui.compose.widgets.items
+import com.huanchengfly.tieba.core.ui.compose.widgets.rememberMenuState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import com.huanchengfly.tieba.core.ui.R as CoreUiR

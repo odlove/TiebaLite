@@ -28,18 +28,18 @@ import com.huanchengfly.tieba.post.fromJson
 import com.huanchengfly.tieba.core.common.history.ThreadHistoryInfoBean
 import com.huanchengfly.tieba.core.common.history.HistoryItem
 import com.huanchengfly.tieba.core.common.history.HistoryRepository
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.CardSurface
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.widgets.compose.Avatar
-import com.huanchengfly.tieba.core.ui.widgets.compose.Chip
-import com.huanchengfly.tieba.core.ui.compose.LazyLoad
-import com.huanchengfly.tieba.core.ui.widgets.compose.LoadMoreLayout
-import com.huanchengfly.tieba.core.ui.compose.LocalSnackbarState
-import com.huanchengfly.tieba.core.ui.widgets.compose.LongClickMenu
-import com.huanchengfly.tieba.core.ui.compose.MyLazyColumn
-import com.huanchengfly.tieba.core.ui.widgets.compose.Sizes
-import com.huanchengfly.tieba.core.ui.widgets.compose.UserHeader
-import com.huanchengfly.tieba.core.ui.widgets.compose.rememberMenuState
+import com.huanchengfly.tieba.core.theme.compose.CardSurface
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.ui.compose.widgets.Avatar
+import com.huanchengfly.tieba.core.ui.compose.widgets.Chip
+import com.huanchengfly.tieba.core.ui.compose.base.LazyLoad
+import com.huanchengfly.tieba.core.ui.compose.widgets.LoadMoreLayout
+import com.huanchengfly.tieba.core.ui.compose.base.LocalSnackbarState
+import com.huanchengfly.tieba.core.ui.compose.widgets.LongClickMenu
+import com.huanchengfly.tieba.core.ui.compose.base.MyLazyColumn
+import com.huanchengfly.tieba.core.ui.compose.widgets.Sizes
+import com.huanchengfly.tieba.core.ui.compose.widgets.UserHeader
+import com.huanchengfly.tieba.core.ui.compose.widgets.rememberMenuState
 import com.huanchengfly.tieba.core.common.utils.DateTimeUtils
 
 @OptIn(ExperimentalFoundationApi::class)

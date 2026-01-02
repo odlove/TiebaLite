@@ -26,8 +26,8 @@ import com.huanchengfly.tieba.core.common.thread.ThreadMeta
 import com.huanchengfly.tieba.core.common.thread.ThreadPostMeta
 import com.huanchengfly.tieba.post.ui.common.PbContentRender
 import com.huanchengfly.tieba.post.utils.BlockManager.shouldBlock
-import com.huanchengfly.tieba.core.ui.widgets.compose.DialogState
-import com.huanchengfly.tieba.core.ui.widgets.compose.rememberDialogState
+import com.huanchengfly.tieba.core.ui.compose.widgets.DialogState
+import com.huanchengfly.tieba.core.ui.compose.widgets.rememberDialogState
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.AddCollect
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.AgreePost
 import com.huanchengfly.tieba.post.ui.page.thread.ThreadUiIntent.AgreeThread

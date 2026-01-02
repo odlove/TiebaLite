@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.scenes.ThemeDrawerSheet
+import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeDrawerSheet
 
 @Composable
 fun PermanentNavigationDrawer(

@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.eygraber.compose.placeholder.material.placeholder
 import androidx.compose.ui.res.stringResource
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
-import com.huanchengfly.tieba.core.ui.theme.runtime.compose.ExtendedTheme
+import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 
 @Composable
 internal fun ThreadListItemPlaceholder() {

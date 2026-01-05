@@ -36,7 +36,7 @@ import com.huanchengfly.tieba.core.common.theme.PersistedTranslucentThemeConfig
 import com.huanchengfly.tieba.core.common.theme.ThemeChannel
 import com.huanchengfly.tieba.core.common.wallpaper.WallpaperRepository
 import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsRegistry
-import com.huanchengfly.tieba.core.theme.model.ThemeTokens
+import com.huanchengfly.tieba.core.common.theme.ThemeTokens
 import com.huanchengfly.tieba.core.theme.runtime.bridge.ThemeColorResolver
 import com.huanchengfly.tieba.core.ui.device.dpToPx
 import com.huanchengfly.tieba.feature.settings.R

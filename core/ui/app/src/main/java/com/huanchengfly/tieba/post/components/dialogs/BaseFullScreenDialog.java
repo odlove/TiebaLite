@@ -10,7 +10,7 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
-import com.huanchengfly.tieba.core.theme.R;
+import com.huanchengfly.tieba.core.app.ui.R;
 
 import java.util.Objects;
 

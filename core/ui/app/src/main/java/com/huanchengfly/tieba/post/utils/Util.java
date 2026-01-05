@@ -30,9 +30,9 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.AppCompatDrawableManager;
 
 import com.google.android.material.snackbar.Snackbar;
-import com.huanchengfly.tieba.core.theme.R;
+import com.huanchengfly.tieba.core.ui.view.R;
 import com.huanchengfly.tieba.post.di.entrypoints.ThemeUiDelegateEntryPoint;
-import com.huanchengfly.tieba.core.theme.runtime.bridge.ThemeUiDelegate;
+import com.huanchengfly.tieba.core.ui.view.runtime.bridge.ThemeUiDelegate;
 import dagger.hilt.android.EntryPointAccessors;
 
 import java.lang.reflect.Field;

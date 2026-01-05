@@ -36,7 +36,7 @@ import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.compose.widgets.ActionItem
 import com.huanchengfly.tieba.core.ui.compose.widgets.ConfirmDialog
 import com.huanchengfly.tieba.core.ui.compose.widgets.ErrorScreen

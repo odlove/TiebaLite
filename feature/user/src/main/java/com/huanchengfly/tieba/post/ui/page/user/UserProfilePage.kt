@@ -89,7 +89,7 @@ import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.mvi.getOrNull
 import com.huanchengfly.tieba.core.ui.pageViewModel
 import com.huanchengfly.tieba.post.models.database.Block
-import com.huanchengfly.tieba.core.theme.compose.CardSurface
+import com.huanchengfly.tieba.core.ui.compose.widgets.CardSurface
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.tabSelectedColor
 import com.huanchengfly.tieba.core.theme.compose.tabUnselectedColor
@@ -107,12 +107,12 @@ import com.huanchengfly.tieba.core.ui.compose.base.LazyLoad
 import com.huanchengfly.tieba.core.ui.compose.base.LazyLoadHorizontalPager
 import com.huanchengfly.tieba.core.ui.compose.base.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
-import com.huanchengfly.tieba.core.theme.compose.PagerTabIndicator
+import com.huanchengfly.tieba.core.ui.compose.widgets.PagerTabIndicator
 import com.huanchengfly.tieba.core.ui.compose.base.ProvideContentColor
 import com.huanchengfly.tieba.core.ui.compose.widgets.PullToRefreshLayout
-import com.huanchengfly.tieba.core.theme.compose.ScrollableTabRow
+import com.huanchengfly.tieba.core.ui.compose.widgets.ScrollableTabRow
 import com.huanchengfly.tieba.core.ui.compose.widgets.Sizes
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.compose.widgets.UserHeader
 import com.huanchengfly.tieba.core.ui.compose.widgets.TextButton
 import com.huanchengfly.tieba.core.ui.compose.widgets.states.StateScreen

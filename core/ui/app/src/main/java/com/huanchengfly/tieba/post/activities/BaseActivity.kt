@@ -26,21 +26,22 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.gyf.immersionbar.ImmersionBar
 import com.huanchengfly.tieba.core.common.preferences.AppPreferencesDataSource
+import com.huanchengfly.tieba.core.common.theme.ThemePreferenceKeys
 import com.huanchengfly.tieba.core.runtime.app.ActivityCollector
 import com.huanchengfly.tieba.core.runtime.device.ScreenMetricsManager
-import com.huanchengfly.tieba.core.theme.widgets.tint.ExtraRefreshable
+import com.huanchengfly.tieba.core.ui.view.tint.ExtraRefreshable
 import com.huanchengfly.tieba.core.theme.runtime.controller.ThemeController
-import com.huanchengfly.tieba.core.theme.model.ThemeTokens
-import com.huanchengfly.tieba.core.theme.data.ThemeRepository
+import com.huanchengfly.tieba.core.common.theme.ThemeTokens
+import com.huanchengfly.tieba.core.common.theme.ThemeRepository
 import com.huanchengfly.tieba.core.theme.runtime.bridge.ThemeColorResolver
 import com.huanchengfly.tieba.core.theme.R as ThemeR
 import com.huanchengfly.tieba.core.theme.runtime.bridge.ThemeActivityHost
 import com.huanchengfly.tieba.core.theme.runtime.entrypoints.ThemeRuntimeEntryPoint
 import com.huanchengfly.tieba.post.di.entrypoints.ThemeUiDelegateEntryPoint
 import com.huanchengfly.tieba.post.di.entrypoints.ScreenMetricsEntryPoint
-import com.huanchengfly.tieba.core.theme.runtime.bridge.ThemeUiDelegate
+import com.huanchengfly.tieba.core.ui.view.runtime.bridge.ThemeUiDelegate
 import com.huanchengfly.tieba.core.ui.media.voice.VoicePlayerManager
-import com.huanchengfly.tieba.core.theme.widgets.tint.TintToolbar
+import com.huanchengfly.tieba.core.ui.view.tint.TintToolbar
 import com.huanchengfly.tieba.post.utils.HandleBackUtil
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.dataStore
@@ -410,7 +411,7 @@ abstract class BaseActivity : AppCompatActivity(), ExtraRefreshable, CoroutineSc
         var darkerStatusBar = true
         val context = this
         val isToolbarPrimaryColor =
-            context.dataStore.getBoolean(ThemeTokens.KEY_CUSTOM_TOOLBAR_PRIMARY_COLOR, false)
+            context.dataStore.getBoolean(ThemePreferenceKeys.KEY_CUSTOM_TOOLBAR_PRIMARY_COLOR, false)
         val themeState = ThemeColorResolver.state(context)
         if (!themeState.isTranslucent && !themeState.isNightMode && !isToolbarPrimaryColor) {
             darkerStatusBar = false

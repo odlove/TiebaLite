@@ -42,7 +42,7 @@ import com.huanchengfly.tieba.core.ui.compose.widgets.LoadMoreLayout
 import com.huanchengfly.tieba.core.ui.compose.base.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.compose.base.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.compose.widgets.AgreeButton
 import com.huanchengfly.tieba.core.ui.compose.widgets.AgreeButtonVariant
 import com.huanchengfly.tieba.core.ui.compose.widgets.Avatar

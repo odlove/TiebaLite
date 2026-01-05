@@ -42,18 +42,7 @@ dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.google.material)
-    implementation(libs.androidx.datastore.preferences)
-    implementation(libs.systemuibars.tweaker)
-
-    implementation(libs.sketch.core)
-    implementation(libs.sketch.compose)
-    implementation(libs.sketch.ext.compose)
-    implementation(libs.sketch.gif)
-    implementation(libs.sketch.okhttp)
-    implementation("io.github.panpf.sketch3:sketch-extensions-core:${libs.versions.sketch.get()}")
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.runtime)

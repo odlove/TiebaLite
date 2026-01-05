@@ -45,7 +45,7 @@ import com.huanchengfly.tieba.core.common.history.HistoryItem
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.ui.compose.base.MyLazyVerticalGrid
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeSearchBox
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeSearchBox
 import com.huanchengfly.tieba.core.ui.compose.widgets.Avatar
 import com.huanchengfly.tieba.post.ui.page.main.tabs.home.contract.HomeUiState
 import com.huanchengfly.tieba.post.ui.page.main.tabs.home.ui.components.ForumItem

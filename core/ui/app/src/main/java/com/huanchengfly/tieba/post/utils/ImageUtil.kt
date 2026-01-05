@@ -37,6 +37,7 @@ import com.huanchengfly.tieba.post.dpToPxFloat
 import com.huanchengfly.tieba.core.theme.runtime.bridge.ThemeColorResolver
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.theme.R as ThemeR
+import com.huanchengfly.tieba.core.ui.view.R as ViewR
 import com.huanchengfly.tieba.post.preferences.appPreferences
 import com.huanchengfly.tieba.post.utils.PermissionUtils.PermissionData
 import com.huanchengfly.tieba.post.utils.PermissionUtils.askPermission
@@ -497,10 +498,10 @@ object ImageUtil {
                 imageLoadSettings(imageView.context) == SETTINGS_SMART_ORIGIN ||
                 (imageLoadSettings(imageView.context) == SETTINGS_SMART_LOAD && NetworkUtil.isWifiConnected(imageView.context))
             ) {
-                imageView.setTag(ThemeR.id.image_load_tag, true)
+                imageView.setTag(ViewR.id.image_load_tag, true)
                 DisplayRequest.Builder(imageView.context, url)
             } else {
-                imageView.setTag(ThemeR.id.image_load_tag, false)
+                imageView.setTag(ViewR.id.image_load_tag, false)
                 DisplayRequest.Builder(imageView.context, url).depth(Depth.LOCAL)
             }
         when (type) {

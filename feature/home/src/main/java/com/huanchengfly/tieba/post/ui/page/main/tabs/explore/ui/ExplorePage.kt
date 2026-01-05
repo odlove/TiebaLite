@@ -36,14 +36,14 @@ import com.huanchengfly.tieba.core.mvi.emitGlobalEvent
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.post.ui.page.main.tabs.explore.concern.ui.ConcernPage
 import com.huanchengfly.tieba.post.ui.page.main.tabs.explore.hot.ui.HotPage
 import com.huanchengfly.tieba.post.ui.page.main.tabs.explore.personalized.ui.PersonalizedPage
 import com.huanchengfly.tieba.core.ui.compose.widgets.ActionItem
 import com.huanchengfly.tieba.core.ui.compose.base.LazyLoadHorizontalPager
-import com.huanchengfly.tieba.core.theme.compose.PagerTabIndicator
-import com.huanchengfly.tieba.core.theme.compose.TabRow
+import com.huanchengfly.tieba.core.ui.compose.widgets.PagerTabIndicator
+import com.huanchengfly.tieba.core.ui.compose.widgets.TabRow
 import com.huanchengfly.tieba.core.ui.compose.widgets.accountNavIconIfCompact
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccount
 import kotlinx.collections.immutable.ImmutableList

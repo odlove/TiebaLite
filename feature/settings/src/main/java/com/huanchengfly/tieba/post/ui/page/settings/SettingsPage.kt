@@ -23,7 +23,7 @@ import com.huanchengfly.tieba.post.ui.common.prefs.PrefsScreen
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.compose.settings.SettingsItem
 import com.huanchengfly.tieba.core.ui.compose.settings.ThemeScaffold
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
 import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation

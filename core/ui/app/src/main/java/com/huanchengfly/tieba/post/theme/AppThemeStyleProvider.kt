@@ -1,8 +1,8 @@
 package com.huanchengfly.tieba.post.theme
 
-import com.huanchengfly.tieba.core.theme.model.ThemeTokens
+import com.huanchengfly.tieba.core.common.theme.ThemeTokens
 import com.huanchengfly.tieba.core.theme.runtime.bridge.ThemeStyleProvider
-import com.huanchengfly.tieba.core.theme.R
+import com.huanchengfly.tieba.core.app.ui.R
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -46,7 +46,7 @@ import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.compose.settings.SettingsItem
 import com.huanchengfly.tieba.core.ui.compose.settings.SettingsListPicker
 import com.huanchengfly.tieba.core.ui.compose.settings.SettingsSwitch
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.compose.widgets.Sizes
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.post.utils.AppIconUtil

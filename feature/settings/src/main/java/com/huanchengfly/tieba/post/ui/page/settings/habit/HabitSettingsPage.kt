@@ -40,7 +40,7 @@ import com.huanchengfly.tieba.core.ui.compose.settings.SettingsListPicker
 import com.huanchengfly.tieba.core.ui.compose.settings.SettingsSwitch
 import com.huanchengfly.tieba.post.ui.common.prefs.PrefsScreen
 import com.huanchengfly.tieba.core.ui.compose.widgets.Sizes
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.post.utils.isPhotoPickerAvailable
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.ramcosta.composedestinations.annotation.Destination

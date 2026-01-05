@@ -27,6 +27,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:common"))
     implementation(project(":core:mvi"))
     implementation(project(":core:ui:theme"))
     implementation(project(":core:ui:device"))

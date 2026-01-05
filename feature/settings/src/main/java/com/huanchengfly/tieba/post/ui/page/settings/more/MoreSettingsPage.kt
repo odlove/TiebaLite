@@ -37,7 +37,7 @@ import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.compose.settings.SettingsItem
 import com.huanchengfly.tieba.core.ui.compose.settings.SettingsSwitch
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.post.ui.common.prefs.PrefsScreen
 import com.huanchengfly.tieba.post.ui.common.prefs.dependNot
 import com.huanchengfly.tieba.core.ui.compose.widgets.Sizes

@@ -52,7 +52,7 @@ import com.huanchengfly.tieba.core.ui.compose.base.LazyLoad
 import com.huanchengfly.tieba.core.ui.compose.base.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.compose.widgets.Sizes
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.compose.widgets.states.StateScreen
 import com.huanchengfly.tieba.core.common.utils.getShortNumString
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor

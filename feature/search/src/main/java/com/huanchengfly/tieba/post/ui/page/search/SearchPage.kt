@@ -79,8 +79,8 @@ import com.huanchengfly.tieba.core.mvi.CommonUiEvent
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.compose.base.PreviewTheme
 import com.huanchengfly.tieba.core.theme.compose.TiebaLiteTheme
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeSearchBox
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeSearchBox
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.theme.compose.tabSelectedColor
 import com.huanchengfly.tieba.core.theme.compose.tabUnselectedColor
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
@@ -97,9 +97,9 @@ import com.huanchengfly.tieba.core.ui.compose.base.LazyLoadHorizontalPager
 import com.huanchengfly.tieba.core.ui.compose.base.MyBackHandler
 import com.huanchengfly.tieba.core.ui.compose.base.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
-import com.huanchengfly.tieba.core.theme.compose.PagerTabIndicator
+import com.huanchengfly.tieba.core.ui.compose.widgets.PagerTabIndicator
 import com.huanchengfly.tieba.core.ui.compose.widgets.TabClickMenu
-import com.huanchengfly.tieba.core.theme.compose.TabRow
+import com.huanchengfly.tieba.core.ui.compose.widgets.TabRow
 import com.huanchengfly.tieba.core.ui.compose.widgets.picker.ListSinglePicker
 import com.ramcosta.composedestinations.annotation.DeepLink
 import com.ramcosta.composedestinations.annotation.Destination

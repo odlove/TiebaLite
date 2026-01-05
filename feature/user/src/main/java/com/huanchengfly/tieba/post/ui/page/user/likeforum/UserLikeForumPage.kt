@@ -30,7 +30,7 @@ import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.mvi.getOrNull
 import com.huanchengfly.tieba.core.mvi.onGlobalEvent
 import com.huanchengfly.tieba.core.ui.pageViewModel
-import com.huanchengfly.tieba.core.theme.compose.CardSurface
+import com.huanchengfly.tieba.core.ui.compose.widgets.CardSurface
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.pullRefreshIndicator
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation

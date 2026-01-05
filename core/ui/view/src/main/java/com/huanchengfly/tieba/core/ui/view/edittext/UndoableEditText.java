@@ -12,7 +12,7 @@ import android.view.MenuItem;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.widget.TextViewCompat;
 
-import com.huanchengfly.tieba.core.theme.R;
+import com.huanchengfly.tieba.core.ui.view.R;
 
 public class UndoableEditText extends AppCompatEditText {
     private static final String KEY_SUPER = "KEY_SUPER";

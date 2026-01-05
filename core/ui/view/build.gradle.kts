@@ -24,6 +24,16 @@ android {
 dependencies {
     implementation(project(":core:ui:theme"))
 
+    implementation(platform(libs.compose.bom))
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation(libs.androidx.annotation)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.google.material)
+    implementation(libs.javax.inject)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.sketch.core)
 }

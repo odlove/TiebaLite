@@ -52,7 +52,7 @@ import com.huanchengfly.tieba.core.common.utils.AvatarUtils
 import com.huanchengfly.tieba.core.ui.hiltViewModel
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.preferences.LocalAppPreferences
-import com.huanchengfly.tieba.core.theme.compose.CardSurface
+import com.huanchengfly.tieba.core.ui.compose.widgets.CardSurface
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.LocalThemeController
 import com.huanchengfly.tieba.core.theme.compose.LocalThemeState

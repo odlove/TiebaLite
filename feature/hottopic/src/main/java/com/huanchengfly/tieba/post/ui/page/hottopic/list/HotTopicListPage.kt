@@ -50,7 +50,7 @@ import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.compose.base.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.compose.widgets.NetworkImage
 import com.huanchengfly.tieba.core.ui.compose.widgets.Sizes
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.common.utils.getShortNumString
 import com.huanchengfly.tieba.feature.hottopic.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR

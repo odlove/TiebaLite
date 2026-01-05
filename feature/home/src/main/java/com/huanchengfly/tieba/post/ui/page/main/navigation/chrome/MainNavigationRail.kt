@@ -3,8 +3,8 @@ package com.huanchengfly.tieba.post.ui.page.main.navigation.chrome
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.runtime.Composable
-import com.huanchengfly.tieba.core.theme.compose.scenes.NavigationItemModel
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeNavigationRail
+import com.huanchengfly.tieba.core.ui.navigation.compose.NavigationItemModel
+import com.huanchengfly.tieba.core.ui.navigation.compose.ThemeNavigationRail
 import com.huanchengfly.tieba.core.ui.device.MainNavigationContentPosition
 import com.huanchengfly.tieba.core.ui.compose.widgets.AccountNavIcon
 import com.huanchengfly.tieba.post.ui.page.main.navigation.items.NavigationItem

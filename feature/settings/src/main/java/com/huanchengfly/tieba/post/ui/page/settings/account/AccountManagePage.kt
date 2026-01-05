@@ -36,7 +36,7 @@ import com.huanchengfly.tieba.core.ui.compose.settings.SettingsItem
 import com.huanchengfly.tieba.core.ui.compose.settings.SettingsListPicker
 import com.huanchengfly.tieba.core.ui.compose.settings.SettingsTextField
 import com.huanchengfly.tieba.core.ui.compose.settings.ThemeScaffold
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.post.ui.page.settings.LeadingIcon
 import com.huanchengfly.tieba.core.ui.compose.widgets.AvatarIcon

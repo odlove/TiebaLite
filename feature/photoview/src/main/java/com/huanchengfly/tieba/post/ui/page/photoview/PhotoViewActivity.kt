@@ -53,7 +53,7 @@ import com.stoyanvuchev.systemuibarstweaker.rememberSystemUIBarsTweaker
 import dagger.hilt.android.AndroidEntryPoint
 import com.huanchengfly.tieba.feature.photoview.R
 import com.huanchengfly.tieba.core.ui.media.photoview.PhotoViewData
-import com.huanchengfly.tieba.core.theme.compose.ApplySystemBars
+import com.huanchengfly.tieba.core.ui.compose.widgets.ApplySystemBars
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.compose.base.LazyLoad
 import com.huanchengfly.tieba.core.ui.compose.base.ProvideContentColor

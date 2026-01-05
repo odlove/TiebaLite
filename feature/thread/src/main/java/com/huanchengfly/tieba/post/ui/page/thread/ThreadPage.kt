@@ -78,7 +78,7 @@ import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.loadMoreIndicator
 import com.huanchengfly.tieba.core.theme.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeModalBottomSheetLayout
+import com.huanchengfly.tieba.core.ui.compose.widgets.dialogs.ThemeModalBottomSheetLayout
 import com.huanchengfly.tieba.core.ui.compose.widgets.BlockTip
 import com.huanchengfly.tieba.core.ui.compose.widgets.BlockableContent
 import com.huanchengfly.tieba.core.ui.compose.widgets.ErrorScreen

@@ -30,7 +30,7 @@ import com.huanchengfly.tieba.core.ui.hiltViewModel
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.LocalThemeController
 import com.huanchengfly.tieba.core.theme.compose.LocalThemeState
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.feature.settings.R
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.compose.widgets.DialogState

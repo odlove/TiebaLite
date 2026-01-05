@@ -59,9 +59,9 @@ import com.huanchengfly.tieba.core.common.theme.ThemeChannelConfig
 import com.huanchengfly.tieba.core.theme.model.ThemeCatalog
 import com.huanchengfly.tieba.core.theme.model.ThemePalette
 import com.huanchengfly.tieba.core.theme.model.ThemeSpec
-import com.huanchengfly.tieba.core.theme.model.ThemeTokens
+import com.huanchengfly.tieba.core.common.theme.ThemeTokens
 import com.huanchengfly.tieba.core.theme.model.ThemeType
-import com.huanchengfly.tieba.core.theme.compose.CardSurface
+import com.huanchengfly.tieba.core.ui.compose.widgets.CardSurface
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.compose.base.PreviewTheme
 import com.huanchengfly.tieba.core.theme.compose.rememberThemePalette

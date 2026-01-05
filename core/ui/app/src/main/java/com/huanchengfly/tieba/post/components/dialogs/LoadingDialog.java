@@ -7,7 +7,7 @@ import android.widget.TextView;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
 
-import com.huanchengfly.tieba.core.ui.R;
+import com.huanchengfly.tieba.core.app.ui.R;
 
 public class LoadingDialog extends AlertDialog {
     private final Context mContext;

@@ -82,7 +82,7 @@ import com.huanchengfly.tieba.core.ui.device.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.mvi.ImmutableHolder
 import com.huanchengfly.tieba.core.mvi.wrapImmutable
 import com.huanchengfly.tieba.core.common.utils.findActivity
-import com.huanchengfly.tieba.core.theme.compose.CardSurface
+import com.huanchengfly.tieba.core.ui.compose.widgets.CardSurface
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.compose.base.PreviewTheme
 import com.huanchengfly.tieba.core.theme.compose.cardBackgroundColor

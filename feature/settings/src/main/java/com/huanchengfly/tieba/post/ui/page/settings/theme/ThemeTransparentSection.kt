@@ -23,7 +23,7 @@ import com.github.panpf.sketch.compose.AsyncImage
 import com.github.panpf.sketch.fetch.newFileUri
 import com.github.panpf.sketch.fetch.newResourceUri
 import com.huanchengfly.tieba.core.common.theme.ThemeChannel
-import com.huanchengfly.tieba.core.theme.compose.CardSurface
+import com.huanchengfly.tieba.core.ui.compose.widgets.CardSurface
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.feature.settings.R
 

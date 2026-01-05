@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance" parent="@android:style/TextAppearance" />
+
+    <style name="TextAppearance.Title">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="TextAppearance.Subtitle">
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="TextAppearance.Bold">
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

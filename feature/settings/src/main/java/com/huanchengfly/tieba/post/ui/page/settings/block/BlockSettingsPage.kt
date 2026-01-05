@@ -27,7 +27,7 @@ import com.huanchengfly.tieba.core.ui.compose.base.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.compose.settings.SettingsItem
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.compose.widgets.Sizes
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator

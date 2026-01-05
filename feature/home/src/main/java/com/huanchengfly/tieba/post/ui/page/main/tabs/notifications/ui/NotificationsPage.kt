@@ -21,13 +21,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.ui.compose.base.LazyLoadHorizontalPager
-import com.huanchengfly.tieba.core.theme.compose.PagerTabIndicator
+import com.huanchengfly.tieba.core.ui.compose.widgets.PagerTabIndicator
 import com.huanchengfly.tieba.core.ui.compose.base.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.tabSelectedColor
 import com.huanchengfly.tieba.core.theme.compose.tabUnselectedColor
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.compose.widgets.ActionItem
 import com.huanchengfly.tieba.core.ui.compose.widgets.accountNavIconIfCompact
 import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator

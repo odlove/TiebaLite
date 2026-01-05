@@ -44,7 +44,7 @@ import androidx.constraintlayout.compose.Visibility
 import com.huanchengfly.tieba.core.ui.compose.base.ProvideContentColor
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.ui.device.LocalWindowSizeClass
-import com.huanchengfly.tieba.core.theme.compose.CardSurface
+import com.huanchengfly.tieba.core.ui.compose.widgets.CardSurface
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.dialogBackgroundColor
 import com.huanchengfly.tieba.core.theme.compose.dialogContentColor

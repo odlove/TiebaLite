@@ -2,7 +2,7 @@ package com.huanchengfly.tieba.core.theme.runtime.palette
 
 import androidx.annotation.ColorRes
 import com.huanchengfly.tieba.core.theme.R
-import com.huanchengfly.tieba.core.theme.model.ThemeTokens
+import com.huanchengfly.tieba.core.common.theme.ThemeTokens
 import com.huanchengfly.tieba.core.theme.model.ThemeType
 
 internal data class PaletteColorSet(

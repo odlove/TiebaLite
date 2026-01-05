@@ -50,7 +50,7 @@ import com.eygraber.compose.placeholder.material.placeholder
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.ui.compose.base.MyLazyVerticalGrid
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
-import com.huanchengfly.tieba.core.theme.compose.CardSurface
+import com.huanchengfly.tieba.core.ui.compose.widgets.CardSurface
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.compose.widgets.Avatar
 import com.huanchengfly.tieba.core.ui.compose.widgets.Button

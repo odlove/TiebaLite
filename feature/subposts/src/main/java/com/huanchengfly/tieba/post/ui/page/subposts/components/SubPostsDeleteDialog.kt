@@ -6,7 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import com.huanchengfly.tieba.core.theme.compose.dialogPrimaryButtonColors
 import com.huanchengfly.tieba.core.theme.compose.dialogSecondaryButtonColors
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeDialog
+import com.huanchengfly.tieba.core.ui.compose.widgets.dialogs.ThemeDialog
 import com.huanchengfly.tieba.feature.subposts.R
 import com.huanchengfly.tieba.core.ui.R as CoreUiR
 import com.huanchengfly.tieba.core.common.thread.ThreadSubPost

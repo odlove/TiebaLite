@@ -28,6 +28,7 @@ android {
 
 dependencies {
     implementation(project(":core:common"))
+    implementation(project(":core:ui:theme"))
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.animation)
@@ -38,4 +39,5 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.compose.destinations.core)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.collections.immutable)
 }

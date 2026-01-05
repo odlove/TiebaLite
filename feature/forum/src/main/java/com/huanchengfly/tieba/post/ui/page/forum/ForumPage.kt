@@ -100,8 +100,8 @@ import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.tabSelectedColor
 import com.huanchengfly.tieba.core.theme.compose.tabUnselectedColor
 import com.huanchengfly.tieba.core.theme.compose.topBarContentColor
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeScrollableTabRow
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeScrollableTabRow
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.navigation.LocalNavigator
 import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
 import com.huanchengfly.tieba.post.ui.page.forum.destinations.ForumDetailPageDestination
@@ -120,7 +120,7 @@ import com.huanchengfly.tieba.core.ui.compose.base.MenuScope
 import com.huanchengfly.tieba.core.ui.compose.base.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.base.TopAppBarContainer
 import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
-import com.huanchengfly.tieba.core.theme.compose.PagerTabIndicator
+import com.huanchengfly.tieba.core.ui.compose.widgets.PagerTabIndicator
 import com.huanchengfly.tieba.core.ui.compose.widgets.PullToRefreshLayout
 import com.huanchengfly.tieba.core.ui.compose.widgets.Sizes
 import com.huanchengfly.tieba.core.ui.compose.widgets.TabClickMenu

@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.compose.settings.ThemeScaffold
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.stoyanvuchev.systemuibarstweaker.SystemUIBarsTweaker
 import com.huanchengfly.tieba.feature.settings.R
 import com.huanchengfly.tieba.post.arch.BaseComposeActivity

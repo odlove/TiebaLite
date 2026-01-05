@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="TintView">
+        <attr name="backgroundTint" format="color" />
+        <attr name="tint" format="color" />
+        <attr name="tintList" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="TintNavigationView">
+        <attr name="navigationBackgroundTint" format="color" />
+        <attr name="itemIconTint" format="color" />
+        <attr name="itemTextTint" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="TintToolbar">
+        <attr name="toolbarBackgroundTint" format="color" />
+        <attr name="itemTint" format="color" />
+        <attr name="secondaryItemTint" format="color" />
+        <attr name="activeItemTint" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="TintSeekbar">
+        <attr name="seekbarBackgroundTint" format="color" />
+        <attr name="progressTint" format="color" />
+        <attr name="progressBackgroundTint" format="color" />
+        <attr name="thumbColor" />
+    </declare-styleable>
+
+    <declare-styleable name="TintMaterialButton">
+        <attr name="buttonBackgroundTint" format="color" />
+        <attr name="buttonTextColor" format="color" />
+        <attr name="buttonStrokeColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="TintCheckBox">
+        <attr name="checkboxBackgroundTint" format="color" />
+        <attr name="buttonTint" format="color" />
+        <attr name="textColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="TintUndoableEditText">
+        <attr name="cursorColor" format="color" />
+        <attr name="hintTextColor" format="color" />
+        <attr name="textColor" />
+    </declare-styleable>
+
+    <declare-styleable name="TintImageView">
+        <attr name="backgroundTint" />
+        <attr name="tint" />
+    </declare-styleable>
+
+    <declare-styleable name="TintMaterialCardView">
+        <attr name="materialCardBackgroundTint" format="color" />
+        <attr name="strokeColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="TintCollapsingToolbarLayout">
+        <attr name="textColor" />
+    </declare-styleable>
+</resources>

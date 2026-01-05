@@ -24,7 +24,7 @@ import com.huanchengfly.tieba.core.ui.CommonUiEventHandler
 import com.huanchengfly.tieba.core.ui.device.LocalWindowSizeClass
 import com.huanchengfly.tieba.core.ui.device.calculateWindowSizeClass
 import com.huanchengfly.tieba.post.activities.BaseActivity
-import com.huanchengfly.tieba.core.theme.compose.ApplySystemBars
+import com.huanchengfly.tieba.core.ui.compose.widgets.ApplySystemBars
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.ProvideThemeController
 import com.huanchengfly.tieba.core.theme.compose.TiebaLiteTheme

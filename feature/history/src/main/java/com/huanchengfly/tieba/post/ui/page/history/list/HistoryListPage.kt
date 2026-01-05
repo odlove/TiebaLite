@@ -28,7 +28,7 @@ import com.huanchengfly.tieba.post.fromJson
 import com.huanchengfly.tieba.core.common.history.ThreadHistoryInfoBean
 import com.huanchengfly.tieba.core.common.history.HistoryItem
 import com.huanchengfly.tieba.core.common.history.HistoryRepository
-import com.huanchengfly.tieba.core.theme.compose.CardSurface
+import com.huanchengfly.tieba.core.ui.compose.widgets.CardSurface
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.ui.compose.widgets.Avatar
 import com.huanchengfly.tieba.core.ui.compose.widgets.Chip

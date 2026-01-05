@@ -15,7 +15,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.huanchengfly.tieba.core.theme.model.ThemeState
-import com.huanchengfly.tieba.core.theme.model.ThemeTokens
+import com.huanchengfly.tieba.core.common.theme.ThemeTokens
 
 const val THEME_DIAGNOSTICS_TAG = "ThemeDiagnostics"
 

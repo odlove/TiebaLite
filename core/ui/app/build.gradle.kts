@@ -38,6 +38,7 @@ dependencies {
     implementation(project(":core:ui:theme"))
     implementation(project(":core:ui:foundation"))
     implementation(project(":core:ui:device"))
+    api(project(":core:ui:view"))
     implementation(project(":core:ui:compose-base"))
     implementation(project(":core:ui:compose-widgets"))
     implementation(project(":core:ui:media"))

@@ -4,7 +4,7 @@ import android.content.Context;
 
 import androidx.appcompat.app.AlertDialog;
 
-import com.huanchengfly.tieba.core.theme.R;
+import com.huanchengfly.tieba.core.app.ui.R;
 
 public class DialogUtil {
     public static AlertDialog.Builder build(Context context) {

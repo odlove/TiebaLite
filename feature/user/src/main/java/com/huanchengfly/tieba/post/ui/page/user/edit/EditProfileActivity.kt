@@ -77,7 +77,7 @@ import com.huanchengfly.tieba.post.activities.BaseActivity
 import com.huanchengfly.tieba.core.common.collectIn
 import com.huanchengfly.tieba.core.mvi.collectPartialAsState
 import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
-import com.huanchengfly.tieba.core.theme.compose.ApplySystemBars
+import com.huanchengfly.tieba.core.ui.compose.widgets.ApplySystemBars
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.ProvideThemeController
 import com.huanchengfly.tieba.core.ui.compose.base.PreviewTheme
@@ -89,7 +89,7 @@ import com.huanchengfly.tieba.core.ui.compose.widgets.BaseTextField
 import com.huanchengfly.tieba.core.ui.compose.widgets.CounterTextField
 import com.huanchengfly.tieba.core.ui.compose.widgets.Dialog
 import com.huanchengfly.tieba.core.ui.compose.widgets.DialogNegativeButton
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.compose.widgets.picker.ListSinglePicker
 import com.huanchengfly.tieba.core.ui.compose.widgets.rememberDialogState
 import com.huanchengfly.tieba.core.ui.device.LocalWindowSizeClass

@@ -70,8 +70,8 @@ import com.huanchengfly.tieba.core.common.search.SearchPostHistoryItem
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.post.utils.compose.calcStatusBarColor
 import com.huanchengfly.tieba.core.theme.compose.pullRefreshIndicator
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeSearchBox
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeSearchBox
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
 import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
 import com.huanchengfly.tieba.core.ui.compose.widgets.Button

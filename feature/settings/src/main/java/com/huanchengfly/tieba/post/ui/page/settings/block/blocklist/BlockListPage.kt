@@ -57,12 +57,12 @@ import com.huanchengfly.tieba.core.ui.compose.widgets.navigation.BottomNavigatio
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.compose.widgets.LongClickMenu
 import com.huanchengfly.tieba.core.ui.compose.base.MyLazyColumn
-import com.huanchengfly.tieba.core.theme.compose.PagerTabIndicator
+import com.huanchengfly.tieba.core.ui.compose.widgets.PagerTabIndicator
 import com.huanchengfly.tieba.core.ui.compose.widgets.PromptDialog
 import com.huanchengfly.tieba.core.ui.compose.base.SnackbarScaffold
-import com.huanchengfly.tieba.core.theme.compose.TabRow
+import com.huanchengfly.tieba.core.ui.compose.widgets.TabRow
 import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.compose.widgets.rememberDialogState
 import com.huanchengfly.tieba.core.ui.compose.widgets.states.StateScreen
 import com.huanchengfly.tieba.post.utils.GsonUtil

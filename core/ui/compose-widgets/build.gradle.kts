@@ -54,4 +54,5 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.sketch.compose)
     implementation(libs.sketch.core)
+    implementation(libs.systemuibars.tweaker)
 }

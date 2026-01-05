@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RulerSeekBar">
+        <attr name="rulerColor" format="color" />
+        <attr name="rulerSize" format="dimension" />
+        <attr name="rulerCount" format="integer" />
+        <attr name="rulerShowTopOfThumb" format="boolean" />
+        <attr name="rulerOnEdge" format="boolean" />
+    </declare-styleable>
+</resources>

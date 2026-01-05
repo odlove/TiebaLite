@@ -9,11 +9,12 @@ import android.graphics.drawable.RippleDrawable
 import android.view.View
 import androidx.annotation.ColorInt
 import com.google.android.material.snackbar.Snackbar
+import com.huanchengfly.tieba.core.common.theme.ThemePreferenceKeys
 import com.huanchengfly.tieba.core.network.exception.TiebaException
 import com.huanchengfly.tieba.core.ui.R
 import com.huanchengfly.tieba.core.theme.R as ThemeR
-import com.huanchengfly.tieba.core.theme.widgets.tint.ColorStateListUtils
-import com.huanchengfly.tieba.core.theme.model.ThemeTokens
+import com.huanchengfly.tieba.core.ui.view.tint.ColorStateListUtils
+import com.huanchengfly.tieba.core.common.theme.ThemeTokens
 import com.huanchengfly.tieba.core.theme.runtime.bridge.ThemeColorResolver
 import com.huanchengfly.tieba.post.dataStore
 import com.huanchengfly.tieba.post.dpToPxFloat
@@ -154,7 +155,7 @@ fun showErrorSnackBar(view: View, throwable: Throwable) {
 fun calcStatusBarColorInt(context: Context, @ColorInt originColor: Int): Int {
     var darkerStatusBar = true
     val isToolbarPrimaryColor =
-        context.dataStore.getBoolean(ThemeTokens.KEY_CUSTOM_TOOLBAR_PRIMARY_COLOR, false)
+        context.dataStore.getBoolean(ThemePreferenceKeys.KEY_CUSTOM_TOOLBAR_PRIMARY_COLOR, false)
     val themeState = ThemeColorResolver.state(context)
     if (!themeState.isTranslucent && !themeState.isNightMode && !isToolbarPrimaryColor) {
         darkerStatusBar = false

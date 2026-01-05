@@ -29,7 +29,7 @@ import com.huanchengfly.tieba.core.ui.navigation.LocalDestination
 import com.huanchengfly.tieba.core.ui.preferences.ProvideAppPreferences
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.THEME_DIAGNOSTICS_TAG
-import com.huanchengfly.tieba.core.theme.compose.TranslucentThemeBackground
+import com.huanchengfly.tieba.core.ui.compose.widgets.TranslucentThemeBackground
 import com.huanchengfly.tieba.core.theme.compose.menuBackground
 import com.huanchengfly.tieba.core.ui.compose.widgets.ProvideAccountActions
 import com.huanchengfly.tieba.post.components.ClipBoardDetectDialog

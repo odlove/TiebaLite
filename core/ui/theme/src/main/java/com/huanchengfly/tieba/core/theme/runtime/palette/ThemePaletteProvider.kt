@@ -12,7 +12,7 @@ import com.huanchengfly.tieba.core.theme.model.CustomThemeConfig
 import com.huanchengfly.tieba.core.theme.model.ThemeCatalog
 import com.huanchengfly.tieba.core.theme.model.ThemePalette
 import com.huanchengfly.tieba.core.theme.model.ThemeSpec
-import com.huanchengfly.tieba.core.theme.model.ThemeTokens
+import com.huanchengfly.tieba.core.common.theme.ThemeTokens
 import com.huanchengfly.tieba.core.theme.model.ThemeType
 import com.huanchengfly.tieba.core.theme.model.TranslucentThemeConfig
 import com.huanchengfly.tieba.core.theme.compose.dynamicTonalPalette

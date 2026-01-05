@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeNavigationDrawerItem
+import com.huanchengfly.tieba.core.ui.navigation.compose.ThemeNavigationDrawerItem
 import com.huanchengfly.tieba.core.ui.device.MainNavigationContentPosition
 import com.huanchengfly.tieba.core.ui.compose.widgets.AccountNavIcon
 import com.huanchengfly.tieba.core.ui.compose.widgets.AvatarIcon

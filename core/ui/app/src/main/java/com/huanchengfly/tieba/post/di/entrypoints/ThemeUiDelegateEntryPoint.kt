@@ -1,6 +1,6 @@
 package com.huanchengfly.tieba.post.di.entrypoints
 
-import com.huanchengfly.tieba.core.theme.runtime.bridge.ThemeUiDelegate
+import com.huanchengfly.tieba.core.ui.view.runtime.bridge.ThemeUiDelegate
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent

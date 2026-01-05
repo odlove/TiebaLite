@@ -14,7 +14,7 @@ import androidx.appcompat.widget.PopupMenu;
 import com.huanchengfly.tieba.core.theme.R;
 import com.huanchengfly.tieba.core.theme.runtime.entrypoints.ThemeRuntimeEntryPoint;
 import com.huanchengfly.tieba.core.theme.runtime.bridge.ThemeBridge;
-import com.huanchengfly.tieba.core.theme.runtime.bridge.ThemeDrawableUtils;
+import com.huanchengfly.tieba.core.ui.view.runtime.bridge.ThemeDrawableUtils;
 
 import dagger.hilt.android.EntryPointAccessors;
 
@@ -33,7 +33,13 @@ public class PopupUtil {
             ThemeBridge bridge = EntryPointAccessors.fromApplication(context.getApplicationContext(), ThemeRuntimeEntryPoint.class).themeBridge();
             int backgroundColor = bridge.colorByAttr(context, R.attr.colorCard);
             listPopupWindow.setBackgroundDrawable(
-                    ThemeDrawableUtils.tint(AppCompatResources.getDrawable(context, R.drawable.bg_popup), backgroundColor)
+                    ThemeDrawableUtils.tint(
+                            AppCompatResources.getDrawable(
+                                    context,
+                                    com.huanchengfly.tieba.core.app.ui.R.drawable.bg_popup
+                            ),
+                            backgroundColor
+                    )
             );
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
@@ -55,7 +61,10 @@ public class PopupUtil {
             ThemeBridge bridge = EntryPointAccessors.fromApplication(context.getApplicationContext(), ThemeRuntimeEntryPoint.class).themeBridge();
             int backgroundColor = bridge.colorByAttr(context, R.attr.colorCard);
             menuPopupWindow.setBackgroundDrawable(
-                    ThemeDrawableUtils.tint(context.getDrawable(R.drawable.bg_popup), backgroundColor)
+                    ThemeDrawableUtils.tint(
+                            context.getDrawable(com.huanchengfly.tieba.core.app.ui.R.drawable.bg_popup),
+                            backgroundColor
+                    )
             );
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();

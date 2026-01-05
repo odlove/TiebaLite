@@ -15,10 +15,10 @@ import android.graphics.drawable.Drawable;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.widget.TextViewCompat;
 
-import com.huanchengfly.tieba.core.theme.R;
-import com.huanchengfly.tieba.core.theme.widgets.tint.ColorStateListUtils;
-import com.huanchengfly.tieba.core.theme.widgets.tint.Tintable;
-import com.huanchengfly.tieba.core.theme.runtime.bridge.ThemeDrawableUtils;
+import com.huanchengfly.tieba.core.ui.view.R;
+import com.huanchengfly.tieba.core.ui.view.tint.ColorStateListUtils;
+import com.huanchengfly.tieba.core.ui.view.tint.Tintable;
+import com.huanchengfly.tieba.core.ui.view.runtime.bridge.ThemeDrawableUtils;
 
 public class TintUndoableEditText extends AppCompatEditText implements Tintable {
     private static final String KEY_SUPER = "KEY_SUPER";

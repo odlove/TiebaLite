@@ -7,8 +7,8 @@ import com.huanchengfly.tieba.core.common.theme.PersistedTranslucentThemeConfig
 import com.huanchengfly.tieba.core.common.theme.ThemeChannel
 import com.huanchengfly.tieba.core.common.theme.ThemeChannelConfig
 import com.huanchengfly.tieba.core.common.theme.ThemeSettingsSnapshot
-import com.huanchengfly.tieba.core.theme.model.ThemeTokens
-import com.huanchengfly.tieba.core.theme.data.ThemeRepository
+import com.huanchengfly.tieba.core.common.theme.ThemeTokens
+import com.huanchengfly.tieba.core.common.theme.ThemeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted

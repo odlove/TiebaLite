@@ -55,7 +55,7 @@ import androidx.compose.ui.util.fastForEach
 import com.huanchengfly.tieba.core.common.utils.DateTimeUtils
 import com.huanchengfly.tieba.core.ui.compose.base.MyLazyColumn
 import com.huanchengfly.tieba.core.ui.text.EmoticonText
-import com.huanchengfly.tieba.core.theme.compose.CardSurface
+import com.huanchengfly.tieba.core.ui.compose.widgets.CardSurface
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.searchBoxBackgroundColor
 import com.huanchengfly.tieba.core.theme.compose.searchBoxContentColor

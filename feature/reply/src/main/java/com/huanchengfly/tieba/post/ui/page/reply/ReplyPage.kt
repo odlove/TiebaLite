@@ -98,8 +98,8 @@ import com.huanchengfly.tieba.post.toMD5
 import com.huanchengfly.tieba.post.toastShort
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.menuBackground
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeModalBottomSheetLayout
-import com.huanchengfly.tieba.core.theme.compose.scenes.rememberDefaultBottomSheetState
+import com.huanchengfly.tieba.core.ui.compose.widgets.dialogs.ThemeModalBottomSheetLayout
+import com.huanchengfly.tieba.core.ui.compose.widgets.dialogs.rememberDefaultBottomSheetState
 import com.huanchengfly.tieba.post.ui.page.reply.destinations.ReplyPageDestination
 import com.huanchengfly.tieba.post.ui.page.reply.ReplyPanelType.EMOJI
 import com.huanchengfly.tieba.post.ui.page.reply.ReplyPanelType.IMAGE

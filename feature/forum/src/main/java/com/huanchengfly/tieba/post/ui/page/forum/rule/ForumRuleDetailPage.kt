@@ -33,7 +33,7 @@ import com.huanchengfly.tieba.core.ui.compose.base.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
 import com.huanchengfly.tieba.core.ui.compose.widgets.Sizes
 import com.huanchengfly.tieba.core.ui.text.StringFormatUtils
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.ui.compose.widgets.UserHeader
 import com.huanchengfly.tieba.core.ui.compose.widgets.states.StateScreen
 import com.huanchengfly.tieba.post.preferences.appPreferences

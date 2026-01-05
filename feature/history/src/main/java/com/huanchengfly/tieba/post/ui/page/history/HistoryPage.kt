@@ -38,10 +38,10 @@ import com.huanchengfly.tieba.post.ui.page.history.list.HistoryListUiEvent
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
 import com.huanchengfly.tieba.core.ui.compose.base.SnackbarScaffold
 import com.huanchengfly.tieba.core.ui.compose.base.rememberSnackbarState
-import com.huanchengfly.tieba.core.theme.compose.PagerTabIndicator
-import com.huanchengfly.tieba.core.theme.compose.TabRow
+import com.huanchengfly.tieba.core.ui.compose.widgets.PagerTabIndicator
+import com.huanchengfly.tieba.core.ui.compose.widgets.TabRow
 import com.huanchengfly.tieba.core.ui.navigation.LocalHomeNavigation
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.huanchengfly.tieba.core.common.history.HistoryRepository
 import com.huanchengfly.tieba.post.di.entrypoints.HistoryRepositoryEntryPoint
 import com.huanchengfly.tieba.post.repository.ThreadPageFrom

@@ -3,7 +3,7 @@ package com.huanchengfly.tieba.core.theme.runtime.entrypoints
 import com.huanchengfly.tieba.core.theme.runtime.controller.ThemeController
 import com.huanchengfly.tieba.core.theme.runtime.bridge.ThemeBridge
 import com.huanchengfly.tieba.core.theme.runtime.bridge.TranslucentBackgroundStore
-import com.huanchengfly.tieba.core.theme.data.ThemeRepository
+import com.huanchengfly.tieba.core.common.theme.ThemeRepository
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent

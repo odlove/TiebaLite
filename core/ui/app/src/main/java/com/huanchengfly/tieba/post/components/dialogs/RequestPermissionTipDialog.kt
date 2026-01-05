@@ -8,13 +8,13 @@ import android.view.WindowManager
 import android.widget.TextView
 import androidx.core.view.setPadding
 import com.huanchengfly.tieba.core.ui.R
-import com.huanchengfly.tieba.core.theme.R as ThemeR
+import com.huanchengfly.tieba.core.app.ui.R as AppUiR
 import com.huanchengfly.tieba.core.ui.device.dpToPx
 import com.huanchengfly.tieba.post.utils.PermissionUtils
 
 
 class RequestPermissionTipDialog(context: Context, permission: PermissionUtils.PermissionData) :
-    AlertDialog(context, ThemeR.style.Dialog_RequestPermissionTip) {
+    AlertDialog(context, AppUiR.style.Dialog_RequestPermissionTip) {
     val title: TextView
     val message: TextView
 

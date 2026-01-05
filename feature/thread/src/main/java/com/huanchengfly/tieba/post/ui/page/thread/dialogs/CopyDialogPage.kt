@@ -32,7 +32,7 @@ import com.huanchengfly.tieba.core.theme.compose.dialogContentColor
 import com.huanchengfly.tieba.core.theme.compose.dialogPrimaryButtonColors
 import com.huanchengfly.tieba.core.theme.compose.dialogSecondaryButtonColors
 import com.huanchengfly.tieba.core.theme.compose.menuBackground
-import com.huanchengfly.tieba.core.theme.compose.scenes.ThemeTopAppBar
+import com.huanchengfly.tieba.core.ui.compose.widgets.ThemeTopAppBar
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle

@@ -11,7 +11,7 @@ import com.huanchengfly.tieba.core.theme.runtime.controller.ThemeController
 import com.huanchengfly.tieba.core.theme.model.ThemePalette
 import com.huanchengfly.tieba.core.theme.model.ThemeSpec
 import com.huanchengfly.tieba.core.theme.model.ThemeState
-import com.huanchengfly.tieba.core.theme.model.ThemeTokens
+import com.huanchengfly.tieba.core.common.theme.ThemeTokens
 import com.huanchengfly.tieba.core.theme.model.ThemeType
 import com.huanchengfly.tieba.core.theme.model.TranslucentThemeConfig
 import com.huanchengfly.tieba.core.theme.compose.ProvideThemeController

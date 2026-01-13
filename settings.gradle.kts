@@ -38,11 +38,13 @@ rootProject.name = "TiebaLite"
 include(":app")
 include(
     ":core:common",
+    ":core:theme",
     ":core:ui:app",
     ":core:mvi",
     ":core:network",
     ":core:runtime",
     ":core:ui:theme",
+    ":core:ui:theme2",
     ":core:ui:foundation",
     ":core:ui:device",
     ":core:ui:view",

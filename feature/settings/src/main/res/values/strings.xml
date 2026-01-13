@@ -39,6 +39,12 @@
     <string name="summary_settings_custom">个性你的 UI 界面</string>
     <string name="summary_settings_habit">万般功能不如自己顺手</string>
     <string name="summary_settings_more">其他杂项</string>
+    <string name="title_theme2_settings">主题（新）</string>
+    <string name="title_theme2_follow_system">跟随系统夜间</string>
+    <string name="title_theme2_manual_channel">手动通道</string>
+    <string name="label_theme2_channel_day">日间</string>
+    <string name="label_theme2_channel_night">夜间</string>
+    <string name="title_theme2_surface_primary">背景色</string>
     <string name="summary_settings_oksign">一键签到功能设定</string>
     <string name="summary_settings_status_bar_darker">开启后非白色主题状态栏将略微变暗</string>
     <string name="summary_use_photo_picker">将使用原生的照片选择器</string>

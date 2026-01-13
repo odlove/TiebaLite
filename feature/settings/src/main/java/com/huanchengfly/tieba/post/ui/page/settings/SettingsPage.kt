@@ -33,6 +33,7 @@ import com.huanchengfly.tieba.post.ui.page.settings.destinations.CustomSettingsP
 import com.huanchengfly.tieba.post.ui.page.settings.destinations.HabitSettingsPageDestination
 import com.huanchengfly.tieba.post.ui.page.settings.destinations.MoreSettingsPageDestination
 import com.huanchengfly.tieba.post.ui.page.settings.destinations.OKSignSettingsPageDestination
+import com.huanchengfly.tieba.post.ui.page.settings.destinations.Theme2SettingsPageDestination
 import com.huanchengfly.tieba.core.ui.compose.widgets.Avatar
 import com.huanchengfly.tieba.core.ui.compose.widgets.AvatarIcon
 import com.huanchengfly.tieba.post.ui.common.DefaultBackIcon
@@ -171,6 +172,21 @@ fun SettingsPage(
                         },
                         title = { Text(text = stringResource(id = R.string.title_settings_custom)) },
                         subtitle = { Text(text = stringResource(id = R.string.summary_settings_custom)) }
+                    )
+                }
+                prefsItem {
+                    SettingsItem(
+                        onClick = { navigator.navigate(Theme2SettingsPageDestination) },
+                        leadingContent = {
+                            LeadingIcon {
+                                AvatarIcon(
+                                    icon = ImageVector.vectorResource(id = R.drawable.ic_brush_black_24dp),
+                                    size = Sizes.Small,
+                                    contentDescription = null,
+                                )
+                            }
+                        },
+                        title = { Text(text = stringResource(id = R.string.title_theme2_settings)) }
                     )
                 }
                 prefsItem {

@@ -29,6 +29,7 @@ import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.ProvideThemeController
 import com.huanchengfly.tieba.core.theme.compose.TiebaLiteTheme
 import com.huanchengfly.tieba.core.theme.compose.THEME_DIAGNOSTICS_TAG
+import com.huanchengfly.tieba.core.theme2.compose.ProvideTheme2Runtime
 import com.huanchengfly.tieba.core.ui.preferences.LocalPreferencesDataStore
 import com.huanchengfly.tieba.post.utils.AccountUtil.LocalAccountProvider
 import com.huanchengfly.tieba.post.dataStore
@@ -87,48 +88,50 @@ abstract class BaseComposeActivity : BaseActivity(), CommonUiEventHandler {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             ProvideThemeController {
-                TiebaLiteTheme {
-                    val recomposeCounter = remember { AtomicInteger(0) }
-                    SideEffect {
-                        val count = recomposeCounter.incrementAndGet()
-                        Log.i(
-                            THEME_DIAGNOSTICS_TAG,
-                            "BaseComposeActivity root recomposed count=$count activity=${this::class.java.simpleName}"
-                        )
-                    }
-                    DisposableEffect(Unit) {
-                        Log.i(
-                            THEME_DIAGNOSTICS_TAG,
-                            "BaseComposeActivity composition entered activity=${this::class.java.simpleName}"
-                        )
-                        onDispose {
+                ProvideTheme2Runtime {
+                    TiebaLiteTheme {
+                        val recomposeCounter = remember { AtomicInteger(0) }
+                        SideEffect {
+                            val count = recomposeCounter.incrementAndGet()
                             Log.i(
                                 THEME_DIAGNOSTICS_TAG,
-                                "BaseComposeActivity composition disposed activity=${this::class.java.simpleName}"
+                                "BaseComposeActivity root recomposed count=$count activity=${this::class.java.simpleName}"
                             )
                         }
-                    }
+                        DisposableEffect(Unit) {
+                            Log.i(
+                                THEME_DIAGNOSTICS_TAG,
+                                "BaseComposeActivity composition entered activity=${this::class.java.simpleName}"
+                            )
+                            onDispose {
+                                Log.i(
+                                    THEME_DIAGNOSTICS_TAG,
+                                    "BaseComposeActivity composition disposed activity=${this::class.java.simpleName}"
+                                )
+                            }
+                        }
 
-                    val systemUIBarsTweaker = rememberSystemUIBarsTweaker()
-                    val extendedColors = ExtendedTheme.colors
-                    ApplySystemBars(
-                        systemUIBarsTweaker = systemUIBarsTweaker,
-                        statusBarColor = extendedColors.topBar,
-                        navigationBarColor = extendedColors.bottomBar
-                    )
+                        val systemUIBarsTweaker = rememberSystemUIBarsTweaker()
+                        val extendedColors = ExtendedTheme.colors
+                        ApplySystemBars(
+                            systemUIBarsTweaker = systemUIBarsTweaker,
+                            statusBarColor = extendedColors.topBar,
+                            navigationBarColor = extendedColors.bottomBar
+                        )
 
-                    LaunchedEffect(key1 = "onCreateContent") {
-                        onCreateContent(systemUIBarsTweaker)
-                    }
+                        LaunchedEffect(key1 = "onCreateContent") {
+                            onCreateContent(systemUIBarsTweaker)
+                        }
 
-                    LocalAccountProvider {
-                        val context = LocalContext.current
-                        CompositionLocalProvider(
-                            LocalWindowSizeClass provides calculateWindowSizeClass(activity = this),
-                            LocalGlobalEventBus provides globalEventBus,
-                            LocalPreferencesDataStore provides context.dataStore
-                        ) {
-                            Content()
+                        LocalAccountProvider {
+                            val context = LocalContext.current
+                            CompositionLocalProvider(
+                                LocalWindowSizeClass provides calculateWindowSizeClass(activity = this),
+                                LocalGlobalEventBus provides globalEventBus,
+                                LocalPreferencesDataStore provides context.dataStore
+                            ) {
+                                Content()
+                            }
                         }
                     }
                 }

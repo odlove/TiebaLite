@@ -27,7 +27,7 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
-        buildConfig = false
+        buildConfig = true
     }
 }
 
@@ -36,6 +36,7 @@ dependencies {
     implementation(project(":core:mvi"))
     implementation(project(":core:network"))
     implementation(project(":core:runtime"))
+    implementation(project(":core:theme"))
     implementation(project(":core:ui:theme"))
     implementation(project(":core:ui:foundation"))
     implementation(project(":core:ui:device"))

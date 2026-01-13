@@ -17,8 +17,8 @@ import com.huanchengfly.tieba.core.ui.hiltViewModel
 import com.huanchengfly.tieba.core.ui.locals.LocalDevicePosture
 import com.huanchengfly.tieba.core.ui.locals.LocalNotificationCountFlow
 import com.huanchengfly.tieba.core.ui.navigation.ProvideNavigator
-import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
 import com.huanchengfly.tieba.core.theme.compose.THEME_DIAGNOSTICS_TAG
+import com.huanchengfly.tieba.core.theme2.compose.Theme2Theme
 import com.huanchengfly.tieba.core.ui.device.LocalWindowSizeClass
 import com.huanchengfly.tieba.post.ui.page.main.navigation.items.rememberMainNavigationItems
 import com.huanchengfly.tieba.post.ui.page.main.navigation.scaffold.MainPageScaffold
@@ -70,7 +70,7 @@ fun MainPageContent(
     val pagerState = rememberPagerState(initialPage = 1) { 4 }
 
     val coroutineScope = rememberCoroutineScope()
-    val themeColors = ExtendedTheme.colors
+    val theme2Colors = Theme2Theme.colors
 
     // Tab 行为回调
     val onOpenExplore = remember(coroutineScope, pagerState) {
@@ -127,7 +127,7 @@ fun MainPageContent(
             pagerState = pagerState,
             onChangePosition = onChangePosition,
             onReselected = onReselected,
-            backgroundColor = themeColors.background
+            backgroundColor = theme2Colors.surfacePrimary
         )
     }
 }

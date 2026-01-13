@@ -34,6 +34,7 @@ dependencies {
     implementation(project(":core:mvi"))
     implementation(project(":core:common"))
     implementation(project(":core:ui:theme"))
+    implementation(project(":core:ui:theme2"))
     implementation(project(":core:ui:foundation"))
     implementation(project(":core:ui:device"))
     implementation(project(":core:ui:compose-base"))

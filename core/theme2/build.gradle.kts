@@ -30,11 +30,14 @@ android {
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.androidx.annotation)
+    implementation(libs.androidx.core)
     implementation(libs.google.material)
     implementation(project(":core:runtime"))
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+
+    implementation("com.materialkolor:material-color-utilities:4.0.2")
 
     testImplementation(libs.junit.junit)
     testImplementation(kotlin("test"))

@@ -15,33 +15,52 @@ wire = { id = "com.squareup.wire", version.ref = "wire" }
 dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version = "1.29.0" }
 protobuf = { id = "com.google.protobuf", version = "0.9.4" }
 ##                                            ⬆ = "0.9.5" }
+##                                            ⬆ = "0.9.6" }
 
 [versions]
 
 accompanist = "0.37.3"
 appcenter = "5.0.6"
 hilt = "2.57.2"
+##⬆ = "2.58"
+##⬆ = "2.59"
 kotlin = "2.2.20"
 ##  ⬆ = "2.2.21"
+##  ⬆ = "2.3.0"
 sketch = "3.3.2"
 wire = "5.4.0"
+##⬆ = "5.5.0"
 
 agp = "8.13.0"
+##⬆= "8.13.1"
+##⬆= "8.13.2"
+##⬆= "9.0.0"
 ksp = "2.2.20-2.0.4"
 ##⬆= "2.2.21-2.0.4"
 ##⬆= "2.3.0"
 ##⬆= "2.3.1"
 ##⬆= "2.3.2"
+##⬆= "2.3.3"
+##⬆= "2.3.4"
 
 androidx-activity = "1.11.0"
+##             ⬆ = "1.12.0"
+##             ⬆ = "1.12.1"
+##             ⬆ = "1.12.2"
 androidx-lifecycle = "2.9.4"
+##              ⬆ = "2.10.0"
 androidx-media3 = "1.8.0"
+##           ⬆ = "1.9.0"
 androidx-core = "1.17.0"
 androidx-recyclerview = "1.4.0"
 
 compose-bom = "2025.10.00"
 ##       ⬆ = "2025.10.01"
 ##       ⬆ = "2025.11.00"
+##       ⬆ = "2025.11.01"
+##       ⬆ = "2025.12.00"
+##       ⬆ = "2025.12.01"
+##       ⬆ = "2026.01.00"
 compose-destinations = "1.11.9"
 androidx-navigation-compose = "2.9.5"
 ##                       ⬆ = "2.9.6"
@@ -51,11 +70,16 @@ airbnb-lottie = "6.6.10"
 ##         ⬆ = "6.7.1"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization-json = "1.9.0"
+##                      ⬆ = "1.10.0"
 kotlinx-collections-immutable = "0.4.0"
 
 glide = "5.0.5"
 okhttp3 = "5.2.1"
+##   ⬆ = "5.2.2"
+##   ⬆ = "5.2.3"
 ##   ⬆ = "5.3.0"
+##   ⬆ = "5.3.1"
+##   ⬆ = "5.3.2"
 retrofit2 = "3.0.0"
 
 [libraries]
@@ -76,6 +100,9 @@ compose-material-icons-core = { group = "androidx.compose.material", name = "mat
 compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 compose-runtime-tracing = { group = "androidx.compose.runtime", name = "runtime-tracing", version = "1.9.3" }
 ##                                                                                             ⬆ = "1.9.4" }
+##                                                                                             ⬆ = "1.9.5" }
+##                                                                                             ⬆ = "1.10.0" }
+##                                                                                             ⬆ = "1.10.1" }
 compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 
@@ -124,6 +151,7 @@ accompanist-drawablepainter = { group = "com.google.accompanist", name = "accomp
 # Accompanist Replacements
 eygraber-placeholder-material = { group = "com.eygraber", name = "compose-placeholder-material", version = "1.0.12" }
 systemuibars-tweaker = { group = "com.github.stoyan-vuchev", name = "system-ui-bars-tweaker", version = "1.2.4" }
+##                                                                                                 ⬆ = "1.3.0" }
 
 # Sketch
 sketch-core = { group = "io.github.panpf.sketch3", name = "sketch", version.ref = "sketch" }
@@ -142,6 +170,9 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 # OAID
 github-oaid = { group = "com.github.gzu-liyujiang", name = "Android_CN_OAID", version = "4.2.12" }
 ##                                                                                 ⬆ = "4.2.13" }
+##                                                                                 ⬆ = "4.2.14" }
+##                                                                                 ⬆ = "4.2.15" }
+##                                                                                 ⬆ = "4.2.16" }
 
 # JetBrains
 org-jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version = "26.0.2-1" }
@@ -168,7 +199,9 @@ androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview"
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version = "1.2.0-rc01" }
 ##                                                                                       ⬆ = "1.2.0" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version = "1.1.7" }
+##                                                                                                    ⬆ = "1.2.0" }
 androidx-datastore-core = { group = "androidx.datastore", name = "datastore", version = "1.1.7" }
+##                                                                                 ⬆ = "1.2.0" }
 protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version = "4.28.3" }
 ##                                                                                          ⬆ = "4.29.0" }
 ##                                                                                          ⬆ = "4.29.1" }
@@ -184,11 +217,17 @@ protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-
 ##                                                                                          ⬆ = "4.32.0" }
 ##                                                                                          ⬆ = "4.32.1" }
 ##                                                                                          ⬆ = "4.33.0" }
+##                                                                                          ⬆ = "4.33.1" }
+##                                                                                          ⬆ = "4.33.2" }
+##                                                                                          ⬆ = "4.33.3" }
+##                                                                                          ⬆ = "4.33.4" }
 androidx-gridlayout = { group = "androidx.gridlayout", name = "gridlayout", version = "1.1.0" }
 androidx-palette = { group = "androidx.palette", name = "palette-ktx", version = "1.0.0" }
 androidx-window = { group = "androidx.window", name = "window", version = "1.5.0" }
+##                                                                   ⬆ = "1.5.1" }
 androidx-startup-runtime = { group = "androidx.startup", name = "startup-runtime", version = "1.2.0" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version = "1.1.0" }
+##                                                                                                       ⬆ = "1.2.0" }
 
 # Test
 junit-junit = { group = "junit", name = "junit", version = "4.13.2" }
@@ -203,6 +242,7 @@ mockk = { group = "io.mockk", name = "mockk", version = "1.13.13" }
 ##                                                 ⬆ = "1.14.4" }
 ##                                                 ⬆ = "1.14.5" }
 ##                                                 ⬆ = "1.14.6" }
+##                                                 ⬆ = "1.14.7" }
 turbine = { group = "app.cash.turbine", name = "turbine", version = "1.2.0" }
 ##                                                             ⬆ = "1.2.1" }
 androidx-test-core = { group = "androidx.test", name = "core", version = "1.7.0" }
@@ -238,6 +278,8 @@ github-matisse = { group = "com.github.lwj1994", name = "Matisse", version = "0.
 
 # XXPermissions
 xx-permissions = { group = "com.github.getActivity", name = "XXPermissions", version = "26.5" }
+##                                                                                ⬆ = "26.8" }
+##                                                                                ⬆ = "28.0" }
 
 # ImmersionBar
 com-gyf-immersionbar-immersionbar = { group = "com.gyf.immersionbar", name = "immersionbar", version = "3.0.0" }

@@ -36,7 +36,7 @@ dependencies {
     implementation(project(":core:mvi"))
     implementation(project(":core:network"))
     implementation(project(":core:runtime"))
-    implementation(project(":core:theme"))
+    implementation(project(":core:theme2"))
     implementation(project(":core:ui:theme"))
     implementation(project(":core:ui:foundation"))
     implementation(project(":core:ui:device"))

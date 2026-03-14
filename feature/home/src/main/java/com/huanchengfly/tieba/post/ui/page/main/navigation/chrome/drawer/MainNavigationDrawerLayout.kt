@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.page.main.navigation.chrome
+package com.huanchengfly.tieba.post.ui.page.main.navigation.chrome.drawer
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

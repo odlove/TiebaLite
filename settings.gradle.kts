@@ -38,7 +38,7 @@ rootProject.name = "TiebaLite"
 include(":app")
 include(
     ":core:common",
-    ":core:theme",
+    ":core:theme2",
     ":core:ui:app",
     ":core:mvi",
     ":core:network",

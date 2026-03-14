@@ -1,8 +1,6 @@
 package com.huanchengfly.tieba.post.ui.page.main.navigation.type
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import com.huanchengfly.tieba.core.ui.device.DevicePosture
 import com.huanchengfly.tieba.core.ui.device.MainNavigationContentPosition
@@ -15,32 +13,21 @@ internal fun rememberMainNavigationType(
     windowWidthSizeClass: WindowWidthSizeClass,
     foldingDevicePosture: DevicePosture,
 ): MainNavigationType {
-    val navigationType by remember(windowWidthSizeClass, foldingDevicePosture) {
-        derivedStateOf {
-            when (windowWidthSizeClass) {
-                WindowWidthSizeClass.Compact -> {
-                    MainNavigationType.BOTTOM_NAVIGATION
-                }
-
-                WindowWidthSizeClass.Medium -> {
+    val isBookPosture = foldingDevicePosture is DevicePosture.BookPosture
+    return remember(windowWidthSizeClass, isBookPosture) {
+        when (windowWidthSizeClass) {
+            WindowWidthSizeClass.Compact -> MainNavigationType.BOTTOM_NAVIGATION
+            WindowWidthSizeClass.Medium -> MainNavigationType.NAVIGATION_RAIL
+            WindowWidthSizeClass.Expanded -> {
+                if (isBookPosture) {
                     MainNavigationType.NAVIGATION_RAIL
-                }
-
-                WindowWidthSizeClass.Expanded -> {
-                    if (foldingDevicePosture is DevicePosture.BookPosture) {
-                        MainNavigationType.NAVIGATION_RAIL
-                    } else {
-                        MainNavigationType.PERMANENT_NAVIGATION_DRAWER
-                    }
-                }
-
-                else -> {
-                    MainNavigationType.BOTTOM_NAVIGATION
+                } else {
+                    MainNavigationType.PERMANENT_NAVIGATION_DRAWER
                 }
             }
+            else -> MainNavigationType.BOTTOM_NAVIGATION
         }
     }
-    return navigationType
 }
 
 /**
@@ -50,24 +37,12 @@ internal fun rememberMainNavigationType(
 @Composable
 internal fun rememberMainNavigationContentPosition(
     windowHeightSizeClass: WindowHeightSizeClass,
-): MainNavigationContentPosition {
-    val navigationContentPosition by remember(windowHeightSizeClass) {
-        derivedStateOf {
-            when (windowHeightSizeClass) {
-                WindowHeightSizeClass.Compact -> {
-                    MainNavigationContentPosition.TOP
-                }
-
-                WindowHeightSizeClass.Medium,
-                WindowHeightSizeClass.Expanded -> {
-                    MainNavigationContentPosition.CENTER
-                }
-
-                else -> {
-                    MainNavigationContentPosition.TOP
-                }
-            }
+): MainNavigationContentPosition =
+    remember(windowHeightSizeClass) {
+        when (windowHeightSizeClass) {
+            WindowHeightSizeClass.Compact -> MainNavigationContentPosition.TOP
+            WindowHeightSizeClass.Medium,
+            WindowHeightSizeClass.Expanded -> MainNavigationContentPosition.CENTER
+            else -> MainNavigationContentPosition.TOP
         }
     }
-    return navigationContentPosition
-}

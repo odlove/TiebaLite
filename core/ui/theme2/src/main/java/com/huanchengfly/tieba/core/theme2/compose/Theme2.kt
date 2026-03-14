@@ -8,26 +8,46 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import com.huanchengfly.tieba.core.theme2.model.ThemeSemanticColors
+import com.huanchengfly.tieba.core.theme2.semantic.ThemeSemanticCatalog
 import com.huanchengfly.tieba.core.theme2.model.ThemeSnapshot
 import com.huanchengfly.tieba.core.theme2.runtime.entrypoints.Theme2RuntimeEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 
 @Stable
 data class Theme2Colors(
-    val surfacePrimary: Color = Color.Unspecified
+    val surfacePrimary: Color = Color.Unspecified,
+    val surfaceNav: Color = Color.Unspecified,
+    val stateActive: Color = Color.Unspecified,
+    val stateUnselected: Color = Color.Unspecified,
+    val contentOnBrand: Color = Color.Unspecified,
+    val outlineLow: Color = Color.Unspecified
 )
 
 val LocalTheme2Snapshot = staticCompositionLocalOf {
-    ThemeSnapshot(ThemeSemanticColors(surfacePrimary = 0xFFFFFFFF.toInt()))
+    ThemeSnapshot(ThemeSemanticCatalog.light())
 }
 
 val LocalTheme2Colors = staticCompositionLocalOf {
-    Theme2Colors(surfacePrimary = Color.White)
+    val semantic = ThemeSemanticCatalog.light()
+    Theme2Colors(
+        surfacePrimary = Color(semantic.surfacePrimary),
+        surfaceNav = Color(semantic.surfaceNav),
+        stateActive = Color(semantic.stateActive),
+        stateUnselected = Color(semantic.stateUnselected),
+        contentOnBrand = Color(semantic.contentOnBrand),
+        outlineLow = Color(semantic.outlineLow)
+    )
 }
 
 private fun ThemeSnapshot.toTheme2Colors(): Theme2Colors =
-    Theme2Colors(surfacePrimary = Color(semantic.surfacePrimary))
+    Theme2Colors(
+        surfacePrimary = Color(semantic.surfacePrimary),
+        surfaceNav = Color(semantic.surfaceNav),
+        stateActive = Color(semantic.stateActive),
+        stateUnselected = Color(semantic.stateUnselected),
+        contentOnBrand = Color(semantic.contentOnBrand),
+        outlineLow = Color(semantic.outlineLow)
+    )
 
 @Composable
 fun ProvideTheme2Runtime(content: @Composable () -> Unit) {

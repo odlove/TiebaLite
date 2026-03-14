@@ -4,10 +4,11 @@ import com.huanchengfly.tieba.core.theme2.model.ThemeChannel
 import com.huanchengfly.tieba.core.theme2.model.ThemeMode
 import com.huanchengfly.tieba.core.theme2.model.ThemeProfile
 import com.huanchengfly.tieba.core.theme2.model.ThemeSettings
+import com.huanchengfly.tieba.core.theme2.semantic.ThemeSemanticCatalog
 
 object ThemeDefaults {
-    private const val DEFAULT_DAY_THEME = "tieba"
-    private const val DEFAULT_NIGHT_THEME = "amoled_dark"
+    private const val DEFAULT_DAY_THEME = ThemeSemanticCatalog.THEME_TIEBA
+    private const val DEFAULT_NIGHT_THEME = ThemeSemanticCatalog.THEME_DARK_BLACK
 
     val defaultProfile: ThemeProfile = ThemeProfile(
         day = ThemeSettings(mode = ThemeMode.STATIC, themeKey = DEFAULT_DAY_THEME),

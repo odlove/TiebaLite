@@ -30,7 +30,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:theme"))
+    implementation(project(":core:theme2"))
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)

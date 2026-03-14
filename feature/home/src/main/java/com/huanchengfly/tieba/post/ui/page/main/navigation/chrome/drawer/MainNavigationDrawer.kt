@@ -1,11 +1,11 @@
-package com.huanchengfly.tieba.post.ui.page.main.navigation.chrome
+package com.huanchengfly.tieba.post.ui.page.main.navigation.chrome.drawer
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.huanchengfly.tieba.core.ui.navigation.compose.ThemeDrawerSheet
+import com.huanchengfly.tieba.post.ui.page.main.navigation.compose.ThemeDrawerSheet
 
 @Composable
 fun PermanentNavigationDrawer(

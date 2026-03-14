@@ -6,6 +6,7 @@ import com.huanchengfly.tieba.core.theme2.model.ThemeProfile
 import com.huanchengfly.tieba.core.theme2.model.ThemeSemanticColors
 import com.huanchengfly.tieba.core.theme2.model.ThemeSettings
 import com.huanchengfly.tieba.core.theme2.model.ThemeSnapshot
+import com.huanchengfly.tieba.core.theme2.semantic.ThemeSemanticCatalog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,11 +21,12 @@ object DefaultThemeSemanticResolver : ThemeSemanticResolver {
         channel: ThemeChannel,
         systemNight: Boolean
     ): ThemeSemanticColors {
+        val base = ThemeSemanticCatalog.resolve(settings.themeKey, channel)
         val surfacePrimary = when (settings.mode) {
             ThemeMode.TRANSLUCENT -> 0x00000000
-            else -> if (channel == ThemeChannel.NIGHT) 0xFF000000.toInt() else 0xFFFFFFFF.toInt()
+            else -> base.surfacePrimary
         }
-        return ThemeSemanticColors(surfacePrimary = surfacePrimary)
+        return base.copy(surfacePrimary = surfacePrimary)
     }
 }
 

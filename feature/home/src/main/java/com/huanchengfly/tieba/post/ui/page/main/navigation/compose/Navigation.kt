@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.core.ui.navigation.compose
+package com.huanchengfly.tieba.post.ui.page.main.navigation.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.NavigationRail
 import androidx.compose.material.NavigationRailItem
@@ -28,10 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.huanchengfly.tieba.core.theme.compose.ExtendedColors
-import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.theme.compose.navigationSelectedColor
-import com.huanchengfly.tieba.core.theme.compose.navigationUnselectedColor
+import com.huanchengfly.tieba.core.theme2.compose.Theme2Theme
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
@@ -50,32 +46,70 @@ data class NavigationColors(
     val unselectedContent: Color,
     val badgeBackground: Color,
     val indicatorColor: Color,
-    )
+)
 
 @Composable
-fun defaultNavigationColors(themeColors: ExtendedColors = ExtendedTheme.colors): NavigationColors =
+fun defaultNavigationColors(): NavigationColors =
     NavigationColors(
-        background = themeColors.bottomBar,
-        selectedContent = navigationSelectedColor(),
-        unselectedContent = navigationUnselectedColor(),
-        badgeBackground = navigationSelectedColor(),
-        indicatorColor = themeColors.indicator
+        background = Theme2Theme.colors.surfaceNav,
+        selectedContent = Theme2Theme.colors.stateActive,
+        unselectedContent = Theme2Theme.colors.stateUnselected,
+        badgeBackground = Theme2Theme.colors.stateActive,
+        indicatorColor = Theme2Theme.colors.outlineLow
     )
 
 @Composable
-private fun navigationSurfaceColor(themeColors: ExtendedColors = ExtendedTheme.colors): Color =
-    themeColors.bottomBar
+private fun NavigationIcon(
+    painter: Painter,
+    selected: Boolean,
+    badgeText: String?,
+    badgeColor: Color,
+    iconSize: Dp = 24.dp,
+    contentDescription: String? = null
+) {
+    Box {
+        Icon(
+            painter = painter,
+            contentDescription = contentDescription,
+            modifier = Modifier.size(iconSize),
+        )
+        if (!badgeText.isNullOrEmpty()) {
+            androidx.compose.material.Text(
+                textAlign = TextAlign.Center,
+                fontSize = 10.sp,
+                color = Theme2Theme.colors.contentOnBrand,
+                text = badgeText,
+                modifier = Modifier
+                    .size(14.dp)
+                    .clip(CircleShape)
+                    .align(Alignment.TopEnd)
+                    .background(
+                        color = badgeColor,
+                        shape = CircleShape
+                    ),
+            )
+        }
+    }
+}
 
 @Composable
-private fun navigationContentColor(isSelected: Boolean, themeColors: ExtendedColors = ExtendedTheme.colors): Color =
-    if (isSelected) navigationSelectedColor() else navigationUnselectedColor()
+private fun BottomNavDivider() {
+    val dividerColor = Theme2Theme.colors.outlineLow
+    if (dividerColor.alpha > 0f) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.5.dp)
+                .background(dividerColor)
+        )
+    }
+}
 
 @Composable
 fun ThemeNavigationBar(
     items: ImmutableList<NavigationItemModel>,
     selectedIndex: Int,
-    onItemSelected: (Int) -> Unit,
-    onItemReselected: (Int) -> Unit = {},
+    onItemClick: (index: Int, isReselected: Boolean) -> Unit,
     modifier: Modifier = Modifier,
     colors: NavigationColors = defaultNavigationColors(),
     elevation: Dp = 0.dp,
@@ -93,7 +127,7 @@ fun ThemeNavigationBar(
                 BottomNavigationItem(
                     selected = selected,
                     onClick = {
-                        if (selected) onItemReselected(index) else onItemSelected(index)
+                        onItemClick(index, selected)
                         item.onClick?.invoke()
                     },
                     icon = {
@@ -101,7 +135,8 @@ fun ThemeNavigationBar(
                             painter = item.iconPainter(selected),
                             selected = selected,
                             badgeText = item.badgeText,
-                            badgeColor = colors.badgeBackground
+                            badgeColor = colors.badgeBackground,
+                            contentDescription = item.title
                         )
                     },
                     selectedContentColor = colors.selectedContent,
@@ -117,8 +152,7 @@ fun ThemeNavigationBar(
 fun ThemeNavigationRail(
     items: ImmutableList<NavigationItemModel>,
     selectedIndex: Int,
-    onItemSelected: (Int) -> Unit,
-    onItemReselected: (Int) -> Unit = {},
+    onItemClick: (index: Int, isReselected: Boolean) -> Unit,
     modifier: Modifier = Modifier,
     colors: NavigationColors = defaultNavigationColors(),
     elevation: Dp = 0.dp,
@@ -141,7 +175,7 @@ fun ThemeNavigationRail(
                 NavigationRailItem(
                     selected = selected,
                     onClick = {
-                        if (selected) onItemReselected(index) else onItemSelected(index)
+                        onItemClick(index, selected)
                         item.onClick?.invoke()
                     },
                     selectedContentColor = colors.selectedContent,
@@ -152,58 +186,13 @@ fun ThemeNavigationRail(
                             selected = selected,
                             badgeText = item.badgeText,
                             badgeColor = colors.badgeBackground,
-                            iconSize = 20.dp
+                            iconSize = 20.dp,
+                            contentDescription = item.title
                         )
                     },
                     alwaysShowLabel = false
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun NavigationIcon(
-    painter: Painter,
-    selected: Boolean,
-    badgeText: String?,
-    badgeColor: Color,
-    iconSize: Dp = 24.dp
-) {
-    Box {
-        Icon(
-            painter = painter,
-            contentDescription = null,
-            modifier = Modifier.size(iconSize),
-        )
-        if (!badgeText.isNullOrEmpty()) {
-            androidx.compose.material.Text(
-                textAlign = TextAlign.Center,
-                fontSize = 10.sp,
-                color = ExtendedTheme.colors.onAccent,
-                text = badgeText,
-                modifier = Modifier
-                    .size(14.dp)
-                    .clip(CircleShape)
-                    .align(Alignment.TopEnd)
-                    .background(
-                        color = badgeColor,
-                        shape = CircleShape
-                    ),
-            )
-        }
-    }
-}
-
-@Composable
-private fun BottomNavDivider(themeColors: ExtendedColors = ExtendedTheme.colors) {
-    val dividerColor = themeColors.divider
-    if (dividerColor.alpha > 0f) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.5.dp)
-                .background(dividerColor)
-        )
     }
 }

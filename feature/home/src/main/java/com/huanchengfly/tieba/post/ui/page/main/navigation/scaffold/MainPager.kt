@@ -25,7 +25,7 @@ internal fun MainNavigationPager(
         modifier = Modifier.fillMaxSize(),
         verticalAlignment = Alignment.Top,
         userScrollEnabled = false,
-        beyondViewportPageCount = 3,
+        beyondViewportPageCount = (navigationItems.size - 1).coerceAtLeast(0),
     ) {
         navigationItems[it].content()
     }

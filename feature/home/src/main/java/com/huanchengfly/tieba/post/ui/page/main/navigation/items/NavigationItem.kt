@@ -5,7 +5,6 @@ import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 
-@Immutable
 data class NavigationItem @OptIn(ExperimentalAnimationGraphicsApi::class) constructor(
     val id: String,
     val icon: @Composable () -> AnimatedImageVector,

@@ -1,4 +1,4 @@
-package com.huanchengfly.tieba.post.ui.page.main.navigation.chrome
+package com.huanchengfly.tieba.post.ui.page.main.navigation.chrome.drawer
 
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.huanchengfly.tieba.core.theme.compose.ExtendedTheme
-import com.huanchengfly.tieba.core.ui.navigation.compose.ThemeNavigationDrawerItem
+import com.huanchengfly.tieba.post.ui.page.main.navigation.compose.ThemeNavigationDrawerItem
 import com.huanchengfly.tieba.core.ui.device.MainNavigationContentPosition
 import com.huanchengfly.tieba.core.ui.compose.widgets.AccountNavIcon
 import com.huanchengfly.tieba.core.ui.compose.widgets.AvatarIcon
@@ -44,8 +44,7 @@ import kotlinx.collections.immutable.ImmutableList
 @Composable
 fun NavigationDrawerContent(
     currentPosition: Int,
-    onChangePosition: (position: Int) -> Unit,
-    onReselected: (position: Int) -> Unit,
+    onItemClick: (index: Int, isReselected: Boolean) -> Unit,
     navigationItems: ImmutableList<NavigationItem>,
     navigationContentPosition: MainNavigationContentPosition
 ) {
@@ -113,11 +112,7 @@ fun NavigationDrawerContent(
                     ThemeNavigationDrawerItem(
                         selected = index == currentPosition,
                         onClick = {
-                            if (index == currentPosition) {
-                                onReselected(index)
-                            } else {
-                                onChangePosition(index)
-                            }
+                            onItemClick(index, index == currentPosition)
                         },
                         label = { Text(text = navigationItem.title(index == currentPosition)) },
                         icon = {

@@ -117,6 +117,14 @@ fun MainPageContent(
             Unit
         }
     }
+    val onItemClick: (Int, Boolean) -> Unit = { index, isReselected ->
+        if (isReselected) {
+            onReselected(index)
+        } else {
+            onChangePosition(index)
+        }
+        navigationItems.getOrNull(index)?.onClick?.invoke()
+    }
 
     // 渲染主页面导航与内容
     ProvideNavigator(navigator = navigator) {
@@ -125,8 +133,7 @@ fun MainPageContent(
             navigationContentPosition = navigationContentPosition,
             navigationItems = navigationItems,
             pagerState = pagerState,
-            onChangePosition = onChangePosition,
-            onReselected = onReselected,
+            onItemClick = onItemClick,
             backgroundColor = theme2Colors.surfacePrimary
         )
     }
